@@ -1,0 +1,34 @@
+- [Replit Node runtime](replit-node-runtime.md) — pnpm's bundled Node can differ from the selected Replit module; check the script runtime too.
+- [Next development origins](next-dev-origins.md) — use the exact Replit development domain; a single-subdomain wildcard may miss cluster-qualified hosts.
+- [Build guide scope](build-guide-scope.md) — BUILD_GUIDE.md is intentionally absent; the founder supplies the environment inventory directly.
+- [Next dev test locks](next-dev-test-locks.md) — pause the preview workflow before Playwright starts its own Next dev server in this repo.
+- [Next route type caches](next-route-type-caches.md) — route changes and concurrent dev startup can cause stale or transiently missing generated types.
+- [Drizzle/Postgres serialization](drizzle-postgres-serialization.md) — attaching Drizzle changes JSON serializers; raw queries on the same client need serialized JSON.
+- [Database CLI modules](database-cli-modules.md) — Vitest imports can pass while tsx commands fail; keep runner and schema module scopes compatible.
+- [Supabase connection modes](supabase-connection-modes.md) — Session for migrations/smoke checks, Transaction for app; integration tests only on disposable plain PostgreSQL 17.
+- [Validation startup budgets](validation-startup-budgets.md) — concurrent completion checks can make cold tooling initialization exceed ordinary assertion timeouts.
+- [Locale theme navigation](locale-theme-navigation.md) — locale-owned root layouts need document navigation to rerun the early theme restore script.
+- [Auth test isolation](auth-test-boundaries.md) — privileged browser fixtures must not bypass runtime auth; final policies need new versions after draft acceptance.
+- [Postgres option fallbacks](postgres-option-fallbacks.md) — empty passwords still inherit ambient credentials; IPv6 requires the driver's array-host form.
+- [PostgreSQL trigger planning](postgres-trigger-planning.md) — successful CREATE FUNCTION does not prove SQL references are valid; exercise initial writes.
+- [Browser verification origins](browser-verification-origins.md) — distinguish loopback reload failures from proxied-preview behavior; report both results.
+- [Native dialog keyboard checks](native-dialog-keyboard-checks.md) — browser-native background inertness does not guarantee immediate cyclic Tab wrapping.
+- [Structural merge conflicts](structural-merge-conflicts.md) — compare whole staged versions; unmarked code can also be damaged during structural reconciliation.
+- [WebKit browser verification](webkit-browser-verification.md) — isolate engine-specific overrides and distinguish automated WebKit results from physical iPhone Safari checks.
+- [Provider test typing](provider-test-typing.md) — required children props and positional React children can disagree; validate provider fixtures with both types and lint.
+- [ISR health verification](isr-health-verification.md) — healthy cached public pages do not establish that live database reads or private application connections work.
+- [Fallback locale isolation](fallback-locale-isolation.md) — root recovery cannot assume a surviving locale provider or use server request reads to infer language.
+- [Caller-aware copy audits](caller-aware-copy-audits.md) — imported JSON can appear as compiler source files; dictionary data is not runtime caller evidence.
+- [SEC continuation scope](sec-mapping-checkpoint.md) — Step 7 go-ahead received; local implementation only, no live imports/migrations; serial ingest, process-local limiter.
+- [DB integration bootstrap](database-integration-order.md) — fresh disposable cluster per full run; bootstrap must precede suites that apply migrations.
+- [Live screening boundary](screening-live-boundary.md) — example fixtures are not live screening authority; preview mode is not production-methodology approval.
+- [Next browser database boundary](next-browser-database-boundary.md) — compiled Next rewrites NODE_ENV; keep local browser database adapters in isolated test copies.
+- [Search performance budget](search-performance-budget.md) — founder agreed 10,000 securities and 250 ms warm-query p95, not a hosted page SLA or migration approval.
+- [Public search edge boundary](public-search-edge-boundary.md) — founder-approved edge preparation is not activation or evidence of an exact global query quota.
+- [Screening replay versions](screening-precision-versions.md) — couple precision/hash changes, scope derivation versions to their layer, and preserve historical replay and goldens.
+- [Sourced correction idempotency](sourced-correction-idempotency.md) — deduplicate effective evidence, not matching history; reversals must refresh derived values.
+- [Evidence label boundaries](evidence-label-boundaries.md) — map confirmed machine keys, but preserve distinct free-text evidence names as governed language fallbacks.
+- [Request-cache fixture isolation](request-cache-fixtures.md) — standalone RSC needs Next's async-context initialization; render deduplication is not action deduplication.
+- [Security browser budgets](security-browser-budget-isolation.md) — verify prefetch accounting through real Next; keep repeated-navigation regressions on one identity.
+- [Arabic review drafts](arabic-review-drafts.md) — the founder requires genuine Arabic proposals in review inventories; drafts never imply approval.
+- [Launch document authority](launch-document-authority.md) — Verified Al Rajhi document authorization is not methodology approval or permission to run against Supabase.

@@ -1,0 +1,123 @@
+modules = ["nodejs-22", "python-base-3.13"]
+run = "PORT=5000 pnpm dev"
+
+[nix]
+channel = "stable-25_05"
+packages = ["postgresql_17"]
+
+[agent]
+expertMode = true
+
+[[ports]]
+localPort = 3100
+externalPort = 3000
+
+[[ports]]
+localPort = 3200
+externalPort = 3001
+
+[[ports]]
+localPort = 3400
+externalPort = 3002
+exposeLocalhost = true
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[workflows]
+runButton = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=5000 pnpm dev"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow]]
+name = "engine-coverage"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm test:engine"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "typecheck"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm typecheck"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "lint"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm lint"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "logical-lint"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm lint:logical"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "unit-tests"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm test"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 180000
+
+
+[[workflows.workflow]]
+name = "Start (production)"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm build && PORT=5000 pnpm start"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[deployment]
+deploymentTarget = "cloudrun"
+build = ["sh", "-c", "pnpm install --frozen-lockfile && pnpm build"]
+run = ["pnpm", "start"]
+
+[userenv]
+
+[userenv.production]
+NODE_EXTRA_CA_CERTS = "/etc/ssl/certs/ca-certificates.crt"

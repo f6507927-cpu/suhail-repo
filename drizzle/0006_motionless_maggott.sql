@@ -1,0 +1,1 @@
+ALTER TABLE "app"."methodology_version" ADD COLUMN "analyst_test_cases" jsonb DEFAULT '[]'::jsonb NOT NULL;

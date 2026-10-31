@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "url": "synthetic:missing-tags",
+    "retrieved_at": "2026-10-16T00:00:00.000Z",
+    "is_synthetic": true,
+    "is_demo": true,
+    "trimming": "Clearly synthetic annual anchor only; all requested candidates deliberately absent."
+  },
+  "companyfacts": {
+    "cik": 9999999999,
+    "entityName": "SYNTHETIC MISSING TAGS — NOT A REAL ISSUER",
+    "facts": {
+      "us-gaap": {
+        "SyntheticAnnualAnchor": {
+          "units": {
+            "USD": [
+              {
+                "start": "2025-01-01",
+                "end": "2025-12-31",
+                "val": 1,
+                "accn": "9999999999-26-000001",
+                "fy": 2025,
+                "fp": "FY",
+                "form": "10-K",
+                "filed": "2026-02-01"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

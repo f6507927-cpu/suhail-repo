@@ -1,0 +1,184 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "MeJJZabN3qIPKszKK0xEm"
+uri = "file://generated-artifacts/foundation-handoff.html"
+type = "html"
+title = "Step 4 foundation handoff"
+description = "Complete file/dependency list, decisions, 59 actual contrast pairs, all 119 Arabic review keys and verification results. Also saved in docs/FOUNDATION_HANDOFF.md."
+logical_id = "3eee4abc-df5d-4ed7-b1e5-70d677049ed8"
+content_hash = "sha256:478486aec5afbbf7a809f56d59aabc5fff9ba60369d77643398c36c0c669a05a"
+size = 16768
+mtime_ms = 1791711802766
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/3eee4abc-df5d-4ed7-b1e5-70d677049ed8/7cc886e3-f472-435a-bd71-ef4d690da989"
+storage_version_token = "1791711834377177"
+content_type = "text/html"
+
+[[outputs]]
+id = "AXXBnRfmnwJjeWnjCrxXU"
+uri = "file://generated-artifacts/styleguide/ar-dark.png"
+type = "image"
+title = "Styleguide · Arabic · dark"
+description = "Full-page Playwright capture; attached to its test with an axe scan showing no serious or critical violations."
+logical_id = "2b6b8e8a-2e44-49c7-b591-6fd9bece3402"
+content_hash = "sha256:cb1666ef6d12665178a1ea0d378610231e63752535582409e5fc1d31b376aaf6"
+size = 726541
+mtime_ms = 1791711717468
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/2b6b8e8a-2e44-49c7-b591-6fd9bece3402/ec179b5b-c3cc-4f90-b6ad-7ebdbf29c5a9"
+storage_version_token = "1791711835618447"
+content_type = "image/png"
+
+[[outputs]]
+id = "kkgxbUAjV2Gt5D8opL24p"
+uri = "file://generated-artifacts/styleguide/ar-light.png"
+type = "image"
+title = "Styleguide · Arabic · light"
+description = "Full-page Playwright capture; attached to its test with an axe scan showing no serious or critical violations."
+logical_id = "c516e0fb-348c-43c6-95cb-351b02cc9339"
+content_hash = "sha256:036b68a3bcc36cf8d939f777817b0970fcf23d73c00a68cf6da3878b676c6a35"
+size = 712715
+mtime_ms = 1791711717760
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/c516e0fb-348c-43c6-95cb-351b02cc9339/8c74f725-2b5d-45fc-817e-4c3ae8c43ee6"
+storage_version_token = "1791711836862575"
+content_type = "image/png"
+
+[[outputs]]
+id = "vOkkMBK9tHYZ91zdMcfKE"
+uri = "file://generated-artifacts/styleguide/en-dark.png"
+type = "image"
+title = "Styleguide · English · dark"
+description = "Full-page Playwright capture; attached to its test with an axe scan showing no serious or critical violations."
+logical_id = "34dad03f-93ae-4c72-92ae-fa496c7dc0e5"
+content_hash = "sha256:38c5b3f0284247473d3b8802f3676d0d0787b2afed6fd74578246493c1d1e06c"
+size = 679262
+mtime_ms = 1791711721844
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/34dad03f-93ae-4c72-92ae-fa496c7dc0e5/3a77c07f-e772-4ab7-90cd-fec6666bbc6d"
+storage_version_token = "1791711838132551"
+content_type = "image/png"
+
+[[outputs]]
+id = "fQvTqehRGiGdc9enF3wvY"
+uri = "file://generated-artifacts/styleguide/en-light.png"
+type = "image"
+title = "Styleguide · English · light"
+description = "Full-page Playwright capture; attached to its test with an axe scan showing no serious or critical violations."
+logical_id = "b709c27d-d774-4b78-b0ef-ba07130b7b61"
+content_hash = "sha256:2b419eed439ed9e854117a3cbf440ff0922c6422ba5e8a97b88a6ffb97d61343"
+size = 664949
+mtime_ms = 1791711722019
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/b709c27d-d774-4b78-b0ef-ba07130b7b61/8d4623d9-be40-4c62-bfe6-1131c6e74ac4"
+storage_version_token = "1791711839345616"
+content_type = "image/png"
+
+[[outputs]]
+id = "z-s-TQMXn9TAPm03MBkn8"
+uri = "file://generated-artifacts/supabase-migration-0005-report.html"
+type = "html"
+title = "Supabase migration execution report"
+description = "Exact database commands, temporary verification scripts, and complete outputs for the read-only 0004 baseline check, authorized 0005 migration, and post-migration verification. No credentials or connection strings included."
+logical_id = "bd0b27df-ae25-48df-973d-975f8281bd04"
+content_hash = "sha256:90186d35ed51adb7d4589795f1850dc4ba726bffba1244575c894dffd2c3a7f7"
+size = 61167
+mtime_ms = 1791930409916
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/bd0b27df-ae25-48df-973d-975f8281bd04/7e19eebb-cfc0-4e1d-aa23-90d2899d961e"
+storage_version_token = "1791930411547662"
+content_type = "text/html"
+
+[[outputs]]
+id = "ynL-LKcykD99Gv0e-8UE3"
+uri = "file://docs/ARABIC_REVIEW.md"
+type = "text"
+title = "Arabic wording review — ready for your review"
+description = "Updated sheet with 277 pending entries. Proposed wording only: no new translations applied or approvals recorded. Legal placeholders remain awaiting O-7 text."
+logical_id = "27dd0938-0344-4442-85d2-e352a24d39d4"
+content_hash = "sha256:572d3b093ba3bf849685eea394e5f071a3730a95bc5a47a0f891d6b35292e358"
+size = 79544
+mtime_ms = 1792107120295
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/27dd0938-0344-4442-85d2-e352a24d39d4/1ace87f7-d314-474f-af72-372ac4cd140f"
+storage_version_token = "1792107294610997"
+content_type = "text/markdown"
+
+[[outputs]]
+id = "VO7zHKVmyU152O9d3pxfL"
+uri = "file://docs/ARABIC_APPROVAL_BATCH_TWO.md"
+type = "text"
+title = "Arabic approval batch 2 — complete change list"
+description = "All 275 approved rows with original drafts and applied wording, plus identifier isolation and the two O-7 legal holds."
+logical_id = "921e07a9-d28e-42e5-bcd9-924e26321275"
+content_hash = "sha256:ab44f5c75ac5877b28969cee58bb08397cf840d183379fb8f5c2f67b1ae31fdb"
+size = 59968
+mtime_ms = 1792109252235
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/921e07a9-d28e-42e5-bcd9-924e26321275/abb01642-b7fc-49bc-802f-03a6544decb4"
+storage_version_token = "1792109762613911"
+content_type = "text/markdown"
+
+[[outputs]]
+id = "kLV_X4MBFCJAZz7kwTWa2"
+uri = "file://docs/SEC_ANNUAL_MAPPING.md"
+type = "text"
+title = "Updated SEC annual mapping report"
+description = "calc-2026.10.3: fixture values, states, tiers, notes, filing sources and candidate coverage for AAPL, MSFT and JPM."
+logical_id = "60f78982-ab42-4356-85bd-cbc2c01c1aa5"
+content_hash = "sha256:456f85d1d07505c22d6ebc919f34bc785a3ebbb3a907008822d08c7294ef22d3"
+size = 33346
+mtime_ms = 1792114321081
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/60f78982-ab42-4356-85bd-cbc2c01c1aa5/a974f71c-307f-4629-9f51-ef854c80db42"
+storage_version_token = "1792114432141218"
+content_type = "text/markdown"
+
+[[outputs]]
+id = "3f-Idw97eawBpZals1KA9"
+uri = "file://docs/STEP_SEVEN_HANDOFF.md"
+type = "text"
+title = "Step 7 implementation handoff"
+description = "Implemented scope, final tag mapping, migration 0008, verification results and live prerequisites."
+logical_id = "a98b7093-2b46-4a8a-b137-d279beaed68e"
+content_hash = "sha256:8571b9456393c8650f1bc7a438b06312368d9ffa84987d5542ce88d180a2bf5d"
+size = 7584
+mtime_ms = 1792114263746
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/a98b7093-2b46-4a8a-b137-d279beaed68e/ceb33936-264d-464c-8664-415afbafac9b"
+storage_version_token = "1792114430834366"
+content_type = "text/markdown"
+
+[[outputs]]
+id = "f9pTB2CcUoEH15lUp70DM"
+uri = "file://docs/STEP_EIGHT_HANDOFF.md"
+type = "text"
+title = "Step 8 handoff"
+description = "Screening persistence, stored-payload verification, live production gate, jobs/admin controls and verification results."
+logical_id = "205ef28e-a735-4edc-92f3-cb7bd153e7bb"
+content_hash = "sha256:df763eb6397311aa079398628af354f0a4e154cd9aecf0a944400da6c301d255"
+size = 6336
+mtime_ms = 1792116761001
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/205ef28e-a735-4edc-92f3-cb7bd153e7bb/fc716d56-1df6-43e6-8222-4abd43313463"
+storage_version_token = "1792116857151163"
+content_type = "text/markdown"
+
+[[outputs]]
+id = "BpXtqsFq5quzuU3U_EECc"
+uri = "file://generated-artifacts/arabic-review-complete.html"
+type = "html"
+title = "Complete pending Arabic review — 281 entries"
+description = "All marked labels/messages and pending legal bodies, including review IDs and their locations."
+logical_id = "a5dd9046-45ad-4467-9a1b-60edb3092e9c"
+content_hash = "sha256:4f01d087fb77e0db4c84a26598023a73a76e7974068792a86df51f024c89b0a1"
+size = 124287
+mtime_ms = 1792575950403
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/a5dd9046-45ad-4467-9a1b-60edb3092e9c/6acfcba8-2b0b-4312-86c5-7048b7022864"
+storage_version_token = "1792575965854365"
+content_type = "text/html"
+
+[[outputs]]
+id = "pF9rpHoNw-FHAEIwFC5o4"
+uri = "file://generated-artifacts/arabic-review-complete.csv"
+type = "table"
+title = "Arabic review list — editable CSV"
+description = "Complete inventory for reviewing and adding Arabic wording or corrections."
+logical_id = "e708953d-89cd-4b61-8f63-17e9fed71495"
+content_hash = "sha256:7c896e3aecb669b3f8d87e13491f46fa4762b58bb2fba25aa0c335be599b7cef"
+size = 70141
+mtime_ms = 1792575950571
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/e708953d-89cd-4b61-8f63-17e9fed71495/62ee6503-404b-4056-bdc0-45e398c112b4"
+storage_version_token = "1792575967158943"
+content_type = "text/csv"

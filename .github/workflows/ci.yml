@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  engine:
+    name: engine coverage (no database)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.1
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:engine
+      - uses: actions/upload-artifact@v4
+        with:
+          name: engine-coverage
+          path: coverage/engine/
+  ci:
+    name: ci
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: suhail_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL_TEST: postgresql://postgres@127.0.0.1:5432/suhail_test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.1
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: "false"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm audit --prod --audit-level high
+        continue-on-error: true
+      - run: pnpm lint
+      - run: pnpm lint:logical
+      - run: pnpm test
+      # The isolated suite applies migrations and seeds twice before role tests.
+      - run: pnpm test:db
+      - run: pnpm exec playwright install --with-deps chromium webkit
+      - run: pnpm test:e2e:stock
+      - run: pnpm test:e2e
+      - run: pnpm test:e2e:accounts
+      # Separate production Next copy: synthetic module IO, real roots/SSR/hydration.
+      - run: pnpm test:e2e:hydration
+      # Finish all self-managed Next dev servers before building production.
+      # D-102: build must never read a database, including the local test service.
+      - run: env -u DATABASE_URL_MIGRATIONS -u DATABASE_URL_PUBLIC -u DATABASE_URL_APP -u DATABASE_URL_TEST -u DATABASE_URL -u PGHOST -u PGUSER -u PGDATABASE -u PGPORT -u PGPASSWORD -u SUPABASE_DB_CA_CERT pnpm build
+      - run: node scripts/scan-bundle.mjs
+      - run: pnpm exec playwright test --config playwright.security.config.ts
+      - run: pnpm exec playwright test --config playwright.methodology-isr.config.ts
+      - run: pnpm exec playwright test --config playwright.production.config.ts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: foundation-browser-checks
+          path: generated-artifacts/
+      - run: docker build --build-arg GIT_SHA="$GITHUB_SHA" .

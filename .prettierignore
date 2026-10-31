@@ -1,0 +1,16 @@
+node_modules/
+.next/
+coverage/
+playwright-report/
+test-results/
+.local/
+.agents/
+.upm/
+attached_assets/
+replit.md
+docs/
+public/brand/
+.replit
+pnpm-lock.yaml
+package-lock.json
+next-env.d.ts

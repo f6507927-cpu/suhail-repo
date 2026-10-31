@@ -1,0 +1,2508 @@
+{
+  "decision": "D-107",
+  "terminology": [
+    "D-108",
+    "D-109",
+    "D-110",
+    "D-111"
+  ],
+  "rulesCountArguments": [
+    "count",
+    "displayCount"
+  ],
+  "rows": [
+    {
+      "id": "J-governed-activityCategories",
+      "key": "governed.activityCategories",
+      "source": "Activity category rules",
+      "draft": "قواعد فئات الأنشطة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "قواعد فئات الأنشطة"
+    },
+    {
+      "id": "J-governed-actual",
+      "key": "governed.actual",
+      "source": "Actual",
+      "draft": "الفعلي",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الفعلي"
+    },
+    {
+      "id": "J-governed-actualHash",
+      "key": "governed.actualHash",
+      "source": "Actual hash",
+      "draft": "البصمة الفعلية",
+      "category": "UI label",
+      "approved": true,
+      "applied": "البصمة الفعلية"
+    },
+    {
+      "id": "J-governed-actualStatus",
+      "key": "governed.actualStatus",
+      "source": "Actual status",
+      "draft": "الحالة الفعلية",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الحالة الفعلية"
+    },
+    {
+      "id": "J-governed-addCriteriaFirst",
+      "key": "governed.addCriteriaFirst",
+      "source": "Add and save criteria before authoring cases.",
+      "draft": "أضف المعايير واحفظها قبل إعداد الحالات.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "أضف المعايير واحفظها قبل إعداد الحالات."
+    },
+    {
+      "id": "J-governed-addCriterion",
+      "key": "governed.addCriterion",
+      "source": "Add criterion",
+      "draft": "إضافة معيار",
+      "category": "UI label",
+      "approved": true,
+      "applied": "إضافة معيار"
+    },
+    {
+      "id": "J-governed-adminIntro",
+      "key": "governed.adminIntro",
+      "source": "Maintain documented rules, test evidence, workflow decisions, and public visibility. Finalized version content remains fixed.",
+      "draft": "إدارة القواعد الموثّقة وأدلة الاختبار وقرارات سير العمل والإتاحة العامة. يظل محتوى الإصدار ثابتًا بعد إتمام مرحلة المسودة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "إدارة القواعد الموثّقة وأدلة الاختبار وقرارات سير العمل والإتاحة العامة. يظل محتوى الإصدار نهائيًا بعد إتمام مرحلة المسودة."
+    },
+    {
+      "id": "J-governed-advanceWorkflow",
+      "key": "governed.advanceWorkflow",
+      "source": "Advance workflow",
+      "draft": "الانتقال إلى المرحلة التالية",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الانتقال إلى المرحلة التالية"
+    },
+    {
+      "id": "J-governed-aggregateStatus",
+      "key": "governed.aggregateStatus",
+      "source": "Aggregate status · expected → actual",
+      "draft": "الحالة الإجمالية · المتوقعة → الفعلية",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الحالة الإجمالية · المتوقعة → الفعلية"
+    },
+    {
+      "id": "J-governed-analystCaseResults",
+      "key": "governed.analystCaseResults",
+      "source": "Analyst case comparisons",
+      "draft": "مقارنات حالات المحلّل",
+      "category": "UI label",
+      "approved": true,
+      "applied": "مقارنات حالات المحلّل"
+    },
+    {
+      "id": "J-governed-analystCases",
+      "key": "governed.analystCases",
+      "source": "Analyst test cases",
+      "draft": "حالات اختبار المحلّل",
+      "category": "UI label",
+      "approved": true,
+      "applied": "حالات اختبار المحلّل"
+    },
+    {
+      "id": "J-governed-analystCasesHint",
+      "key": "governed.analystCasesHint",
+      "source": "Author version-specific evidence and expected outcomes before the test gate.",
+      "draft": "أعدّ أدلة ونتائج متوقعة خاصة بهذا الإصدار قبل مرحلة الاختبار.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "أعدّ أدلة ونتائج متوقعة خاصة بهذا الإصدار قبل مرحلة الاختبار."
+    },
+    {
+      "id": "J-governed-analystCasesJson",
+      "key": "governed.analystCasesJson",
+      "source": "Analyst cases JSON",
+      "draft": "حالات المحلّل بصيغة JSON",
+      "category": "UI label",
+      "approved": true,
+      "applied": "حالات المحلّل بصيغة ⁦JSON⁩"
+    },
+    {
+      "id": "J-governed-associateSource",
+      "key": "governed.associateSource",
+      "source": "Associate source",
+      "draft": "ربط المصدر",
+      "category": "UI label",
+      "approved": true,
+      "applied": "ربط المصدر"
+    },
+    {
+      "id": "J-governed-baseline",
+      "key": "governed.baseline",
+      "source": "Baseline",
+      "draft": "الإصدار المرجعي",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الإصدار المرجعي"
+    },
+    {
+      "id": "J-governed-blankDraft",
+      "key": "governed.blankDraft",
+      "source": "Start with an empty draft",
+      "draft": "البدء بمسودة فارغة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "البدء بمسودة فارغة"
+    },
+    {
+      "id": "J-governed-borderlineCases",
+      "key": "governed.borderlineCases",
+      "source": "Candidate borderline results",
+      "draft": "النتائج الحدية للإصدار المرشّح",
+      "category": "UI label",
+      "approved": true,
+      "applied": "النتائج الحدية للإصدار المرشّح"
+    },
+    {
+      "id": "J-governed-borderlineMargin",
+      "key": "governed.borderlineMargin",
+      "source": "Borderline margin",
+      "draft": "الهامش الحدي",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الهامش الحدي"
+    },
+    {
+      "id": "J-governed-calculationVersion",
+      "key": "governed.calculationVersion",
+      "source": "Calculation version",
+      "draft": "إصدار الحساب",
+      "category": "UI label",
+      "approved": true,
+      "applied": "إصدار الحساب"
+    },
+    {
+      "id": "J-governed-cancel",
+      "key": "governed.cancel",
+      "source": "Cancel",
+      "draft": "إلغاء",
+      "category": "UI label",
+      "approved": true,
+      "applied": "إلغاء"
+    },
+    {
+      "id": "J-governed-candidateCriteria",
+      "key": "governed.candidateCriteria",
+      "source": "Candidate version criteria",
+      "draft": "معايير الإصدار المرشّح",
+      "category": "UI label",
+      "approved": true,
+      "applied": "معايير الإصدار المرشّح"
+    },
+    {
+      "id": "J-governed-caseCriteriaHint",
+      "key": "governed.caseCriteriaHint",
+      "source": "Expected criterion outcomes must use the exact criterion IDs listed here. A cloned version has new IDs and requires new expected-results keys.",
+      "draft": "يجب أن تستخدم النتائج المتوقعة معرّفات المعايير المدرجة هنا كما هي. للإصدار المنسوخ معرّفات جديدة تتطلب مفاتيح جديدة للنتائج المتوقعة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "يجب أن تستخدم النتائج المتوقعة معرّفات المعايير المدرجة هنا كما هي. للإصدار المنسوخ معرّفات جديدة تتطلب مفاتيح جديدة للنتائج المتوقعة."
+    },
+    {
+      "id": "J-governed-caseInstructions",
+      "key": "governed.caseInstructions",
+      "source": "Use the contract shape below with real security, period, source, fact, and segment identities. The inserted sample has no financial evidence and does not represent a passing case.",
+      "draft": "استخدم البنية المحددة أدناه مع معرّفات فعلية للورقة المالية والفترة والمصدر والبيانات والقطاعات. لا يتضمن النموذج المُدرج أدلة مالية ولا يمثّل حالة اجتياز.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "استخدم البنية المحددة أدناه مع معرّفات فعلية للورقة المالية والفترة والمصدر والبيانات والقطاعات. لا يتضمن النموذج المُدرج أدلة مالية ولا يمثّل حالة اجتياز."
+    },
+    {
+      "id": "J-governed-casesFinalized",
+      "key": "governed.casesFinalized",
+      "source": "Analyst cases are finalized with this version and are shown read-only.",
+      "draft": "تُثبّت حالات المحلّل مع هذا الإصدار وتُعرض للقراءة فقط.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تصبح حالات المحلّل نهائية مع هذا الإصدار وتُعرض للقراءة فقط."
+    },
+    {
+      "id": "J-governed-casesSaved",
+      "key": "governed.casesSaved",
+      "source": "Analyst cases saved.",
+      "draft": "حُفظت حالات المحلّل.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "حُفظت حالات المحلّل."
+    },
+    {
+      "id": "J-governed-changedCriteria",
+      "key": "governed.changedCriteria",
+      "source": "Changed candidate criteria",
+      "draft": "معايير الإصدار المرشّح التي تغيّرت",
+      "category": "UI label",
+      "approved": true,
+      "applied": "معايير الإصدار المرشّح التي تغيّرت"
+    },
+    {
+      "id": "J-governed-changelog",
+      "key": "governed.changelog",
+      "source": "Changelog",
+      "draft": "سجل التغييرات",
+      "category": "UI label",
+      "approved": true,
+      "applied": "سجل التغييرات"
+    },
+    {
+      "id": "J-governed-cloneFrom",
+      "key": "governed.cloneFrom",
+      "source": "Start from an existing version",
+      "draft": "البدء من إصدار موجود",
+      "category": "UI label",
+      "approved": true,
+      "applied": "البدء من إصدار موجود"
+    },
+    {
+      "id": "J-governed-cloneNote",
+      "key": "governed.cloneNote",
+      "source": "Version fields are prefilled from the selected source. Criteria are copied with new identities; analyst cases must be authored again against those new IDs.",
+      "draft": "تُملأ حقول الإصدار من الإصدار المختار. تُنسخ المعايير بمعرّفات جديدة؛ ويجب إعداد حالات المحلّل مجددًا باستخدامها.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تُملأ حقول الإصدار من الإصدار المختار. تُنسخ المعايير بمعرّفات جديدة؛ ويجب إعداد حالات المحلّل مجددًا باستخدامها."
+    },
+    {
+      "id": "J-governed-closeEdit",
+      "key": "governed.closeEdit",
+      "source": "Close editor",
+      "draft": "إغلاق المحرّر",
+      "category": "UI label",
+      "approved": true,
+      "applied": "إغلاق المحرّر"
+    },
+    {
+      "id": "J-governed-confirmDeleteCriterion",
+      "key": "governed.confirmDeleteCriterion",
+      "source": "Delete this draft criterion? This cannot be undone.",
+      "draft": "هل تريد حذف هذا المعيار من المسودة؟ لا يمكن التراجع عن الحذف.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "هل تريد حذف هذا المعيار من المسودة؟ لا يمكن التراجع عن الحذف."
+    },
+    {
+      "id": "J-governed-confirmProduction",
+      "key": "governed.confirmProduction",
+      "source": "Enable this methodology version for production? This is a separate audited operation.",
+      "draft": "هل تريد اعتماد إصدار المنهجية هذا للاستخدام الفعلي؟ هذه عملية مستقلة تُسجّل في سجل التدقيق.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "هل تريد اعتماد إصدار المنهجية هذا للاستخدام الفعلي؟ هذه عملية مستقلة تُسجّل في سجل التدقيق."
+    },
+    {
+      "id": "J-governed-confirmPublish",
+      "key": "governed.confirmPublish",
+      "source": "Make this version visible on the public methodology pages?",
+      "draft": "هل تريد إتاحة هذا الإصدار في صفحات المنهجيات العامة؟",
+      "category": "help/error",
+      "approved": true,
+      "applied": "هل تريد نشر هذا الإصدار في صفحات المنهجيات العامة؟"
+    },
+    {
+      "id": "J-governed-confirmUnpublish",
+      "key": "governed.confirmUnpublish",
+      "source": "Remove this version from the public methodology pages?",
+      "draft": "هل تريد إزالة هذا الإصدار من صفحات المنهجيات العامة؟",
+      "category": "help/error",
+      "approved": true,
+      "applied": "هل تريد إلغاء نشر هذا الإصدار من صفحات المنهجيات العامة؟"
+    },
+    {
+      "id": "J-governed-coverageGaps",
+      "key": "governed.coverageGaps",
+      "source": "Named criterion coverage gaps",
+      "draft": "نواقص تغطية المعايير بأسمائها",
+      "category": "UI label",
+      "approved": true,
+      "applied": "نواقص تغطية المعايير بأسمائها"
+    },
+    {
+      "id": "J-governed-created",
+      "key": "governed.created",
+      "source": "Created",
+      "draft": "تاريخ الإنشاء",
+      "category": "UI label",
+      "approved": true,
+      "applied": "تاريخ الإنشاء"
+    },
+    {
+      "id": "J-governed-createMethodology",
+      "key": "governed.createMethodology",
+      "source": "Create methodology",
+      "draft": "إنشاء منهجية",
+      "category": "UI label",
+      "approved": true,
+      "applied": "إنشاء منهجية"
+    },
+    {
+      "id": "J-governed-criteria",
+      "key": "governed.criteria",
+      "source": "Version criteria",
+      "draft": "معايير الإصدار",
+      "category": "UI label",
+      "approved": true,
+      "applied": "معايير الإصدار"
+    },
+    {
+      "id": "J-governed-criteriaRecords",
+      "key": "governed.criteriaRecords",
+      "source": "CRITERIA",
+      "draft": "المعايير",
+      "category": "UI label",
+      "approved": true,
+      "applied": "المعايير"
+    },
+    {
+      "id": "J-governed-criterion",
+      "key": "governed.criterion",
+      "source": "Criterion",
+      "draft": "المعيار",
+      "category": "UI label",
+      "approved": true,
+      "applied": "المعيار"
+    },
+    {
+      "id": "J-governed-criterionChanges",
+      "key": "governed.criterionChanges",
+      "source": "criterion differences",
+      "draft": "اختلافات المعايير",
+      "category": "UI label",
+      "approved": true,
+      "applied": "اختلافات المعايير"
+    },
+    {
+      "id": "J-governed-criterionDeleted",
+      "key": "governed.criterionDeleted",
+      "source": "Criterion deleted.",
+      "draft": "حُذف المعيار.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "حُذف المعيار."
+    },
+    {
+      "id": "J-governed-criterionIdentity",
+      "key": "governed.criterionIdentity",
+      "source": "Stable criterion identity",
+      "draft": "معرّف المعيار الثابت",
+      "category": "UI label",
+      "approved": true,
+      "applied": "معرّف المعيار الثابت"
+    },
+    {
+      "id": "J-governed-criterionIdentityHelp",
+      "key": "governed.criterionIdentityHelp",
+      "source": "Identities are fixed by the system and are required when analyst cases refer to expected criterion outcomes.",
+      "draft": "يثبّت النظام المعرّفات، وتُستخدم عند ربط حالات المحلّل بالنتائج المتوقعة للمعايير.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "يثبّت النظام المعرّفات، وتُستخدم عند ربط حالات المحلّل بالنتائج المتوقعة للمعايير."
+    },
+    {
+      "id": "J-governed-criterionSaved",
+      "key": "governed.criterionSaved",
+      "source": "Criterion saved.",
+      "draft": "حُفظ المعيار.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "حُفظ المعيار."
+    },
+    {
+      "id": "J-governed-criterionType",
+      "key": "governed.criterionType",
+      "source": "Criterion type",
+      "draft": "نوع المعيار",
+      "category": "UI label",
+      "approved": true,
+      "applied": "نوع المعيار"
+    },
+    {
+      "id": "J-governed-definition",
+      "key": "governed.definition",
+      "source": "Definition",
+      "draft": "التعريف",
+      "category": "UI label",
+      "approved": true,
+      "applied": "التعريف"
+    },
+    {
+      "id": "J-governed-deleteCriterion",
+      "key": "governed.deleteCriterion",
+      "source": "Delete draft criterion",
+      "draft": "حذف معيار المسودة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "حذف معيار المسودة"
+    },
+    {
+      "id": "J-governed-denominatorDefinition",
+      "key": "governed.denominatorDefinition",
+      "source": "Denominator definition",
+      "draft": "تعريف المقام",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تعريف المقام"
+    },
+    {
+      "id": "J-governed-denominatorLineItems",
+      "key": "governed.denominatorLineItems",
+      "source": "Denominator line items",
+      "draft": "بنود المقام",
+      "category": "help/error",
+      "approved": true,
+      "applied": "بنود المقام"
+    },
+    {
+      "id": "J-governed-different",
+      "key": "governed.different",
+      "source": "DIFFERENT",
+      "draft": "مختلف",
+      "category": "UI label",
+      "approved": true,
+      "applied": "مختلف"
+    },
+    {
+      "id": "J-governed-draftSaved",
+      "key": "governed.draftSaved",
+      "source": "Draft version saved.",
+      "draft": "حُفظت مسودة الإصدار.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "حُفظت مسودة الإصدار."
+    },
+    {
+      "id": "J-governed-drivingCriteria",
+      "key": "governed.drivingCriteria",
+      "source": "Driving criteria",
+      "draft": "المعايير المؤثرة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "المعايير المؤثرة"
+    },
+    {
+      "id": "J-governed-edgeCases",
+      "key": "governed.edgeCases",
+      "source": "Edge cases",
+      "draft": "الحالات الخاصة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الحالات الخاصة"
+    },
+    {
+      "id": "J-governed-editCriterion",
+      "key": "governed.editCriterion",
+      "source": "Edit criterion",
+      "draft": "تعديل المعيار",
+      "category": "UI label",
+      "approved": true,
+      "applied": "تعديل المعيار"
+    },
+    {
+      "id": "J-governed-editDraft",
+      "key": "governed.editDraft",
+      "source": "Edit draft content",
+      "draft": "تعديل محتوى المسودة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "تعديل محتوى المسودة"
+    },
+    {
+      "id": "J-governed-editMetadata",
+      "key": "governed.editMetadata",
+      "source": "Edit metadata",
+      "draft": "تعديل البيانات الوصفية",
+      "category": "UI label",
+      "approved": true,
+      "applied": "تعديل البيانات الوصفية"
+    },
+    {
+      "id": "J-governed-editorReadOnly",
+      "key": "governed.editorReadOnly",
+      "source": "Editors can review this record but cannot change governance data.",
+      "draft": "يمكن للمحرّرين مراجعة هذا السجل، ولا يمكنهم تغيير بيانات الحوكمة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "يمكن للمحرّرين مراجعة هذا السجل، ولا يمكنهم تغيير بيانات الحوكمة."
+    },
+    {
+      "id": "J-governed-effectiveDate",
+      "key": "governed.effectiveDate",
+      "source": "Effective date",
+      "draft": "تاريخ السريان",
+      "category": "UI label",
+      "approved": true,
+      "applied": "تاريخ السريان"
+    },
+    {
+      "id": "J-governed-enableProduction",
+      "key": "governed.enableProduction",
+      "source": "Enable production",
+      "draft": "اعتماد للاستخدام الفعلي",
+      "category": "UI label",
+      "approved": true,
+      "applied": "اعتماد للاستخدام الفعلي"
+    },
+    {
+      "id": "J-governed-engineVersion",
+      "key": "governed.engineVersion",
+      "source": "Engine version",
+      "draft": "إصدار المحرك",
+      "category": "UI label",
+      "approved": true,
+      "applied": "إصدار المحرك"
+    },
+    {
+      "id": "J-governed-expected",
+      "key": "governed.expected",
+      "source": "Expected",
+      "draft": "المتوقع",
+      "category": "UI label",
+      "approved": true,
+      "applied": "المتوقع"
+    },
+    {
+      "id": "J-governed-expectedHash",
+      "key": "governed.expectedHash",
+      "source": "Expected hash",
+      "draft": "البصمة المتوقعة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "البصمة المتوقعة"
+    },
+    {
+      "id": "J-governed-failed",
+      "key": "governed.failed",
+      "source": "FAIL",
+      "draft": "لم يجتز",
+      "category": "UI label",
+      "approved": true,
+      "applied": "لم يجتز"
+    },
+    {
+      "id": "J-governed-finalizedContentReadOnly",
+      "key": "governed.finalizedContentReadOnly",
+      "source": "Finalized content is read-only. Create a new draft to change methodology content.",
+      "draft": "المحتوى المثبّت متاح للقراءة فقط. أنشئ مسودة جديدة لتغيير محتوى المنهجية.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "المحتوى النهائي متاح للقراءة فقط. أنشئ مسودة جديدة لتغيير محتوى المنهجية."
+    },
+    {
+      "id": "J-governed-formula",
+      "key": "governed.formula",
+      "source": "Formula text",
+      "draft": "نص الصيغة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "نص الصيغة"
+    },
+    {
+      "id": "J-governed-fullReportEvidence",
+      "key": "governed.fullReportEvidence",
+      "source": "Full retained report payload",
+      "draft": "محتوى التقرير المحفوظ كاملًا",
+      "category": "UI label",
+      "approved": true,
+      "applied": "محتوى التقرير المحفوظ كاملًا"
+    },
+    {
+      "id": "J-governed-genuineMethodologySource",
+      "key": "governed.genuineMethodologySource",
+      "source": "Matching verified methodology document",
+      "draft": "وثيقة منهجية متحقّق منها ومطابقة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "وثيقة منهجية متحقّق منها ومطابقة"
+    },
+    {
+      "id": "J-governed-governanceReports",
+      "key": "governed.governanceReports",
+      "source": "GOVERNANCE EVIDENCE",
+      "draft": "أدلة الحوكمة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "أدلة الحوكمة"
+    },
+    {
+      "id": "J-governed-impactReport",
+      "key": "governed.impactReport",
+      "source": "Impact report",
+      "draft": "تقرير الأثر",
+      "category": "UI label",
+      "approved": true,
+      "applied": "تقرير الأثر"
+    },
+    {
+      "id": "J-governed-insertExample",
+      "key": "governed.insertExample",
+      "source": "Insert contract example",
+      "draft": "إدراج نموذج للبنية المطلوبة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "إدراج نموذج للبنية المطلوبة"
+    },
+    {
+      "id": "J-governed-invalidCasesJson",
+      "key": "governed.invalidCasesJson",
+      "source": "Enter a valid JSON array of analyst cases.",
+      "draft": "أدخل مصفوفة JSON صحيحة لحالات المحلّل.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "أدخل مصفوفة ⁦JSON⁩ صحيحة لحالات المحلّل."
+    },
+    {
+      "id": "J-governed-invalidJsonObject",
+      "key": "governed.invalidJsonObject",
+      "source": "Enter a valid JSON object or leave the field blank.",
+      "draft": "أدخل كائن JSON صحيحًا أو اترك الحقل فارغًا.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "أدخل كائن ⁦JSON⁩ صحيحًا أو اترك الحقل فارغًا."
+    },
+    {
+      "id": "J-governed-label",
+      "key": "governed.label",
+      "source": "Label",
+      "draft": "التسمية",
+      "category": "UI label",
+      "approved": true,
+      "applied": "التسمية"
+    },
+    {
+      "id": "J-governed-licensing",
+      "key": "governed.licensing",
+      "source": "Licensing status",
+      "draft": "حالة الترخيص",
+      "category": "UI label",
+      "approved": true,
+      "applied": "حالة الترخيص"
+    },
+    {
+      "id": "J-governed-match",
+      "key": "governed.match",
+      "source": "Comparison",
+      "draft": "المقارنة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "المقارنة"
+    },
+    {
+      "id": "J-governed-matched",
+      "key": "governed.matched",
+      "source": "MATCH",
+      "draft": "مطابق",
+      "category": "UI label",
+      "approved": true,
+      "applied": "مطابق"
+    },
+    {
+      "id": "J-governed-metadataSaved",
+      "key": "governed.metadataSaved",
+      "source": "Methodology metadata saved.",
+      "draft": "حُفظت البيانات الوصفية للمنهجية.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "حُفظت البيانات الوصفية للمنهجية."
+    },
+    {
+      "id": "J-governed-methodologyIndex",
+      "key": "governed.methodologyIndex",
+      "source": "METHODOLOGY REGISTER",
+      "draft": "سجل المنهجيات",
+      "category": "UI label",
+      "approved": true,
+      "applied": "سجل المنهجيات"
+    },
+    {
+      "id": "J-governed-methodologyManagement",
+      "key": "governed.methodologyManagement",
+      "source": "Methodology management",
+      "draft": "إدارة المنهجيات",
+      "category": "UI label",
+      "approved": true,
+      "applied": "إدارة المنهجيات"
+    },
+    {
+      "id": "J-governed-methodologyMetadata",
+      "key": "governed.methodologyMetadata",
+      "source": "METHODOLOGY METADATA",
+      "draft": "البيانات الوصفية للمنهجية",
+      "category": "UI label",
+      "approved": true,
+      "applied": "البيانات الوصفية للمنهجية"
+    },
+    {
+      "id": "J-governed-methodologyRecords",
+      "key": "governed.methodologyRecords",
+      "source": "METHODOLOGIES",
+      "draft": "المنهجيات",
+      "category": "UI label",
+      "approved": true,
+      "applied": "المنهجيات"
+    },
+    {
+      "id": "J-governed-methodologyVersions",
+      "key": "governed.methodologyVersions",
+      "source": "Versions",
+      "draft": "الإصدارات",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الإصدارات"
+    },
+    {
+      "id": "J-governed-name",
+      "key": "governed.name",
+      "source": "Name",
+      "draft": "الاسم",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الاسم"
+    },
+    {
+      "id": "J-governed-newDraft",
+      "key": "governed.newDraft",
+      "source": "New draft",
+      "draft": "مسودة جديدة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "مسودة جديدة"
+    },
+    {
+      "id": "J-governed-newRecord",
+      "key": "governed.newRecord",
+      "source": "NEW RECORD",
+      "draft": "سجل جديد",
+      "category": "UI label",
+      "approved": true,
+      "applied": "سجل جديد"
+    },
+    {
+      "id": "J-governed-nextWorkflowTarget",
+      "key": "governed.nextWorkflowTarget",
+      "source": "Next sequential stage",
+      "draft": "المرحلة التالية بالترتيب",
+      "category": "UI label",
+      "approved": true,
+      "applied": "المرحلة التالية بالترتيب"
+    },
+    {
+      "id": "J-governed-noComparableUniverse",
+      "key": "governed.noComparableUniverse",
+      "source": "No comparable securities were recorded.",
+      "draft": "لم تُسجّل أوراق مالية قابلة للمقارنة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لم تُسجّل أوراق مالية قابلة للمقارنة."
+    },
+    {
+      "id": "J-governed-noCoverageGaps",
+      "key": "governed.noCoverageGaps",
+      "source": "No missing required outcome coverage was recorded.",
+      "draft": "لم تُسجّل نواقص في تغطية النتائج المطلوبة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لم تُسجّل نواقص في تغطية النتائج المطلوبة."
+    },
+    {
+      "id": "J-governed-noCriteria",
+      "key": "governed.noCriteria",
+      "source": "No criteria are recorded for this version.",
+      "draft": "لا توجد معايير مسجّلة لهذا الإصدار.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لا توجد معايير مسجّلة لهذا الإصدار."
+    },
+    {
+      "id": "J-governed-noEligibleSources",
+      "key": "governed.noEligibleSources",
+      "source": "No matching eligible source documents",
+      "draft": "لا توجد وثائق مصدر مطابقة ومستوفية للشروط",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لا توجد وثائق مصدر مطابقة ومستوفية للشروط"
+    },
+    {
+      "id": "J-governed-noMethodologies",
+      "key": "governed.noMethodologies",
+      "source": "No methodology records",
+      "draft": "لا توجد سجلات منهجيات",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لا توجد سجلات منهجيات"
+    },
+    {
+      "id": "J-governed-noMethodologiesBody",
+      "key": "governed.noMethodologiesBody",
+      "source": "Create a methodology record to begin documenting a governed rule set.",
+      "draft": "أنشئ سجل منهجية للبدء في توثيق مجموعة قواعد خاضعة للحوكمة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "أنشئ سجل منهجية للبدء في توثيق مجموعة قواعد خاضعة للحوكمة."
+    },
+    {
+      "id": "J-governed-noneConfigured",
+      "key": "governed.noneConfigured",
+      "source": "No baseline configured",
+      "draft": "لم يُحدد إصدار مرجعي",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لم يُحدد إصدار مرجعي"
+    },
+    {
+      "id": "J-governed-nonPermissibleCategories",
+      "key": "governed.nonPermissibleCategories",
+      "source": "Non-permissible revenue categories",
+      "draft": "فئات الإيرادات غير المباحة",
+      "category": "help/error",
+      "approved": true,
+      "applied": "فئات الإيرادات غير المباحة"
+    },
+    {
+      "id": "J-governed-noReports",
+      "key": "governed.noReports",
+      "source": "No reports have been recorded for this version yet.",
+      "draft": "لم تُسجّل تقارير لهذا الإصدار بعد.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لم تُسجّل تقارير لهذا الإصدار بعد."
+    },
+    {
+      "id": "J-governed-notes",
+      "key": "governed.notes",
+      "source": "Notes",
+      "draft": "ملاحظات",
+      "category": "help/error",
+      "approved": true,
+      "applied": "ملاحظات"
+    },
+    {
+      "id": "J-governed-notPublic",
+      "key": "governed.notPublic",
+      "source": "NOT PUBLIC",
+      "draft": "غير متاح للعموم",
+      "category": "help/error",
+      "approved": true,
+      "applied": "غير منشور"
+    },
+    {
+      "id": "J-governed-noVersions",
+      "key": "governed.noVersions",
+      "source": "No versions have been recorded for this methodology.",
+      "draft": "لم تُسجّل إصدارات لهذه المنهجية.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لم تُسجّل إصدارات لهذه المنهجية."
+    },
+    {
+      "id": "J-governed-numeratorDefinition",
+      "key": "governed.numeratorDefinition",
+      "source": "Numerator definition",
+      "draft": "تعريف البسط",
+      "category": "UI label",
+      "approved": true,
+      "applied": "تعريف البسط"
+    },
+    {
+      "id": "J-governed-numeratorLineItems",
+      "key": "governed.numeratorLineItems",
+      "source": "Numerator line items",
+      "draft": "بنود البسط",
+      "category": "UI label",
+      "approved": true,
+      "applied": "بنود البسط"
+    },
+    {
+      "id": "J-governed-observedCoverage",
+      "key": "governed.observedCoverage",
+      "source": "Observed",
+      "draft": "المرصود",
+      "category": "UI label",
+      "approved": true,
+      "applied": "المرصود"
+    },
+    {
+      "id": "J-governed-officialOrAdapted",
+      "key": "governed.officialOrAdapted",
+      "source": "Official or adapted",
+      "draft": "رسمي أو مقتبس",
+      "category": "UI label",
+      "approved": true,
+      "applied": "رسمي أو مقتبس"
+    },
+    {
+      "id": "J-governed-passed",
+      "key": "governed.passed",
+      "source": "PASS",
+      "draft": "اجتاز",
+      "category": "UI label",
+      "approved": true,
+      "applied": "اجتاز"
+    },
+    {
+      "id": "J-governed-previousCriteria",
+      "key": "governed.previousCriteria",
+      "source": "Prior version criteria",
+      "draft": "معايير الإصدار السابق",
+      "category": "UI label",
+      "approved": true,
+      "applied": "معايير الإصدار السابق"
+    },
+    {
+      "id": "J-governed-priorStatus",
+      "key": "governed.priorStatus",
+      "source": "Prior status",
+      "draft": "الحالة السابقة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الحالة السابقة"
+    },
+    {
+      "id": "J-governed-productionEnabled",
+      "key": "governed.productionEnabled",
+      "source": "Production enabled.",
+      "draft": "مُعتمد للاستخدام الفعلي.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "مُعتمد للاستخدام الفعلي."
+    },
+    {
+      "id": "J-governed-productionOperationNote",
+      "key": "governed.productionOperationNote",
+      "source": "Separate production operation note",
+      "draft": "ملاحظة عملية الاعتماد المستقلة للاستخدام الفعلي",
+      "category": "help/error",
+      "approved": true,
+      "applied": "ملاحظة عملية الاعتماد المستقلة للاستخدام الفعلي"
+    },
+    {
+      "id": "J-governed-prohibitedCategories",
+      "key": "governed.prohibitedCategories",
+      "source": "Prohibited primary activity categories",
+      "draft": "فئات الأنشطة الرئيسية المحظورة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "فئات الأنشطة الرئيسية المحظورة"
+    },
+    {
+      "id": "J-governed-publicVisible",
+      "key": "governed.publicVisible",
+      "source": "PUBLIC",
+      "draft": "متاح للعموم",
+      "category": "UI label",
+      "approved": true,
+      "applied": "منشور"
+    },
+    {
+      "id": "J-governed-publisher",
+      "key": "governed.publisher",
+      "source": "Publisher",
+      "draft": "الجهة الناشرة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الجهة الناشرة"
+    },
+    {
+      "id": "J-governed-publishVersion",
+      "key": "governed.publishVersion",
+      "source": "Make version public",
+      "draft": "إتاحة الإصدار للعموم",
+      "category": "UI label",
+      "approved": true,
+      "applied": "نشر الإصدار"
+    },
+    {
+      "id": "J-governed-purificationHelp",
+      "key": "governed.purificationHelp",
+      "source": "Leave blank for null. Enter a JSON object only when this methodology version defines stored treatment data. No generic formula is applied.",
+      "draft": "اترك الحقل فارغًا للقيمة null. أدخل كائن JSON فقط إذا كان هذا الإصدار يحدد بيانات معالجة محفوظة. لا تُطبّق صيغة عامة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "اترك الحقل فارغًا للقيمة ⁦null⁩. أدخل كائن ⁦JSON⁩ فقط إذا كان هذا الإصدار يحدد بيانات معالجة محفوظة. لا تُطبّق صيغة عامة."
+    },
+    {
+      "id": "J-governed-purificationJson",
+      "key": "governed.purificationJson",
+      "source": "Methodology-specific purification data (JSON object)",
+      "draft": "بيانات التطهير الخاصة بالمنهجية (كائن JSON)",
+      "category": "UI label",
+      "approved": true,
+      "applied": "بيانات التطهير الخاصة بالمنهجية (كائن ⁦JSON⁩)"
+    },
+    {
+      "id": "J-governed-ratio",
+      "key": "governed.ratio",
+      "source": "Ratio",
+      "draft": "النسبة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "النسبة"
+    },
+    {
+      "id": "J-governed-reportArchive",
+      "key": "governed.reportArchive",
+      "source": "Test and impact reports",
+      "draft": "تقارير الاختبار والأثر",
+      "category": "UI label",
+      "approved": true,
+      "applied": "تقارير الاختبار والأثر"
+    },
+    {
+      "id": "J-governed-reportIdentity",
+      "key": "governed.reportIdentity",
+      "source": "Report identity",
+      "draft": "معرّف التقرير",
+      "category": "UI label",
+      "approved": true,
+      "applied": "معرّف التقرير"
+    },
+    {
+      "id": "J-governed-requiredActivityItems",
+      "key": "governed.requiredActivityItems",
+      "source": "Evaluator requirements are enforced by the contract. These category lists are stored as criterion rule data.",
+      "draft": "تفرض البنية المحددة متطلبات المُقيّم. تُحفظ قوائم الفئات هذه ضمن بيانات قواعد المعيار.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تفرض البنية المحددة متطلبات المُقيّم. تُحفظ قوائم الفئات هذه ضمن بيانات قواعد المعيار."
+    },
+    {
+      "id": "J-governed-requiredCoverage",
+      "key": "governed.requiredCoverage",
+      "source": "Required",
+      "draft": "المطلوب",
+      "category": "UI label",
+      "approved": true,
+      "applied": "المطلوب"
+    },
+    {
+      "id": "J-governed-requiredInputsDerived",
+      "key": "governed.requiredInputsDerived",
+      "source": "Required inputs · derived",
+      "draft": "المدخلات المطلوبة · مشتقة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "المدخلات المطلوبة · مشتقة"
+    },
+    {
+      "id": "J-governed-result",
+      "key": "governed.result",
+      "source": "Result",
+      "draft": "النتيجة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "النتيجة"
+    },
+    {
+      "id": "J-governed-retainedEvidence",
+      "key": "governed.retainedEvidence",
+      "source": "Retained unknowns and evidence inputs",
+      "draft": "المجهولات ومدخلات الأدلة المحفوظة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "المجهولات ومدخلات الأدلة المحفوظة"
+    },
+    {
+      "id": "J-governed-reviewFailed",
+      "key": "governed.reviewFailed",
+      "source": "REVIEW / FAIL",
+      "draft": "مراجعة / لم يجتز",
+      "category": "UI label",
+      "approved": true,
+      "applied": "مراجعة / لم يجتز"
+    },
+    {
+      "id": "J-governed-save",
+      "key": "governed.save",
+      "source": "Save",
+      "draft": "حفظ",
+      "category": "UI label",
+      "approved": true,
+      "applied": "حفظ"
+    },
+    {
+      "id": "J-governed-saveCases",
+      "key": "governed.saveCases",
+      "source": "Save analyst cases",
+      "draft": "حفظ حالات المحلّل",
+      "category": "UI label",
+      "approved": true,
+      "applied": "حفظ حالات المحلّل"
+    },
+    {
+      "id": "J-governed-saved",
+      "key": "governed.saved",
+      "source": "Change saved.",
+      "draft": "حُفظ التغيير.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "حُفظ التغيير."
+    },
+    {
+      "id": "J-governed-saving",
+      "key": "governed.saving",
+      "source": "Saving…",
+      "draft": "جارٍ الحفظ…",
+      "category": "UI label",
+      "approved": true,
+      "applied": "جارٍ الحفظ…"
+    },
+    {
+      "id": "J-governed-scope",
+      "key": "governed.scope",
+      "source": "Scope",
+      "draft": "النطاق",
+      "category": "UI label",
+      "approved": true,
+      "applied": "النطاق"
+    },
+    {
+      "id": "J-governed-securityDiffs",
+      "key": "governed.securityDiffs",
+      "source": "Per-security comparison",
+      "draft": "مقارنة لكل ورقة مالية",
+      "category": "UI label",
+      "approved": true,
+      "applied": "مقارنة لكل ورقة مالية"
+    },
+    {
+      "id": "J-governed-sharedGoldenRegressions",
+      "key": "governed.sharedGoldenRegressions",
+      "source": "Shared golden regressions",
+      "draft": "اختبارات الانحدار المرجعية المشتركة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "اختبارات الانحدار المرجعية المشتركة"
+    },
+    {
+      "id": "J-governed-shortLabel",
+      "key": "governed.shortLabel",
+      "source": "Short label",
+      "draft": "تسمية مختصرة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "تسمية مختصرة"
+    },
+    {
+      "id": "J-governed-slug",
+      "key": "governed.slug",
+      "source": "Slug",
+      "draft": "معرّف الرابط",
+      "category": "UI label",
+      "approved": true,
+      "applied": "معرّف الرابط"
+    },
+    {
+      "id": "J-governed-sortOrder",
+      "key": "governed.sortOrder",
+      "source": "Sort order",
+      "draft": "ترتيب العرض",
+      "category": "UI label",
+      "approved": true,
+      "applied": "ترتيب العرض"
+    },
+    {
+      "id": "J-governed-sourceAssociated",
+      "key": "governed.sourceAssociated",
+      "source": "Source association saved.",
+      "draft": "حُفظ ربط المصدر.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "حُفظ ربط المصدر."
+    },
+    {
+      "id": "J-governed-sourceAssociation",
+      "key": "governed.sourceAssociation",
+      "source": "Version source associations",
+      "draft": "روابط مصادر الإصدار",
+      "category": "UI label",
+      "approved": true,
+      "applied": "روابط مصادر الإصدار"
+    },
+    {
+      "id": "J-governed-sourceReference",
+      "key": "governed.sourceReference",
+      "source": "Source reference",
+      "draft": "مرجع المصدر",
+      "category": "UI label",
+      "approved": true,
+      "applied": "مرجع المصدر"
+    },
+    {
+      "id": "J-governed-sourceTitle",
+      "key": "governed.sourceTitle",
+      "source": "Source document title",
+      "draft": "عنوان وثيقة المصدر",
+      "category": "UI label",
+      "approved": true,
+      "applied": "عنوان وثيقة المصدر"
+    },
+    {
+      "id": "J-governed-sourceUrl",
+      "key": "governed.sourceUrl",
+      "source": "Source document URL",
+      "draft": "رابط وثيقة المصدر",
+      "category": "UI label",
+      "approved": true,
+      "applied": "رابط وثيقة المصدر"
+    },
+    {
+      "id": "J-governed-testReport",
+      "key": "governed.testReport",
+      "source": "Test report",
+      "draft": "تقرير الاختبار",
+      "category": "UI label",
+      "approved": true,
+      "applied": "تقرير الاختبار"
+    },
+    {
+      "id": "J-governed-threshold",
+      "key": "governed.threshold",
+      "source": "Threshold",
+      "draft": "الحد",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الحد"
+    },
+    {
+      "id": "J-governed-thresholdDirection",
+      "key": "governed.thresholdDirection",
+      "source": "Threshold direction",
+      "draft": "اتجاه الحد",
+      "category": "UI label",
+      "approved": true,
+      "applied": "اتجاه الحد"
+    },
+    {
+      "id": "J-governed-thresholdUnit",
+      "key": "governed.thresholdUnit",
+      "source": "Threshold unit",
+      "draft": "وحدة الحد",
+      "category": "UI label",
+      "approved": true,
+      "applied": "وحدة الحد"
+    },
+    {
+      "id": "J-governed-transitionMatrix",
+      "key": "governed.transitionMatrix",
+      "source": "Status transition matrix",
+      "draft": "مصفوفة انتقال الحالات",
+      "category": "UI label",
+      "approved": true,
+      "applied": "مصفوفة انتقال الحالات"
+    },
+    {
+      "id": "J-governed-treatmentRules",
+      "key": "governed.treatmentRules",
+      "source": "Treatment rules",
+      "draft": "قواعد المعالجة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "قواعد المعالجة"
+    },
+    {
+      "id": "J-governed-type",
+      "key": "governed.type",
+      "source": "Methodology type",
+      "draft": "نوع المنهجية",
+      "category": "UI label",
+      "approved": true,
+      "applied": "نوع المنهجية"
+    },
+    {
+      "id": "J-governed-unidentifiedSecurity",
+      "key": "governed.unidentifiedSecurity",
+      "source": "Security identity unavailable",
+      "draft": "معرّف الورقة المالية غير متاح",
+      "category": "UI label",
+      "approved": true,
+      "applied": "معرّف الورقة المالية غير متاح"
+    },
+    {
+      "id": "J-governed-unnamedCase",
+      "key": "governed.unnamedCase",
+      "source": "Unnamed case",
+      "draft": "حالة بلا اسم",
+      "category": "UI label",
+      "approved": true,
+      "applied": "حالة بلا اسم"
+    },
+    {
+      "id": "J-governed-unnamedCriterion",
+      "key": "governed.unnamedCriterion",
+      "source": "Unlabelled criterion",
+      "draft": "معيار بلا تسمية",
+      "category": "UI label",
+      "approved": true,
+      "applied": "معيار بلا تسمية"
+    },
+    {
+      "id": "J-governed-unpublishVersion",
+      "key": "governed.unpublishVersion",
+      "source": "Remove public visibility",
+      "draft": "إلغاء الإتاحة العامة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "إلغاء النشر"
+    },
+    {
+      "id": "J-governed-verificationDate",
+      "key": "governed.verificationDate",
+      "source": "Verification date",
+      "draft": "تاريخ التحقق",
+      "category": "UI label",
+      "approved": true,
+      "applied": "تاريخ التحقق"
+    },
+    {
+      "id": "J-governed-verifiedBy",
+      "key": "governed.verifiedBy",
+      "source": "Verified by",
+      "draft": "جهة التحقق",
+      "category": "UI label",
+      "approved": true,
+      "applied": "جهة التحقق"
+    },
+    {
+      "id": "J-governed-versionControl",
+      "key": "governed.versionControl",
+      "source": "VERSION CONTROL",
+      "draft": "إدارة الإصدارات",
+      "category": "UI label",
+      "approved": true,
+      "applied": "إدارة الإصدارات"
+    },
+    {
+      "id": "J-governed-versionLabel",
+      "key": "governed.versionLabel",
+      "source": "Version label",
+      "draft": "تسمية الإصدار",
+      "category": "UI label",
+      "approved": true,
+      "applied": "تسمية الإصدار"
+    },
+    {
+      "id": "J-governed-versionNumber",
+      "key": "governed.versionNumber",
+      "source": "Version",
+      "draft": "الإصدار",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الإصدار"
+    },
+    {
+      "id": "J-governed-versionRecords",
+      "key": "governed.versionRecords",
+      "source": "VERSIONS",
+      "draft": "الإصدارات",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الإصدارات"
+    },
+    {
+      "id": "J-governed-visibilityControl",
+      "key": "governed.visibilityControl",
+      "source": "Public visibility",
+      "draft": "الإتاحة العامة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الإتاحة العامة"
+    },
+    {
+      "id": "J-governed-visibilityHelp",
+      "key": "governed.visibilityHelp",
+      "source": "This changes anonymous visibility for this version only. Only versions marked public appear in public methodology pages.",
+      "draft": "يغيّر هذا إتاحة هذا الإصدار فقط للزائر غير المسجّل. تظهر الإصدارات المتاحة للعموم فقط في صفحات المنهجيات العامة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "يغيّر هذا إتاحة هذا الإصدار فقط للزائر غير المسجّل. تظهر الإصدارات المنشورة فقط في صفحات المنهجيات العامة."
+    },
+    {
+      "id": "J-governed-visibilitySaved",
+      "key": "governed.visibilitySaved",
+      "source": "Public visibility updated.",
+      "draft": "حُدّثت الإتاحة العامة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "حُدّثت الإتاحة العامة."
+    },
+    {
+      "id": "J-governed-visibilitySeparate",
+      "key": "governed.visibilitySeparate",
+      "source": "Public visibility is controlled separately after the draft is created.",
+      "draft": "تُدار الإتاحة العامة بصورة مستقلة بعد إنشاء المسودة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تُدار الإتاحة العامة بصورة مستقلة بعد إنشاء المسودة."
+    },
+    {
+      "id": "J-governed-workflow",
+      "key": "governed.workflow",
+      "source": "Governance workflow",
+      "draft": "سير عمل الحوكمة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "سير عمل الحوكمة"
+    },
+    {
+      "id": "J-governed-workflowAdvanced",
+      "key": "governed.workflowAdvanced",
+      "source": "Workflow advanced.",
+      "draft": "انتقل سير العمل إلى المرحلة التالية.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "انتقل سير العمل إلى المرحلة التالية."
+    },
+    {
+      "id": "J-governed-workflowHistory",
+      "key": "governed.workflowHistory",
+      "source": "Recorded workflow history",
+      "draft": "سجل سير العمل المحفوظ",
+      "category": "UI label",
+      "approved": true,
+      "applied": "سجل سير العمل المحفوظ"
+    },
+    {
+      "id": "J-governed-workflowReviewNote",
+      "key": "governed.workflowReviewNote",
+      "source": "Review / transition note",
+      "draft": "ملاحظة المراجعة / الانتقال",
+      "category": "help/error",
+      "approved": true,
+      "applied": "ملاحظة المراجعة / الانتقال"
+    },
+    {
+      "id": "J-governed-workflowSequential",
+      "key": "governed.workflowSequential",
+      "source": "Advance one stage at a time. Source verification, rules, tests, universe comparison, human review, and approval are checked by the server.",
+      "draft": "انتقل مرحلة واحدة في كل مرة. يتحقق الخادم من توثيق المصدر والقواعد والاختبارات ومقارنة مجموعة الأوراق والمراجعة البشرية والاعتماد.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "انتقل مرحلة واحدة في كل مرة. يتحقق الخادم من توثيق المصدر والقواعد والاختبارات ومقارنة مجموعة الأوراق والمراجعة البشرية والموافقة."
+    },
+    {
+      "id": "J-governed-workspaceLabel",
+      "key": "governed.workspaceLabel",
+      "source": "ADMIN / METHODOLOGY GOVERNANCE",
+      "draft": "الإدارة / حوكمة المنهجية",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الإدارة / حوكمة المنهجية"
+    },
+    {
+      "id": "U-046cdb1a59ccce3770bef340fca3203df993eb0d60259cdd26a79e61591ae4aa",
+      "key": "runtime phrase",
+      "source": "The editorial default methodology version cannot be unpublished; select another default first",
+      "draft": "لا يمكن إلغاء إتاحة إصدار المنهجية الافتراضي للتحرير؛ اختر إصدارًا افتراضيًا آخر أولًا.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لا يمكن إلغاء نشر إصدار المنهجية الافتراضي للتحرير؛ اختر إصدارًا افتراضيًا آخر أولًا."
+    },
+    {
+      "id": "U-06ea2cb94625081b51ae94659b8811b882f84adfc61d0f7914ddf2a97831f94d",
+      "key": "runtime phrase",
+      "source": "The change was not accepted.",
+      "draft": "لم يُقبل التغيير.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لم يُقبل التغيير."
+    },
+    {
+      "id": "U-09880ba227f2c0deb59b541908cfa99c89bca6f286d389b46a1edd64de1882ed",
+      "key": "runtime phrase",
+      "source": "The evaluator requires a criterion effective date",
+      "draft": "يتطلب المُقيّم تاريخ سريان للمعيار.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "يتطلب المُقيّم تاريخ سريان للمعيار."
+    },
+    {
+      "id": "U-0c8f706339a8109ee873c59b2c2af12b4e26f963cb8aea6406c90b127a4d9dd8",
+      "key": "runtime phrase",
+      "source": "Demo, internal example or permanently blocked provenance cannot be enabled",
+      "draft": "لا يمكن اعتماد بيانات تجريبية أو مثال داخلي أو مصادر محظورة نهائيًا للاستخدام الفعلي.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لا يمكن اعتماد بيانات تجريبية أو مثال داخلي أو مصادر محظورة نهائيًا للاستخدام الفعلي."
+    },
+    {
+      "id": "U-10ae681554a6656449ac3a00995da31dce2385fe2bf92f3079aa5067b404ed09",
+      "key": "runtime phrase",
+      "source": "No registered evaluator",
+      "draft": "لا يوجد مُقيّم مسجّل.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لا يوجد مُقيّم مسجّل."
+    },
+    {
+      "id": "U-1552d46b0b7728257512970667b8ff972ec89e338bcf2e743383183238779648",
+      "key": "runtime phrase",
+      "source": "Methodology records",
+      "draft": "سجلات المنهجيات",
+      "category": "help/error",
+      "approved": true,
+      "applied": "سجلات المنهجيات"
+    },
+    {
+      "id": "U-1d3a70336761901b5239ce457b374b4d3bbf3baeb5168e7ac98b7f3fbb08c7b0",
+      "key": "runtime phrase",
+      "source": "Unknown methodology operation",
+      "draft": "عملية منهجية غير معروفة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "عملية منهجية غير معروفة."
+    },
+    {
+      "id": "U-1e47f2ccb81d4818bf0c2272f722ebe0fa9a40731620d5a946401335c0864cba",
+      "key": "runtime phrase",
+      "source": "Non-permissible categories are required",
+      "draft": "فئات الأنشطة غير المباحة مطلوبة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "فئات الأنشطة غير المباحة مطلوبة."
+    },
+    {
+      "id": "U-1f7b7296816a56dab1d92e37fd7d7d08d5802894d9971fa80de26264f8a73869",
+      "key": "runtime phrase",
+      "source": "Production is already enabled",
+      "draft": "مُعتمد للاستخدام الفعلي بالفعل.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "مُعتمد للاستخدام الفعلي بالفعل."
+    },
+    {
+      "id": "U-260c294c4558aea2123da577e033070571ac696cd326b6b8f30bb861fffa61a4",
+      "key": "runtime phrase",
+      "source": "Database refused the change: the identity may already exist, content may be finalized, or required production provenance is missing. Reload and review the record.",
+      "draft": "رفضت قاعدة البيانات التغيير: قد يكون المعرّف موجودًا، أو المحتوى مثبّتًا، أو أدلة المصدر المطلوبة للاعتماد غير متوفرة. أعد تحميل السجل وراجعه.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "رفضت قاعدة البيانات التغيير: قد يكون المعرّف موجودًا، أو المحتوى نهائيًا، أو أدلة المصدر المطلوبة للاعتماد غير متوفرة. أعد تحميل السجل وراجعه."
+    },
+    {
+      "id": "U-266aea9ed587762249b277aff818a8aa9ddee4611f234618909bf75d46f6b510",
+      "key": "runtime phrase",
+      "source": "Prohibited categories are required",
+      "draft": "الفئات المحظورة مطلوبة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "الفئات المحظورة مطلوبة."
+    },
+    {
+      "id": "U-294915ee59ad8a86714ab7dd8726bbed46dedf4cc4cdb3aad6b8bdb3f875a532",
+      "key": "runtime phrase",
+      "source": "Publish the version before enabling production",
+      "draft": "أتح الإصدار للعموم قبل اعتماده للاستخدام الفعلي.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "انشر الإصدار قبل اعتماده للاستخدام الفعلي."
+    },
+    {
+      "id": "U-2a3eb49fc0154ce6c7283e69375606bb14018581152a5cd4631d26dbb99e6567",
+      "key": "runtime phrase",
+      "source": "No usable annual period",
+      "draft": "لا توجد فترة سنوية صالحة للاستخدام.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لا توجد فترة سنوية صالحة للاستخدام."
+    },
+    {
+      "id": "U-2a643160b5480a10ac2a9bafa5dc01fb33f81fb0795e2b3e58af37d45cdfb2fd",
+      "key": "runtime phrase",
+      "source": "All tests and mandatory analyst criterion coverage must pass",
+      "draft": "يجب اجتياز جميع الاختبارات واستيفاء تغطية المحلّل الإلزامية للمعايير.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "يجب اجتياز جميع الاختبارات واستيفاء تغطية المحلّل الإلزامية للمعايير."
+    },
+    {
+      "id": "U-2a8c8ecbc0972da7fd1a5e46e58831d36cf0c701d0c3eed36d40677c2792eb38",
+      "key": "runtime phrase",
+      "source": "Approval is required",
+      "draft": "الاعتماد مطلوب.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "الموافقة مطلوبة."
+    },
+    {
+      "id": "U-354029069e288ed72dbeca5e0a175a411952bc011c931770a7d9c99c8615b88b",
+      "key": "runtime phrase",
+      "source": "Criterion does not belong to this version",
+      "draft": "المعيار لا يتبع هذا الإصدار.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "المعيار لا يتبع هذا الإصدار."
+    },
+    {
+      "id": "U-37e50234b54b7af50a46e537b09a219ee0ed403867c45b37080e4a5e6933d53a",
+      "key": "runtime phrase",
+      "source": "Associate a genuine verified methodology document; metadata alone is insufficient",
+      "draft": "اربط وثيقة منهجية أصلية متحقّقًا منها؛ البيانات الوصفية وحدها لا تكفي.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "اربط وثيقة منهجية أصلية متحقّقًا منها؛ البيانات الوصفية وحدها لا تكفي."
+    },
+    {
+      "id": "U-3d655f29f8332114cac91806c4ed64619c7d8a4c539e4c2024195ba361202af2",
+      "key": "runtime phrase",
+      "source": "Methodology not found",
+      "draft": "لم يُعثر على المنهجية.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لم يُعثر على المنهجية."
+    },
+    {
+      "id": "U-48c78502021c81d611b5ff8eaa2140f025e5f084caf2cec49e28366cf4f75427",
+      "key": "runtime phrase",
+      "source": "Ratio operands cannot be empty",
+      "draft": "لا يمكن ترك بنود حساب النسبة فارغة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لا يمكن ترك بنود حساب النسبة فارغة."
+    },
+    {
+      "id": "U-4b9302d9ffa8549c8b541144a13410d33842e970dc2355b50e4e1e3c38421ccc",
+      "key": "runtime phrase",
+      "source": "Business activity requires boolean direction and unit",
+      "draft": "يتطلب نشاط الأعمال اتجاهًا ووحدة منطقيين.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "يتطلب نشاط الأعمال اتجاهًا ووحدة منطقيين."
+    },
+    {
+      "id": "U-4c75e0e50be625b99dc809fe5d767bf548b1fe6bc87b15982cfd9111bb17e489",
+      "key": "runtime phrase",
+      "source": "Same-version passing reports are required",
+      "draft": "تُطلب تقارير ناجحة تخص الإصدار نفسه.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تُطلب تقارير ناجحة تخص الإصدار نفسه."
+    },
+    {
+      "id": "U-4cb6661d58130385cee1965db5cc744dd01436ab25e5e247119d23b5590feafc",
+      "key": "runtime phrase",
+      "source": "Invalid workflow note",
+      "draft": "ملاحظة سير العمل غير صالحة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "ملاحظة سير العمل غير صالحة."
+    },
+    {
+      "id": "U-4e1af7c74096cf0a47ce343febcea35ec03b9599324314b5b8fc1de2fa479705",
+      "key": "runtime phrase",
+      "source": "Operation failed",
+      "draft": "تعذّر تنفيذ العملية.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تعذّر تنفيذ العملية."
+    },
+    {
+      "id": "U-513a36c68d73433d0e1c60d5f6323f944a1d5c618e4cfa3611618797d4f81085",
+      "key": "runtime phrase",
+      "source": "operation_failed",
+      "draft": "تعذّر تنفيذ العملية.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تعذّر تنفيذ العملية."
+    },
+    {
+      "id": "U-5641396afafb5341680ff19f55ecd2c2c3179d9d15cdecd7f73ad18de7cd479f",
+      "key": "runtime phrase",
+      "source": "Recorded human review is required",
+      "draft": "تُطلب مراجعة بشرية مسجّلة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تُطلب مراجعة بشرية مسجّلة."
+    },
+    {
+      "id": "U-58f32e7049301e64afac5129359c69d2eca53bc4b4579ced193fd708969060d9",
+      "key": "runtime phrase",
+      "source": "Criterion not found",
+      "draft": "لم يُعثر على المعيار.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لم يُعثر على المعيار."
+    },
+    {
+      "id": "U-5930a7aeed358109b5ac1ae81b362d52a52bec412d8fe2503459e29aa385c46f",
+      "key": "runtime phrase",
+      "source": "Expected results reference a criterion outside this version",
+      "draft": "تشير النتائج المتوقعة إلى معيار خارج هذا الإصدار.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تشير النتائج المتوقعة إلى معيار خارج هذا الإصدار."
+    },
+    {
+      "id": "U-59e3e7aeaa1cb299ffc265bc2f373279030102170819bb8885b7b080c6a5cd15",
+      "key": "runtime phrase",
+      "source": "Invalid record identity",
+      "draft": "معرّف السجل غير صالح.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "معرّف السجل غير صالح."
+    },
+    {
+      "id": "U-60b847b9dda06296ac4e0839a55a6f8bde4d02e4340104fbf365d19af768e25f",
+      "key": "runtime phrase",
+      "source": "Threshold is required",
+      "draft": "الحد مطلوب.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "الحد مطلوب."
+    },
+    {
+      "id": "U-631f049bd7b5c4e4094945161a7955f0e2dc54ea5003ea59559fd0e9d1c20929",
+      "key": "runtime phrase",
+      "source": "Business activity uses business_segments only",
+      "draft": "يستخدم نشاط الأعمال business_segments فقط.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "يستخدم نشاط الأعمال ⁦business_segments⁩ فقط."
+    },
+    {
+      "id": "U-67aae15266edcbe5427b850220c3b6f34432d39c0a408b4deadcac5f41f648a9",
+      "key": "runtime phrase",
+      "source": "No default baseline version",
+      "draft": "لا يوجد إصدار مرجعي افتراضي.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لا يوجد إصدار مرجعي افتراضي."
+    },
+    {
+      "id": "U-6c6e0523f38527f74d4155582ccd7231f26eff94328402020bd02a766d5bf6a0",
+      "key": "runtime phrase",
+      "source": "Invalid visibility",
+      "draft": "إعداد الإتاحة غير صالح.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "إعداد الإتاحة غير صالح."
+    },
+    {
+      "id": "U-7743ad273d5fad3f100b40ee09c0473259f4a4f2c5c19e04c9c3575016aa5552",
+      "key": "runtime phrase",
+      "source": "Finalized criteria are immutable; create a new draft",
+      "draft": "المعايير المثبّتة لا تقبل التعديل؛ أنشئ مسودة جديدة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "المعايير النهائية لا تقبل التعديل؛ أنشئ مسودة جديدة."
+    },
+    {
+      "id": "U-7abd1401d118368ec1723a2ae013f5c0de7f834ebd49be1d2f29bccf49260601",
+      "key": "runtime phrase",
+      "source": "Finalized analyst cases are immutable",
+      "draft": "حالات المحلّل المثبّتة لا تقبل التعديل.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "حالات المحلّل النهائية لا تقبل التعديل."
+    },
+    {
+      "id": "U-7f1d09a0b955bd9c1882d6390a2e8d294a474f2bd7fa2d3cd4a1e8c337e8d756",
+      "key": "runtime phrase",
+      "source": "Select a genuine verified methodology document matching the methodology HTTPS URL",
+      "draft": "اختر وثيقة منهجية أصلية متحقّقًا منها وتطابق رابط HTTPS للمنهجية.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "اختر وثيقة منهجية أصلية متحقّقًا منها وتطابق رابط ⁦HTTPS⁩ للمنهجية."
+    },
+    {
+      "id": "U-8021d2a3b66f3ef10033c1da88802e21f344f1e3ec0c4e4b53f118b251255d6f",
+      "key": "runtime phrase",
+      "source": "Finalized content is immutable; create a new draft",
+      "draft": "المحتوى المثبّت لا يقبل التعديل؛ أنشئ مسودة جديدة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "المحتوى النهائي لا يقبل التعديل؛ أنشئ مسودة جديدة."
+    },
+    {
+      "id": "U-81dfe8557beaa7c9fde8b205863f149d1b78178c3596f6ef7eabe46b4a2e59fb",
+      "key": "runtime phrase",
+      "source": "Tests failed or mandatory criterion coverage is missing; see the persisted report",
+      "draft": "لم تنجح الاختبارات أو لم تكتمل تغطية المعايير الإلزامية؛ راجع التقرير المحفوظ.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لم تنجح الاختبارات أو لم تكتمل تغطية المعايير الإلزامية؛ راجع التقرير المحفوظ."
+    },
+    {
+      "id": "U-82ddded2b61ef0c74ce6d6f827c3212e331236ca2616b9022b1ef23717f61f22",
+      "key": "runtime phrase",
+      "source": "Clone must belong to this methodology",
+      "draft": "يجب أن يكون الإصدار المنسوخ من المنهجية نفسها.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "يجب أن يكون الإصدار المنسوخ من المنهجية نفسها."
+    },
+    {
+      "id": "U-89f14fbaa3dc3922d8f96fbe01c37661e7310d82d557a0bc1b5eb3bf8e0c8685",
+      "key": "runtime phrase",
+      "source": "Version belongs to another methodology",
+      "draft": "الإصدار يتبع منهجية أخرى.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "الإصدار يتبع منهجية أخرى."
+    },
+    {
+      "id": "U-9a82fe3c4bb023d5939b576cd7445f8ed17636c625dcf6ab5b6e97319059993f",
+      "key": "runtime phrase",
+      "source": "Invalid or contradictory engine evidence. No result was produced.",
+      "draft": "أدلة المحرك غير صالحة أو متناقضة. لم تُنتج نتيجة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "أدلة المحرك غير صالحة أو متناقضة. لم تُنتج نتيجة."
+    },
+    {
+      "id": "U-9d3a6028028a2365ac147e0f3ec18f9049afba2764035e22c564a293e8e09e10",
+      "key": "runtime phrase",
+      "source": "Duplicate line items would double-count evidence",
+      "draft": "تكرار البنود يؤدي إلى احتساب الأدلة مرتين.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تكرار البنود يؤدي إلى احتساب الأدلة مرتين."
+    },
+    {
+      "id": "U-9d9208bab9f1f84d20afcbb13aed033c41cb9513950d5b25fcb4cedb157329fe",
+      "key": "runtime phrase",
+      "source": "Set an eligible licensing status",
+      "draft": "حدد حالة ترخيص مستوفية للشروط.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "حدد حالة ترخيص مستوفية للشروط."
+    },
+    {
+      "id": "U-a3b8a709baaaa26733d743e8169639bd69b750e835aa34ac65db7395ab07c028",
+      "key": "runtime phrase",
+      "source": "Ratios require financial line items",
+      "draft": "تتطلب النسب بنودًا مالية.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تتطلب النسب بنودًا مالية."
+    },
+    {
+      "id": "U-a4e5ae51fed7526178bf28458c2ad8d08ce3f95d42d66c353450437f5ad759f3",
+      "key": "runtime phrase",
+      "source": "A boolean unit requires boolean direction",
+      "draft": "تتطلب الوحدة المنطقية اتجاهًا منطقيًا.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تتطلب الوحدة المنطقية اتجاهًا منطقيًا."
+    },
+    {
+      "id": "U-a8f65ec3d83f0d49808fac4b620504a78e8be3f4fe60ca303777c0eef2ac9b18",
+      "key": "runtime phrase",
+      "source": "Version not found",
+      "draft": "لم يُعثر على الإصدار.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لم يُعثر على الإصدار."
+    },
+    {
+      "id": "U-ace976b68fc3112c0738ba2f8cbe67af9312765c21ff45d44b599db0e05b2a81",
+      "key": "runtime phrase",
+      "source": "The request failed. Reload the record and try again.",
+      "draft": "تعذّر تنفيذ الطلب. أعد تحميل السجل وحاول مجددًا.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تعذّر تنفيذ الطلب. أعد تحميل السجل وحاول مجددًا."
+    },
+    {
+      "id": "U-af8aa6314e341b1e08d6848d6bd05a4a02cd73d02a3b4a075daf7e485f0d4605",
+      "key": "runtime phrase",
+      "source": "Impact comparison is incomplete; see the persisted report",
+      "draft": "مقارنة الأثر غير مكتملة؛ راجع التقرير المحفوظ.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "مقارنة الأثر غير مكتملة؛ راجع التقرير المحفوظ."
+    },
+    {
+      "id": "U-afe67ec7971f610b34401a5115d5726f0a10080bf079920fc4fe6f6e08c7193a",
+      "key": "runtime phrase",
+      "source": "Finalized criteria are immutable",
+      "draft": "المعايير المثبّتة لا تقبل التعديل.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "المعايير النهائية لا تقبل التعديل."
+    },
+    {
+      "id": "U-b485fdb388c08207e2255b68df9991da7c84f3401245df7373ebc91b2c3ae35c",
+      "key": "runtime phrase",
+      "source": "role_required",
+      "draft": "يتطلب الوصول دورًا مخوّلًا.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "يتطلب الوصول دورًا مخوّلًا."
+    },
+    {
+      "id": "U-bdfe253f5f8319eb43e678cf498be725a767eaf113dbf2dfb61a930fe097d986",
+      "key": "runtime phrase",
+      "source": "Workflow must advance exactly one stage; reload this version",
+      "draft": "يجب الانتقال مرحلة واحدة فقط؛ أعد تحميل هذا الإصدار.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "يجب الانتقال مرحلة واحدة فقط؛ أعد تحميل هذا الإصدار."
+    },
+    {
+      "id": "U-c0de89fd917035582d2a3dc8b554e2a3cef666d773cd1299565cbfe76bb26aee",
+      "key": "runtime phrase",
+      "source": "Add at least one valid criterion",
+      "draft": "أضف معيارًا صالحًا واحدًا على الأقل.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "أضف معيارًا صالحًا واحدًا على الأقل."
+    },
+    {
+      "id": "U-c8da394a934c3100f07c55b1ab1bbf429b45fa67f79723983a5172d1099f5426",
+      "key": "runtime phrase",
+      "source": "Revenue evaluator uses business_segments divided by total_revenue",
+      "draft": "يستخدم مُقيّم الإيرادات business_segments مقسومًا على total_revenue.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "يستخدم مُقيّم الإيرادات ⁦business_segments⁩ مقسومًا على ⁦total_revenue⁩."
+    },
+    {
+      "id": "U-cf3bfa91516503807cd154a987e61861c053ee59a67a375e8445fb55e05297bc",
+      "key": "runtime phrase",
+      "source": "A production-enabled version cannot be unpublished",
+      "draft": "لا يمكن إلغاء إتاحة إصدار مُعتمد للاستخدام الفعلي.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لا يمكن إلغاء نشر إصدار مُعتمد للاستخدام الفعلي."
+    },
+    {
+      "id": "U-cf6124c762a913011b7c859c00b360344af6ec4895223d852e31b4561769384f",
+      "key": "runtime phrase",
+      "source": "A human reviewer note is required",
+      "draft": "ملاحظة المراجع البشري مطلوبة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "ملاحظة المراجع البشري مطلوبة."
+    },
+    {
+      "id": "U-d2b8d4809fa618e690e397239688a97d0f552ec6de744059a12575562f202491",
+      "key": "runtime phrase",
+      "source": "Engine execution failed; no result produced",
+      "draft": "تعذّر تشغيل المحرك؛ لم تُنتج نتيجة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تعذّر تشغيل المحرك؛ لم تُنتج نتيجة."
+    },
+    {
+      "id": "U-db493ceafe3ddfe7440f6e39e8c7b0b8ee6f02e89a73e4c7d41d93ea1dfdbcfa",
+      "key": "runtime phrase",
+      "source": "Source associations are immutable after draft",
+      "draft": "لا تقبل روابط المصادر التعديل بعد مرحلة المسودة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لا تقبل روابط المصادر التعديل بعد مرحلة المسودة."
+    },
+    {
+      "id": "U-de0d389bb7905017234d50f88b5b2e35be38c97bbb48cb17b7cae3de9914c127",
+      "key": "runtime phrase",
+      "source": "Invalid production note",
+      "draft": "ملاحظة الاعتماد للاستخدام الفعلي غير صالحة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "ملاحظة الاعتماد للاستخدام الفعلي غير صالحة."
+    },
+    {
+      "id": "U-e0d0c0da334f965ade287a5aff434048b2bc1200c4c4c30b0faddce3129a4b17",
+      "key": "runtime phrase",
+      "source": "Version sections",
+      "draft": "أقسام الإصدار",
+      "category": "UI label",
+      "approved": true,
+      "applied": "أقسام الإصدار"
+    },
+    {
+      "id": "U-ede105e7bc4acfe1f4ef72bd4fcd015008c507edfc15e1c58e376e4432b9b3b9",
+      "key": "runtime phrase",
+      "source": "Complete HTTPS source title/URL, verifier and verification date",
+      "draft": "أكمل عنوان المصدر ورابط HTTPS وجهة التحقق وتاريخ التحقق.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "أكمل عنوان المصدر ورابط ⁦HTTPS⁩ وجهة التحقق وتاريخ التحقق."
+    },
+    {
+      "id": "L-privacy-body",
+      "key": "content/legal/privacy.ar.md",
+      "source": "Privacy Policy — draft awaiting founder-supplied Arabic-first legal review, including Saudi PDPL and data residency. This is not approved legal text.",
+      "draft": "Do not translate; needs O-7 text",
+      "category": "legal document (do not translate; needs O-7 text)",
+      "approved": false,
+      "applied": null
+    },
+    {
+      "id": "L-terms-body",
+      "key": "content/legal/terms.ar.md",
+      "source": "Terms of Use — draft awaiting founder-supplied Arabic-first legal review. This is not approved legal text.",
+      "draft": "Do not translate; needs O-7 text",
+      "category": "legal document (do not translate; needs O-7 text)",
+      "approved": false,
+      "applied": null
+    },
+    {
+      "id": "J-methodologies-borderline",
+      "key": "methodologies.borderline",
+      "source": "Borderline margin",
+      "draft": "الهامش الحدي",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الهامش الحدي"
+    },
+    {
+      "id": "J-methodologies-changeHistory",
+      "key": "methodologies.changeHistory",
+      "source": "Change history",
+      "draft": "سجل التغييرات",
+      "category": "UI label",
+      "approved": true,
+      "applied": "سجل التغييرات"
+    },
+    {
+      "id": "J-methodologies-definition",
+      "key": "methodologies.definition",
+      "source": "Definition",
+      "draft": "التعريف",
+      "category": "UI label",
+      "approved": true,
+      "applied": "التعريف"
+    },
+    {
+      "id": "J-methodologies-edgeCases",
+      "key": "methodologies.edgeCases",
+      "source": "Edge cases",
+      "draft": "الحالات الخاصة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الحالات الخاصة"
+    },
+    {
+      "id": "J-methodologies-effectiveDate",
+      "key": "methodologies.effectiveDate",
+      "source": "Effective date",
+      "draft": "تاريخ السريان",
+      "category": "UI label",
+      "approved": true,
+      "applied": "تاريخ السريان"
+    },
+    {
+      "id": "J-methodologies-formula",
+      "key": "methodologies.formula",
+      "source": "Formula",
+      "draft": "الصيغة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الصيغة"
+    },
+    {
+      "id": "J-methodologies-inProduction",
+      "key": "methodologies.inProduction",
+      "source": "Available in production",
+      "draft": "مُعتمد للاستخدام الفعلي",
+      "category": "UI label",
+      "approved": true,
+      "applied": "مُعتمد للاستخدام الفعلي"
+    },
+    {
+      "id": "J-methodologies-licensing",
+      "key": "methodologies.licensing",
+      "source": "Licensing",
+      "draft": "الترخيص",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الترخيص"
+    },
+    {
+      "id": "J-methodologies-noChangeHistory",
+      "key": "methodologies.noChangeHistory",
+      "source": "No recorded changes since this version became effective.",
+      "draft": "لا توجد تغييرات مسجلة منذ سريان هذا الإصدار.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لا توجد تغييرات مسجلة منذ سريان هذا الإصدار."
+    },
+    {
+      "id": "J-methodologies-notInProduction",
+      "key": "methodologies.notInProduction",
+      "source": "Not enabled for production",
+      "draft": "غير مُعتمد للاستخدام الفعلي",
+      "category": "UI label",
+      "approved": true,
+      "applied": "غير مُعتمد للاستخدام الفعلي"
+    },
+    {
+      "id": "J-methodologies-officialOrAdapted",
+      "key": "methodologies.officialOrAdapted",
+      "source": "Official or adapted",
+      "draft": "رسمي أو مقتبس",
+      "category": "UI label",
+      "approved": true,
+      "applied": "رسمي أو مقتبس"
+    },
+    {
+      "id": "J-methodologies-productionStatus",
+      "key": "methodologies.productionStatus",
+      "source": "Production status",
+      "draft": "حالة الاعتماد للاستخدام الفعلي",
+      "category": "UI label",
+      "approved": true,
+      "applied": "حالة الاعتماد للاستخدام الفعلي"
+    },
+    {
+      "id": "J-methodologies-publisher",
+      "key": "methodologies.publisher",
+      "source": "Publisher",
+      "draft": "الجهة الناشرة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الجهة الناشرة"
+    },
+    {
+      "id": "J-methodologies-requiredInputs",
+      "key": "methodologies.requiredInputs",
+      "source": "Required inputs",
+      "draft": "المدخلات المطلوبة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "المدخلات المطلوبة"
+    },
+    {
+      "id": "J-methodologies-ruleGroups",
+      "key": "methodologies.ruleGroups",
+      "source": "Rule groups",
+      "draft": "مجموعات القواعد",
+      "category": "UI label",
+      "approved": true,
+      "applied": "مجموعات القواعد"
+    },
+    {
+      "id": "J-methodologies-rules",
+      "key": "methodologies.rules",
+      "source": "criteria",
+      "draft": "معايير",
+      "category": "UI label",
+      "approved": true,
+      "applied": "{count, plural, zero {لا توجد قواعد} one {قاعدة واحدة} two {قاعدتان} few {{displayCount} قواعد} many {{displayCount} قاعدة} other {{displayCount} قاعدة}}"
+    },
+    {
+      "id": "J-methodologies-sourceDocument",
+      "key": "methodologies.sourceDocument",
+      "source": "Source document",
+      "draft": "وثيقة المصدر",
+      "category": "UI label",
+      "approved": true,
+      "applied": "وثيقة المصدر"
+    },
+    {
+      "id": "J-methodologies-sourceRef",
+      "key": "methodologies.sourceRef",
+      "source": "Source reference",
+      "draft": "مرجع المصدر",
+      "category": "UI label",
+      "approved": true,
+      "applied": "مرجع المصدر"
+    },
+    {
+      "id": "J-methodologies-subtitle",
+      "key": "methodologies.subtitle",
+      "source": "Every rule this application applies, with its source reference, version and verification status.",
+      "draft": "كل قاعدة يطبّقها هذا التطبيق، مع مرجع مصدرها وإصدارها وحالة التحقق منها.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "كل قاعدة يطبّقها هذا التطبيق، مع مرجع مصدرها وإصدارها وحالة التحقق منها."
+    },
+    {
+      "id": "J-methodologies-title",
+      "key": "methodologies.title",
+      "source": "Methodology Center",
+      "draft": "مركز المنهجيات",
+      "category": "UI label",
+      "approved": true,
+      "applied": "مركز المنهجيات"
+    },
+    {
+      "id": "J-methodologies-treatment",
+      "key": "methodologies.treatment",
+      "source": "Treatment rules",
+      "draft": "قواعد المعالجة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "قواعد المعالجة"
+    },
+    {
+      "id": "J-methodologies-verificationDate",
+      "key": "methodologies.verificationDate",
+      "source": "Verification date",
+      "draft": "تاريخ التحقق",
+      "category": "UI label",
+      "approved": true,
+      "applied": "تاريخ التحقق"
+    },
+    {
+      "id": "J-methodologies-verifiedBy",
+      "key": "methodologies.verifiedBy",
+      "source": "Verified by",
+      "draft": "جهة التحقق",
+      "category": "UI label",
+      "approved": true,
+      "applied": "جهة التحقق"
+    },
+    {
+      "id": "J-methodologies-version",
+      "key": "methodologies.version",
+      "source": "Version",
+      "draft": "الإصدار",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الإصدار"
+    },
+    {
+      "id": "J-publicMethodology-breadcrumb",
+      "key": "publicMethodology.breadcrumb",
+      "source": "Breadcrumb",
+      "draft": "مسار الصفحة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "مسار الصفحة"
+    },
+    {
+      "id": "J-publicMethodology-chooseVersion",
+      "key": "publicMethodology.chooseVersion",
+      "source": "Choose a version",
+      "draft": "اختر إصدارًا",
+      "category": "UI label",
+      "approved": true,
+      "applied": "اختر إصدارًا"
+    },
+    {
+      "id": "J-publicMethodology-criteriaSummaryTable",
+      "key": "publicMethodology.criteriaSummaryTable",
+      "source": "Concise comparison of the criteria documented in this version.",
+      "draft": "مقارنة موجزة للمعايير الموثّقة في هذا الإصدار.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "مقارنة موجزة للمعايير الموثّقة في هذا الإصدار."
+    },
+    {
+      "id": "J-publicMethodology-criterionType",
+      "key": "publicMethodology.criterionType",
+      "source": "Criterion type",
+      "draft": "نوع المعيار",
+      "category": "UI label",
+      "approved": true,
+      "applied": "نوع المعيار"
+    },
+    {
+      "id": "J-publicMethodology-denominatorLineItems",
+      "key": "publicMethodology.denominatorLineItems",
+      "source": "Denominator line items",
+      "draft": "بنود المقام",
+      "category": "help/error",
+      "approved": true,
+      "applied": "بنود المقام"
+    },
+    {
+      "id": "J-publicMethodology-documentedMethods",
+      "key": "publicMethodology.documentedMethods",
+      "source": "DOCUMENTED METHODS",
+      "draft": "المنهجيات الموثّقة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "المنهجيات الموثّقة"
+    },
+    {
+      "id": "J-publicMethodology-methodologyRecords",
+      "key": "publicMethodology.methodologyRecords",
+      "source": "Methodology records",
+      "draft": "سجلات المنهجيات",
+      "category": "UI label",
+      "approved": true,
+      "applied": "سجلات المنهجيات"
+    },
+    {
+      "id": "J-publicMethodology-noPublicCriteria",
+      "key": "publicMethodology.noPublicCriteria",
+      "source": "No public criteria are recorded for this version.",
+      "draft": "لا توجد معايير عامة مسجّلة لهذا الإصدار.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "لا توجد معايير عامة مسجّلة لهذا الإصدار."
+    },
+    {
+      "id": "J-publicMethodology-numeratorLineItems",
+      "key": "publicMethodology.numeratorLineItems",
+      "source": "Numerator line items",
+      "draft": "بنود البسط",
+      "category": "UI label",
+      "approved": true,
+      "applied": "بنود البسط"
+    },
+    {
+      "id": "J-publicMethodology-openDocumentation",
+      "key": "publicMethodology.openDocumentation",
+      "source": "Open documentation",
+      "draft": "فتح التوثيق",
+      "category": "UI label",
+      "approved": true,
+      "applied": "فتح التوثيق"
+    },
+    {
+      "id": "J-publicMethodology-publicResearchDocumentation",
+      "key": "publicMethodology.publicResearchDocumentation",
+      "source": "PUBLIC RESEARCH / DOCUMENTATION",
+      "draft": "أبحاث عامة / توثيق",
+      "category": "UI label",
+      "approved": true,
+      "applied": "أبحاث عامة / توثيق"
+    },
+    {
+      "id": "J-publicMethodology-publicVersion",
+      "key": "publicMethodology.publicVersion",
+      "source": "Public version",
+      "draft": "إصدار متاح للعموم",
+      "category": "UI label",
+      "approved": true,
+      "applied": "إصدار منشور"
+    },
+    {
+      "id": "J-publicMethodology-publicVersions",
+      "key": "publicMethodology.publicVersions",
+      "source": "Public versions",
+      "draft": "الإصدارات المتاحة للعموم",
+      "category": "UI label",
+      "approved": true,
+      "applied": "الإصدارات المنشورة"
+    },
+    {
+      "id": "J-publicMethodology-publishedVersionsOnly",
+      "key": "publicMethodology.publishedVersionsOnly",
+      "source": "Only published versions are listed.",
+      "draft": "تُعرض الإصدارات المنشورة فقط.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تُعرض الإصدارات المنشورة فقط."
+    },
+    {
+      "id": "J-publicMethodology-purificationTreatment",
+      "key": "publicMethodology.purificationTreatment",
+      "source": "Purification treatment",
+      "draft": "معالجة التطهير",
+      "category": "UI label",
+      "approved": true,
+      "applied": "معالجة التطهير"
+    },
+    {
+      "id": "J-publicMethodology-researchRegister",
+      "key": "publicMethodology.researchRegister",
+      "source": "RESEARCH REGISTER",
+      "draft": "سجل الأبحاث",
+      "category": "UI label",
+      "approved": true,
+      "applied": "سجل الأبحاث"
+    },
+    {
+      "id": "J-publicMethodology-ruleRegister",
+      "key": "publicMethodology.ruleRegister",
+      "source": "RULE REGISTER",
+      "draft": "سجل القواعد",
+      "category": "UI label",
+      "approved": true,
+      "applied": "سجل القواعد"
+    },
+    {
+      "id": "J-publicMethodology-storedMethodologyData",
+      "key": "publicMethodology.storedMethodologyData",
+      "source": "STORED METHODOLOGY DATA",
+      "draft": "بيانات المنهجية المحفوظة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "بيانات المنهجية المحفوظة"
+    },
+    {
+      "id": "J-publicMethodology-thresholdDirection",
+      "key": "publicMethodology.thresholdDirection",
+      "source": "Threshold direction",
+      "draft": "اتجاه الحد",
+      "category": "UI label",
+      "approved": true,
+      "applied": "اتجاه الحد"
+    },
+    {
+      "id": "J-publicMethodology-thresholdUnit",
+      "key": "publicMethodology.thresholdUnit",
+      "source": "Threshold unit",
+      "draft": "وحدة الحد",
+      "category": "UI label",
+      "approved": true,
+      "applied": "وحدة الحد"
+    },
+    {
+      "id": "J-publicMethodology-treatmentRuleData",
+      "key": "publicMethodology.treatmentRuleData",
+      "source": "Treatment rule data",
+      "draft": "بيانات قواعد المعالجة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "بيانات قواعد المعالجة"
+    },
+    {
+      "id": "J-publicMethodology-versionSelector",
+      "key": "publicMethodology.versionSelector",
+      "source": "Select a published methodology version",
+      "draft": "اختر إصدار منهجية منشورًا",
+      "category": "UI label",
+      "approved": true,
+      "applied": "اختر إصدار منهجية منشورًا"
+    },
+    {
+      "id": "J-publicMethodology-workflowStatus",
+      "key": "publicMethodology.workflowStatus",
+      "source": "Workflow status",
+      "draft": "حالة سير العمل",
+      "category": "UI label",
+      "approved": true,
+      "applied": "حالة سير العمل"
+    },
+    {
+      "id": "U-2bd873d6c734e63ea80e163a6a643f75bf87a3d24e3164987d176a2e3e5c567e",
+      "key": "runtime phrase",
+      "source": "Breadcrumb",
+      "draft": "مسار الصفحة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "مسار الصفحة"
+    },
+    {
+      "id": "U-418123f6db72a99bd6c49d8a1e96b5b7d85144e7b134a0904de80810b7f9d7ca",
+      "key": "runtime phrase",
+      "source": "Back to Suhail",
+      "draft": "العودة إلى سهيل",
+      "category": "UI label",
+      "approved": true,
+      "applied": "العودة إلى سهيل"
+    },
+    {
+      "id": "U-942087cc2d41e01304b7195558d093d10c72af8e838c7556d6a02d471ee71852",
+      "key": "runtime phrase",
+      "source": "Retry",
+      "draft": "إعادة المحاولة",
+      "category": "UI label",
+      "approved": true,
+      "applied": "إعادة المحاولة"
+    },
+    {
+      "id": "U-f6368e7f5afae57c89fc88c05045f4dbbef1c962ca1b22bf26990f3f641f5670",
+      "key": "runtime phrase",
+      "source": "This page could not be loaded.",
+      "draft": "تعذّر تحميل هذه الصفحة.",
+      "category": "help/error",
+      "approved": true,
+      "applied": "تعذّر تحميل هذه الصفحة."
+    }
+  ]
+}

@@ -1,0 +1,199 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+/* Raw --muted remains TEXT #5C6467. shadcn's muted surface is --muted-surface;
+   Tailwind bg-muted maps there, never shadowing the founder's raw variable. */
+:root {
+  --night: #0b2e33;
+  --ink-mid: #14595e;
+  --brass: #c08b3e;
+  --brass-soft: #e0bc85;
+  --canopus: #e6efee;
+  --sand: #f5f1e9;
+  --sand-deep: #e3dbcc;
+  --compliance: #2e7d5b;
+  --alert: #b3462f;
+  --text: #14181a;
+  --muted: #5c6467;
+  --line: #d9d1c2;
+  --compliance-dark: #3fab7c;
+  --alert-dark: #d9816e;
+  --teal-mid-dark: #26a8b1;
+  --muted-dark: #919a9d;
+  --brass-deep: #88632c;
+  --sand-deep-strong: #998154;
+  --header-text: #9fbab9;
+  --story-text: #dce8e7;
+  --deep-night: #061e21;
+  --inner-rule: #efeae0;
+  --white: #ffffff;
+  --radius: 0.5rem;
+}
+/* All proposed semantic mappings are cataloged with ratios in lib/palette.ts. */
+:root,
+.dark,
+.surface-dark {
+  color-scheme: dark;
+  --background: var(--night);
+  --foreground: var(--canopus);
+  --card: var(--deep-night);
+  --card-foreground: var(--canopus);
+  --popover: var(--deep-night);
+  --popover-foreground: var(--canopus);
+  --primary: var(--brass);
+  --primary-foreground: var(--night);
+  --secondary: var(--deep-night);
+  --secondary-foreground: var(--canopus);
+  --muted-surface: var(--deep-night);
+  --muted-foreground: var(--muted-dark);
+  --accent: var(--brass-soft);
+  --accent-foreground: var(--night);
+  --destructive: var(--canopus);
+  --destructive-foreground: var(--night);
+  --border: var(--muted-dark);
+  --input: var(--muted-dark);
+  --ring: var(--muted-dark);
+  --divider: var(--ink-mid);
+  --byline: var(--brass);
+  --pass: var(--compliance-dark);
+  --fail: var(--alert-dark);
+  --insufficient: var(--muted-dark);
+  --concluded-text: var(--night);
+  --price-up: var(--teal-mid-dark);
+  --price-down: var(--canopus);
+}
+html:not(.dark),
+.surface-light {
+  color-scheme: light;
+  --background: var(--sand);
+  --foreground: var(--text);
+  --card: var(--white);
+  --card-foreground: var(--text);
+  --popover: var(--white);
+  --popover-foreground: var(--text);
+  --primary: var(--night);
+  --primary-foreground: var(--canopus);
+  --secondary: var(--inner-rule);
+  --secondary-foreground: var(--text);
+  --muted-surface: var(--inner-rule);
+  --muted-foreground: var(--muted);
+  --accent: var(--brass-deep);
+  --accent-foreground: var(--white);
+  --destructive: var(--text);
+  --destructive-foreground: var(--white);
+  --border: var(--sand-deep-strong);
+  --input: var(--sand-deep-strong);
+  --ring: var(--brass-deep);
+  --divider: var(--line);
+  --byline: var(--brass-deep);
+  --pass: var(--compliance);
+  --fail: var(--alert);
+  --insufficient: var(--muted);
+  --concluded-text: var(--white);
+  --price-up: var(--ink-mid);
+  --price-down: var(--night);
+}
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted-surface);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-night: var(--night);
+  --color-brass: var(--brass);
+  --color-brass-soft: var(--brass-soft);
+  --color-canopus: var(--canopus);
+  --color-sand: var(--sand);
+  --font-mono: var(--font-numbers), monospace;
+  --radius-lg: var(--radius);
+}
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 15px;
+  font-weight: 400;
+}
+:lang(ar) {
+  font-family: var(--font-arabic), var(--font-latin), sans-serif;
+  line-height: 1.9;
+}
+:lang(en) {
+  font-family: var(--font-latin), var(--font-arabic), sans-serif;
+  line-height: 1.6;
+}
+h1,
+h2,
+h3 {
+  font-weight: 600;
+}
+bdi.font-mono,
+.font-mono {
+  font-family: var(--font-numbers), monospace;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+button,
+a,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+}
+.surface-dark,
+.surface-light {
+  background: var(--background);
+  color: var(--foreground);
+}
+.byline {
+  color: var(--byline);
+  font-weight: 500;
+}
+.status-pass {
+  background: var(--pass);
+  color: var(--concluded-text);
+  border-color: var(--pass);
+}
+.status-fail {
+  background: var(--fail);
+  color: var(--concluded-text);
+  border-color: var(--fail);
+}
+.status-review {
+  background: transparent;
+  color: var(--fail);
+  border-color: var(--fail);
+}
+.status-insufficient {
+  background: transparent;
+  color: var(--insufficient);
+  border-color: var(--insufficient);
+}
+.price-up {
+  color: var(--price-up);
+}
+.price-down {
+  color: var(--price-down);
+}
+.emphasis {
+  color: var(--byline);
+  font-weight: 400;
+}
+::selection {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}

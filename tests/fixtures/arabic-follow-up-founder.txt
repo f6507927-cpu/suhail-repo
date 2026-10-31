@@ -1,0 +1,61 @@
+Founder-supplied approval excerpt, D-138. Pinned independently of pending review documents.
+Source: attached_assets/Pasted-Do-not-approve-rows-whose-draft-is-only-the-English-sou_1792593077683.txt
+
+1. Activity pairs (EN / AR):
+conventional_finance Conventional finance / التمويل التقليدي; interest_based_lending Interest-based lending / الإقراض بفائدة; insurance_conventional Conventional insurance / التأمين التقليدي; alcohol Alcohol / الكحول; tobacco Tobacco / التبغ; gambling Gambling / القمار; adult_entertainment Adult entertainment / الترفيه للبالغين; pork_related Pork-related / منتجات الخنزير; conventional_media Conventional media and entertainment / الإعلام والترفيه التقليدي; weapons_conventional Conventional weapons / الأسلحة التقليدية; generic_permissible General permissible activity / نشاط مباح عام; real_estate_permissible Permissible real estate / عقار مباح; technology Technology / التقنية; healthcare Healthcare / الرعاية الصحية; retail_permissible Permissible retail / تجزئة مباحة; industrials Industrials / الصناعة; energy Energy / الطاقة; telecom Telecommunications / الاتصالات; unclassified Unclassified / غير مصنّف.
+"estimated" uses the existing approved «تقديرية»; "inactive" = «غير نشط».
+
+2. Public stock page (StockVerdict / StockVerdictParts):
+No unknown inputs were recorded for this run. = لم تُسجَّل مدخلات غير معروفة في هذا الفحص.
+Coverage by = بتغطية
+Methodology unavailable = المنهجية غير متاحة
+DETERMINISTIC RECORD = سجل الفحص الآلي
+No validated narrative text is stored; structured evidence only. = لا يوجد نص شرح متحقَّق منه؛ تُعرض الأدلة المنظَّمة فقط.
+Stored criterion labels are English only = تسميات المعايير المحفوظة متاحة بالإنجليزية فقط
+Current = الحالي
+Why this assessment = سبب هذا التقييم
+Run hash = بصمة الفحص
+Period end = نهاية الفترة
+No criterion evidence was stored for this run. = لم تُحفظ أدلة للمعايير في هذا الفحص.
+RECORDED GAPS = النواقص المسجّلة
+Methodology = المنهجية
+Change history / prior runs = سجل التغييرات / الفحوص السابقة
+
+3. Admin (FinancialAdmin / ScreeningControls / UnmetSearchPanel):
+Filing note reference = مرجع الإيضاح في الإفصاح
+Origin = المنشأ
+Unknowns = القيم غير المعروفة
+Exchange = السوق
+Resume = استئناف
+Confirm from filing = تأكيد من الإفصاح
+CIK = keep "CIK" as an LTR identifier, no translation
+Note = ملاحظة
+This value is calculated from sourced inputs and cannot be overridden here. = تُحسب هذه القيمة من مدخلات موثّقة المصدر ولا يمكن تعديلها هنا.
+Choose a methodology version = اختر إصدار المنهجية
+Company = الشركة
+SEC changed = تغيّرت قيمة SEC
+In universe = ضمن نطاق التغطية
+Use only when the source explicitly identifies the calendar month-end represented by this close. The close date is its actual last trading day; do not infer an attribution. = استخدم هذا الخيار فقط إذا كان المصدر يحدد صراحةً نهاية الشهر التي يمثّلها سعر الإغلاق. تاريخ الإغلاق هو آخر يوم تداول فعلي؛ لا تفترض الإسناد.
+Calculation trace = تفاصيل الحساب
+replay not supported for engine = إعادة التشغيل غير مدعومة لإصدار المحرك هذا
+No manual prices are recorded. = لا توجد أسعار مُدخلة يدويًا.
+Started = بدأ
+Verify = تحقّق
+Quarter guidance date is unavailable. = تاريخ الربع المرجعي غير متاح.
+Verification failed. = فشل التحقق.
+Shared fact = بيان مشترك
+No facts are recorded for this period. = لا توجد بيانات مسجّلة لهذه الفترة.
+Month-end represented = نهاية الشهر الممثَّلة
+Running = قيد التشغيل
+Kind = النوع
+Remove from universe = إزالة من نطاق التغطية
+No unmet searches have been recorded yet. = لم تُسجَّل عمليات بحث بلا نتائج بعد.
+Mean of the three attested closes multiplied by latest shares outstanding, compared with mapped equity; use the higher amount. Nonpositive equity uses the average. = متوسط أسعار الإغلاق الثلاثة الموثّقة مضروبًا في أحدث عدد للأسهم القائمة، مقارنةً بحقوق الملكية؛ تُستخدم القيمة الأعلى. إذا كانت حقوق الملكية صفرًا أو سالبة يُستخدم المتوسط.
+No analyst assigned = لم يُسنَد محلّل
+Activity category = فئة النشاط
+Unknown count = عدد القيم غير المعروفة
+Saved. = حُفظ.
+Actions = الإجراءات
+
+4. L-privacy-body stays pending (O-7 legal text).
+5. Every review inventory must include an actual Arabic draft for each row. English-only rows are gaps, not drafts.
