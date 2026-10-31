@@ -41,7 +41,7 @@ export interface Fixture {
 export interface FilingSource {
   label: string;
   source_type: "regulatory_filing";
-  provider: "SEC EDGAR";
+  provider: "SEC EDGAR" | "SEC Financial Statement and Notes data set";
   document_title: string;
   document_reference: string;
   source_url: string;
@@ -54,6 +54,7 @@ export interface FilingSource {
   filed: string;
 }
 export interface MappedFact {
+  adapter?: "sec_fsn";
   line_item: string;
   value: number | null;
   currency: string | null;

@@ -129,13 +129,15 @@ describe("launch workspace services on disposable PostgreSQL only", () => {
       env.DATABASE_URL_APP = "postgresql://suhail_app@127.0.0.1:55432/suhail_test";
       const db = drizzle(client, { schema });
       const before = await counts(db as unknown as Tx);
-      const files = await readdir(dir, { recursive: true });
+      // Snapshot fixture-owned files, not the entire repository through symlinks.
+      const files = async () => ({ root: await readdir(dir), data: await readdir(join(dir, "data"), { recursive: true }) });
+      const beforeFiles = await files();
       const { stdout } = await exec("pnpm", ["setup:launch", "--", "--actor", email, "--dry-run"], { cwd: dir, env });
       expect(stdout).toContain('"dryRun": true');
       expect(stdout).toContain('"ticker": "JPM"');
       expect(stdout).toContain("no report/workflow advancement");
       expect(await counts(db as unknown as Tx)).toEqual(before);
-      expect(await readdir(dir, { recursive: true })).toEqual(files);
+      expect(await files()).toEqual(beforeFiles);
     } finally { await rm(dir, { recursive: true, force: true }); }
   }, 30000);
   it("preflight stops on either example default, non-admin, conflicting metadata, finalized content", () => isolated(async tx => {

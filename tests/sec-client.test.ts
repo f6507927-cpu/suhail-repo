@@ -17,6 +17,27 @@ afterEach(() => {
 const response = (status = 200) => new Response(JSON.stringify({ test: true }), { status });
 
 describe("bounded server-only SEC client", () => {
+  it("shares the existing 8/s budget and User-Agent across JSON, catalog, archive and retried archive requests", async () => {
+    const { SecClient } = await import("../src/ingest/sec/client");
+    const starts: number[] = [];
+    let zipAttempts = 0;
+    const fetcher = vi.fn(async (url: string | URL | Request, options?: RequestInit) => {
+      starts.push(performance.now());
+      expect(options?.headers).toMatchObject({ "User-Agent": "Suhail SEC client tests test@example.invalid" });
+      if (String(url).endsWith(".zip")) return new Response("fixture", { status: ++zipAttempts === 1 ? 503 : 200 });
+      return String(url).includes("companyfacts") ? response() : new Response("catalog fixture");
+    });
+    const client = new SecClient({ fetcher });
+    const requests = Promise.all([
+      client.companyfacts("320193"), client.notesCatalog(),
+      client.notesArchive("https://www.sec.gov/files/dera/data/financial-statement-notes-data-sets/2026_07_notes.zip", r => r.text()),
+    ]);
+    await vi.runAllTimersAsync();
+    await expect(requests).resolves.toHaveLength(3);
+    expect(starts).toHaveLength(4);
+    for (let i = 1; i < starts.length; i++) expect(starts[i] - starts[i - 1]).toBeGreaterThanOrEqual(125);
+    expect(() => client.notesArchive("https://other.invalid/archive.zip", r => r.text())).toThrow("Invalid SEC Notes");
+  });
   it("retrieves public filing text without permitting arbitrary hosts or paths", async () => {
     const { SecClient } = await import("../src/ingest/sec/client");
     const fetcher = vi.fn(async () => new Response("<html>Filing evidence</html>"));

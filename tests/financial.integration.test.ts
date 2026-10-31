@@ -9,6 +9,9 @@ import * as schema from "../src/db/schema";
 import { company, financialFact, financialPeriod, priceBar, source, businessSegment, security } from "../src/db/schema/market";
 import { auditEvent, jobRun, analystProfile } from "../src/db/schema/accounts";
 import { mapAnnual } from "../src/ingest/sec/annual";
+import { readArchive } from "../src/ingest/sec/fsn/archive";
+import { mapFsn, withFsn } from "../src/ingest/sec/fsn/mapping";
+import { fsnTargets, fsnResponse, fsnRetrieval } from "./fsn-fixture";
 import type { Fixture } from "../src/ingest/sec/types";
 import { persistAnnual, type Actor } from "../src/lib/financial/persistence";
 import { addSecurity, mutateFinancial } from "../src/lib/financial/service";
@@ -68,6 +71,61 @@ function changed(value: number, yearShift = false) {
   return m;
 }
 describe("Step 7 financial persistence and analyst actions", () => {
+  it("persists sec_fsn filing provenance idempotently and never lets it replace companyfacts or analyst overrides", () => isolated(async tx => {
+    const target = fsnTargets[0];
+    const archive = { ...await readArchive(fsnResponse(), [target]), retrieval: fsnRetrieval };
+    const fallback = withFsn(target, mapFsn(target, archive));
+    const id = await addSecurity(tx, null, { cik: target.cik.padStart(10, "0"), ticker: "FSNTEST", name: "Synthetic FSN issuer",
+      exchange: "NASDAQ", sector: "", fiscalYearEnd: "" });
+    const [s] = await tx.select().from(security).where(eq(security.id, id));
+    const companyId = s.company_id!;
+    await persistAnnual(tx, null, companyId, target.mapped);
+    await persistAnnual(tx, null, companyId, fallback);
+    const [period] = await tx.select().from(financialPeriod).where(eq(financialPeriod.company_id, companyId));
+    const get = async () => (await tx.select().from(financialFact).where(and(
+      eq(financialFact.company_id, companyId), eq(financialFact.line_item, "prohibited_income"), eq(financialFact.is_current, true))))[0];
+    const income = await get();
+    expect(income).toMatchObject({ value: 12, origin: "sec_fsn", confidence_tier: "Estimated", input_state: "estimated" });
+    const [filing] = await tx.select().from(source).where(eq(source.id, income.source_id!));
+    expect(filing).toMatchObject({ provider: "SEC Financial Statement and Notes data set", confidence_tier: "Verified",
+      document_reference: target.mapped.period.filing_reference, source_url: target.mapped.facts[0].source!.source_url });
+    const counts = async () => [await tx.select().from(financialFact), await tx.select().from(source), await tx.select().from(auditEvent)];
+    const before = await counts();
+    expect(await persistAnnual(tx, null, companyId, fallback)).toMatchObject({ inserted: 0, promoted: 0 });
+    expect(await counts()).toEqual(before);
+    await persistAnnual(tx, null, companyId, target.mapped); // unknown companyfacts cannot erase a known fallback
+    expect((await get()).id).toBe(income.id);
+    const companyfacts = structuredClone(target.mapped);
+    const direct = companyfacts.facts.find(f => f.line_item === "prohibited_income")!;
+    Object.assign(direct, { value: 0, source: companyfacts.period.source, input_state: "estimated",
+      confidence_tier: "Estimated", unknown_note: null, mapping_note: "Synthetic companyfacts zero" });
+    await persistAnnual(tx, null, companyId, companyfacts);
+    const cf = await get();
+    expect(cf).toMatchObject({ value: 0, origin: "sec" });
+    const afterCf = await counts();
+    await persistAnnual(tx, null, companyId, fallback);
+    expect((await get()).id).toBe(cf.id);
+    expect(await counts()).toEqual(afterCf);
+    await mutateFinancial(tx, null, { operation: "override", securityId: id, data: {
+      factId: cf.id, value: "7", input_state: "estimated", confidence_tier: "Estimated",
+      periodId: period.id, period_start: period.period_start, period_end: period.period_end, reason: "Synthetic FSN protection test",
+      source: { label: "Synthetic analyst evidence", source_type: "internal" },
+    } });
+    const protectedFact = await get();
+    const afterOverride = await counts();
+    await persistAnnual(tx, null, companyId, fallback);
+    expect((await get()).id).toBe(protectedFact.id);
+    expect((await get()).protected_current).toBe(true);
+    expect(await counts()).toEqual(afterOverride);
+    // A separate current revenue correction is also protected: the Notes value
+    // cannot be installed against a denominator from different filing evidence.
+    await tx.update(financialFact).set({ protected_current: false, value: null }).where(eq(financialFact.id, protectedFact.id));
+    const [revenue] = await tx.select().from(financialFact).where(and(
+      eq(financialFact.company_id, companyId), eq(financialFact.line_item, "total_revenue"), eq(financialFact.is_current, true)));
+    await tx.update(financialFact).set({ value: 2000, protected_current: true }).where(eq(financialFact.id, revenue.id));
+    await persistAnnual(tx, null, companyId, fallback);
+    expect((await get()).value).toBeNull();
+  }));
   it("persists quarterly basis traces, deduplicates prices and refreshes corrections and shared inputs", () => isolated(async tx => {
     const ctx = await setup(tx);
     const asOf = new Date().toISOString().slice(0, 10);

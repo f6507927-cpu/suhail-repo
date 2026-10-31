@@ -1,5 +1,47 @@
 # Phase 0 Autoscale operating guide
 
+## SEC Notes-data dry run (D-142)
+
+Deployment commands are unchanged. The workspace-only read-only command is:
+
+```sh
+pnpm sec:fsn:dry-run
+# Optional archive override; does not permit mixing filings/periods:
+pnpm sec:fsn:dry-run -- --dataset 2026_07
+pnpm sec:fsn:dry-run -- --dataset 2025q4
+```
+
+Requires only the existing `SEC_USER_AGENT` and outbound HTTPS to SEC. No
+database/Supabase credentials are needed or used. The command reads the committed
+covered ticker list, resolves AAPL/MSFT/AMD/TXN/NFLX/PEP/LLY/XOM against SEC
+listings and companyfacts, and selects archives from the official SEC Notes
+catalog using each selected 10-K/10-K/A filing date: monthly when available,
+otherwise quarterly. Stocks sharing an archive share one streamed download.
+An override selects that archive for all eight but still rejects absent or
+incompatible filing evidence; it will not necessarily cover every stock.
+
+The command writes JSON to stdout only: matching fields/tags/values/periods and
+filing links, rejection reasons, existing companyfacts income, and report-only
+company-specific `Interest`/`InvestmentIncome` tags with values. No ZIP, report,
+cache file, database row, audit event or screening result is written. It
+explicitly skips status-change predictions: the production methodology,
+current screening result and protected analyst corrections require database
+reads, which this command does not perform. It does not claim that filling an
+Estimated income proxy removes a security's review status.
+
+The custom-tag allowlist starts empty and must remain exact and reviewed.
+Suggestions are never mappings. Source provenance remains Verified, but D-124
+income proxies remain Estimated with their warnings. Fallback facts carry
+`sec-fsn-1`; companyfacts and screening keep `calc-2026.10.6`.
+
+Normal future `job:ingest`/admin ingestion can use the fallback only for an
+in-universe issuer with missing companyfacts prohibited income; protected
+corrections and existing companyfacts values are not overwritten. Finish serial
+ingestion before screening. No new scheduler, deployment command or migration
+is introduced. **Do not run a real import as part of verification.** The founder
+runs the dry run first and separately authorizes a real run; implementation
+verification uses fixture HTTP only and disposable local PostgreSQL.
+
 Local preparation only. Nothing here authorizes deployment, SQL, migrations,
 imports, account sessions or hosted setting changes. D-139 records the founder's
 reported facts, not independently verified service evidence.

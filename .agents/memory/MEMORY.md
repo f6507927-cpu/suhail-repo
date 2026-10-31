@@ -32,3 +32,4 @@
 - [Security browser budgets](security-browser-budget-isolation.md) — verify prefetch accounting through real Next; keep repeated-navigation regressions on one identity.
 - [Arabic review drafts](arabic-review-drafts.md) — the founder requires genuine Arabic proposals in review inventories; drafts never imply approval.
 - [Launch document authority](launch-document-authority.md) — Verified Al Rajhi document authorization is not methodology approval or permission to run against Supabase.
+- [Repository authority](repository-authority.md) — development is authoritative; do not reconstruct unmerged-copy decisions or deployment changes automatically.

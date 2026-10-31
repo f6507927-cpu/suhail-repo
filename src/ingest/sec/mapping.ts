@@ -4,6 +4,12 @@
  * No persistence, sector classification, EBITDA, or screening formulas here.
  */
 export const SEC_CALCULATION_VERSION = "calc-2026.10.6";
+export function prohibitedIncomeWarning(tag: string) {
+  return "; D-124 estimated interest-income proxy only: excludes untagged interest, prohibited-activity revenue and other analyst-identified prohibited income; not a complete gross prohibited-income total; analyst must review the same annual revenue period" +
+    (tag === "InvestmentIncomeInterestAndDividend" ? "; source combines interest and dividends on nonoperating securities; conservative precaution includes the full combined amount, not pure interest" : "") +
+    (tag === "InterestIncomeOther" ? "; source interest earned on interest-bearing assets classified as other, not all interest income" : "") +
+    (tag === "InterestAndOtherIncome" ? "; broader source includes ancillary other income and may be net; positive combined amount is a precautionary proxy, not pure interest or gross prohibited income" : "");
+}
 export const candidates = {
   // AAPL/MSFT use ExcludingAssessedTax; JPM uses Revenues. The other two
   // supplied alternatives remain supported but unverified in these samples.

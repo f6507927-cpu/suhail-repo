@@ -72,13 +72,22 @@ export class SecClient {
   companyfacts(cik: string | number) {
     return this.request<CompanyFacts>(`https://data.sec.gov/api/xbrl/companyfacts/CIK${paddedCik(cik)}.json`);
   }
+  notesCatalog() {
+    return this.request<string>("https://www.sec.gov/data-research/sec-markets-data/financial-statement-notes-data-sets", true);
+  }
+  notesArchive<T>(url: string, consume: (response: Response) => Promise<T>) {
+    if (!/^https:\/\/www\.sec\.gov\/files\/dera\/data\/financial-statement-notes-data-sets\/\d{4}(?:_\d{2}|q[1-4])_notes(?:_\d+)?\.zip$/.test(url))
+      throw new SecRequestError("Invalid SEC Notes archive URL");
+    // Large archives need a separate bounded transfer budget; JSON stays at 15s.
+    return this.request<T>(url, false, consume, 600_000);
+  }
   /** Public filing inspection uses exactly the same budget, timeout and retries. */
   filing(cik: string | number, accession: string, document: string) {
     if (!/^\d{10}-\d{2}-\d{6}$/.test(accession) || !/^[a-zA-Z0-9_.-]+\.htm[l]?$/.test(document))
       throw new SecRequestError("Invalid SEC filing reference");
     return this.request<string>(`https://www.sec.gov/Archives/edgar/data/${Number(paddedCik(cik))}/${accession.replaceAll("-", "")}/${document}`, true);
   }
-  private async request<T>(url: string, text = false): Promise<{ data: T; retrieval: Retrieval }> {
+  private async request<T>(url: string, text = false, consume?: (response: Response) => Promise<T>, timeoutMs = this.timeoutMs): Promise<{ data: T; retrieval: Retrieval }> {
     const { SEC_USER_AGENT } = getSecEnv();
     for (let attempt = 0; attempt <= this.retries; attempt++) {
       await sharedBucket.acquire();
@@ -88,20 +97,20 @@ export class SecClient {
         const result = await Promise.race([
           (async () => {
             const response = await this.fetcher(url, {
-              headers: { "User-Agent": SEC_USER_AGENT, Accept: text ? "text/html" : "application/json" },
+              headers: { "User-Agent": SEC_USER_AGENT, Accept: consume ? "application/zip" : text ? "text/html" : "application/json" },
               signal: controller.signal, redirect: "error",
             });
             if (!response.ok) {
               await response.body?.cancel();
               throw new SecRequestError(`SEC HTTP ${response.status}`, response.status);
             }
-            return (text ? await response.text() : await response.json()) as T;
+            return consume ? await consume(response) : (text ? await response.text() : await response.json()) as T;
           })(),
           new Promise<never>((_, reject) => {
             timeout = setTimeout(() => {
               controller.abort();
               reject(new SecRequestError("SEC request timed out"));
-            }, this.timeoutMs);
+            }, timeoutMs);
           }),
         ]);
         return { data: result, retrieval: { url, retrieved_at: new Date().toISOString(),
@@ -112,7 +121,7 @@ export class SecClient {
         if (!retryable || attempt === this.retries) {
           if (error instanceof SecRequestError) throw error;
           // Never echo headers or request credentials in errors.
-          throw new SecRequestError("SEC request failed or returned invalid JSON");
+          throw new SecRequestError(consume ? "SEC archive request failed or returned invalid ZIP data" : "SEC request failed or returned invalid JSON");
         }
       } finally {
         clearTimeout(timeout);

@@ -13,6 +13,7 @@ import { ingestSecurity, type Mutation } from "../src/ingest/sec/ingest";
 import { SecClient } from "../src/ingest/sec/client";
 import { mapAnnual } from "../src/ingest/sec/annual";
 import type { Fixture } from "../src/ingest/sec/types";
+import { fsnFixture, fsnResponse } from "./fsn-fixture";
 import type { Tx } from "../src/lib/auth/audit";
 import { applyLaunchEvidence, launchTickerReport } from "../src/lib/launch/evidence";
 import { launchInputs } from "../src/lib/launch/contracts";
@@ -40,7 +41,11 @@ describe("captured launch issuers through actual ingestion/persistence", () => {
   it.each(tickers)("%s imports twice without duplicates and retains analyst correction across .4 → .6", async ticker => {
     const fixture: Fixture = JSON.parse(readFileSync(`tests/fixtures/sec/launch/${ticker}.json`, "utf8"));
     const before: ReturnType<typeof mapAnnual> = JSON.parse(readFileSync(`tests/fixtures/sec/launch/${ticker}-before.json`, "utf8"));
-    const transport = vi.fn(async () => new Response(JSON.stringify(fixture.companyfacts), { status: 200 }));
+    const transport = vi.fn(async (url: string | URL | Request) => {
+      if (String(url).endsWith(".zip")) return fsnResponse();
+      if (String(url).includes("financial-statement-notes-data-sets")) return new Response(fsnFixture("catalog.html"));
+      return new Response(JSON.stringify(fixture.companyfacts), { status: 200 });
+    });
     const client = new SecClient({ fetcher: transport });
     try {
       await drizzle(connection, { schema }).transaction(async tx => {
@@ -72,7 +77,7 @@ describe("captured launch issuers through actual ingestion/persistence", () => {
         const incoming = allBeforeRepeat.find(f => f.line_item === line && f.calculation_version === "calc-2026.10.6");
         expect(incoming).toMatchObject({ is_current: false, origin: "sec" });
         expect((await tx.select().from(security).where(eq(security.id, id)))[0].last_ingest_error).toBeNull();
-        expect(transport).toHaveBeenCalledTimes(2);
+        expect(transport.mock.calls.filter(([url]) => String(url).includes("/api/xbrl/companyfacts/"))).toHaveLength(2);
         if (ticker === "XOM") {
           // This is a synthetic local launch-evidence assertion, NOT the
           // founder's missing original row or a real price attestation.

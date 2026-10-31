@@ -1,4 +1,4 @@
-import { candidates, durationItems, SEC_CALCULATION_VERSION, sumItems } from "./mapping";
+import { candidates, durationItems, SEC_CALCULATION_VERSION, sumItems, prohibitedIncomeWarning } from "./mapping";
 import { allAnnual, annual, day, entries, latest, selectAnnual, type Entry } from "./selection";
 import type { CompanyFacts, FilingSource, MappedFact, Retrieval } from "./types";
 
@@ -57,10 +57,7 @@ export function mapAnnual(data: CompanyFacts, retrieval: Retrieval) {
         confidence_tier: estimated ? "Estimated" : "Verified", source: source(e),
         mapping_note: `${tag} = ${e.val} USD; ${e.start ? `${e.start} to ` : "instant "}${e.end}` +
           (line === "interest_bearing_investments" ? "; interest-bearing status unproven until analyst confirms filing notes (D-06)" : "") +
-          (line === "prohibited_income" ? "; D-124 estimated interest-income proxy only: excludes untagged interest, prohibited-activity revenue and other analyst-identified prohibited income; not a complete gross prohibited-income total; analyst must review the same annual revenue period" : "") +
-          (line === "prohibited_income" && tag === "InvestmentIncomeInterestAndDividend" ? "; source combines interest and dividends on nonoperating securities; conservative precaution includes the full combined amount, not pure interest" : "") +
-          (line === "prohibited_income" && tag === "InterestIncomeOther" ? "; source interest earned on interest-bearing assets classified as other, not all interest income" : "") +
-          (line === "prohibited_income" && tag === "InterestAndOtherIncome" ? "; broader source includes ancillary other income and may be net; positive combined amount is a precautionary proxy, not pure interest or gross prohibited income" : "") +
+          (line === "prohibited_income" ? prohibitedIncomeWarning(tag) : "") +
           (tag === "ProfitLoss" ? "; consolidated net income including noncontrolling interests, not parent-attributable net income" : "") +
           (estimated && line === "cash_and_equivalents" ? "; broader balance includes restricted cash; estimated cash proxy" : "") };
     }

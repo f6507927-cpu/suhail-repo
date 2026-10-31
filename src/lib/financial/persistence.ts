@@ -1,5 +1,6 @@
 import "server-only";
-import { and, eq, desc, sql, isNull, type SQL } from "drizzle-orm";
+import { and, eq, desc, sql, isNull, inArray, type SQL } from "drizzle-orm";
+import { retainCurrent } from "../../ingest/sec/fsn/precedence";
 import { refreshCompanyMarketValues } from "./market-value-persistence";
 import { createHash } from "node:crypto";
 import { company, security, source, financialPeriod, financialFact } from "../../db/schema/market";
@@ -60,6 +61,22 @@ export async function persistAnnual(tx: Tx, actor: Actor, companyId: string, map
     : await tx.insert(financialPeriod).values({ ...fields, created_by: actor?.id }).returning();
   let inserted = 0, retained = 0, promoted = 0;
   for (const f of mapped.facts) {
+    const [current] = await tx.select().from(financialFact).where(and(
+      factKey(companyId, period.id, f.line_item), eq(financialFact.is_current, true)));
+    if (retainCurrent(f, current)) continue;
+    if (f.adapter === "sec_fsn") {
+      const [revenue] = await tx.select().from(financialFact).where(and(
+        factKey(companyId, period.id, "total_revenue"), eq(financialFact.is_current, true)));
+      const [revenueSource] = revenue?.source_id
+        ? await tx.select().from(source).where(eq(source.id, revenue.source_id)) : [];
+      const anchor = mapped.facts.find(fact => fact.line_item === "total_revenue");
+      // The ratio may use a protected analyst revenue correction instead of the
+      // downloaded revenue. Recheck the actual current denominator under lock.
+      if (!revenue || revenue.value === null || Number(revenue.value) !== anchor?.value ||
+        revenue.as_of_date !== f.as_of_date || !revenueSource ||
+        revenueSource.document_reference !== f.source?.document_reference ||
+        revenueSource.source_url !== f.source?.source_url) continue;
+    }
     const sourceId = f.source ? await filingSource(tx, actor, f.source) : periodSource;
     // Retrieval time is not a change in filing evidence.
     const evidenceKey = createHash("sha256").update(JSON.stringify([
@@ -68,8 +85,6 @@ export async function persistAnnual(tx: Tx, actor: Actor, companyId: string, map
       ...(f.shares_class_concern ? ["explicit-cover-share-class-concern"] : []),
     ])).digest("hex");
     const [seen] = await tx.select().from(financialFact).where(eq(financialFact.evidence_key, evidenceKey));
-    const [current] = await tx.select().from(financialFact).where(and(
-      factKey(companyId, period.id, f.line_item), eq(financialFact.is_current, true)));
     if (seen) {
       if (!current?.protected_current && current?.id !== seen.id) {
         await tx.update(financialFact).set({ is_current: false }).where(and(
@@ -85,7 +100,7 @@ export async function persistAnnual(tx: Tx, actor: Actor, companyId: string, map
       source_id: sourceId, as_of_date: f.as_of_date, mapping_note: f.mapping_note,
       unknown_note: f.unknown_note, calculation_version: f.calculation_version,
       shares_class_concern: f.shares_class_concern ?? false,
-      evidence_key: evidenceKey, origin: "sec", protected_current: false,
+      evidence_key: evidenceKey, origin: f.adapter ?? "sec", protected_current: false,
       is_demo: mapped.period.is_demo, created_by: actor?.id,
     };
     if (f.line_item === "shares_outstanding") {
@@ -110,7 +125,7 @@ export async function persistAnnual(tx: Tx, actor: Actor, companyId: string, map
 }
 export async function latestSec(tx: Tx, companyId: string, periodId: string, line: string) {
   const [row] = await tx.select().from(financialFact).where(and(
-    factKey(companyId, periodId, line), eq(financialFact.origin, "sec")))
+    factKey(companyId, periodId, line), inArray(financialFact.origin, ["sec", "sec_fsn"])))
     .orderBy(desc(financialFact.created_at), desc(financialFact.id)).limit(1);
   return row;
 }
