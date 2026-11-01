@@ -1,5 +1,25 @@
 # Suhail — Decision Log
 
+## Public UX redesign (1 November 2026)
+
+These founder-approved decisions record the scope of the later UX steps only.
+UX-0 is documentation-only: no UI, translation, schema, setting or live-data
+change is applied here. D-142 is already occupied by the SEC Notes fallback;
+the next free IDs after D-141 are D-143–D-152, listed newest first below.
+
+| ID | Decision |
+| --- | --- |
+| D-152 | **Request this stock (UX-8).** Signed-in users can request a stock their search did not find. Each request is stored against the requesting user and is deleted with their account (D-50). Admins see counts per query only, never the requesting identities. This is distinct from the existing identity-free unmet-search counts. Legal text is not approved or edited by this decision; O-7 remains open, including review of whether the privacy policy needs to describe stock requests. |
+| D-151 | **No placeholder analyst identity.** Until an active `analyst_profile` exists, hide the seal byline and the Editor's Pick portrait. Never show a placeholder analyst name. The seal itself still follows the existing passing-and-covered rule (D-37); this does not invent an analyst profile or change screening status. |
+| D-150 | **Public labels and review-marker presentation.** Remove uppercase English eyebrow labels from public pages. Never render `⟦AR-REVIEW⟧` on public pages, including public preview mode (D-137/D-139); pending keys remain tracked in the review documents and hiding the marker does not approve pending wording. Add a unit test that fails whenever `ar.json` lacks any key present in `en.json`. |
+| D-149 | **Single-row public header.** Keep the header to one row at every width. On phones move navigation links, the account control (D-51) and the theme toggle (D-22) into a menu. Remove the header search box. Preserve client-side account state, the existing theme behavior and cookie/header-free public rendering. |
+| D-148 | **Curated English company display names.** Add nullable `company.display_name_en`, editable in the admin, extending D-30. Pages use this display name when present and fall back to the SEC name when it is empty. This does not replace the stored SEC issuer identity. |
+| D-147 | **Answer-first stock page with a complete server-rendered record.** Present the status badge, the reference §7.3 reason rendered from D-42 deterministic templates, criteria as ratio bars, unknowns and four key figures first. Retain every reference §5.3 section, subject to existing scope decisions such as D-04/D-57 (no live-price section) and D-63 (AI generation deferred), grouping the detailed record below a “Full record” disclosure whose content is in the server HTML. Also include a one-line introduction, fixed “what this means / when it changes” text per status code, a plain explanation per criterion, WhatsApp/copy-link sharing and a search-again box. Store criterion explanations in new nullable `methodology_criterion.explanation_ar` / `explanation_en` columns; they are editable only while the version is draft (D-11). The layout and explanatory UI wording do not change status reasons, calculations, stored evidence or fixed-copy approval states. |
+| D-146 | **Admin-selected featured verdict.** Add nullable `editorial_setting.featured_security_id`, set through the admin settings page with an audit event, and expose it through `app.public_settings` (extending D-36). The founder's choice is `nasdaq-aapl`; recording that choice does not set the live setting. Hide the card when the setting is empty or the selected security has no run under the default public methodology version. |
+| D-145 | **Homepage order.** `/` shows, in order: hero (headline, one supporting sentence, search), featured verdict card, “three results” section, “how we screen” section, latest published Editor's Pick, footer. Hide the Editor's Pick section when none is published, per D-02. Featured-card visibility follows D-146. |
+| D-144 | **Founder-approved redesign Arabic UI wording.** Approve every Arabic string in `docs/design/suhail-ux.html` and the UX-1 and UX-8 tables in `docs/design/UX_PROMPTS.md`. Where D-130, D-131 or D-138 already approves the same key, that existing approval wins; do not overwrite it with conflicting mockup/table wording. This approves UI wording only, not legal text (O-7), reference §11 disclaimers or reference §7.3 status-reason templates (O-3). Those retain their current approval/review states; this neither extends nor revokes their existing approvals. |
+| D-143 | **Public layout reference, not a new search behavior.** `docs/design/suhail-ux.html` is the layout reference for public pages. Branding rules in reference §4, including accessible status badges/colors in §4.2a, win wherever the mockup differs. The mockup's suggestions-as-you-type search is excluded: D-129 is unchanged, the existing server-rendered search remains, and no new search API is authorized. |
+
 ## SEC Financial Statement and Notes fallback
 
 | ID | Decision |

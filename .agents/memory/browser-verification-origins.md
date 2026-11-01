@@ -24,3 +24,13 @@ relocation correctness.
 
 **How to apply:** report the runner actually tested and retain separate
 standalone packaging checks before claiming that release form is verified.
+
+Temporary HTTP servers used to view local reference HTML can automatically add
+port mappings to `.replit`, even without a workflow/configuration edit.
+
+**Why:** browser-only document review unexpectedly changed the tracked
+configuration through automatic port exposure.
+
+**How to apply:** stop the temporary server, remove only its automatically
+added mapping through the schema-validated configuration replacement tool, and
+check the final diff before reporting a documentation-only change.
