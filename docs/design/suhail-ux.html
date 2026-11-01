@@ -243,6 +243,11 @@
   .nocover b{display:block;color:var(--ink);font-weight:600}
   .nocover .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
   .nocover .chips a{background:var(--raise);border-radius:999px;padding:6px 12px;text-decoration:none;font-family:var(--mono);font-size:13px;direction:ltr}
+  .nocover .req{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--raise)}
+  .nocover .req button{font:inherit;font-size:14px;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--brass);background:none;color:var(--brass-soft);cursor:pointer}
+  .nocover .req button:hover{background:var(--brass);color:var(--night)}
+  .nocover .req button:focus-visible{outline:2px solid var(--brass-soft);outline-offset:2px}
+  .nocover .req small{font-size:13px}
 
   /* States gallery */
   .sg{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:32px;padding-bottom:96px}
@@ -580,7 +585,8 @@ function render(){
   // Only screened stocks link to a result page; the rest say so instead of opening an empty page.
   list.innerHTML=hits.map((s,i)=>`<li role="presentation"><a role="option" id="opt-${i}" ${s[3]==='na'?'aria-disabled="true"':'href="#stock"'}><span class="tk">${s[0]}</span><span class="nm">${s[1]}</span><span class="st ${s[3]}">${LABEL[s[3]]}</span></a></li>`).join('')
     ||(v?`<li class="nocover"><b>لا نغطي هذا السهم بعد.</b>نغطي حالياً 25 سهماً أمريكياً، ونضيف غيرها تباعاً. جرّب:
-      <span class="chips">${STOCKS.filter(s=>s[3]!=='na').map(s=>`<a href="#stock" data-view="stock">${s[0]}</a>`).join('')}</span></li>`:'');
+      <span class="chips">${STOCKS.filter(s=>s[3]!=='na').map(s=>`<a href="#stock" data-view="stock">${s[0]}</a>`).join('')}</span>
+      <span class="req"><button type="button" data-req>اطلب إضافة هذا السهم</button><small>نرتّب الأسهم الجديدة حسب عدد الطلبات.</small></span></li>`:'');
   list.classList.toggle('open',!!v); q.setAttribute('aria-expanded',!!v);
   document.getElementById('sugg-count').textContent=v?(hits.length?hits.length+' نتائج':'لا نتائج'):'';
 }
@@ -599,6 +605,13 @@ mb.onclick=()=>{const o=nav.classList.toggle('open');mb.setAttribute('aria-expan
 nav.addEventListener('click',()=>{nav.classList.remove('open');mb.setAttribute('aria-expanded',false);});
 document.querySelectorAll('.hint button').forEach(b=>b.onclick=()=>{q.value=b.dataset.q;render();q.focus();});
 document.addEventListener('click',e=>{if(!e.target.closest('.search'))list.classList.remove('open');});
+// Request this stock: signed-in users only; signed-out visitors see "سجّل الدخول لطلب هذا السهم" and go to sign-in.
+list.addEventListener('click',e=>{
+  const b=e.target.closest('[data-req]'); if(!b) return; e.stopPropagation();
+  b.textContent='سجّلنا طلبك'; b.disabled=true;
+  toast.textContent='سجّلنا طلبك، وسنأخذه في الحسبان عند إضافة أسهم جديدة.';
+  toast.classList.add('on'); setTimeout(()=>toast.classList.remove('on'),2600);
+});
 
 // Views (the mockup fakes routing; the real site uses /, /stock/[slug] and /search)
 function show(name,anchor){
