@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { LocalizedText } from "./shared";
+import { PublicLocalizedText as LocalizedText } from "./shared";
 
 export function StockSearchForm({ locale, query = "", compact = false }: {
   locale: "ar" | "en"; query?: string; compact?: boolean;

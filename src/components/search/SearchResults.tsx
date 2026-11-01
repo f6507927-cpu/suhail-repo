@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { EmptyState, StatusBadge, LocalizedText } from "../foundation";
+import { EmptyState, StatusBadge, PublicLocalizedText as LocalizedText } from "../foundation";
 import { Bilingual, LanguageNotice } from "../stock/StockVerdictParts";
 import type { SearchResult } from "../../db/search-public";
 
@@ -8,7 +8,7 @@ export function SearchResults({ results, locale, valid }: {
 }) {
   const t = useTranslations("publicSearch");
   if (!results.length) return (
-    <EmptyState title={t(valid ? "noResults" : "title")}>
+    <EmptyState publicCopy title={t(valid ? "noResults" : "title")}>
       <LocalizedText>{t(valid ? "noResultsBody" : "hint")}</LocalizedText>
     </EmptyState>
   );

@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { LocalizedText } from "../../../components/foundation";
+import { PublicLocalizedText as LocalizedText } from "../../../components/foundation";
 import { StockSearchForm } from "../../../components/foundation/StockSearchForm";
 
 export const revalidate = 900;

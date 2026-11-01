@@ -14,11 +14,6 @@
     "draft": "أدخل من حرف واحد إلى 40 حرفًا من رمز السهم أو اسم الشركة.",
     "category": "help/error"
   },
-  "J-publicSearch-methodologyLine": {
-    "source": "Read how the screening methodology works.",
-    "draft": "اطّلع على كيفية عمل منهجية الفحص.",
-    "category": "help/error"
-  },
   "J-publicSearch-noResults": {
     "source": "Not covered yet",
     "draft": "غير مشمول بالتغطية بعد",
@@ -28,11 +23,6 @@
     "source": "No listed stocks in the screening universe match this search.",
     "draft": "لا توجد أسهم مدرجة ضمن نطاق الفحص تطابق هذا البحث.",
     "category": "help/error"
-  },
-  "J-publicSearch-title": {
-    "source": "Stock search",
-    "draft": "البحث عن سهم",
-    "category": "UI label"
   },
   "U-00799d7eb4caed17030b0bb9cecb5a8263924c1e769a6f6791f684ac288d98d0": {
     "source": "English name",
@@ -69,11 +59,6 @@
     "draft": "خارج نطاق التغطية",
     "category": "help/error"
   },
-  "U-070611ae22a3d23232f7cf82712b698fbf48699033e35fe5b039e06ef590b9db": {
-    "source": "STORED RUN EVIDENCE",
-    "draft": "أدلة الفحص المحفوظة",
-    "category": "help/error"
-  },
   "U-09b0387dc7e0c6cdb08912c729f518e66ed6107b4ff37b6998b11e3fefb18654": {
     "source": "Ingest now",
     "draft": "استيراد البيانات الآن",
@@ -87,11 +72,6 @@
   "U-0e4b0472a71c4885fb0cc88ca03240144fbd2b937898733ebb58a32d1a34d688": {
     "source": "No result is shown because no stored run is available.",
     "draft": "لا تُعرض نتيجة لعدم توفر فحص محفوظ.",
-    "category": "help/error"
-  },
-  "U-0e570ca6fabe24f94e52c1833f3ffd25567022beb826fa16891f3322051bc221": {
-    "source": "Source",
-    "draft": "المصدر",
     "category": "help/error"
   },
   "U-13d82297227cf1e295d331ac506890a9a0e7b0976a92c5061b1737ad0c04e078": {
@@ -164,11 +144,6 @@
     "draft": "المحلّل المُسنَد",
     "category": "help/error"
   },
-  "U-2252d5cf93767a43ecc53f07c8e49d76be0126e021c0397af8d51927e9c5e2e4": {
-    "source": "Effect",
-    "draft": "الأثر",
-    "category": "help/error"
-  },
   "U-22a970d2e5b1cc233e462be7c7b64e135a275bb09d83d87683bf4236c43113a1": {
     "source": "Completed",
     "draft": "مكتمل",
@@ -177,11 +152,6 @@
   "U-24e59ff38c6b902933e5c82b77e463488886fc66eb3ac9f489cf290d203cb360": {
     "source": "Source type",
     "draft": "نوع المصدر",
-    "category": "help/error"
-  },
-  "U-2717fd4197c4fe6ddcf18e832f1eb6c47fe4a3db3c87084daeb34b495735cdef": {
-    "source": "SCREENING RESULT",
-    "draft": "نتيجة الفحص",
     "category": "help/error"
   },
   "U-284e55dcc5a4772a8106d49d7060ee95c45c32d7331c58dd787249f48d75d56c": {
@@ -197,21 +167,6 @@
   "U-2b20a72bf7be962dfb991fdb105daca0d82157dd2a42f63998d88b119c578a0b": {
     "source": "Hash verified.",
     "draft": "تم التحقق من البصمة.",
-    "category": "help/error"
-  },
-  "U-2c74499f1b9dad4d192a585c0b5fd2598193ad5cb22497c544a72373cad2e67d": {
-    "source": "Accession / reference",
-    "draft": "رقم الإفصاح / المرجع",
-    "category": "help/error"
-  },
-  "U-2dca7847fc1ead88554ca3600f1a9df73724e9c4bc60d40d13aa267a25271e14": {
-    "source": "Open methodology and this version",
-    "draft": "فتح المنهجية وهذا الإصدار",
-    "category": "help/error"
-  },
-  "U-2e421e6bedbf78528895b814279b5af530b96660aeeb4cf02d3bd4b82a9fab0a": {
-    "source": "Filed date",
-    "draft": "تاريخ تقديم الإفصاح",
     "category": "help/error"
   },
   "U-2ee528b0b86f72ea1132fc0c3041c036afc09060c7e970e046c976a7831b817d": {
@@ -304,11 +259,6 @@
     "draft": "اسم قطاع الأعمال",
     "category": "help/error"
   },
-  "U-4291347f6494352d32fbc82261877c5c200c083f28f80cbb238aa81c52c89646": {
-    "source": "Data date",
-    "draft": "تاريخ البيانات",
-    "category": "help/error"
-  },
   "U-43bc0f5fc035108f88cb7436ade1a103b0c710ba82c733cb5835a2b89dc4568f": {
     "source": "Override",
     "draft": "تصحيح",
@@ -349,11 +299,6 @@
     "draft": "نطاق الأوراق المالية",
     "category": "help/error"
   },
-  "U-4c4f03abfa8d1f77ab584a6eaf3804fee1c9c37f03cd0d1ca691f703f2daa818": {
-    "source": "Screening",
-    "draft": "الفحص",
-    "category": "help/error"
-  },
   "U-4ee0a68f5a92963eaa31176fbfecf176552780808b5f1fb83aca7cac29eefedc": {
     "source": "Market value guidance",
     "draft": "إرشادات القيمة السوقية",
@@ -392,11 +337,6 @@
   "U-52936718b351659f8f687a54a84c4f6fc39223cca693d3c3d2eaa396c89888f9": {
     "source": "Job summary",
     "draft": "ملخص المهمة",
-    "category": "help/error"
-  },
-  "U-53d42de445bdac66b6a991ff00b8fd179da4fc9a8b8488ef9a8a39cc8ed84ede": {
-    "source": "IMMUTABLE RUN RECORD",
-    "draft": "سجل فحص غير قابل للتعديل",
     "category": "help/error"
   },
   "U-53fcd93ec19888d61613a374b1e0c4f604d063c4a23e0be98428b00da81f315b": {
@@ -444,21 +384,6 @@
     "draft": "قُبل البديل الوارد من هيئة الأوراق المالية الأمريكية.",
     "category": "help/error"
   },
-  "U-5d8a995a6fa7cf7c577cc9d49ca9e00d4aee4d0bcd5e2ad5caff27e2a8097276": {
-    "source": "Why?",
-    "draft": "لماذا؟",
-    "category": "help/error"
-  },
-  "U-5e9f98120dbe568255ee059f39671686982b113d4e917b6d6faf149918c81709": {
-    "source": "Severity",
-    "draft": "درجة الأهمية",
-    "category": "help/error"
-  },
-  "U-6047fdc89ef2a721b980b6eb5227b260b2d3b7490bdaf73dd5869fbce7f4c70e": {
-    "source": "CURRENT PERIOD FACTS",
-    "draft": "بيانات الفترة الحالية",
-    "category": "help/error"
-  },
   "U-6071b9b565c939cdfdd26222ba55f41fce381bf17e8ecd9e4bd4adf21468dedc": {
     "source": "Processed",
     "draft": "السجلات المعالَجة",
@@ -484,24 +409,9 @@
     "draft": "المسار",
     "category": "help/error"
   },
-  "U-6422e3e78f5e5f5a15e92cc57ed7114adb289339251031ccb526d9249437dc82": {
-    "source": "Confidence",
-    "draft": "درجة الثقة",
-    "category": "help/error"
-  },
   "U-6509e88fa0550134faeea334174e3b202aeeb4a257c2c23c08a5f38664b97bde": {
     "source": "No screening runs recorded.",
     "draft": "لم تُسجّل فحوص.",
-    "category": "help/error"
-  },
-  "U-65411b5e761f4ab0fc95c38b3fbf0a9def8be4024c3f112e72a7771e0db6cd4c": {
-    "source": "EXPLANATION OBJECT",
-    "draft": "كائن الشرح",
-    "category": "help/error"
-  },
-  "U-67a0d2e0dab41fca184a37454ca4e946011756ec7b74eede7810d7df89904a18": {
-    "source": "Open source",
-    "draft": "فتح المصدر",
     "category": "help/error"
   },
   "U-6b169a4b78e1f0ae986d61315861bf442cb7c3faedc47285e070328ef426fa2b": {
@@ -514,19 +424,9 @@
     "draft": "لم يُسجّل فحص بهذه المنهجية بعد.",
     "category": "help/error"
   },
-  "U-6e795d4d3cc21c5ca8349ab5e917482197aa612d1a218f9e9411467db73242bb": {
-    "source": "Period",
-    "draft": "الفترة",
-    "category": "help/error"
-  },
   "U-6ebe42f5ba36b0d428f2ee65e0e6f21d807bc4c180096be563e7991348c8cce7": {
     "source": "Security record",
     "draft": "سجل الورقة المالية",
-    "category": "help/error"
-  },
-  "U-6ee1c9a2e1ca91541b1f5fdcfcba8fd754d6b021994be8ec20538789adffa69c": {
-    "source": "Filing date",
-    "draft": "تاريخ الإفصاح",
     "category": "help/error"
   },
   "U-6f43db5c3a93c8596d1df06377040dbc3476baef4879f143ffa866fc1a729ef6": {
@@ -549,11 +449,6 @@
     "draft": "تأكيد المصدر لنهاية الشهر",
     "category": "help/error"
   },
-  "U-71708699acf8f3b31ebae495bc0dd1b6204324bf66afe336292bba5e8f276f2b": {
-    "source": "Criteria",
-    "draft": "المعايير",
-    "category": "help/error"
-  },
   "U-72ed245d2cf11822e0fe9f960c8430d2a5c8035a0cc96d8ff5af311632c50daa": {
     "source": "Reasons",
     "draft": "الأسباب",
@@ -574,11 +469,6 @@
     "draft": "لم تُسجّل اختلافات.",
     "category": "help/error"
   },
-  "U-766b33ce887eec278e9fb62dc24faecf440d702dbca7d3263fa2feef01a7843c": {
-    "source": "What we know",
-    "draft": "ما نعرفه",
-    "category": "help/error"
-  },
   "U-772a2bbde3f20e185625dded95e8ad0365a307d776e79e73ad52e9a3e5f3515f": {
     "source": "Unchanged records",
     "draft": "السجلات التي لم تتغير",
@@ -592,11 +482,6 @@
   "U-781923232c692141120bc84f45344c6aeb442df73bfee6dd67a61adb129e4e6c": {
     "source": "Save close",
     "draft": "حفظ سعر الإغلاق",
-    "category": "help/error"
-  },
-  "U-781a7883146228a78e872ec4b25b808a39b3923998cee43219035330395fcf55": {
-    "source": "PUBLIC SCREENING RECORD",
-    "draft": "سجل الفحص المتاح للجميع",
     "category": "help/error"
   },
   "U-7869e7f8b8bc4688fefd97892e16bca36564fe5bf852ac320f9d4d69ee7a0aa8": {
@@ -629,11 +514,6 @@
     "draft": "أكثر 20 عبارة بحث بعد توحيد صيغتها · أعداد يومية مجهولة الهوية فقط",
     "category": "UI label"
   },
-  "U-7f309769df3d3645a76062f620fd6ec1046619062905d753f262fbaa59fac774": {
-    "source": "PROVENANCE",
-    "draft": "توثيق المصدر",
-    "category": "help/error"
-  },
   "U-7f5ac612591d3663441f1e82a8cfd4bdde6ccd824924d6bf832bf9e385741a85": {
     "source": "Screen all",
     "draft": "فحص الجميع",
@@ -649,11 +529,6 @@
     "draft": "سجل المهام وتقدمها وإعادة محاولة معالجة الأوراق المالية التي تعذّرت معالجتها.",
     "category": "help/error"
   },
-  "U-80e4ad056bd7eb907b42aac6795f2295df87a1bd9a196ea0ff1dd3eb11fabf8b": {
-    "source": "Under",
-    "draft": "وفق",
-    "category": "help/error"
-  },
   "U-80fb230750b18ec6aa94484537d4c463f3f167c5ddef83383ac0c850efcba49b": {
     "source": "Gross annual prohibited income includes interest income, prohibited-activity revenue and other analyst-identified prohibited income for the displayed annual period. Use a sourced total or a conservative estimate.",
     "draft": "يشمل إجمالي الإيرادات السنوية غير المباحة إيرادات الفوائد وإيرادات الأنشطة غير المباحة وأي إيرادات أخرى غير مباحة يحددها المحلّل للفترة السنوية المعروضة. استخدم إجماليًا موثّق المصدر أو تقديرًا متحفّظًا.",
@@ -662,11 +537,6 @@
   "U-812efc4e39d159ddb7983d867db804f3f54f7f7359bce1f3707fb6e14d6e8623": {
     "source": "No run yet",
     "draft": "لم يُجرَ فحص بعد",
-    "category": "help/error"
-  },
-  "U-827ec8d9f99d052149cd4fce69d14f57563bd5c972074172777670c36907a5a7": {
-    "source": "Generated",
-    "draft": "تاريخ الإنشاء",
     "category": "help/error"
   },
   "U-841bb21e60a69a79dc00445f0a47b91b0dce098c638085109cc8d547cdc7807d": {
@@ -682,11 +552,6 @@
   "U-85d5ede5dac8f2bd8cd68870d79b63de806d86a84383be9f532d3b34800714b6": {
     "source": "Job history",
     "draft": "سجل المهام",
-    "category": "help/error"
-  },
-  "U-881a251f38a2c34de399a46918ff78469edb4ba82d78697087dcaa5e470527d4": {
-    "source": "SEC label",
-    "draft": "التسمية لدى هيئة الأوراق المالية الأمريكية",
     "category": "help/error"
   },
   "U-881d6295619ac4f25495d586e7d67a19e9b138bbec1ae545049df94825d01fde": {
@@ -712,11 +577,6 @@
   "U-8e021528984ec48441d9092c3bdf64034702be77aad753716e081b57ffd27a42": {
     "source": "Save company fields",
     "draft": "حفظ حقول الشركة",
-    "category": "help/error"
-  },
-  "U-8e37953d23daca5ff01b8282c33f4e0a2152f1d1885f94c06418617e3ee1d24e": {
-    "source": "Value",
-    "draft": "القيمة",
     "category": "help/error"
   },
   "U-8f6fb4eb7f42c0e245e29e63f5b82cc3ba19852681d1ed9aed291f59cf75ec0e": {
@@ -754,11 +614,6 @@
     "draft": "تطابق إعادة التشغيل",
     "category": "help/error"
   },
-  "U-9631bca4a10ed08187ed6e5254b863567fa2924ab1d7eb57e1886685a573e52c": {
-    "source": "No earlier run for this methodology.",
-    "draft": "لا يوجد فحص سابق بهذه المنهجية.",
-    "category": "help/error"
-  },
   "U-97369ca3d983aa60ba3e59ed4d7f1721a184325c049d9d75cf37dc2aab87463c": {
     "source": "Stored hash",
     "draft": "البصمة المحفوظة",
@@ -767,11 +622,6 @@
   "U-99c40ab405926cb5ad1def9cff4d7ce624f8f8abfff4e85f655347fcb949d08e": {
     "source": "Date",
     "draft": "التاريخ",
-    "category": "help/error"
-  },
-  "U-9a29cc1e3febfd0edb4f2ea880d862b9f8acb387bcd5c3a30a3a4021cce3e788": {
-    "source": "DOCUMENTED RULE SET",
-    "draft": "مجموعة القواعد الموثّقة",
     "category": "help/error"
   },
   "U-9cd6577b34f5fa191d82f2a594671e5f9bfd38e7be570fec25914b0303289b52": {
@@ -798,11 +648,6 @@
     "source": "Queries appear here when a public search returns no matches.",
     "draft": "تظهر عبارات البحث هنا عندما لا يجد البحث العام نتائج مطابقة.",
     "category": "UI label"
-  },
-  "U-9fc507fcc84f055d3a814ac91a71952d534643f21efa635c4e3f084c5e0e8eab": {
-    "source": "CRITERION RECORD",
-    "draft": "سجل المعيار",
-    "category": "help/error"
   },
   "U-a01ae82090d8ca00928585bbc88e23af0717bbb0f5e64478d7e3c2dbb8cde9e4": {
     "source": "Screening runs",
@@ -844,11 +689,6 @@
     "draft": "البصمة",
     "category": "help/error"
   },
-  "U-a9389daacf956073c47e2f8ebfa4e077ad61512c6b6a54e2342f69f9187e775d": {
-    "source": "Run metadata",
-    "draft": "البيانات الوصفية للفحص",
-    "category": "help/error"
-  },
   "U-a94e7bcfcbed3c846d491d4f47c948e53a23908d480248b3ffe9e126e83ea865": {
     "source": "records",
     "draft": "سجلات",
@@ -877,11 +717,6 @@
   "U-ae02607d65f5df62370978cf9c867f53ffb66a519e74d4ba98fa4e619597ac02": {
     "source": "Latest completed quarter",
     "draft": "أحدث ربع مكتمل",
-    "category": "help/error"
-  },
-  "U-aeacbe3caafc7e2d3f072648d7c94f6ff73c1ab23e6e0a02843d8aca48e83c7a": {
-    "source": "Why missing",
-    "draft": "سبب عدم التوفر",
     "category": "help/error"
   },
   "U-af71ccaa69e15a147ec34182b7e3be5c0e66d6ec906f773f324c11b3c1fec313": {
@@ -924,16 +759,6 @@
     "draft": "الفترة المالية",
     "category": "help/error"
   },
-  "U-b8f48c5f1694055d23900e67ab43f913ba4c0988775f2b5fc2a4d0256dddb208": {
-    "source": "Unavailable in the stored source record",
-    "draft": "غير متاح في سجل المصدر المحفوظ",
-    "category": "help/error"
-  },
-  "U-b995f20a6ba0d6affd124b1b48fec15929ab9fcd22b157df7784424d6e005955": {
-    "source": "What we don't know",
-    "draft": "ما لا نعرفه",
-    "category": "help/error"
-  },
   "U-ba8418ed4512fd9a2ceae87a2c13deedd68b4a90447b8198f02ebfd28a7ad2a2": {
     "source": "No unknowns recorded.",
     "draft": "لم تُسجّل قيم غير معروفة.",
@@ -944,19 +769,9 @@
     "draft": "الملاحظة المطلوبة لنهاية الشهر",
     "category": "help/error"
   },
-  "U-baaddf70fb5d432b8bd948ef91d6f910124a6d138edae4d5f000c4610ddc8eae": {
-    "source": "Type",
-    "draft": "النوع",
-    "category": "help/error"
-  },
   "U-bb0f9ad6dc335c9a511426682bc10069ef7456504c2fd8687df1cc429b6b0302": {
     "source": "Confirm removal",
     "draft": "تأكيد الإزالة",
-    "category": "help/error"
-  },
-  "U-bca1c48547c2de8002e41a65cfb8c7d91e31654e6e7d5c12d253cf795477d3ad": {
-    "source": "Screening runs are append-only. This record is never edited.",
-    "draft": "تُضاف سجلات الفحص دون تعديل أو حذف. لا يُعدّل هذا السجل مطلقًا.",
     "category": "help/error"
   },
   "U-c19fd9536866ef86c9b3382c195dd6ab984de936ec8d61b7a0376bf5e1ac6606": {
@@ -1014,16 +829,6 @@
     "draft": "حُفظ التأكيد من الإفصاح.",
     "category": "help/error"
   },
-  "U-ca184496974204a0bd3fd4925e0540bc4b0df6fcc232994d29754272b7183812": {
-    "source": "Unavailable",
-    "draft": "غير متاح",
-    "category": "help/error"
-  },
-  "U-caf85b0888d78f1f83771a07b25c3d30fa1210242f2fae6e5ae5d9a686602800": {
-    "source": "Sources",
-    "draft": "المصادر",
-    "category": "help/error"
-  },
   "U-cb9e8664edea8cf5965fb4d4d013974ef10caeaad734702b19617210828cd7ab": {
     "source": "Tier",
     "draft": "فئة جودة البيانات",
@@ -1032,11 +837,6 @@
   "U-cbc8a81954e306158134027ddcb0b628c9353368fc8d3d51c23c3d2ea0939886": {
     "source": "Source label",
     "draft": "تسمية المصدر",
-    "category": "help/error"
-  },
-  "U-cd93bba5bc3046ea66440084b4eac833b9eb2b8de9d1c81f0801222918234b52": {
-    "source": "APPEND-ONLY RUNS",
-    "draft": "فحوص لا تقبل التعديل أو الحذف",
     "category": "help/error"
   },
   "U-cd9a67fca2a5477ee4c6ada47fb682c860723b7acfd387b61c4eec58bd6bb98b": {

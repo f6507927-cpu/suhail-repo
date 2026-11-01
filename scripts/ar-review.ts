@@ -340,6 +340,8 @@ approval evidence is pinned independently in tests/fixtures/arabic-approval-base
 D-107 batch-2 evidence is pinned separately in tests/fixtures/arabic-batch-two-approval.json;
 docs/ARABIC_APPROVAL_BATCH_TWO.md lists every applied row. Approved rows are
 excluded from this pending sheet; the O-7 legal bodies remain unapproved.
+D-144 approves only the public UX-1 table phrases. D-150 hides review markers
+on public pages without approving other pending copy; those keys remain here.
 No translations are applied by this command. Existing IDs survive; keyed IDs
 are J-namespace-key; new unkeyed phrases use a full SHA-256 source ID (U-...).
 Drafts are retained only while their exact English source matches. A source

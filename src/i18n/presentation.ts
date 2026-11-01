@@ -1,6 +1,7 @@
 import en from "./messages/en.json";
 import ar from "./messages/ar.json";
 import followUp from "./approved-arabic-follow-up.json";
+import publicUxOne from "./approved-arabic-public-ux-one.json";
 import { isolateArabicCode } from "./bidi";
 
 type Pair = readonly [english: string, arabic: string];
@@ -121,6 +122,8 @@ function messagePairs(english: object, arabic: object): Pair[] {
 }
 
 export const publicUiCopy: Readonly<Record<string, string>> = Object.fromEntries([
+  // D-144: shared phrase + structured-label consumers; D-130/D-131/D-138 win below.
+  ...Object.entries(publicUxOne),
   ...messagePairs(en, ar),
   ...Object.values(presentationLabels).flatMap(family => Object.values(family)).filter(([, text]) => !text.includes("⟦AR-REVIEW⟧")),
   ["English only", "متاح بالإنجليزية فقط"], ["Arabic only", "متاح بالعربية فقط"],

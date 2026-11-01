@@ -1,6 +1,6 @@
 import { Link } from "../../i18n/navigation";
 import { useTranslations } from "next-intl";
-import { LocalizedText, Num } from "../foundation";
+import { PublicLocalizedText as LocalizedText, Num } from "../foundation";
 import type { PublicMethodologyGroup } from "../../db/methodology-public";
 import { MethodologyCopy } from "./MethodologyCopy";
 import { formatNumber } from "@/lib/format";

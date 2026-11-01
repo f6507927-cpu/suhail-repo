@@ -2,7 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { searchPublicStocks, searchQuery } from "../../../../db/search-public";
 import { StockSearchForm } from "../../../../components/foundation/StockSearchForm";
 import { SearchResults } from "../../../../components/search/SearchResults";
-import { LocalizedText } from "../../../../components/foundation";
+import { PublicLocalizedText as LocalizedText } from "../../../../components/foundation";
 
 // D-20/D-22: query-driven SSR only here; sibling pages retain 900-second ISR.
 export const dynamic = "force-dynamic";

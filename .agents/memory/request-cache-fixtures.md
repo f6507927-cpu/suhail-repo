@@ -17,3 +17,12 @@ the request-local behavior.
 framework's initialization, and retain a real HTTP render/action distinction.
 Do not treat a renderer setup failure as evidence to introduce a global auth
 cache. Action execution must be measured outside a render pass.
+
+Keep a fixture session's token stable for the whole request scenario.
+
+**Why:** Real RSC rendering can cross a wall-clock second. Regenerating a JWT
+for the expected value can change its time claims and falsely fail an exact-token
+assertion even though verification and request caching are correct.
+
+**How to apply:** Mint once per scenario and compare the actual cookie token;
+retain fresh session state between scenarios and leave runtime auth unchanged.

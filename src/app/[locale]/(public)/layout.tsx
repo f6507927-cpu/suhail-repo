@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import {
   Disclaimer,
-  LocalizedText,
+  PublicLocalizedText as LocalizedText,
 } from "../../../components/foundation";
 import { SiteHeader } from "../../../components/foundation/SiteHeader";
 import { FullDisclaimerLink } from "../../../components/foundation/FullDisclaimerLink";

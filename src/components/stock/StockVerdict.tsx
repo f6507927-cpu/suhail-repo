@@ -15,7 +15,12 @@ import {
   Label,
   LanguageNotice,
   UnknownFieldLabel,
-  unknownFieldNeedsFallback,
+  hasEnglishOnlyNarrative,
+  criteriaNeedFallback,
+  unknownsNeedFallback,
+  statusReasonsNeedFallback,
+  structuredEvidenceNeedsFallback,
+  sourcesNeedFallback,
   isBooleanCriterion,
   RatioValue,
   ReasonList,
@@ -42,6 +47,34 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
     : null;
   const criteria = [...data.criteria].sort((a, b) => a.sort_order - b.sort_order);
   const history = [ ...(run ? [run] : []), ...data.priorRuns ].sort((a, b) => new Date(b.generated_at).getTime() - new Date(a.generated_at).getTime());
+  // D-150: keep the single Arabic fallback notice beside the company identity.
+  // These checks match the actual conditional English evidence rendered below.
+  const needsArabicLanguageNotice = locale === "ar" && (
+    (!company.name_ar?.trim() && hasEnglishOnlyNarrative(company.name)) ||
+    Boolean(data.exchange && data.exchange.name !== data.exchange.code && hasEnglishOnlyNarrative(data.exchange.name)) ||
+    hasEnglishOnlyNarrative(company.sector_label) ||
+    Boolean(data.analyst && (
+      (!data.analyst.name_ar?.trim() && hasEnglishOnlyNarrative(data.analyst.name_en)) ||
+      (!data.analyst.title_ar?.trim() && hasEnglishOnlyNarrative(data.analyst.title_en)) ||
+      hasEnglishOnlyNarrative(data.analyst.credentials)
+    )) ||
+    Boolean(run && (
+      hasEnglishOnlyNarrative(storedMethodologyTitle) ||
+      hasEnglishOnlyNarrative(methodology?.scope) ||
+      statusReasonsNeedFallback(run.status_reasons) ||
+      criteriaNeedFallback(criteria) ||
+      unknownsNeedFallback(data.unknowns) ||
+      data.facts.some(fact => fact.value === null && hasEnglishOnlyNarrative(fact.value_text)) ||
+      sourcesNeedFallback(data.sources, data) ||
+      hasEnglishOnlyNarrative(periodFiledDate(data, "ar")) ||
+      Boolean(data.explanation && [
+        ...(data.explanation.evidence ?? []),
+        ...(data.explanation.unknowns ?? []),
+      ].some(structuredEvidenceNeedsFallback))
+    ))
+  );
+  const needsReverseLanguageNotice = locale === "en" &&
+    Boolean(data.analyst && !data.analyst.name_en && data.analyst.name_ar);
   return (
     <main className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       {(security.is_demo || company.is_demo || Boolean(run?.is_demo)) && <DemoBanner className={styles.banner} />}
@@ -50,7 +83,6 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
         : null}
 
       <header className={styles.companyHeader} data-section="header">
-        <p className={styles.eyebrow}><Copy locale={locale}>PUBLIC SCREENING RECORD</Copy></p>
         <div className={styles.companyTitle}>
           <h1 lang={locale === "ar" && company.name_ar?.trim() ? "ar" : "en"}><bdi dir={locale === "ar" && company.name_ar?.trim() ? "rtl" : "ltr"}>{locale === "ar" && company.name_ar?.trim() ? company.name_ar.trim() : company.name}</bdi></h1>
           {locale === "ar" && company.name_ar?.trim() && <p className={styles.arabicName} lang="en" dir="ltr">{company.name}</p>}
@@ -86,12 +118,10 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
             ) : <span> <Copy locale={locale}>Analyst profile unavailable</Copy></span>}
           </div>
         )}
-        <LanguageNotice locale={locale} needed={locale === "ar" && (!company.name_ar?.trim() || Boolean(company.sector_label) || Boolean(data.analyst && (!data.analyst.name_ar || (!data.analyst.title_ar && data.analyst.title_en) || data.analyst.credentials)))} />
-        <LanguageNotice locale={locale} needed={locale === "en" && Boolean(data.analyst && !data.analyst.name_en && data.analyst.name_ar)} reverse />
+        <LanguageNotice locale={locale} needed={needsArabicLanguageNotice || needsReverseLanguageNotice} reverse={needsReverseLanguageNotice} />
       </header>
       <section className={`${styles.section} ${styles.screening}`} data-section="screening" aria-labelledby="stock-screening-title">
         <div className={styles.sectionHeading}>
-          <p className={styles.eyebrow}><Copy locale={locale}>SCREENING RESULT</Copy></p>
           <h2 id="stock-screening-title"><Copy locale={locale}>Screening</Copy></h2>
         </div>
         {run ? (
@@ -133,7 +163,6 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
               </Field>
               <Field label={<Copy locale={locale}>Data date</Copy>}>{formatCalendarDate(run.data_as_of, locale)}</Field>
             </dl>
-             <LanguageNotice locale={locale} needed={locale === "ar" && Boolean(storedMethodologyTitle)} />
             <a href="#stock-why" className={styles.whyLink}>
               <Copy locale={locale}>Why?</Copy><span aria-hidden="true">↓</span>
             </a>
@@ -149,7 +178,6 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
         <>
           <section className={styles.section} data-section="why" id="stock-why" aria-labelledby="stock-why-title">
             <div className={styles.sectionHeading}>
-              <p className={styles.eyebrow}><Copy locale={locale}>DETERMINISTIC RECORD</Copy></p>
               <h2 id="stock-why-title"><Copy locale={locale}>Why this assessment</Copy></h2>
             </div>
             <ReasonList reasons={run.status_reasons} locale={locale} passing={run.status === "passes_selected_methodology"} />
@@ -157,7 +185,6 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
           </section>
           <section className={styles.section} data-section="known" aria-labelledby="stock-known-title">
             <div className={styles.sectionHeading}>
-              <p className={styles.eyebrow}><Copy locale={locale}>STORED RUN EVIDENCE</Copy></p>
               <h2 id="stock-known-title"><Copy locale={locale}>What we know</Copy></h2>
             </div>
             {criteria.length ? (
@@ -178,11 +205,9 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
                 ))}
               </ul>
             ) : <p className={styles.muted}><Copy locale={locale}>No criterion evidence was stored for this run.</Copy></p>}
-             <LanguageNotice locale={locale} needed={locale === "ar" && criteria.length > 0} />
           </section>
           <section className={styles.section} data-section="unknown" aria-labelledby="stock-unknown-title">
             <div className={styles.sectionHeading}>
-              <p className={styles.eyebrow}><Copy locale={locale}>RECORDED GAPS</Copy></p>
           <h2 id="stock-unknown-title"><Copy locale={locale}>What we don&apos;t know</Copy></h2>
             </div>
             {data.unknowns.length ? (
@@ -194,12 +219,12 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
                       <Field label={<Copy locale={locale}>Why missing</Copy>}>
                         {unknown.why_missing
                           ? <Bilingual locale={locale} arabic={null} english={unknown.why_missing} />
-                          : reviewText(locale, "Not recorded")}
+                          : <Copy locale={locale}>Not recorded</Copy>}
                       </Field>
                       <Field label={<Copy locale={locale}>Effect</Copy>}>
                         {unknown.effect
                           ? <Bilingual locale={locale} arabic={null} english={unknown.effect} />
-                          : reviewText(locale, "Not recorded")}
+                          : <Copy locale={locale}>Not recorded</Copy>}
                       </Field>
                       <Field label={<Copy locale={locale}>Severity</Copy>}>
                          <Label family="severity" value={unknown.severity} locale={locale} />
@@ -209,12 +234,10 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
                 ))}
               </ul>
             ) : <p><Copy locale={locale}>No unknown inputs were recorded for this run.</Copy></p>}
-             <LanguageNotice locale={locale} needed={locale === "ar" && data.unknowns.some(item => Boolean(item.why_missing || item.effect) || unknownFieldNeedsFallback(item.field_or_input, locale))} />
           </section>
 
           <section className={styles.section} data-section="methodology" aria-labelledby="stock-method-title">
             <div className={styles.sectionHeading}>
-              <p className={styles.eyebrow}><Copy locale={locale}>DOCUMENTED RULE SET</Copy></p>
               <h2 id="stock-method-title"><Copy locale={locale}>Methodology</Copy></h2>
             </div>
             <p className={styles.methodName}>
@@ -226,7 +249,6 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
                 <span lang="en" dir="ltr">{methodology.scope}</span>
               </p>
             )}
-             <LanguageNotice locale={locale} needed={locale === "ar" && Boolean(storedMethodologyTitle || methodology?.scope)} />
             {methodologyHref && (
               <a href={methodologyHref} className={styles.textLink}>
                 <Copy locale={locale}>Open methodology and this version</Copy><span aria-hidden="true">↗</span>
@@ -236,18 +258,15 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
 
           <section className={styles.section} data-section="criteria" aria-labelledby="stock-criteria-title">
             <div className={styles.sectionHeading}>
-              <p className={styles.eyebrow}><Copy locale={locale}>CRITERION RECORD</Copy></p>
               <h2 id="stock-criteria-title"><Copy locale={locale}>Criteria</Copy></h2>
             </div>
             <CriteriaTable criteria={criteria} sources={sourceIndex} locale={locale} />
-             <LanguageNotice locale={locale} needed={locale === "ar" && criteria.length > 0} />
           </section>
 
           {data.explanation && <ExplanationSlot explanation={data.explanation} locale={locale} />}
 
           <section className={styles.section} data-section="fundamentals" aria-labelledby="stock-fundamentals-title">
             <div className={styles.sectionHeading}>
-              <p className={styles.eyebrow}><Copy locale={locale}>CURRENT PERIOD FACTS</Copy></p>
               <h2 id="stock-fundamentals-title"><Copy locale={locale}>Fundamentals</Copy></h2>
             </div>
             {data.facts.length ? (
@@ -279,12 +298,10 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
                 </table>
               </div>
             ) : <p className={styles.muted}><Copy locale={locale}>No current-period facts were recorded.</Copy></p>}
-            <LanguageNotice locale={locale} needed={locale === "ar" && data.facts.some(fact => fact.value !== null ? false : Boolean(fact.value_text))} />
           </section>
 
           <section className={styles.section} data-section="sources" aria-labelledby="stock-sources-title">
             <div className={styles.sectionHeading}>
-              <p className={styles.eyebrow}><Copy locale={locale}>PROVENANCE</Copy></p>
               <h2 id="stock-sources-title"><Copy locale={locale}>Sources</Copy></h2>
             </div>
             {data.sources.length ? (
@@ -300,7 +317,11 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
                         <h3><Bilingual locale={locale} arabic={null} english={title} /></h3>
                          <dl>
                            <Field label={<Copy locale={locale}>Type</Copy>}><Label family="sourceType" value={source.source_type} locale={locale} /></Field>
-                           <Field label={<Copy locale={locale}>Accession / reference</Copy>}><bdi dir="ltr">{source.document_reference || reviewText(locale, "Unavailable")}</bdi></Field>
+                           <Field label={<Copy locale={locale}>Accession / reference</Copy>}>
+                             {source.document_reference
+                               ? <bdi dir="ltr">{source.document_reference}</bdi>
+                               : <bdi dir="ltr"><Copy locale={locale}>Unavailable</Copy></bdi>}
+                           </Field>
                            <Field label={<Copy locale={locale}>Filed date</Copy>}><time>{sourceFiledDate(source, data, locale)}</time></Field>
                          </dl>
                         {url && (
@@ -314,12 +335,10 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
                 })}
               </ol>
             ) : <p className={styles.muted}><Copy locale={locale}>No sources were stored for this page.</Copy></p>}
-             <LanguageNotice locale={locale} needed={locale === "ar" && data.sources.length > 0} />
           </section>
 
           <section className={styles.section} data-section="history" aria-labelledby="stock-history-title">
             <div className={styles.sectionHeading}>
-              <p className={styles.eyebrow}><Copy locale={locale}>APPEND-ONLY RUNS</Copy></p>
               <h2 id="stock-history-title"><Copy locale={locale}>Change history / prior runs</Copy></h2>
             </div>
             {history.length ? (
@@ -342,7 +361,6 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
           </section>
           <section className={styles.section} data-section="metadata" aria-labelledby="stock-metadata-title">
             <div className={styles.sectionHeading}>
-              <p className={styles.eyebrow}><Copy locale={locale}>IMMUTABLE RUN RECORD</Copy></p>
               <h2 id="stock-metadata-title"><Copy locale={locale}>Run metadata</Copy></h2>
             </div>
             <dl className={styles.summaryGrid}>

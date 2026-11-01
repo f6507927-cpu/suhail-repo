@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { formatNumber } from "@/lib/format";
 import { displayLabel, type LabelFamily } from "@/i18n/presentation";
 import { useTranslations } from "next-intl";
-import { ExampleMethodologyBanner, LocalizedText, Num } from "../foundation";
+import { ExampleMethodologyBanner, PublicLocalizedText as LocalizedText, Num } from "../foundation";
 import { Link } from "../../i18n/navigation";
 import type { JsonValue } from "../../db/schema/types";
 import type { PublicMethodologyPageData } from "../../db/methodology-public";

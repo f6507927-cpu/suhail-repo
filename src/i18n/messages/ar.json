@@ -4,14 +4,14 @@
     "tagline": "دليلك في السوق."
   },
   "publicSearch": {
-    "title": "⟦AR-REVIEW⟧ Stock search",
+    "title": "البحث عن سهم",
     "label": "رمز السهم أو اسم الشركة",
     "submit": "بحث",
     "hint": "⟦AR-REVIEW⟧ Enter 1–40 characters of a ticker or company name.",
     "noResults": "⟦AR-REVIEW⟧ Not covered yet",
     "noResultsBody": "⟦AR-REVIEW⟧ No listed stocks in the screening universe match this search.",
     "notScreened": "لم يُفحص بعد",
-    "methodologyLine": "⟦AR-REVIEW⟧ Read how the screening methodology works."
+    "methodologyLine": "اقرأ كيف نطبّق منهجية الفحص."
   },
   "nav": {
     "picks": "اختيارات الأسبوع",

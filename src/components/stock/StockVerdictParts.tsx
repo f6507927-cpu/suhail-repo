@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { LocalizedText } from "../foundation/shared";
+import { PublicLocalizedText as LocalizedText, stripPublicReviewMarker } from "../foundation/shared";
 import { Num } from "../foundation/Num";
 import { reviewText, type Locale } from "../accounts/types";
 import { formatCalendarDate, formatNumber } from "@/lib/format";
@@ -17,26 +17,25 @@ const stockReviewPhrases = [
   "No criteria were recorded for this run.", "Criterion", "Ratio", "Threshold", "Numerator",
   "Denominator", "Input state", "Confidence tier", "Calculation", "Result", "Borderline margin",
   "Show calculation", "Unlabelled criterion", "No calculation trace was stored.",
-  "EXPLANATION OBJECT", "AI explanation", "Arabic narrative is not available; structured evidence only.",
+  "AI explanation", "Arabic narrative is not available; structured evidence only.",
   "AI text discarded — showing structured evidence only",
   "No validated narrative text is stored; structured evidence only.",
   "The generated text did not pass validation against the engine's evidence, so it was discarded. Every figure below comes straight from the engine.",
   "Every figure in this text was checked against the engine's evidence.", "Structured evidence",
-  "PUBLIC SCREENING RECORD", "SEC label", "Coverage by", "Analyst profile unavailable",
-  "SCREENING RESULT",
+  "SEC label", "Coverage by", "Analyst profile unavailable",
   "Screening", "Under", "Period end", "Filing date", "Confidence", "Data adequacy",
   "Data date", "Why?", "No screening run recorded for this methodology yet.",
-  "No result is shown because no stored run is available.", "DETERMINISTIC RECORD",
-  "Why this assessment", "STORED RUN EVIDENCE", "What we know", "Result", "Numerator",
-  "Denominator", "Ratio", "No criterion evidence was stored for this run.", "RECORDED GAPS",
+  "No result is shown because no stored run is available.",
+  "Why this assessment", "What we know", "Result", "Numerator",
+  "Denominator", "Ratio", "No criterion evidence was stored for this run.",
   "What we don't know", "Why missing", "Effect", "Severity",
-  "No unknown inputs were recorded for this run.", "DOCUMENTED RULE SET", "Methodology",
-  "Open methodology and this version", "CRITERION RECORD", "Criteria", "CURRENT PERIOD FACTS",
+  "No unknown inputs were recorded for this run.", "Methodology",
+  "Open methodology and this version", "Criteria",
   "Fundamentals", "Label", "Value", "Unit", "Period", "Source",
-  "No current-period facts were recorded.", "PROVENANCE", "Sources", "Type", "Accession / reference",
-  "Filed date", "Open source", "No sources were stored for this page.", "APPEND-ONLY RUNS",
+  "No current-period facts were recorded.", "Sources", "Type", "Accession / reference",
+  "Filed date", "Open source", "No sources were stored for this page.",
   "Change history / prior runs", "Current", "Unchanged", "No earlier run for this methodology.",
-  "IMMUTABLE RUN RECORD", "Run metadata", "Run hash", "Generated", "Calculation version",
+  "Run metadata", "Run hash", "Generated", "Calculation version",
   "Engine version", "Screening runs are append-only. This record is never edited.",
   "Source reference", "Methodology unavailable", "Unavailable",
   "Unavailable in the stored source record",
@@ -63,11 +62,20 @@ export function Bilingual({
 }) {
   const primary = locale === "ar" ? arabic : english;
   const fallback = locale === "ar" ? english : arabic;
-  if (typeof primary === "string" && primary.trim()) return <bdi lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>{primary.trim()}</bdi>;
+  if (typeof primary === "string" && primary.trim()) return <bdi lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>{stripPublicReviewMarker(primary.trim())}</bdi>;
   if (typeof fallback === "string" && fallback.trim()) {
-    return <span className={styles.fallback}><bdi lang={locale === "ar" ? "en" : "ar"} dir={locale === "ar" ? "ltr" : "rtl"}>{fallback.trim()}</bdi></span>;
+    return <span className={styles.fallback}><bdi lang={locale === "ar" ? "en" : "ar"} dir={locale === "ar" ? "ltr" : "rtl"}>{stripPublicReviewMarker(fallback.trim())}</bdi></span>;
   }
   return <span className={styles.missing}><Copy locale={locale}>Not recorded</Copy></span>;
+}
+
+/** True for readable English narrative, not numbers, codes, IDs, or snake_case values. */
+export function hasEnglishOnlyNarrative(value: string | null | undefined) {
+  const text = stripPublicReviewMarker(value?.trim() ?? "");
+  if (!text || /[\p{Script=Arabic}]/u.test(text) || !/[A-Za-z]/.test(text)) return false;
+  if (/^[A-Z0-9]+(?:[._:/+-][A-Z0-9]+)*$/.test(text)) return false;
+  if (/^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$/.test(text)) return false;
+  return true;
 }
 
 export function Field({ label, children }: { label: ReactNode; children: ReactNode }) {
@@ -75,14 +83,14 @@ export function Field({ label, children }: { label: ReactNode; children: ReactNo
 }
 
 export function Label({ family, value, locale }: { family: LabelFamily; value: string | null | undefined; locale: Locale }) {
-  return <bdi>{displayLabel(family, value, locale)}</bdi>;
+  return <bdi>{stripPublicReviewMarker(displayLabel(family, value, locale))}</bdi>;
 }
 
 // Missing-input names are stored evidence, not an enum: the engine can use a
 // configured denominator definition or a narrative name such as Data freshness.
 export function unknownFieldNeedsFallback(value: string, locale: Locale) {
   return locale === "ar" && !Object.hasOwn(presentationLabels.lineItem, value)
-    && reviewText(locale, value).startsWith("⟦AR-REVIEW⟧ ");
+    && hasEnglishOnlyNarrative(reviewText(locale, value));
 }
 
 export function UnknownFieldLabel({ value, locale }: { value: string; locale: Locale }) {
@@ -90,7 +98,7 @@ export function UnknownFieldLabel({ value, locale }: { value: string; locale: Lo
     return <Label family="lineItem" value={value} locale={locale} />;
   }
   const fallback = unknownFieldNeedsFallback(value, locale);
-  return <span className={styles.fallback}><bdi lang={fallback ? "en" : locale} dir={fallback || locale === "en" ? "ltr" : "rtl"}>{reviewText(locale, value)}</bdi></span>;
+  return <span className={styles.fallback}><bdi lang={fallback ? "en" : locale} dir={fallback || locale === "en" ? "ltr" : "rtl"}>{stripPublicReviewMarker(reviewText(locale, value))}</bdi></span>;
 }
 
 /** Call once at the section boundary, only for actual missing-language narrative. */
@@ -129,9 +137,9 @@ export function SourceRefs({
   const refs = ids.map((id) => numbers.get(id)).filter((number): number is number => number !== undefined);
   if (!refs.length) return null;
   return (
-    <span className={styles.sourceRefs} aria-label={reviewText(locale, "Sources")}>
+    <span className={styles.sourceRefs} aria-label={stripPublicReviewMarker(reviewText(locale, "Sources"))}>
       {refs.map((number) => (
-        <a key={number} href={`#source-${number}`} aria-label={reviewText(locale, "Source reference")}>
+        <a key={number} href={`#source-${number}`} aria-label={stripPublicReviewMarker(reviewText(locale, "Source reference"))}>
           [<Num>{number}</Num>]
         </a>
       ))}
@@ -210,11 +218,24 @@ function storedReasonToEngine(value: unknown): StatusReason | null {
   };
 }
 
+export function statusReasonsNeedFallback(reasons: unknown[]) {
+  return reasons.some(stored => {
+    const reason = storedReasonToEngine(stored);
+    if (!reason) return hasEnglishOnlyNarrative(reviewText("ar", "No reason template available."));
+    if (["failure", "borderline", "criterion_unknown"].includes(reason.kind)) {
+      return hasEnglishOnlyNarrative(reason.label);
+    }
+    if (reason.kind === "blocking_unknown" || reason.kind === "review_unknown") {
+      return hasEnglishOnlyNarrative(reason.field);
+    }
+    return false;
+  });
+}
+
 export function ReasonList({ reasons, locale, passing = false }: { reasons: unknown[]; locale: Locale; passing?: boolean }) {
   if (!reasons.length) return <p className={styles.muted}><Copy locale={locale}>{passing ? "All recorded criteria passed. No additional status reasons were recorded." : "No specific status reasons were recorded."}</Copy></p>;
   const render = locale === "ar" ? renderArabicDraft : renderEnglish;
   return (
-    <><LanguageNotice locale={locale} needed={locale === "ar" && reasons.some(stored => Boolean(storedReasonToEngine(stored)?.label))} />
     <ul className={styles.reasonList}>
       {reasons.map((stored, index) => {
         const reason = storedReasonToEngine(stored);
@@ -222,7 +243,7 @@ export function ReasonList({ reasons, locale, passing = false }: { reasons: unkn
           {reason ? render(reason) : <Copy locale={locale}>No reason template available.</Copy>}
         </li>;
       })}
-    </ul></>
+    </ul>
   );
 }
 
@@ -232,14 +253,68 @@ const valueFamilies: Record<string, LabelFamily> = {
   confidence: "confidence", data_adequacy: "adequacy", source_type: "sourceType", unit_scale: "scale",
   threshold_unit: "thresholdUnit", thresholdUnit: "thresholdUnit", severity: "severity", line_item: "lineItem",
 };
+
+export function criteriaNeedFallback(criteria: StockCriterion[]) {
+  return criteria.some(criterion =>
+    hasEnglishOnlyNarrative(criterion.criterion_label || reviewText("ar", "Unlabelled criterion")) ||
+    (!isBooleanCriterion(criterion) && (
+      hasEnglishOnlyNarrative(criterion.numerator_definition) ||
+      hasEnglishOnlyNarrative(criterion.denominator_definition) ||
+      hasEnglishOnlyNarrative(criterion.calculation_trace || reviewText("ar", "No calculation trace was stored."))
+    )),
+  );
+}
+
+export function unknownsNeedFallback(unknowns: PublicStockData["unknowns"]) {
+  return unknowns.some(item =>
+    hasEnglishOnlyNarrative(
+      Object.hasOwn(presentationLabels.lineItem, item.field_or_input)
+        ? displayLabel("lineItem", item.field_or_input, "ar")
+        : reviewText("ar", item.field_or_input),
+    ) ||
+    hasEnglishOnlyNarrative(item.why_missing) ||
+    hasEnglishOnlyNarrative(item.effect),
+  );
+}
+
+function structuredValueNeedsFallback(value: unknown, field?: string): boolean {
+  if (value === null || value === undefined || typeof value === "number") return false;
+  if (typeof value === "boolean") return hasEnglishOnlyNarrative(reviewText("ar", value ? "Yes" : "No"));
+  if (typeof value === "string") {
+    const family = field ? valueFamilies[field] : undefined;
+    const shown = family
+      ? displayLabel(family, value, "ar")
+      : /^[a-z]+(?:_[a-z]+)+$/.test(value)
+        ? displayLabel("structured", value, "ar")
+        : value;
+    return hasEnglishOnlyNarrative(shown);
+  }
+  if (Array.isArray(value)) return value.some(item => structuredValueNeedsFallback(item, field));
+  return Object.entries(value as Record<string, unknown>).some(([key, item]) =>
+    hasEnglishOnlyNarrative(displayLabel("structured", key, "ar")) ||
+    structuredValueNeedsFallback(item, key),
+  );
+}
+
+export function structuredEvidenceNeedsFallback(value: unknown) {
+  return structuredValueNeedsFallback(value);
+}
+
+export function sourcesNeedFallback(sources: StockSource[], data: PublicStockData) {
+  return sources.some(source =>
+    hasEnglishOnlyNarrative(source.document_title || source.label) ||
+    hasEnglishOnlyNarrative(sourceFiledDate(source, data, "ar")),
+  );
+}
+
 function StructuredValue({ value, locale, field }: { value: unknown; locale: Locale; field?: string }) {
   if (value === null || value === undefined || typeof value === "boolean" || typeof value === "string") {
     const family = field ? valueFamilies[field] : undefined;
     const text = value === null || value === undefined ? "—" : typeof value === "boolean"
-      ? reviewText(locale, value ? "Yes" : "No")
-      : family ? displayLabel(family, String(value), locale)
-      : /^[a-z]+(?:_[a-z]+)+$/.test(String(value)) ? displayLabel("structured", String(value), locale) : String(value);
-    return <bdi dir="auto">{text}</bdi>;
+       ? stripPublicReviewMarker(reviewText(locale, value ? "Yes" : "No"))
+       : family ? stripPublicReviewMarker(displayLabel(family, String(value), locale))
+      : /^[a-z]+(?:_[a-z]+)+$/.test(String(value)) ? stripPublicReviewMarker(displayLabel("structured", String(value), locale)) : String(value);
+    return <bdi dir="auto">{stripPublicReviewMarker(text)}</bdi>;
   }
   if (typeof value === "number") return <Num>{formatNumber(value, locale, { maximumFractionDigits: 6 })}</Num>;
   if (Array.isArray(value)) {
@@ -253,13 +328,13 @@ function StructuredValue({ value, locale, field }: { value: unknown; locale: Loc
 export function sourceFiledDate(source: StockSource, data: PublicStockData, locale: Locale) {
   return data.period?.source_id === source.id && data.period.reported_date
     ? formatCalendarDate(data.period.reported_date, locale)
-    : reviewText(locale, "Unavailable in the stored source record");
+    : stripPublicReviewMarker(reviewText(locale, "Unavailable in the stored source record"));
 }
 
 export function periodFiledDate(data: PublicStockData, locale: Locale) {
   return data.period?.source_id && data.period.reported_date
     ? formatCalendarDate(data.period.reported_date, locale)
-    : reviewText(locale, "Unavailable");
+    : stripPublicReviewMarker(reviewText(locale, "Unavailable"));
 }
 
 export function CriteriaTable({ criteria, sources, locale }: { criteria: StockCriterion[]; sources: Map<string, number>; locale: Locale }) {
@@ -280,7 +355,7 @@ export function CriteriaTable({ criteria, sources, locale }: { criteria: StockCr
         </dl>
         <SourceRefs ids={criterion.source_ids} numbers={sources} locale={locale} />
       </article>)}
-    {ratioCriteria.length > 0 && <div className={styles.criteriaWrap} role="region" aria-label={reviewText(locale, "Criteria")} tabIndex={0}>
+    {ratioCriteria.length > 0 && <div className={styles.criteriaWrap} role="region" aria-label={stripPublicReviewMarker(reviewText(locale, "Criteria"))} tabIndex={0}>
       <table className={styles.criteriaTable}>
         <thead><tr>{headers.map((header) => <th key={header} scope="col"><Copy locale={locale}>{header}</Copy></th>)}</tr></thead>
         <tbody>
@@ -297,7 +372,7 @@ export function CriteriaTable({ criteria, sources, locale }: { criteria: StockCr
               <details key="calc" className={styles.calculation}><summary><Copy locale={locale}>Show calculation</Copy></summary><p><Bilingual locale={locale} arabic={null} english={criterion.calculation_trace || reviewText(locale, "No calculation trace was stored.")} /></p></details>,
               <ThresholdValue key="margin" criterion={criterion} value={criterion.borderline_margin} locale={locale} />,
             ];
-            return <tr key={criterion.id}>{cells.map((cell, i) => <td key={headers[i]} data-label={reviewText(locale, headers[i])}>{cell}</td>)}</tr>;
+            return <tr key={criterion.id}>{cells.map((cell, i) => <td key={headers[i]} data-label={stripPublicReviewMarker(reviewText(locale, headers[i]))}>{cell}</td>)}</tr>;
           })}
         </tbody>
       </table>
@@ -333,7 +408,7 @@ export function ExplanationSlot({ explanation, locale }: { explanation: NonNulla
   const validEnglish = locale === "en" && explanation.validation_status === "passed" && Boolean(explanation.ai_text);
   return (
     <section className={styles.section} data-section="explanation" aria-labelledby="stock-explanation-title">
-      <div className={styles.sectionHeading}><p className={styles.eyebrow}><Copy locale={locale}>EXPLANATION OBJECT</Copy></p><h2 id="stock-explanation-title"><Copy locale={locale}>AI explanation</Copy></h2></div>
+      <div className={styles.sectionHeading}><h2 id="stock-explanation-title"><Copy locale={locale}>AI explanation</Copy></h2></div>
       {!validEnglish ? (
         <div className={styles.structuredNotice}>
           <h3><Copy locale={locale}>{locale === "ar" && explanation.validation_status === "passed" && explanation.ai_text
@@ -353,7 +428,6 @@ export function ExplanationSlot({ explanation, locale }: { explanation: NonNulla
           {(explanation.unknowns ?? []).map((entry, index) => <div className={styles.structuredEntry} key={`unknown-${index}`}><StructuredValue value={entry} locale={locale} /></div>)}
         </div>
       )}
-      <LanguageNotice locale={locale} needed={locale === "ar" && Boolean((explanation.evidence ?? []).length || (explanation.unknowns ?? []).length)} />
     </section>
   );
 }

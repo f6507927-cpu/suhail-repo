@@ -59,10 +59,11 @@ describe("stock rendering preserves missing-input identities", () => {
       <StockVerdict data={data} locale={locale} />
     </NextIntlClientProvider>);
     for (const source of ["No unknown inputs were recorded for this run.", "No criterion evidence was stored for this run.",
-      "Methodology unavailable", "DETERMINISTIC RECORD", "RECORDED GAPS", "Run hash", "Why this assessment",
+      "Methodology unavailable", "Run hash", "Why this assessment",
       "Change history / prior runs", "No validated narrative text is stored; structured evidence only."] as const) {
       expect(html, source).toContain(locale === "ar" ? approvedFollowUp[source] : source);
     }
+    expect(html).not.toMatch(/DETERMINISTIC RECORD|RECORDED GAPS/);
     expect(html).toContain("a".repeat(64));
   });
   it.each(["ar", "en"] as const)("renders missing denominator and stale-data names distinctly in %s", locale => {
@@ -72,12 +73,15 @@ describe("stock rendering preserves missing-input identities", () => {
     const section = html.match(/<section\b[^>]*data-section="unknown"[\s\S]*?<\/section>/)![0];
     const headings = [...section.matchAll(/<h3>([\s\S]*?)<\/h3>/g)].map(match => match[1]);
     const names = headings.map(heading => heading.replace(/<[^>]+>/g, ""));
-    const prefix = locale === "ar" ? "⟦AR-REVIEW⟧ " : "";
-    expect(names).toEqual([`${prefix}${denominator}`, `${prefix}Data freshness`, displayLabel("lineItem", "total_assets", locale)]);
+    expect(names).toEqual([denominator, "Data freshness", displayLabel("lineItem", "total_assets", locale)]);
+    expect(html).not.toContain("⟦AR-REVIEW⟧");
     expect(names.join(" ")).not.toMatch(/Unrecognized label|تسمية غير معروفة|total_assets/);
     for (const heading of headings.slice(0, 2)) {
       expect(heading).toMatch(/<bdi lang="en" dir="ltr">[^<]+<\/bdi>/);
     }
-    expect([...section.matchAll(/data-language-notice=/g)]).toHaveLength(locale === "ar" ? 1 : 0);
+    expect([...section.matchAll(/data-language-notice=/g)]).toHaveLength(0);
+    const header = html.match(/<header\b[^>]*data-section="header"[\s\S]*?<\/header>/)?.[0] ?? "";
+    expect([...html.matchAll(/data-language-notice=/g)]).toHaveLength(locale === "ar" ? 1 : 0);
+    if (locale === "ar") expect(header).toContain("data-language-notice");
   });
 });

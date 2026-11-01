@@ -21,7 +21,7 @@ import {
   EmptyState,
   EngineStatement,
   ExampleMethodologyBanner,
-  LocalizedText,
+  PublicLocalizedText as LocalizedText,
   Lockup,
   Num,
   PriceDirection,

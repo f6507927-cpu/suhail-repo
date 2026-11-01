@@ -60,7 +60,9 @@ describe("bounded public search", () => {
       expect(results).toContain(`href="${locale === "en" ? "/en" : ""}/stock/sample"`);
       expect(results).toContain(messages.publicSearch.notScreened);
       expect(results).toContain("Fixture Company");
-      expect(render(<SearchResults locale={locale} valid results={[]} />)).toContain(messages.publicSearch.noResults);
+      const empty = render(<SearchResults locale={locale} valid results={[]} />);
+      expect(empty).toContain(messages.publicSearch.noResults.replace("⟦AR-REVIEW⟧ ", ""));
+      expect(empty).not.toContain("⟦AR-REVIEW⟧");
     });
     it(`${locale} new copy passes the existing register with no extra exemptions`, () => {
       for (const text of Object.values(messages.publicSearch)) {

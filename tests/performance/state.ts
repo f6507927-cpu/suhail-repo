@@ -41,7 +41,8 @@ export function token() {
   const s = state();
   if (s.token !== undefined) return s.token;
   const encode = (value: unknown) => Buffer.from(JSON.stringify(value)).toString("base64url");
-  return `${encode({ alg: "HS256", typ: "JWT" })}.${encode({
+  // A request's cookie token is stable even when the render crosses a second boundary.
+  return s.token = `${encode({ alg: "HS256", typ: "JWT" })}.${encode({
     sub: s.id, aud: "authenticated", role: "authenticated", aal: s.aal,
     iat: Math.floor(Date.now() / 1000) - 60, exp: Math.floor(Date.now() / 1000) + 3600,
   })}.${encode("fixture-signature")}`;

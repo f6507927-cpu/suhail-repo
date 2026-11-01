@@ -16,5 +16,5 @@ export { StatusBadge } from "./StatusBadge";
 export type { StatusCode } from "./StatusBadge";
 export { SystemError } from "./SystemError";
 export { ThemeToggle } from "./ThemeToggle";
-export { LocalizedText } from "./shared";
+export { LocalizedText, PublicLocalizedText, stripPublicReviewMarker } from "./shared";
 export type { Surface } from "./shared";

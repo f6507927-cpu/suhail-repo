@@ -238,5 +238,6 @@ const approvedCopy: Readonly<Record<string, string>> = {
   "Self-hosted IBM Plex Sans Arabic / Sans / Mono": "خطوط IBM Plex Sans Arabic / Sans / Mono مستضافة محليًا",
 };
 export const approvedArabicCopy: Readonly<Record<string, string>> = Object.fromEntries(
+  // publicUiCopy includes D-144's exact UX-1 table with older approvals taking precedence.
   Object.entries({ ...approvedCopy, ...batchTwo, ...publicUiCopy }).map(([source, text]) => [source, isolateArabicCode(text)]),
 );
