@@ -132,6 +132,7 @@ describe("genuine full-capture launch regressions", () => {
       expect(verifyStoredRun({ hash_payload: result.hashPayload as HashPayload, immutable_hash: result.immutableHash }))
         .toMatchObject({ valid: true, hashMatches: true, replayMatches: true });
     }
-    expect(MARKET_VALUE_CALCULATION_VERSION).toBe("calc-2026.10.5");
+    // D-153 versions current derived price precedence, never historical replay.
+    expect(MARKET_VALUE_CALCULATION_VERSION).toBe("market-value-2026.11.1");
   });
 });

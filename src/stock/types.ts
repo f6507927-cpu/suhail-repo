@@ -15,6 +15,7 @@ export type StockVersion = Pick<typeof methodology.methodologyVersion.$inferSele
 export type StockMethodology = Pick<typeof methodology.methodology.$inferSelect, "name" | "slug" | "scope" | "official_or_inspired" | "is_demo">;
 export type StockExplanation = Pick<typeof screening.explanationObject.$inferSelect, "id" | "ai_text" | "validation_status" | "evidence" | "unknowns">;
 export type PublicStockData = {
+  storedClose?: import("../ingest/prices/selection").StoredClose | null;
   security: StockSecurity; company: StockCompany;
   exchange: { code: string; name: string } | null;
   methodology: StockMethodology | null; version: StockVersion | null;

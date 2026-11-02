@@ -1,7 +1,8 @@
 import "server-only";
 import { desc } from "drizzle-orm";
 import { dbApp } from "../../db/app";
-import { company, security, financialPeriod, financialFact, source, businessSegment, priceBar } from "../../db/schema/market";
+import { company, security, financialPeriod, financialFact, source, businessSegment } from "../../db/schema/market";
+import { runtimePriceBar as priceBar } from "../../db/price-runtime";
 import { analystProfile, jobRun } from "../../db/schema/accounts";
 import type { FinancialAdminData } from "./contracts";
 import { annotateSecChanges } from "./flags";

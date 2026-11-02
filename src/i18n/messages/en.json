@@ -1,4 +1,7 @@
 {
+  "storedClose": {
+    "closingOn": "Closing price on"
+  },
   "app": {
     "name": "Suhail",
     "tagline": "Your bearing in the market."

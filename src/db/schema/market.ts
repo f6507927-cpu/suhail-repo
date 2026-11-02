@@ -271,6 +271,8 @@ export const priceBar = appSchema.table("price_bar", {
   date: date("date").notNull(),
   // Explicit sourced assertion; no calendar or arbitrary earlier-price inference.
   month_end_for: date("month_end_for"),
+  price_provider: text("price_provider").notNull().default("manual"),
+  provider_updated_at: time("provider_updated_at"),
   close: money("close"),
   currency: text("currency"),
   week_index: integer("week_index").notNull().default(0),
@@ -279,4 +281,36 @@ export const priceBar = appSchema.table("price_bar", {
   source_label: text("source_label"),
   source_url: text("source_url"),
   source_id: uuid("source_id").references(() => source.id),
-});
+}, t => [
+  uniqueIndex("price_bar_ninjas_month_unique").on(t.security_id, t.month_end_for)
+    .where(sql`${t.price_provider} = 'API Ninjas'`),
+  check("price_bar_provider_check", sql`${t.price_provider} = 'manual' OR (
+    ${t.price_provider} = 'API Ninjas' AND ${t.month_end_for} IS NOT NULL
+    AND ${t.provider_updated_at} IS NOT NULL AND ${t.source_id} IS NOT NULL
+    AND ${t.source_label} = 'API Ninjas' AND ${t.currency} = 'USD' AND ${t.close} > 0
+    AND ${t.close} < 1e24 AND NOT ${t.is_synthetic}
+    AND date_trunc('month', ${t.date})::date = date_trunc('month', ${t.month_end_for})::date
+    AND ${t.month_end_for} = (date_trunc('month', ${t.date}) + interval '1 month - 1 day')::date
+  )`),
+]);
+
+// D-153: private, durable job bookkeeping; never public data contracts.
+export const priceCallUsage = appSchema.table("price_call_usage", {
+  month: text("month").primaryKey(),
+  used: integer("used").notNull(),
+  cap: integer("cap").notNull(),
+}, t => [
+  check("price_call_usage_month_check", sql`${t.month} ~ '^[0-9]{4}-(0[1-9]|1[0-2])$'`),
+  check("price_call_usage_used_check", sql`${t.used} >= 0`),
+  check("price_call_usage_cap_check", sql`${t.cap} > 0`),
+]);
+export const priceTargetClaim = appSchema.table("price_target_claim", {
+  security_id: uuid("security_id").notNull().references(() => security.id),
+  month_end_for: date("month_end_for").notNull(),
+  claimed_at: time("claimed_at").notNull().defaultNow(),
+}, t => [unique("price_target_claim_unique").on(t.security_id, t.month_end_for)]);
+export const priceProviderStatus = appSchema.table("price_provider_status", {
+  provider: text("provider").primaryKey(),
+  reason: text("reason").notNull(),
+  occurred_at: time("occurred_at").notNull().defaultNow(),
+}, t => [check("price_provider_status_provider_check", sql`${t.provider} = 'API Ninjas'`)]);

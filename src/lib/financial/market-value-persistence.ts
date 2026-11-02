@@ -1,13 +1,14 @@
 import "server-only";
 import { createHash } from "node:crypto";
 import { and, eq, isNull, or, inArray, desc } from "drizzle-orm";
-import { financialFact, financialPeriod, priceBar, security, source } from "../../db/schema/market";
+import { financialFact, financialPeriod, security, source } from "../../db/schema/market";
+import { runtimePriceBar as priceBar } from "../../db/price-runtime";
 import type { Tx } from "../auth/audit";
 import { audit } from "../auth/audit";
 import { deriveMarketValue } from "./market-value";
 import type { Actor } from "./persistence";
 // Denominator derivation changed, not SEC annual mapping or engine evaluation.
-export const MARKET_VALUE_CALCULATION_VERSION = "calc-2026.10.5";
+export const MARKET_VALUE_CALCULATION_VERSION = "market-value-2026.11.1";
 
 /** Restrict shared facts plus this share class; do not leak another denominator. */
 export const securityFacts = (id: string) => or(isNull(financialFact.security_id), eq(financialFact.security_id, id));

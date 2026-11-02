@@ -1,7 +1,7 @@
 import "server-only";
 import { and, eq, gte, lte, asc } from "drizzle-orm";
 import { dbApp } from "../../db/app";
-import { priceBar } from "../../db/schema/market";
+import { runtimePriceBar as priceBar } from "../../db/price-runtime";
 import type { FinancialCommand } from "../../lib/financial/contracts";
 
 /** Manual provider write boundary; audited persistence remains in the service. */
@@ -12,7 +12,7 @@ export function manualCloseCommand(securityId: string, data: Record<string, unkn
 export interface PriceProvider {
   readonly name: string;
   readonly licenceNote: string;
-  getCloses(securityId: string, from: string, to: string): Promise<(typeof priceBar.$inferSelect)[]>;
+  getCloses(securityId: string, from: string, to: string): Promise<import("../../lib/financial/market-value").PriceEvidence[]>;
 }
 export const manualPriceProvider: PriceProvider = {
   name: "Manual entry",

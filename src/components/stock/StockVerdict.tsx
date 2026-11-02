@@ -31,6 +31,8 @@ import {
   sourceNumbers,
 } from "./StockVerdictParts";
 import styles from "./StockVerdict.module.css";
+import { StoredMonthlyClose } from "./StoredMonthlyClose";
+import { ApiNinjasAttribution } from "./ApiNinjasAttribution";
 export function StockVerdict({ data, locale }: { data: PublicStockData; locale: "ar" | "en" }) {
   const { security, company, run, methodology, version } = data;
   const covered = Boolean(security.coverage_analyst_id);
@@ -83,6 +85,7 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
         : null}
 
       <header className={styles.companyHeader} data-section="header">
+        <StoredMonthlyClose close={data.storedClose} locale={locale} />
         <div className={styles.companyTitle}>
           <h1 lang={locale === "ar" && company.name_ar?.trim() ? "ar" : "en"}><bdi dir={locale === "ar" && company.name_ar?.trim() ? "rtl" : "ltr"}>{locale === "ar" && company.name_ar?.trim() ? company.name_ar.trim() : company.name}</bdi></h1>
           {locale === "ar" && company.name_ar?.trim() && <p className={styles.arabicName} lang="en" dir="ltr">{company.name}</p>}
@@ -314,7 +317,9 @@ export function StockVerdict({ data, locale }: { data: PublicStockData; locale: 
                     <li id={`source-${number}`} key={source.id}>
                       <span className={styles.sourceNumber}>[<Num>{formatNumber(number, locale)}</Num>]</span>
                       <div>
-                        <h3><Bilingual locale={locale} arabic={null} english={title} /></h3>
+                        <h3>{source.label === "API Ninjas"
+                          ? <ApiNinjasAttribution />
+                          : <Bilingual locale={locale} arabic={null} english={title} />}</h3>
                          <dl>
                            <Field label={<Copy locale={locale}>Type</Copy>}><Label family="sourceType" value={source.source_type} locale={locale} /></Field>
                            <Field label={<Copy locale={locale}>Accession / reference</Copy>}>

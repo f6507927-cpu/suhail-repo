@@ -1,5 +1,17 @@
 # Suhail — Decision Log
 
+## Optional stored month-end closes
+
+Storage rollout clarification for D-153: `API_NINJAS_STORAGE_READY` defaults off
+and may only be set to `1` after separately authorized migration application and
+verification. A key alone does not enable it. Until then, public pages skip the
+new query and existing manual/admin/derived/launch paths retain pre-migration
+SELECT/INSERT/RETURNING columns. Provider CLIs refuse before database access.
+
+| ID | Decision |
+| --- | --- |
+| D-153 | **API Ninjas month-end preparation only.** Narrowly extend D-08 and D-57/D-147 to permit sourced stored historical month-end closes and linked `Prices: API Ninjas` attribution; D-04 still prohibits live quotes. Manual/analyst (including launch CSV) wins within each month, then API Ninjas, then missing; latest display chooses the newest eligible month first. Preserve D-122/D-134 attestations, quarter fallback, protected corrections and immutable runs. Only explicit CLI execution may use GET /v1/stockprice, strictly after the actual final session close and before the next session close, with fail-closed calendar coverage and exact session-close timestamp verification. Reserve every attempted call atomically against the Eastern call-month cap (default 500), without retries/redirects; durable target claims prevent concurrent/restarted duplicate fetches. One-stock dry run may write **only budget usage**, including on failure; it creates no claims, status, source, price, audit, derived facts or screens. No key means disabled with no provider writes/network. Founder authorizes code/artifacts and mocked tests only: no live calls, Supabase access, applied migrations (even tests), production configuration, schedules or activation. Founder supplies the key. API Ninjas documentation (https://api-ninjas.com/api/stockprice, consulted 2 November 2026) says free prices are most-recent completed-session closes, `updated` is price time, and free-tier commercial use is prohibited. Attribution is not a licence; live commercial activation requires suitable provider permission and separate founder authorization. Do not silently switch to premium/live data. Existing methodology/publication and Arabic/legal approval gates remain unchanged. |
+
 ## Public UX redesign (1 November 2026)
 
 These founder-approved decisions record the scope of the later UX steps only.

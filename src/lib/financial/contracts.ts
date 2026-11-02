@@ -20,7 +20,7 @@ export type FinancialAdminData = {
   facts: (typeof market.financialFact.$inferSelect & { sec_changed: boolean })[];
   segments: (typeof market.businessSegment.$inferSelect)[];
   sources: (typeof market.source.$inferSelect)[];
-  prices: (typeof market.priceBar.$inferSelect)[];
+  prices: import("./market-value").PriceEvidence[];
   analysts: (typeof analystProfile.$inferSelect)[];
   jobs: (typeof jobRun.$inferSelect)[];
 };

@@ -1,7 +1,8 @@
 import "server-only";
 import { and, eq, or, sql } from "drizzle-orm";
 import { z } from "zod";
-import { company, security, exchange, source, financialFact, businessSegment, priceBar } from "../../db/schema/market";
+import { company, security, exchange, source, financialFact, businessSegment } from "../../db/schema/market";
+import { runtimePriceBar as priceBar } from "../../db/price-runtime";
 import { analystProfile } from "../../db/schema/accounts";
 import { activityCategory, confidenceTier, inputState } from "../../db/schema/core";
 import { audit, type Tx } from "../auth/audit";
@@ -218,7 +219,7 @@ export async function mutateFinancial(tx: Tx, actor: Actor, command: FinancialCo
     const monthLatest = v.month_end_for ? selectMonthEnd(relevant, v.month_end_for) : latest;
     // An old matching row is not a duplicate if later evidence superseded it.
     // Check both daily and attested-month observations, including date corrections.
-    if (latest?.source_id && monthLatest?.id === latest.id &&
+    if (latest?.source_id && !("price_provider" in latest && latest.price_provider === "API Ninjas") && monthLatest?.id === latest.id &&
       Number(latest.close) === Number(v.close) && latest.currency === v.currency &&
       latest.source_label === v.source_label && latest.source_url === v.source_url &&
       (latest.month_end_for ?? undefined) === v.month_end_for) return latest.id;

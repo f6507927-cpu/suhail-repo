@@ -1,8 +1,11 @@
 import type { financialFact, priceBar } from "../../db/schema/market";
 import type { ConfidenceTier } from "../../engine/types";
+import { compareStoredCloses, selectStoredMonth } from "../../ingest/prices/selection";
 
 type Fact = typeof financialFact.$inferSelect;
-type Price = typeof priceBar.$inferSelect;
+type FullPrice = typeof priceBar.$inferSelect;
+type Price = Omit<FullPrice, "price_provider" | "provider_updated_at"> &
+  Partial<Pick<FullPrice, "price_provider" | "provider_updated_at">>;
 export type PriceEvidence = Price & { source_tier?: ConfidenceTier };
 const tiers: ConfidenceTier[] = ["Verified", "Calculated", "Estimated", "AI Interpretation"];
 
@@ -19,12 +22,10 @@ export function completedQuarter(asOf: string) {
 
 /** Explicit month-end evidence, not "most recent price on or before month-end". */
 export function comparePriceCorrections(a: PriceEvidence, b: PriceEvidence) {
-  return +new Date(b.created_at) - +new Date(a.created_at) || b.id.localeCompare(a.id);
+  return compareStoredCloses(a, b);
 }
 export function selectMonthEnd(prices: PriceEvidence[], monthEnd: string) {
-  return prices.filter(p => p.month_end_for === monthEnd &&
-    p.date.slice(0, 7) === monthEnd.slice(0, 7) && p.date <= monthEnd)
-    .sort(comparePriceCorrections)[0];
+  return selectStoredMonth(prices, monthEnd);
 }
 
 export function deriveMarketValue(asOf: string, prices: PriceEvidence[], shares?: Fact, equity?: Fact) {

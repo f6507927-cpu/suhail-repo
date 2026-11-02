@@ -33,3 +33,4 @@
 - [Arabic review drafts](arabic-review-drafts.md) — the founder requires genuine Arabic proposals in review inventories; drafts never imply approval.
 - [Launch document authority](launch-document-authority.md) — Verified Al Rajhi document authorization is not methodology approval or permission to run against Supabase.
 - [Repository authority](repository-authority.md) — development is authoritative; do not reconstruct unmerged-copy decisions or deployment changes automatically.
+- [Month-end provider authorization](month-end-provider-authorization.md) — preparation and mocked tests only; free-tier attribution is not commercial permission.

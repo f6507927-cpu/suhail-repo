@@ -1,4 +1,5 @@
 "use client";
+import { ApiNinjasAttribution } from "../stock/ApiNinjasAttribution";
 
 import { cloneElement, isValidElement, useId, useMemo, useState, useTransition, type FormEvent, type ReactElement, type ReactNode } from "react";
 import { useLocale } from "next-intl";
@@ -449,7 +450,7 @@ function PricesPanel({ locale, prices, facts, guidanceAsOf, canEdit, pending, se
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
           {quarterObservations.map(({ monthEnd, price }) => <div key={monthEnd} className="border border-border bg-card px-3 py-2 text-xs">
             <p className="text-muted-foreground">{text(locale, "Required month-end observation")}: <bdi dir="ltr" className="font-mono">{monthEnd}</bdi></p>
-            <p className="mt-1">{price ? <>{text(locale, "Attested close")}: {ltr(price.close === null ? "—" : formatNumber(Number(price.close), locale))} · {formatDate(price.date, locale)}</> : text(locale, "Missing attested observation")}</p>
+            <p className="mt-1">{price ? <>{text(locale, "Attested close")}: {ltr(price.close === null ? "—" : formatNumber(Number(price.close), locale))} · {formatDate(price.date, locale)}{price.price_provider === "API Ninjas" && <> · <ApiNinjasAttribution /></>}</> : text(locale, "Missing attested observation")}</p>
           </div>)}
         </div>
         <p className="mt-3 text-xs leading-5 text-muted-foreground">{text(locale, "Mean of the three attested closes multiplied by latest shares outstanding, compared with mapped equity; use the higher amount. Nonpositive equity uses the average.")}</p>
@@ -490,7 +491,7 @@ function PricesPanel({ locale, prices, facts, guidanceAsOf, canEdit, pending, se
     {prices.length === 0 ? <Empty>{text(locale, "No manual prices are recorded.")}</Empty> : <div className="overflow-x-auto"><table className="w-full min-w-[640px] text-sm"><thead><tr className="border-b border-border text-xs text-muted-foreground">{["Date", "Month-end represented", "Close", "Currency", "Source", "Provenance"].map((item) => <th key={item} className="px-3 py-3 text-start font-medium">{text(locale, item)}</th>)}</tr></thead><tbody>{orderedPrices.map((price) => {
       const provenance = price as typeof price & { source_url?: string | null; source_id?: string | null };
        const monthEndFor = (price as typeof price & { month_end_for?: string | null }).month_end_for;
-       return <tr key={price.id} className="border-b border-border"><td className="px-3 py-3">{formatDate(price.date, locale)}</td><td className="px-3 py-3 font-mono" dir="ltr">{monthEndFor ?? "—"}</td><td className="px-3 py-3 font-mono" dir="ltr">{price.close === null ? "—" : formatNumber(Number(price.close), locale)}</td><td className="px-3 py-3">{price.currency ?? "—"}</td><td className="px-3 py-3">{price.source_label ?? "—"}</td><td className="px-3 py-3">{provenance.source_url ? <a href={provenance.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline">{text(locale, "Open source")}<ArrowUpRight size={12} aria-hidden="true" /></a> : provenance.source_id ?? "—"}</td></tr>;
+       return <tr key={price.id} className="border-b border-border"><td className="px-3 py-3">{formatDate(price.date, locale)}</td><td className="px-3 py-3 font-mono" dir="ltr">{monthEndFor ?? "—"}</td><td className="px-3 py-3 font-mono" dir="ltr">{price.close === null ? "—" : formatNumber(Number(price.close), locale)}</td><td className="px-3 py-3">{price.currency ?? "—"}</td><td className="px-3 py-3">{price.price_provider === "API Ninjas" ? <ApiNinjasAttribution /> : price.source_label ?? "—"}</td><td className="px-3 py-3">{provenance.source_url ? <a href={provenance.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline">{text(locale, "Open source")}<ArrowUpRight size={12} aria-hidden="true" /></a> : provenance.source_id ?? "—"}</td></tr>;
     })}</tbody></table></div>}
     {!canEdit && <p className="mt-4 text-xs text-muted-foreground">{text(locale, "Editors have read-only access.")}</p>}
   </Panel>;

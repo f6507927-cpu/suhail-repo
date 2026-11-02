@@ -6,7 +6,7 @@ import { getDbEnv } from "../src/env/db";
 import { getAuthEnv } from "../src/env/auth";
 import { getStorageEnv } from "../src/env/storage";
 import { getSiteEnv } from "../src/env/site";
-import { getJobsEnv } from "../src/env/jobs-env";
+import { getJobsEnv, getPriceEnv } from "../src/env/jobs-env";
 import { getSecEnv } from "../src/env/sec";
 
 afterEach(() => vi.unstubAllEnvs());
@@ -64,6 +64,9 @@ describe("exact environment inventory", () => {
         "SITE_MODE",
         "FORWARDED_DIAGNOSTICS",
         "JOB_BATCH_SIZE",
+        "API_NINJAS_KEY",
+        "API_NINJAS_STORAGE_READY",
+        "API_NINJAS_MONTHLY_CAP",
       ].sort(),
     );
     const later = example.split("# Later (D-54)\n")[1];
@@ -160,13 +163,31 @@ describe("exact environment inventory", () => {
     "defaults job batches to 100 when unset (%s)",
     (batch) => {
       vi.stubEnv("JOB_BATCH_SIZE", batch);
-      expect(getJobsEnv()).toEqual({ JOB_BATCH_SIZE: 100 });
+    expect(getJobsEnv()).toEqual({ JOB_BATCH_SIZE: 100 });
     },
   );
 
   it("parses an explicit job batch size", () => {
     vi.stubEnv("JOB_BATCH_SIZE", "50");
     expect(getJobsEnv()).toEqual({ JOB_BATCH_SIZE: 50 });
+  });
+
+  it("keeps API Ninjas optional and validates a sanitized monthly cap", () => {
+    vi.stubEnv("API_NINJAS_KEY", "");
+    vi.stubEnv("API_NINJAS_MONTHLY_CAP", "");
+    expect(getPriceEnv().API_NINJAS_KEY).toBeUndefined();
+    expect(getPriceEnv().API_NINJAS_MONTHLY_CAP).toBe(500);
+    vi.stubEnv("API_NINJAS_KEY", "mock-key");
+    vi.stubEnv("API_NINJAS_MONTHLY_CAP", "12");
+    expect(getPriceEnv().API_NINJAS_MONTHLY_CAP).toBe(12);
+    for (const value of ["0", "-1", "1.5", "private-rejected-value"]) {
+      vi.stubEnv("API_NINJAS_MONTHLY_CAP", value);
+      expect(() => getPriceEnv()).toThrow("API_NINJAS_MONTHLY_CAP");
+      expect(() => getPriceEnv()).not.toThrow("private-rejected-value");
+    }
+    expect(() => getJobsEnv()).not.toThrow();
+    vi.stubEnv("API_NINJAS_KEY", "");
+    expect(getPriceEnv().API_NINJAS_KEY).toBeUndefined();
   });
 
   it.each(["0", "-1", "1.5", "invalid"])(

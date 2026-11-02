@@ -15,6 +15,14 @@ const price = (month: string, date: string, close = 10, extra: Partial<Price> = 
 const prices = [price("2026-07-31", "2026-07-31"), price("2026-08-31", "2026-08-31", 20), price("2026-09-30", "2026-09-30", 30)];
 
 describe("D-122 data-layer market value evidence", () => {
+  it("D-153 manual-first selection also governs the current derived denominator", () => {
+    const provider = { ...prices[2], id: "provider", price_provider: "API Ninjas", close: 300,
+      created_at: new Date("2026-10-03") };
+    expect(deriveMarketValue("2026-10-16", [...prices, provider], fact(10), fact(1)).value).toBe(200);
+    const manual = { ...prices[2], id: "manual-correction", close: 60, created_at: new Date("2026-10-04") };
+    expect(deriveMarketValue("2026-10-16", [...prices, provider, manual], fact(10), fact(1)).value).toBe(300);
+    expect(deriveMarketValue("2026-10-16", [prices[0], prices[1], provider], fact(10), fact(1)).value).toBe(1100);
+  });
   it.each(["2026-01-01", "2026-04-01", "2026-07-01", "2026-10-01"])("selects latest, fallback and nothing older at %s", asOf => {
     const latest = completedQuarter(asOf);
     const previous = completedQuarter(latest.monthEnds[0].slice(0, 7) + "-01");

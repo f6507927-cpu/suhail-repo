@@ -1,11 +1,13 @@
 import "server-only";
 import { and, eq, desc } from "drizzle-orm";
 import type { Tx } from "../auth/audit";
-import { financialFact, businessSegment, source, priceBar } from "../../db/schema/market";
+import { financialFact, businessSegment, source } from "../../db/schema/market";
+import { runtimePriceBar as priceBar } from "../../db/price-runtime";
 import { mutateFinancial } from "../financial/service";
 import { securityContext, factKey, requireFinancial, type Actor } from "../financial/persistence";
 import { deriveMarketValue, selectMonthEnd } from "../financial/market-value";
 import { manualPriceProvider, manualCloseCommand } from "../../ingest/prices/manual";
+import { ATTRIBUTION } from "../../ingest/prices/api-ninjas";
 import { CLOSE_FIELDS, MONTH_ENDS, type LaunchRow } from "./contracts";
 
 export async function applyLaunchEvidence(tx: Tx, actor: Actor, securityId: string, row: LaunchRow) {
@@ -75,8 +77,14 @@ export async function launchTickerReport(tx: Tx, securityId: string, row: Launch
     if (!facts.some(f => !f.security_id && f.line_item === line)) missing.push(line);
   if (!segments.length) missing.push("business_segments");
   if (segments.some(s => s.activity_category === "unclassified")) missing.push("classified primary activity");
-  return { ticker: row.ticker, priceProvider: manualPriceProvider.name,
-    closes: MONTH_ENDS.map(month => ({ month, close: selectMonthEnd(prices, month)?.close ?? null })),
+  const closes = MONTH_ENDS.map(month => {
+    const selected = selectMonthEnd(prices, month);
+    return { month, close: selected?.close ?? null,
+      ...(selected?.price_provider === "API Ninjas" ? { attribution: ATTRIBUTION } : {}) };
+  });
+  return { ticker: row.ticker, priceProvider: closes.some(p => p.attribution)
+    ? `${manualPriceProvider.name} / ${ATTRIBUTION}` : manualPriceProvider.name,
+    closes,
     selectedQuarter: derivation.quarter.label, stale: derivation.trace.stale, freshnessNote: derivation.trace.freshnessNote,
     market_value_basis: basis?.value ?? null, activity_category: segments.length === 1 ? segments[0].activity_category : null,
     requested_activity_category: row.activity_category,

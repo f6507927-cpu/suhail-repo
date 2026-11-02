@@ -24,6 +24,11 @@
     "draft": "لا توجد أسهم مدرجة ضمن نطاق الفحص تطابق هذا البحث.",
     "category": "help/error"
   },
+  "J-storedClose-closingOn": {
+    "source": "Closing price on",
+    "draft": "سعر الإغلاق في",
+    "category": "UI label"
+  },
   "U-00799d7eb4caed17030b0bb9cecb5a8263924c1e769a6f6791f684ac288d98d0": {
     "source": "English name",
     "draft": "الاسم بالإنجليزية",

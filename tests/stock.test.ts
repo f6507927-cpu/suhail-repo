@@ -1,9 +1,11 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { stockMetadata } from "../src/stock/metadata";
 import { loadPublicStock } from "../src/db/stock-public";
+import { priceBar } from "../src/db/schema/market";
 import type { PublicStockData } from "../src/stock/types";
 vi.mock("server-only", () => ({}));
+afterEach(() => vi.unstubAllEnvs());
 
 const data = {
   company: { name: "Fixture Alpha Co", name_ar: null },
@@ -39,6 +41,47 @@ describe("public stock boundary and metadata", () => {
   it("failed reads throw instead of producing cacheable fallback data", async () => {
     const db = { select() { throw new Error("Read unavailable"); }, execute: vi.fn() } as unknown as Parameters<typeof loadPublicStock>[1];
     await expect(loadPublicStock("demo-fixa", db)).rejects.toThrow("Read unavailable");
+  });
+  it("includes the latest stored month without requiring a screening run or provider request", async () => {
+    vi.stubEnv("API_NINJAS_STORAGE_READY", "1");
+    const older = { id: "manual", date: "2026-08-31", month_end_for: "2026-08-31",
+      close: 10, currency: "USD", source_id: "m", created_at: new Date("2026-10-02") };
+    const newer = { ...older, id: "provider", date: "2026-09-30", month_end_for: "2026-09-30",
+      price_provider: "API Ninjas", source_label: "API Ninjas", close: 20 };
+    const responses = [[{ id: "s", company_id: "c", exchange_id: null }], [{ id: "c" }], [older, newer]];
+    let priceProjection: object | undefined;
+    const db = {
+      select: (projection: object) => ({ from: (table: unknown) => {
+        if (table === priceBar) priceProjection = projection;
+        const rows = responses.shift()!;
+        return { where: () => Object.assign(Promise.resolve(rows), { limit: async () => rows }) };
+      } }),
+      execute: async () => [],
+    } as unknown as Parameters<typeof loadPublicStock>[1];
+    const loaded = await loadPublicStock("stock", db);
+    expect(loaded?.storedClose).toBe(newer);
+    expect(loaded?.run).toBeNull();
+    expect(priceProjection && Object.keys(priceProjection).sort()).toEqual([
+      "id", "created_at", "date", "month_end_for", "close", "currency", "source_id",
+      "price_provider", "source_label", "source_url",
+    ].sort());
+  });
+  it("does not query new price columns on the current schema when the rollout gate is unset", async () => {
+    vi.stubEnv("API_NINJAS_STORAGE_READY", undefined);
+    vi.stubEnv("API_NINJAS_KEY", "mock-key-does-not-enable-storage");
+    const responses = [[{ id: "s", company_id: "c", exchange_id: null }], [{ id: "c" }]];
+    let reads = 0;
+    const db = {
+      select: () => ({ from: (table: unknown) => {
+        expect(table).not.toBe(priceBar);
+        const rows = responses[reads++];
+        return { where: () => ({ limit: async () => rows }) };
+      } }),
+      execute: async () => [],
+    } as unknown as Parameters<typeof loadPublicStock>[1];
+    const loaded = await loadPublicStock("current-schema", db);
+    expect(reads).toBe(2); expect(loaded?.storedClose).toBeNull();
+    expect(loaded?.run).toBeNull();
   });
   it("is on-demand classic ISR and imports no cookie/header access", () => {
     const route = readFileSync("src/app/[locale]/(public)/stock/[slug]/page.tsx", "utf8");

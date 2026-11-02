@@ -4,6 +4,9 @@ import { and, desc, eq, getTableColumns, inArray, sql, or, isNull } from "drizzl
 import { dbPublic } from "./public";
 import { security, company, exchange, financialPeriod, financialFact, source, methodology, methodologyVersion, screeningRun, screeningCriterionResult, screeningUnknown, explanationObject, analystProfile } from "./schema";
 import type { PublicStockData } from "../stock/types";
+import { priceBar } from "./schema/market";
+import { latestStoredClose } from "../ingest/prices/selection";
+import { apiNinjasStorageReady } from "../ingest/prices/storage-ready";
 
 // D-20/D-36: explicit public column allowlists, not SELECT * or private settings.
 function pick<T, K extends keyof T>(columns: T, ...keys: K[]): Pick<T, K> {
@@ -26,12 +29,17 @@ export async function loadPublicStock(slug: string, db: Pick<typeof dbPublic, "s
   if (!s) return null;
   const [c] = await db.select(companies).from(company).where(eq(company.id, s.company_id!)).limit(1);
   if (!c) return null;
+  const closeRows = apiNinjasStorageReady() ? await db.select(pick(getTableColumns(priceBar), "id", "created_at", "date",
+    "month_end_for", "close", "currency", "source_id", "price_provider", "source_label", "source_url"))
+    .from(priceBar).where(eq(priceBar.security_id, s.id)) : [];
+  const storedClose = latestStoredClose(closeRows);
   const [e] = s.exchange_id ? await db.select({ code: exchange.code, name: exchange.name }).from(exchange).where(eq(exchange.id, s.exchange_id)).limit(1) : [];
   const [analyst] = s.coverage_analyst_id ? await db.select(analysts).from(analystProfile).where(and(eq(analystProfile.id, s.coverage_analyst_id), eq(analystProfile.active, true))).limit(1) : [];
   const setting = await db.execute<{ default_shariah_methodology_version_id: string | null }>(sql`select default_shariah_methodology_version_id from app.public_settings limit 1`);
   const versionId = setting[0]?.default_shariah_methodology_version_id;
   const [definition] = versionId ? await db.select({ version: versions, methodology: methods }).from(methodologyVersion).innerJoin(methodology, eq(methodology.id, methodologyVersion.methodology_id)).where(and(eq(methodologyVersion.id, versionId), eq(methodologyVersion.is_public, true))).limit(1) : [];
   const base: PublicStockData = { security: s, company: c, exchange: e ?? null, analyst: analyst ?? null, version: definition?.version ?? null, methodology: definition?.methodology ?? null, run: null, priorRuns: [], criteria: [], unknowns: [], explanation: null, period: null, facts: [], sources: [] };
+  base.storedClose = storedClose;
   if (!definition) return base;
   const history = await db.select(runs).from(screeningRun).where(and(eq(screeningRun.security_id, s.id), eq(screeningRun.methodology_version_id, definition.version.id))).orderBy(desc(screeningRun.generated_at), desc(screeningRun.created_at), desc(screeningRun.id));
   const [run, ...priorRuns] = history;
