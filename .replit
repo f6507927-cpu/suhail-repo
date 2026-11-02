@@ -26,8 +26,8 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 8080
-externalPort = 8080
+localPort = 9123
+externalPort = 3003
 
 [workflows]
 runButton = "Start application"
@@ -125,3 +125,5 @@ run = ["pnpm", "start"]
 
 [userenv.production]
 NODE_EXTRA_CA_CERTS = "/etc/ssl/certs/ca-certificates.crt"
+
+[userenv.shared]

@@ -50,13 +50,22 @@ describe("D-153 fail-closed exchange calendar", () => {
     const w = monthWindow("2026-09", { "2026-09-30": "closed", "2026-09-29": 13 });
     expect(w.date).toBe("2026-09-29"); expect(w.close.toISOString()).toBe("2026-09-29T17:00:00.000Z");
   });
+  it("extends through the first following close, respecting holidays, DST and exceptional sessions", () => {
+    expect(monthWindow("2026-09").endClose.toISOString()).toBe("2026-10-02T20:00:00.000Z");
+    expect(monthWindow("2026-10").endClose.toISOString()).toBe("2026-11-03T21:00:00.000Z");
+    expect(monthWindow("2026-12").endClose.toISOString()).toBe("2027-01-05T21:00:00.000Z");
+    const w = monthWindow("2026-09", { "2026-10-01": 13, "2026-10-02": "closed" });
+    expect(w.nextClose.toISOString()).toBe("2026-10-01T17:00:00.000Z");
+    expect(w.endClose.toISOString()).toBe("2026-10-05T20:00:00.000Z");
+  });
   it.each(["2024-12", "2027-12", "2028-01", "2026-00", "2026-13", "September"])("refuses %s", month =>
     expect(() => monthWindow(month)).toThrow());
   it("rejects both exact boundaries, permits only the open interval", () => {
-    for (const date of [window.close, window.nextClose, new Date(+window.close - 1)])
+    for (const date of [window.close, window.endClose, new Date(+window.close - 1)])
       expect(() => assertWindow(window, date)).toThrow();
     expect(() => assertWindow(window, new Date(+window.close + 1))).not.toThrow();
-    expect(() => assertWindow(window, new Date(+window.nextClose - 1))).not.toThrow();
+    expect(() => assertWindow(window, window.nextClose)).not.toThrow();
+    expect(() => assertWindow(window, new Date(+window.endClose - 1))).not.toThrow();
   });
   it("charges Eastern calendar month, not UTC", () =>
     expect(easternDate(new Date("2026-10-01T01:00Z"))).toBe("2026-09-30"));
@@ -65,7 +74,30 @@ describe("D-153 strict free close adapter", () => {
   it("retains only close and verification provenance, never live/change/history fields", () => {
     const accepted = validateClose(response(), target, window, now());
     expect(accepted).toEqual({ close: 123.456, date: "2026-09-30", monthEnd: "2026-09-30",
-      updated: window.close, retrieved: now(), sourceUrl: "https://api.api-ninjas.com/v1/stockprice?ticker=AAPL" });
+      updated: window.close, retrieved: now(), fieldUsed: "price",
+      sourceUrl: "https://api.api-ninjas.com/v1/stockprice?ticker=AAPL" });
+  });
+  it("uses previous_close only for the exact first following session close, retaining the month-end trading date", () => {
+    const retrieved = new Date(+window.nextClose + 1000);
+    const accepted = validateClose(response({ updated: +window.nextClose / 1000, previous_close: 122.345,
+      price: 900 }), target, window, retrieved);
+    expect(accepted).toEqual({ close: 122.345, fieldUsed: "previous_close", date: window.date,
+      monthEnd: window.monthEnd, updated: window.nextClose, retrieved,
+      sourceUrl: "https://api.api-ninjas.com/v1/stockprice?ticker=AAPL" });
+  });
+  it.each([undefined, null, 0, -1, NaN, Infinity, "123", 1.1234567, 1e24])(
+    "applies the same amount validation to previous_close=%s", previous_close => {
+      expect(() => validateClose(response({ updated: +window.nextClose / 1000, previous_close }),
+        target, window, new Date(+window.nextClose + 1000))).toThrow();
+    });
+  it.each([-1, 1])("rejects a following-day timestamp %s second away from the actual close", offset => {
+    expect(() => validateClose(response({ updated: +window.nextClose / 1000 + offset }),
+      target, window, new Date(+window.nextClose + 2000))).toThrow();
+  });
+  it("rejects future and second-following-session timestamps, even with a usable previous_close", () => {
+    expect(() => validateClose(response({ updated: +window.nextClose / 1000 }), target, window, now())).toThrow();
+    expect(() => validateClose(response({ updated: +window.endClose / 1000 }),
+      target, window, new Date(+window.endClose + 1000))).toThrow();
   });
   it.each([
     { ticker: "MSFT" }, { exchange: "NYSE" }, { currency: "EUR" }, { currency: undefined },
@@ -97,7 +129,7 @@ describe("D-153 durable orchestration with fake persistence only", () => {
     expect(f.http).not.toHaveBeenCalled();
   });
   it("invalid windows never call, claim or write", async () => {
-    const f = fixture(); f.options.clock = () => window.nextClose;
+    const f = fixture(); f.options.clock = () => window.endClose;
     await expect(runMonth(f.options, f.store)).rejects.toThrow("Next trading");
     await expect(dryRun(f.options, f.store, target)).rejects.toThrow("Next trading");
     expect(f.store.claim).not.toHaveBeenCalled(); expect(f.store.reserveCall).not.toHaveBeenCalled();
@@ -162,11 +194,35 @@ describe("D-153 durable orchestration with fake persistence only", () => {
   it("a response completing outside the window cannot be saved", async () => {
     const f = fixture();
     f.http.mockImplementation(async () => {
-      f.options.clock = () => window.nextClose;
+      f.options.clock = () => window.endClose;
       return new Response(JSON.stringify(response()));
     });
     await runMonth(f.options, f.store);
     expect(f.calls.get("2026-10")).toBe(1); expect(f.store.save).not.toHaveBeenCalled();
+  });
+  it.each(["price", "previous_close"] as const)("dry run reports field=%s without price/source writes", async field => {
+    const f = fixture();
+    f.options.clock = () => new Date(+window.nextClose + 1000);
+    f.http.mockImplementation(async () => new Response(JSON.stringify(response({
+      updated: +(field === "price" ? window.close : window.nextClose) / 1000,
+      previous_close: 122.345,
+    }))));
+    const accepted = await dryRun(f.options, { reserveCall: f.store.reserveCall }, target);
+    expect(accepted?.fieldUsed).toBe(field);
+    expect(f.options.log).toHaveBeenCalledWith(expect.stringContaining(`field=${field}`));
+    for (const name of ["claim", "save", "unavailable", "targets"] as const)
+      expect(f.store[name]).not.toHaveBeenCalled();
+  });
+  it("stores the previous close with the original month-end date in the extended window", async () => {
+    const f = fixture();
+    f.options.clock = () => new Date(+window.endClose - 1);
+    f.http.mockImplementation(async () => new Response(JSON.stringify(response({
+      updated: +window.nextClose / 1000, previous_close: 122.345,
+    }))));
+    await runMonth(f.options, f.store);
+    expect(f.store.save).toHaveBeenCalledWith(target, expect.objectContaining({
+      close: 122.345, fieldUsed: "previous_close", date: window.date, monthEnd: window.monthEnd,
+    }));
   });
   it("a reservation crossing an Eastern month boundary cannot make an uncounted call", async () => {
     const f = fixture(); f.options.clock = () => new Date("2026-10-01T03:59:59Z");

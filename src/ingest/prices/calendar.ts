@@ -47,10 +47,14 @@ export function monthWindow(month: string, exceptions: Exceptions = {}) {
   let following = nextDate(date, 1);
   let nextClose = sessionClose(following, exceptions);
   while (!nextClose) { following = nextDate(following, 1); nextClose = sessionClose(following, exceptions); }
-  return { monthEnd, date, close, nextClose };
+  // D-153 extension: the first following close exposes month-end as previous_close.
+  let afterNext = nextDate(following, 1);
+  let endClose = sessionClose(afterNext, exceptions);
+  while (!endClose) { afterNext = nextDate(afterNext, 1); endClose = sessionClose(afterNext, exceptions); }
+  return { monthEnd, date, close, nextClose, endClose };
 }
 export type MonthWindow = ReturnType<typeof monthWindow>;
 export function assertWindow(window: MonthWindow, now: Date) {
   if (!Number.isFinite(+now) || +now <= +window.close) throw new Error("Month-end session has not completed");
-  if (+now >= +window.nextClose) throw new Error("Next trading session has closed; current endpoint cannot backfill");
+  if (+now >= +window.endClose) throw new Error("Next trading session after the first has closed; current endpoint cannot backfill");
 }

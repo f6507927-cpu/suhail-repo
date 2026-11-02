@@ -42,8 +42,10 @@ cannot bypass it. Eastern **call month**, never the requested evidence month,
 owns usage. Reservations commit before HTTP.
 There are no redirects or automatic retries.
 
-Use only strictly after the final session close and strictly before the next
-session close, including overnight/weekends/holidays, in America/New_York.
+Use only strictly after the month's final session close and strictly before the
+close of the **second following trading session**, including overnight/weekends/
+holidays, in America/New_York. The first following session's close is inside
+the window; both outer close boundaries are excluded.
 Unsupported coverage fails closed. The committed NYSE/NASDAQ calendar covers
 2025–2027, including the 9 January 2025 exceptional closure, observed holidays,
 Good Friday and 13:00 early closes. December 2027 fails closed because the next
@@ -54,11 +56,15 @@ https://www.nasdaq.com/market-activity/stock-market-holiday-schedule.
 
 Response identity must exactly match the covered USD NYSE/NASDAQ ticker and
 exchange. Aliases are not guessed. `updated` must be an integer Unix timestamp
-exactly at the actual session close (not a later request or intraday timestamp).
+exactly at either the month's final session close (use `price`) or the first
+following trading session's close (use `previous_close` as the month-end close).
+Both store the month's last trading date, not the response's next-session date.
+Never use an intraday timestamp, unrelated session or retrieval time as proof.
 If the provider stamps an early close at 16:00 rather than the actual 13:00,
 reject it as unprovable. Accept finite positive numeric prices representable
-without rounding in the existing six-decimal money column. Never read
-`previous_close` as a substitute. Persist only validated close/provenance,
+without rounding in the existing six-decimal money column, applying identical
+validation to whichever field is selected. Do not fall back to the other field
+when the selected amount is invalid. Persist only validated close/provenance,
 discarding volume/change/name/live/history fields.
 
 ## Durability and failure behavior
@@ -85,7 +91,9 @@ other errors are contained per target. Logs never print raw responses/errors/key
 
 Dry run receives a budget-only write capability, not a real-run store. It reads
 the covered universe, then can reserve usage and print the accepted result or
-sanitized rejection. It never claims a price target, records availability or
+sanitized rejection. Accepted output explicitly reports `field=price` or
+`field=previous_close`, alongside the month-end trading date and API Ninjas
+attribution. It never claims a price target, records availability or
 writes prices, sources, audits, derived facts or screening runs, on any branch.
 The next real authorization/quota failure records availability.
 
@@ -120,7 +128,8 @@ were unavailable:
 - `pnpm typecheck` — passed.
 - `pnpm lint` — passed.
 - `pnpm lint:logical` — passed.
-- `pnpm test` — **1,454 tests passed across 86 files**.
+- `pnpm test` — **1,473 tests passed across 86 files**, including the extended
+  window, field selection, dry-run field reporting and manual-price protection.
 - `pnpm ar-review:list` — 171 pending rows, no unresolved coverage or unused keys.
 
 Mock SSR visual verification covered the stored-close component in English,

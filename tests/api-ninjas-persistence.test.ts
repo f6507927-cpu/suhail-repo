@@ -127,21 +127,31 @@ describe("D-153 real persistence adapter against fake transaction storage (no Po
     expect(fake.writes[0]).toEqual({ table: priceTargetClaim,
       values: { security_id: "s", month_end_for: "2026-09-30" } });
   });
-  it("manual correction arriving during HTTP blocks provider/source/derived writes", async () => {
+  it.each(["price", "previous_close"] as const)("%s cannot replace a manual correction arriving during HTTP", async field => {
     fake.reads = [[{ id: "new-manual" }]];
-    await realStore.save(target, close);
+    fake.now = new Date(+w.nextClose + 1000).toISOString();
+    const accepted = field === "price" ? close : validateClose({
+      ticker: "AAPL", exchange: "NASDAQ", currency: "USD", price: 200,
+      previous_close: 199, updated: +w.nextClose / 1000,
+    }, target, w, new Date(fake.now));
+    await realStore.save(target, accepted);
     expect(fake.writes).toEqual([]); expect(fake.refresh).not.toHaveBeenCalled(); expect(fake.audit).not.toHaveBeenCalled();
   });
-  it("saves only validated price/provenance and refreshes current basis, never screens", async () => {
-    await realStore.save(target, close);
+  it.each(["price", "previous_close"] as const)("saves %s with API Ninjas provenance and the month-end trading date", async field => {
+    fake.now = new Date(+w.nextClose + 1000).toISOString();
+    const accepted = field === "price" ? close : validateClose({
+      ticker: "AAPL", exchange: "NASDAQ", currency: "USD", price: 200,
+      previous_close: 199, updated: +w.nextClose / 1000,
+    }, target, w, new Date(fake.now));
+    await realStore.save(target, accepted);
     expect(fake.writes).toHaveLength(2);
     expect(fake.writes[0]).toMatchObject({ table: source, values: { label: "API Ninjas", provider: "API Ninjas",
-      retrieved_at: close.retrieved, source_url: close.sourceUrl, reporting_period: w.monthEnd,
-      document_reference: `updated=${w.close.toISOString()}` } });
+      retrieved_at: accepted.retrieved, source_url: accepted.sourceUrl, reporting_period: w.monthEnd,
+      document_reference: `updated=${accepted.updated.toISOString()}` } });
     expect(fake.writes[1]).toEqual({ table: priceBar, values: {
       security_id: "s", ticker: "AAPL", date: w.date, month_end_for: w.monthEnd,
-      close: 200, currency: "USD", price_provider: "API Ninjas", provider_updated_at: w.close,
-      source_id: "inserted", source_label: "API Ninjas", source_url: close.sourceUrl, is_synthetic: false,
+      close: accepted.close, currency: "USD", price_provider: "API Ninjas", provider_updated_at: accepted.updated,
+      source_id: "inserted", source_label: "API Ninjas", source_url: accepted.sourceUrl, is_synthetic: false,
     } });
     expect(fake.refresh).toHaveBeenCalledOnce(); expect(fake.audit).toHaveBeenCalledOnce();
   });
@@ -151,7 +161,7 @@ describe("D-153 real persistence adapter against fake transaction storage (no Po
     expect(fake.writes).toEqual([]); expect(fake.audit).not.toHaveBeenCalled();
   });
   it("an issuer-lock wait crossing the next close cannot write a price or source", async () => {
-    fake.now = w.nextClose.toISOString();
+    fake.now = w.endClose.toISOString();
     await expect(realStore.save(target, close)).rejects.toThrow("Next trading session");
     expect(fake.writes).toEqual([]);
   });

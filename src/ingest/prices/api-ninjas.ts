@@ -5,7 +5,7 @@ export const ATTRIBUTION = "Prices: API Ninjas https://api-ninjas.com";
 export const ENDPOINT = "https://api.api-ninjas.com/v1/stockprice";
 export type Target = { id: string; ticker: string; exchange: string; currency: string | null };
 export type AcceptedClose = { close: number; date: string; monthEnd: string; updated: Date;
-  retrieved: Date; sourceUrl: string };
+  retrieved: Date; sourceUrl: string; fieldUsed: "price" | "previous_close" };
 export class ProviderError extends Error {
   constructor(public readonly reason: string, public readonly stop = false) { super(reason); }
 }
@@ -16,16 +16,19 @@ export function validateClose(raw: unknown, target: Target, window: MonthWindow,
   if (r.ticker !== target.ticker || r.exchange !== target.exchange || r.currency !== "USD" ||
     target.currency !== "USD" || !["NYSE", "NASDAQ"].includes(target.exchange))
     throw new ProviderError("Security identity or currency mismatch");
-  if (typeof r.price !== "number" || !Number.isFinite(r.price) || r.price <= 0 ||
-    r.price >= 1e24 || Number(r.price.toFixed(6)) !== r.price)
-    throw new ProviderError("Invalid or unsupported close amount");
   if (typeof r.updated !== "number" || !Number.isSafeInteger(r.updated))
     throw new ProviderError("Unprovable provider timestamp");
   const updated = new Date(r.updated * 1000);
-  if (!Number.isFinite(+updated) || +updated !== +window.close || +updated > +retrieved ||
-    easternDate(updated) !== window.date)
+  // D-153 extension: only the exact first following session close proves previous_close.
+  const fieldUsed = +updated === +window.close && easternDate(updated) === window.date
+    ? "price" : +updated === +window.nextClose ? "previous_close" : null;
+  if (!Number.isFinite(+updated) || !fieldUsed || +updated > +retrieved)
     throw new ProviderError("Timestamp does not prove the completed month-end close");
-  return { close: r.price, date: window.date, monthEnd: window.monthEnd, updated, retrieved,
+  const amount = r[fieldUsed];
+  if (typeof amount !== "number" || !Number.isFinite(amount) || amount <= 0 ||
+    amount >= 1e24 || Number(amount.toFixed(6)) !== amount)
+    throw new ProviderError("Invalid or unsupported close amount");
+  return { close: amount, fieldUsed, date: window.date, monthEnd: window.monthEnd, updated, retrieved,
     sourceUrl: `${ENDPOINT}?ticker=${encodeURIComponent(target.ticker)}` };
 }
 export async function fetchClose(key: string, target: Target, window: MonthWindow,

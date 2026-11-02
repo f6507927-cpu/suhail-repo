@@ -34,7 +34,7 @@ export async function dryRun(o: RunOptions, store: BudgetStore, target: Target) 
   const window = windowFor(o);
   try {
     const close = await attempt(o, store, target, window);
-    o.log(`${target.ticker} ${close.close} USD Closing price on ${close.date} · ${ATTRIBUTION}`);
+    o.log(`${target.ticker} ${close.close} USD Closing price on ${close.date} · field=${close.fieldUsed} · ${ATTRIBUTION}`);
     return close;
   } catch (e) {
     o.log(e instanceof ProviderError ? e.reason : "Window or budget failure");
@@ -52,7 +52,7 @@ export async function runMonth(o: RunOptions, store: RunStore) {
       }
       const close = await attempt(o, store, target, window);
       await store.save(target, close);
-      o.log(`${target.ticker} ${close.close} USD Closing price on ${close.date} · ${ATTRIBUTION}`);
+      o.log(`${target.ticker} ${close.close} USD Closing price on ${close.date} · field=${close.fieldUsed} · ${ATTRIBUTION}`);
     } catch (error) {
       const reason = error instanceof ProviderError ? error.reason : "Window, budget or persistence failure";
       o.log(`${target.ticker}: ${reason}`);
