@@ -1,5 +1,11 @@
 # Suhail — Decision Log
 
+## Proposed FSN normalization and methodology v1.1 — awaiting approval
+
+| ID | Decision |
+| --- | --- |
+| D-154 | **PROPOSED; implementation and methodology approval are pending.** Plan accession-first SEC Notes matching for rounded SUB/NUM dates, validating `datp`/`durp` against the archive's documented format and the companyfacts-selected fiscal period; retain exact identity, consolidated USD revenue anchoring and same-filing/period numerator checks. Add AAPL 2025-09-27 and PEP 2025-12-27 fixtures, plus per-candidate revenue-anchor diagnostics for MSFT/TXN/NFLX/LLY. Separately propose an opt-in methodology v1.1 rule, leaving v1.0 and historical replay unchanged: only when existing income evidence and protected analyst decisions do not take precedence, estimate an upper bound as 6% of same-filing, same-fiscal-end cash/equivalents plus short- and long-term marketable/investment securities. Use explicit standard-tag mappings, no double counting and no inferred zeros for absent components. A complete bound divided by positive annual revenue at or below 5% passes this criterion as estimated/Estimated, labelled “upper bound” with inputs and filing provenance; an excessive or unprovable bound remains unknown, never an automatic failure. This is an assumption-based methodology estimate, not reported income, a guaranteed financial bound or a rule attributed to the Al Rajhi source document. Normal draft-to-approval governance, publication and production gates remain mandatory; approval of implementation does not approve or activate the methodology. Plan a no-write dry run covering every covered stock, reporting components, exclusions, completeness, bound, ratio, selected evidence and filing links, without claiming an actual stored screening-status change. Record exact proxy tag mappings and version-scoped calculation/replay identifiers during implementation. Fixture-only verification; no live FSN import, Supabase access/writes, applied migration, workflow advancement or production/default changes are authorized. |
+
 ## Optional stored month-end closes
 
 Storage rollout clarification for D-153: `API_NINJAS_STORAGE_READY` defaults off
