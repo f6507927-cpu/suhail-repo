@@ -4,7 +4,7 @@
 - [Next dev test locks](next-dev-test-locks.md) — pause the preview workflow before Playwright starts its own Next dev server in this repo.
 - [Next route type caches](next-route-type-caches.md) — route changes and concurrent dev startup can cause stale or transiently missing generated types.
 - [Drizzle/Postgres serialization](drizzle-postgres-serialization.md) — attaching Drizzle changes JSON serializers; raw queries on the same client need serialized JSON.
-- [Database CLI modules](database-cli-modules.md) — Vitest imports can pass while tsx commands fail; keep runner and schema module scopes compatible.
+- [Database CLI checks](database-cli-modules.md) — Vitest passing does not prove native commands work; verify module boundaries and runtime database identity.
 - [Supabase connection modes](supabase-connection-modes.md) — Session for migrations/smoke checks, Transaction for app; integration tests only on disposable plain PostgreSQL 17.
 - [Validation startup budgets](validation-startup-budgets.md) — concurrent completion checks can make cold tooling initialization exceed ordinary assertion timeouts.
 - [Locale theme navigation](locale-theme-navigation.md) — locale-owned root layouts need document navigation to rerun the early theme restore script.

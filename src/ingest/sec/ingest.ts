@@ -4,6 +4,8 @@ import { SecClient } from "./client";
 import { mapAnnual } from "./annual";
 import { resolveFsn } from "./fsn/resolve";
 import { withFsn } from "./fsn/mapping";
+import { storedBalanceFacts } from "./fsn/stored-bound";
+import { unavailableBalanceSheet } from "./fsn/balance-sheet";
 import { dbApp } from "../../db/app";
 import { company, security } from "../../db/schema/market";
 import { audit, type Tx } from "../../lib/auth/audit";
@@ -51,13 +53,18 @@ export function ingestSecurity(id: string, mutate: Mutation = jobMutation, clien
       const downloaded = await client.companyfacts(c.cik);
       requireFinancial(Number(downloaded.data.cik) === Number(c.cik), "SEC companyfacts identity does not match covered issuer");
       let mapped = mapAnnual(downloaded.data, downloaded.retrieval);
+      const target = { ticker: s.ticker, cik: c.cik, mapped };
+      let sheet = unavailableBalanceSheet(target, "Existing income takes precedence; balance sheet not requested");
       // Only covered-universe securities with a genuinely absent companyfacts
       // value request the Notes fallback. No I/O is held in a write transaction.
       if (s.in_universe && mapped.facts.find(f => f.line_item === "prohibited_income")?.value === null) {
-        const target = { ticker: s.ticker, cik: c.cik, mapped };
-        const result = (await resolveFsn([target], client)).get(s.ticker);
-        if (result) mapped = withFsn(target, result);
+        const result = (await resolveFsn([target], client, undefined, true)).get(s.ticker);
+        if (result) {
+          mapped = withFsn(target, result);
+          sheet = result.balanceSheet ?? unavailableBalanceSheet(target, result.reason ?? "Balance sheet unavailable");
+        }
       }
+      if (s.in_universe) mapped = { ...mapped, facts: [...mapped.facts, ...storedBalanceFacts(target, sheet)] };
       return await mutate(async (tx, actor) => {
         const result = await persistAnnual(tx, actor, c.id, mapped);
         await tx.update(security).set({ last_ingest_at: new Date(), last_ingest_error: null })

@@ -36,34 +36,59 @@ User-Agent, process-local limiter and download limits apply unchanged.
 in memory; it does not write a database version. Normal source verification,
 universe testing, approval, publication and production gates still apply.
 
-### v1.1 draft creation and live-screening boundary
+### v1.1 draft installer and stored screening inputs (D-155)
 
-**Not yet connected end-to-end to real Screen all.** The shared engine recognizes
-the opt-in `treatment_rule_data.suhail_upper_bound` policy, but real screening
-currently loads persisted `financial_fact` rows only. It does not run the SEC
-Notes balance-sheet reader or prepare the three `suhail_bound_*` asset inputs
-and `suhail_bound_eligible` after validating filing completeness and protected
-analyst decisions. Missing eligibility fails closed; the dry run's passes are
-not live screening results.
+**Implemented locally; not run against Supabase. Owner authorization is required
+before either installer mode or a live refresh is run.**
 
-To create a **draft record only** through the existing audited admin workflow:
+```sh
+pnpm setup:methodology-v11 -- --actor <existing-admin-email> --dry-run
+pnpm setup:methodology-v11 -- --actor <existing-admin-email>
+```
 
-1. Sign in as an admin with verified MFA and open `/en/admin/methodologies`
-   (Arabic route: `/admin/methodologies`).
-2. Select the existing Al Rajhi adapted methodology and choose **New draft**.
-3. In **Clone from**, select its existing `1.0` version; enter version `1.1`
-   and the version label from `data/methodologies/al-rajhi-adapted-1.1-draft.json`.
-   Keep public visibility off and save.
-4. Stop there: this clones v1.0 criteria, **not** the fully configured v1.1 rule.
-   The criterion form preserves an existing upper-bound configuration but has no
-   control to install/edit it. There is currently **no v1.1 installation CLI**.
-   `setup:launch` explicitly requires version 1.0 and must not be used for this.
+The dry-run uses a read-only database transaction. It validates the existing
+admin, Al Rajhi adapted methodology, version 1.0 and its one eligible Verified
+methodology document; no source is fabricated. The write command uses the
+existing methodology lock and audited version/criterion/source services, in one
+transaction. It installs the resolved v1.1 definition and named 6% parameter as
+an unpublished draft. Identical repeat runs change no rows, timestamps or audit
+events, including after normal workflow advancement. A partial/conflicting v1.1
+(including a plain v1.0 clone) stops without repair or overwrite.
 
-An audited installer using `proposedV11Definition()` and the existing version/
-criterion services, plus verified live evidence preparation, is still needed
-before this can be a functioning v1.1 candidate for normal governance.
-Do not approve/enable a cloned v1.0 as if it contained this rule. No such installer,
-live import, draft write, approval or activation is performed by the dry run.
+It never changes the parent, v1.0, examples, default, workflow stage, production
+enablement or approval. It does not copy reports or mark tests as passed.
+After installation, select version 1.1 in `/en/admin/methodologies` (Arabic:
+`/admin/methodologies`) and take it through the ordinary source verification,
+rule normalization, tests, universe testing, human review and approval gates.
+Publication/production/default selection remain separate owner actions.
+Do not use `setup:launch` to install v1.1.
+
+During the existing SEC refresh, covered stocks missing companyfacts income
+also prepare BS evidence from the same FSN download. Four normal sourced facts
+store cash, short/long-term securities and a versioned completeness/context
+record in `value_text`, including component states, tags/rows, filing link,
+accession, fiscal end and revenue anchor. No full ZIP is stored and no new
+table/migration is needed. Incomplete/unavailable refreshes supersede old
+completeness. Existing income takes precedence; a refresh with income does not
+download BS evidence merely to compute an unused bound.
+
+Screen all, the screening job and universe/impact reports share a stored-input
+reader. They do not download SEC data. Eligibility is derived from CURRENT
+protected-income decisions and exact stored filing/period/revenue/component
+agreement, not trusted as an old imported permission flag. A protected unknown
+blocks fallback; reported/selected income (including zero and existing estimated
+SEC/FSN proxies) wins. Only an opt-in v1.1 criterion receives the bound inputs;
+v1.0 receives none and its historical inputs/replay are unchanged. The engine
+computes the configured bound, never persists it as `prohibited_income`, and
+continues to return unknown when it is incomplete or above the threshold.
+
+The stored inputs' primary filing sources remain Verified; the assumption-based
+result is Estimated. v1.1 criterion traces/source links retain the input amounts,
+rate and Suhail-assumption explanation. Internal prepared inputs/context are
+excluded from the ordinary public fundamentals table to avoid exposing raw
+machine keys/JSON or changing v1.0's table. No new Arabic copy is approved here.
+The read-only SEC comparison above still performs no database reads/writes and
+does not establish actual stored screening status.
 
 For every mapped stock the comparison shows cash, short-term and long-term
 securities, their values/tags or the reason they are unknown, and the filing link.

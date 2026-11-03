@@ -11,6 +11,7 @@ import { criteriaFixtures } from "../scripts/db/fixtures";
 import {
   fixtureRows,
   tables,
+  operationalTables,
   appendOnly,
   privateTables,
   publicTables,
@@ -325,10 +326,19 @@ describe("D-17/D-92/D-93 SQL hardening", () => {
 });
 
 describe("schema and reference fixtures", () => {
+  it.each(operationalTables)("keeps operational table %s private with its specific application grants", async table => {
+    const [grants] = await sql`select
+      has_table_privilege('suhail_app',${"app." + table},'SELECT') read,
+      has_table_privilege('suhail_app',${"app." + table},'INSERT') insert,
+      has_table_privilege('suhail_app',${"app." + table},'UPDATE') update,
+      has_table_privilege('suhail_app',${"app." + table},'DELETE') delete`;
+    expect(grants).toEqual({ read: true, insert: true, update: table !== "price_target_claim", delete: false });
+    await asRole("suhail_public", tx => denied(tx, `SELECT * FROM app.${table}`));
+  });
   it("has exactly the registered app tables, all with RLS and safe roles/defaults", async () => {
     const rows =
       await sql`select relname,relrowsecurity from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='app' and c.relkind='r' order by relname`;
-    expect(rows.map((r) => r.relname)).toEqual([...tables].sort());
+    expect(rows.map((r) => r.relname)).toEqual([...tables, ...operationalTables].sort());
     expect(rows.every((r) => r.relrowsecurity)).toBe(true);
     const roles =
       await sql`select rolname,rolcanlogin,rolsuper,rolbypassrls,rolcreaterole,rolcreatedb from pg_roles where rolname in ('suhail_public','suhail_app')`;

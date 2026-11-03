@@ -1,6 +1,6 @@
 import "server-only";
 import { cache } from "react";
-import { and, desc, eq, getTableColumns, inArray, sql, or, isNull } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, inArray, notInArray, sql, or, isNull } from "drizzle-orm";
 import { dbPublic } from "./public";
 import { security, company, exchange, financialPeriod, financialFact, source, methodology, methodologyVersion, screeningRun, screeningCriterionResult, screeningUnknown, explanationObject, analystProfile } from "./schema";
 import type { PublicStockData } from "../stock/types";
@@ -49,7 +49,9 @@ export async function loadPublicStock(slug: string, db: Pick<typeof dbPublic, "s
     db.select(criteria).from(screeningCriterionResult).where(eq(screeningCriterionResult.screening_run_id, run.id)).orderBy(screeningCriterionResult.sort_order, screeningCriterionResult.id),
     db.select(unknowns).from(screeningUnknown).where(eq(screeningUnknown.screening_run_id, run.id)).orderBy(screeningUnknown.id),
     db.select(pick(getTableColumns(explanationObject), "id", "ai_text", "validation_status", "evidence", "unknowns")).from(explanationObject).where(eq(explanationObject.screening_run_id, run.id)).orderBy(desc(explanationObject.generated_at), desc(explanationObject.id)).limit(1),
-    period ? db.select(facts).from(financialFact).where(and(eq(financialFact.company_id, c.id), eq(financialFact.period_id, period.id), eq(financialFact.is_current, true), or(isNull(financialFact.security_id), eq(financialFact.security_id, s.id)))).orderBy(financialFact.line_item) : Promise.resolve([]),
+    // D-155: prepared bound inputs/context appear in v1.1 criterion evidence/trace,
+    // not as raw internal keys or JSON in the ordinary fundamentals table.
+    period ? db.select(facts).from(financialFact).where(and(eq(financialFact.company_id, c.id), eq(financialFact.period_id, period.id), eq(financialFact.is_current, true), notInArray(financialFact.line_item, ["suhail_bound_cash", "suhail_bound_short_term_securities", "suhail_bound_long_term_securities", "suhail_bound_context", "suhail_bound_eligible"]), or(isNull(financialFact.security_id), eq(financialFact.security_id, s.id)))).orderBy(financialFact.line_item) : Promise.resolve([]),
   ]);
   const ids = [...new Set([...criterionRows.flatMap((row) => row.source_ids), ...factRows.flatMap((row) => row.source_id ? [row.source_id] : []), ...(period?.source_id ? [period.source_id] : [])])];
   const sourceRows = ids.length ? await db.select(sources).from(source).where(inArray(source.id, ids)).orderBy(source.id) : [];

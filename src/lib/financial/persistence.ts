@@ -64,7 +64,7 @@ export async function persistAnnual(tx: Tx, actor: Actor, companyId: string, map
     const [current] = await tx.select().from(financialFact).where(and(
       factKey(companyId, period.id, f.line_item), eq(financialFact.is_current, true)));
     if (retainCurrent(f, current)) continue;
-    if (f.adapter === "sec_fsn") {
+    if (f.adapter === "sec_fsn" && !f.line_item.startsWith("suhail_bound_")) {
       const [revenue] = await tx.select().from(financialFact).where(and(
         factKey(companyId, period.id, "total_revenue"), eq(financialFact.is_current, true)));
       const [revenueSource] = revenue?.source_id
@@ -83,6 +83,7 @@ export async function persistAnnual(tx: Tx, actor: Actor, companyId: string, map
       companyId, period.id, f.line_item, f.value, f.input_state, f.confidence_tier,
       sourceId, f.as_of_date, f.mapping_note, f.unknown_note, f.calculation_version,
       ...(f.shares_class_concern ? ["explicit-cover-share-class-concern"] : []),
+      ...(f.value_text === undefined ? [] : [f.value_text]),
     ])).digest("hex");
     const [seen] = await tx.select().from(financialFact).where(eq(financialFact.evidence_key, evidenceKey));
     if (seen) {
@@ -97,6 +98,7 @@ export async function persistAnnual(tx: Tx, actor: Actor, companyId: string, map
     const values: typeof financialFact.$inferInsert = {
       company_id: companyId, period_id: period.id, line_item: f.line_item,
       value: f.value, currency: f.currency, input_state: f.input_state, confidence_tier: f.confidence_tier,
+      ...(f.value_text === undefined ? {} : { value_text: f.value_text }),
       source_id: sourceId, as_of_date: f.as_of_date, mapping_note: f.mapping_note,
       unknown_note: f.unknown_note, calculation_version: f.calculation_version,
       shares_class_concern: f.shares_class_concern ?? false,

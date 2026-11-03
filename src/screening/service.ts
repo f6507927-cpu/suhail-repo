@@ -14,6 +14,7 @@ import { securityContext, requireFinancial } from "../lib/financial/persistence"
 import { idSchema } from "../lib/financial/service";
 import { refreshMarketValue, securityFacts } from "../lib/financial/market-value-persistence";
 import type { ScreenOptions, ScreenResult } from "./contracts";
+import { isBound, storedBoundInputs } from "../lib/financial/screening-facts";
 
 /** Local integration tests use example fixtures; never a live SITE_MODE bypass. */
 export function isExample(m: typeof methodology.$inferSelect, v: typeof methodologyVersion.$inferSelect) {
@@ -67,8 +68,9 @@ export async function screenSecurity(
       methodologyVersion: { id: version.id, label: version.version_label ?? version.version, criteria: criteria.map(r => criterionInput(r, version.effective_date)) },
       period: { id: period.id, label: period.fiscal_period_label, periodEnd: period.period_end },
       // Omission is the engine's "missing"; null rows remain explicitly unknown.
-      facts: facts.flatMap(f => f.input_state === "missing" ? [] : [{ lineItem: f.line_item, value: f.value, inputState: f.input_state,
+      facts: [...facts.flatMap(f => f.input_state === "missing" || isBound(f.line_item) ? [] : [{ lineItem: f.line_item, value: f.value, inputState: f.input_state,
         confidenceTier: f.confidence_tier, sourceId: f.source_id ?? "" }]),
+        ...await storedBoundInputs(tx, facts, criteria.some(c => !!c.treatment_rule_data?.suhail_upper_bound))],
       segments: segments.map(s => {
         requireFinancial(s.input_state !== "missing", "Segment evidence state is invalid");
         return { segmentName: s.segment_name, activityCategory: s.activity_category,

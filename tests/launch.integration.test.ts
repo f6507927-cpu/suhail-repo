@@ -283,7 +283,7 @@ describe("launch workspace services on disposable PostgreSQL only", () => {
     await persistAnnual(tx, actor, s.company_id!, mapAnnual(fixture.companyfacts, fixture.metadata));
     await applyLaunchEvidence(tx, actor, id, row);
     const basis = await refreshMarketValue(tx, actor, s.company_id!, id, "2027-01-01");
-    expect(basis).toMatchObject({ input_state: "estimated", confidence_tier: "Estimated", calculation_version: "calc-2026.10.5" });
+    expect(basis).toMatchObject({ input_state: "estimated", confidence_tier: "Estimated", calculation_version: "market-value-2026.11.1" });
     expect(JSON.parse(basis!.mapping_note!).freshnessNote).toBe("prices from 2026 Q3");
     const identities = { primary_activity: randomUUID(), debt: randomUUID(), income: randomUUID() };
     const sample = launchCases(definition, identities)[0];

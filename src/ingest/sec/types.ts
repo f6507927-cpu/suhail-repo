@@ -54,6 +54,7 @@ export interface FilingSource {
   filed: string;
 }
 export interface MappedFact {
+  value_text?: string;
   adapter?: "sec_fsn";
   line_item: string;
   value: number | null;

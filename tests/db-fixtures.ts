@@ -29,6 +29,9 @@ export const tables = [
   "job_run",
   "unmet_search",
 ] as const;
+// Operational bookkeeping has natural keys and narrower grants, not the
+// domain tables' id/updated_at/DELETE contract.
+export const operationalTables = ["price_call_usage", "price_provider_status", "price_target_claim"] as const;
 export const appendOnly = [
   "screening_run",
   "screening_criterion_result",

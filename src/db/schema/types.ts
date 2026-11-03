@@ -32,6 +32,7 @@ export type WorkflowEntry = {
   note?: string;
 };
 export type TreatmentRuleData = {
+  suhail_upper_bound?: import("../../engine/upper-bound").UpperBoundPolicy;
   prohibited_categories?: string[];
   non_permissible_categories?: string[];
 };

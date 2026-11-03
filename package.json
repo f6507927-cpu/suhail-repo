@@ -12,6 +12,7 @@
     "ar-review:list": "tsx scripts/ar-review.ts",
     "admin:grant": "tsx scripts/admin/grant.ts",
     "setup:launch": "node scripts/run-launch.mjs",
+    "setup:methodology-v11": "node --conditions=react-server --import tsx scripts/methodology/install-v11.ts",
     "sec:fsn:dry-run": "node --conditions=react-server --import tsx scripts/sec/fsn-dry-run.ts",
     "sec:upper-bound:dry-run": "node --conditions=react-server --import tsx scripts/sec/upper-bound-dry-run.ts",
     "smoke": "node scripts/smoke.mjs",
