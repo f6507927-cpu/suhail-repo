@@ -33,4 +33,14 @@ describe("upper-bound shell summary", () => {
     const r = row(); Object.assign(r.upperBound, { selectedIncome: 0, used: false });
     expect(upperBoundSummary(r)).toContain("unknown reason=Existing income takes precedence; bound not used");
   });
+  it("prints every blocker tag and presentation label on the same line, once", () => {
+    const blocker = { tag: "IssuerInvestments", plabel: "Investments\nand deposits" };
+    const text = upperBoundSummary({ ticker: "MSFT", balanceSheet: {
+      blockers: [blocker, { tag: "OtherFinancialAssets", plabel: "Other financial assets" }],
+      components: { short_term: { state: "unknown", rows: [blocker] } },
+    } });
+    expect(text).toContain("blockers=IssuerInvestments (Investments and deposits); OtherFinancialAssets (Other financial assets)");
+    expect(text.match(/IssuerInvestments/g)).toHaveLength(1);
+    expect(text).not.toMatch(/[\r\n]/);
+  });
 });

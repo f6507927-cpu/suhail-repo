@@ -8,6 +8,17 @@
 
 ### D-154 correction — asset-side completeness and fact indices
 
+Follow-up diagnostics: `--summary` includes blocker tags and PRE labels, with
+whitespace normalized to retain one line per ticker. Archive discovery probes
+the filing month before its quarter even when the monthly link is not listed.
+Only HTTP 404/410 establishes a missing archive; both missing yields “archive
+not yet published”, with a fresh attempt next run (no persistent negative cache).
+Other failures retain their error rather than claiming non-publication.
+The opt-in engine support remains distinct from live evidence preparation:
+Screen all does not yet supply the required bound inputs/verified eligibility.
+Creating a cloned draft record does not install the v1.1 policy. No new live
+evidence wiring, database draft creation or activation is authorized here.
+
 The founder's dry-run correction supersedes the blanket custom-BS blocker above.
 Use PRE report/line order within the Assets total and CAL Assets descendants
 (keeping CAL groups and taxonomy versions separate). Only potential

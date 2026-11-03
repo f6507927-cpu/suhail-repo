@@ -22,7 +22,20 @@ export function upperBoundSummary(value: unknown) {
   const reason = pass ? "Estimated upper bound; analyst overrides not checked"
     : [...new Set(reasons)].join("; ") || "Unknown inputs";
   const ratio = number(upper.ratio);
+  const sheet = record(row.balanceSheet);
+  const blockedRows = [
+    ...(Array.isArray(sheet.blockers) ? sheet.blockers : []),
+    ...Object.values(parts).flatMap(value => {
+      const part = record(value);
+      return part.state === "unknown" && Array.isArray(part.rows) ? part.rows : [];
+    }),
+  ];
+  const blockers = [...new Set(blockedRows.map(value => {
+    const item = record(value), tag = clean(item.tag);
+    return tag ? `${tag} (${clean(item.plabel) || "label unavailable"})` : "";
+  }).filter(Boolean))];
   return `${clean(row.ticker) || "unknown"} cash=${component("cash")} short-term=${component("short_term")} ` +
     `long-term=${component("long_term")} bound=${number(upper.bound)} ratio=${ratio}${ratio === "unknown" ? "" : "%"} ` +
-    `${pass ? "pass" : "unknown"} reason=${reason}`;
+    `${pass ? "pass" : "unknown"} reason=${reason}` +
+    (blockers.length ? ` blockers=${blockers.join("; ")}` : "");
 }

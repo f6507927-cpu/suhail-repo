@@ -19,7 +19,14 @@ variables, build commands or migrations are required.
 
 It compares **every ticker in `data/launch/universe.csv`**, using each
 companyfacts-selected annual filing's archive (monthly when available, otherwise
-quarterly). The override is optional; a mismatched archive cannot supply evidence.
+quarterly). The filing-month URL is attempted even when its catalog link is not
+listed yet (for example `2026_10` before `2026q4`). HTTP 404/410 falls back to
+the quarter; if both are missing the result says **archive not yet published**
+and names both datasets. Download/missing-result reuse lasts only for that run;
+the next invocation fetches the catalog and tries again. Access-denied,
+throttling, transfer and parsing failures are not labelled non-publication.
+An explicit `--dataset` remains exclusive to that listed archive; a mismatched
+archive cannot supply evidence.
 It reads covered accessions' SUB, NUM, BS PRE and (when present) CAL rows only. The existing SEC
 User-Agent, process-local limiter and download limits apply unchanged.
 
@@ -28,6 +35,35 @@ User-Agent, process-local limiter and download limits apply unchanged.
 `proposedV11Definition()` resolves the draft over the unchanged v1.0 definition
 in memory; it does not write a database version. Normal source verification,
 universe testing, approval, publication and production gates still apply.
+
+### v1.1 draft creation and live-screening boundary
+
+**Not yet connected end-to-end to real Screen all.** The shared engine recognizes
+the opt-in `treatment_rule_data.suhail_upper_bound` policy, but real screening
+currently loads persisted `financial_fact` rows only. It does not run the SEC
+Notes balance-sheet reader or prepare the three `suhail_bound_*` asset inputs
+and `suhail_bound_eligible` after validating filing completeness and protected
+analyst decisions. Missing eligibility fails closed; the dry run's passes are
+not live screening results.
+
+To create a **draft record only** through the existing audited admin workflow:
+
+1. Sign in as an admin with verified MFA and open `/en/admin/methodologies`
+   (Arabic route: `/admin/methodologies`).
+2. Select the existing Al Rajhi adapted methodology and choose **New draft**.
+3. In **Clone from**, select its existing `1.0` version; enter version `1.1`
+   and the version label from `data/methodologies/al-rajhi-adapted-1.1-draft.json`.
+   Keep public visibility off and save.
+4. Stop there: this clones v1.0 criteria, **not** the fully configured v1.1 rule.
+   The criterion form preserves an existing upper-bound configuration but has no
+   control to install/edit it. There is currently **no v1.1 installation CLI**.
+   `setup:launch` explicitly requires version 1.0 and must not be used for this.
+
+An audited installer using `proposedV11Definition()` and the existing version/
+criterion services, plus verified live evidence preparation, is still needed
+before this can be a functioning v1.1 candidate for normal governance.
+Do not approve/enable a cloned v1.0 as if it contained this rule. No such installer,
+live import, draft write, approval or activation is performed by the dry run.
 
 For every mapped stock the comparison shows cash, short-term and long-term
 securities, their values/tags or the reason they are unknown, and the filing link.
@@ -55,6 +91,9 @@ Both dry runs now print NUM revenue candidates, values, dimensions, date offsets
 and rejection reasons. `--summary` applies to the upper-bound command and emits
 one line per universe ticker: cash, short-term, long-term, bound, ratio and
 pass/unknown with its reason. It includes skipped tickers and absence labels.
+When blocked, it also prints every blocker tag and PRE `plabel` (including
+unreadable-component presentation rows), deduplicated without losing distinct
+tag/label pairs. Missing labels are explicitly marked unavailable.
 This is a hypothetical bound preview, not stored screening status. Existing
 income taking precedence is labelled unknown/bound-not-used rather than implying
 that a favorable bound overrides it. Full JSON remains the default.

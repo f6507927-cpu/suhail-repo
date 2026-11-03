@@ -22,3 +22,14 @@ export function selectArchive(catalog: Map<string, string>, filed: string, overr
   if (!url) throw new SecRequestError(`SEC Notes archive unavailable: ${dataset}`);
   return { dataset, url };
 }
+
+/** Catalog publication can lag the ZIP. Probe the filing month before its quarter. */
+export function archiveCandidates(catalog: Map<string, string>, filed: string, override?: string) {
+  if (override) return [selectArchive(catalog, filed, override)];
+  const month = filed.slice(0, 7).replace("-", "_");
+  const quarter = `${filed.slice(0, 4)}q${Math.ceil(Number(filed.slice(5, 7)) / 3)}`;
+  return [month, quarter].map(dataset => ({
+    dataset, url: catalog.get(dataset) ??
+      `https://www.sec.gov/files/dera/data/financial-statement-notes-data-sets/${dataset}_notes.zip`,
+  }));
+}

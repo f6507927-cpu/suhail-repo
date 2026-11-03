@@ -123,6 +123,7 @@ describe("sec_fsn exact filing fallback", () => {
         fields: ["ticker", "cik"], data: fsnTargets.map(t => [t.ticker, Number(t.cik)]),
       });
       if (url.includes("/companyfacts/")) return Response.json(fsnCompany(fsnTargets.findIndex(t => url.includes(t.cik.padStart(10, "0")))));
+      if (url.endsWith("/2025_10_notes.zip")) return new Response(null, { status: 404 });
       if (url.endsWith(".zip")) return fsnResponse();
       return new Response(fsnFixture("catalog.html"));
     });
@@ -132,8 +133,8 @@ describe("sec_fsn exact filing fallback", () => {
     for (const row of output) expect(row).toMatchObject({ dryRun: true,
       fieldsFound: [expect.objectContaining({ factTier: "Estimated", sourceTier: "Verified" })],
       screeningImpact: expect.stringContaining("Skipped: database required") });
-    expect(requested.filter(url => url.endsWith(".zip"))).toHaveLength(3);
-    expect(requested.filter(url => url.endsWith(".zip")).sort()).toEqual([
+    expect(requested.filter(url => url.endsWith(".zip"))).toHaveLength(4);
+    expect(requested.filter(url => url.endsWith(".zip") && !url.endsWith("/2025_10_notes.zip")).sort()).toEqual([
       ...archiveCatalog(fsnFixture("catalog.html")).values(),
     ].sort());
     expect(requested.every(url => /^https:\/\/(?:www|data)\.sec\.gov\//.test(url))).toBe(true);

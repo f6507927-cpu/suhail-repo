@@ -29,6 +29,8 @@ globalThis.fetch = async (input) => {
   });
   if (url === "https://www.sec.gov/data-research/sec-markets-data/financial-statement-notes-data-sets")
     return new Response(text("catalog.html"));
+  if (url === "https://www.sec.gov/files/dera/data/financial-statement-notes-data-sets/2025_10_notes.zip")
+    return new Response(null, { status: 404 });
   if (/^https:\/\/www\.sec\.gov\/files\/dera\/data\/financial-statement-notes-data-sets\/(?:2025q4|2026_07|2026_02)_notes\.zip$/.test(url))
     return new Response(zipSync({ "num.tsv": strToU8(numbers + table(bs.num.map(row => ({ ...row, iprx: "0" }))).split("\n").slice(1).join("\n")),
       "sub.tsv": strToU8(text("sub.tsv")), "pre.tsv": strToU8(table([...bs.pre, ...boundaries.pre])),
