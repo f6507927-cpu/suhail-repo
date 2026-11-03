@@ -1,4 +1,20 @@
+Yes, plan both, then wait for my approval:
 
+1. Live integration: during the SEC refresh, store the upper-bound inputs
+   (cash, short-term, long-term, completeness state, filing link) as normal
+   sourced evidence, so Screen all reads stored evidence. No SEC download
+   during screening. Precedence unchanged: analyst override → reported
+   income → upper bound → unknown. v1.0 behaviour and replay tests
+   unchanged.
+2. Audited draft installer: one idempotent command that creates methodology
+   v1.1 as a draft (visibility off) with the upper-bound rule and the 6%
+   parameter, linked to the same verified source document, with an audit
+   event. Running it twice changes nothing. After that I take it through the
+   normal workflow in the admin. It must never approve, publish, enable or
+   set a default.
+
+Include a dry-run mode for the installer. No Supabase writes or live runs
+without my authorisation.
 > suhail@0.1.0 sec:upper-bound:dry-run /home/runner/workspace
 > node --conditions=react-server --import tsx scripts/sec/upper-bound-dry-run.ts --summary
 
