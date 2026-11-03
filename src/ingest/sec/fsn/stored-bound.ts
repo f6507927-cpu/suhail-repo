@@ -5,7 +5,7 @@ import type { FsnTarget } from "./contracts";
 import { FSN_PROVIDER } from "./contracts";
 import type { BalanceSheet } from "./balance-sheet";
 
-export const BOUND_VERSION = "sec-fsn-bound-1";
+export const BOUND_VERSION = "sec-fsn-bound-2";
 export const BOUND_CONTEXT = "suhail_bound_context";
 export const boundKeys = {
   cash: draft.upper_bound.cash_line_item,
@@ -14,7 +14,7 @@ export const boundKeys = {
 };
 const component = z.object({
   value: z.number().finite().nonnegative().nullable(),
-  state: z.enum(["reported", "not_on_balance_sheet", "unknown"]),
+  state: z.enum(["reported", "not_on_balance_sheet", "included_in_subtotal", "unknown"]),
   label: z.string(), reason: z.string().nullable(), tags: z.array(z.string()),
 }).passthrough();
 export const boundContextSchema = z.object({
@@ -28,7 +28,7 @@ export const boundContextSchema = z.object({
 export function storedBalanceFacts(target: FsnTarget, sheet: BalanceSheet): MappedFact[] {
   const context = { version: BOUND_VERSION, accession: sheet.accession, filingLink: sheet.filingLink,
     fiscalEnd: sheet.fiscalEnd, revenue: target.mapped.facts.find(f => f.line_item === "total_revenue")?.value ?? null,
-    components: sheet.components };
+    components: sheet.components, excluded: sheet.excluded ?? [] };
   const complete = Object.values(sheet.components).every(c => c.value !== null && c.state !== "unknown");
   const base: MappedFact = {
     adapter: "sec_fsn", line_item: BOUND_CONTEXT, value: complete ? 1 : 0,

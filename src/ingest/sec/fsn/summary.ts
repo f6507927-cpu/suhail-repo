@@ -9,7 +9,9 @@ export function upperBoundSummary(value: unknown) {
   const row = record(value), upper = record(row.upperBound), parts = record(record(row.balanceSheet).components);
   const component = (name: string) => {
     const part = record(parts[name]);
-    return number(part.value) + (part.state === "not_on_balance_sheet" ? " [not on balance sheet]" : "");
+    return number(part.value) + (part.state === "not_on_balance_sheet" ? " [not on balance sheet]" :
+      part.state === "included_in_subtotal" ? " [included in cash + short-term subtotal]" :
+      part.label === "reported cash + short-term subtotal" ? " [cash + short-term subtotal]" : "");
   };
   const existing = typeof upper.selectedIncome === "number";
   const pass = upper.used === true && upper.passes === true && !existing;
@@ -34,8 +36,15 @@ export function upperBoundSummary(value: unknown) {
     const item = record(value), tag = clean(item.tag);
     return tag ? `${tag} (${clean(item.plabel) || "label unavailable"})` : "";
   }).filter(Boolean))];
+  const candidates = blockedRows.map(record).filter(item => typeof item.rejection === "string").map(item =>
+    Object.fromEntries(["tag", "version", "value", "ddate", "qtrs", "uom", "datp", "durp", "dimh", "dimn", "coreg", "iprx", "rejection"]
+      .map(key => [key, clean(item[key])])));
+  const excluded = Array.isArray(sheet.excluded) ? sheet.excluded.map(record).map(item =>
+    `${clean(item.tag)} (${clean(item.plabel)}): ${clean(item.exclusion)}`).join("; ") : "";
   return `${clean(row.ticker) || "unknown"} cash=${component("cash")} short-term=${component("short_term")} ` +
     `long-term=${component("long_term")} bound=${number(upper.bound)} ratio=${ratio}${ratio === "unknown" ? "" : "%"} ` +
     `${pass ? "pass" : "unknown"} reason=${reason}` +
-    (blockers.length ? ` blockers=${blockers.join("; ")}` : "");
+    (blockers.length ? ` blockers=${blockers.join("; ")}` : "") +
+    (candidates.length ? ` candidates=${JSON.stringify(candidates)}` : "") +
+    (excluded ? ` exclusions=${excluded}` : "");
 }

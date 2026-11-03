@@ -1,0 +1,11 @@
+[
+  {"tag":"CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents","bucket":"cash","mode":"total","expected":125},
+  {"tag":"RestrictedCashCurrent","bucket":"cash","mode":"component","expected":125},
+  {"tag":"RestrictedCashNoncurrent","bucket":"cash","mode":"component","expected":125},
+  {"tag":"OtherShortTermInvestments","bucket":"short_term","mode":"replace","expected":200},
+  {"tag":"MarketableSecurities","bucket":"short_term","mode":"replace","expected":200},
+  {"tag":"MarketableSecuritiesAndEquitySecuritiesFVNI","bucket":"short_term","mode":"replace","expected":200},
+  {"tag":"OtherLongTermInvestments","bucket":"long_term","mode":"replace","expected":300},
+  {"tag":"EquitySecuritiesFVNINoncurrent","bucket":"long_term","mode":"replace","expected":300},
+  {"tag":"EquityInvestments","bucket":"long_term","mode":"replace","expected":300}
+]

@@ -12,14 +12,17 @@
     "explanation": "Upper bound: a conservative assumption chosen by Suhail, not part of the Al Rajhi document. It is an estimate, not reported prohibited income or a guaranteed bound on actual income."
   },
   "balance_sheet_tags": {
-    "cash": { "totals": ["CashAndCashEquivalentsAtCarryingValue"], "components": [] },
+    "cash": {
+      "totals": ["CashCashEquivalentsAndShortTermInvestments", "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents", "CashAndCashEquivalentsAtCarryingValue"],
+      "components": ["RestrictedCashCurrent", "RestrictedCashNoncurrent"]
+    },
     "short_term": {
-      "totals": ["ShortTermInvestments", "MarketableSecuritiesCurrent"],
-      "components": ["AvailableForSaleSecuritiesDebtSecuritiesCurrent", "AvailableForSaleSecuritiesEquitySecuritiesCurrent", "TradingSecuritiesCurrent"]
+      "totals": ["ShortTermInvestments", "MarketableSecuritiesCurrent", "MarketableSecurities", "MarketableSecuritiesAndEquitySecuritiesFVNI"],
+      "components": ["AvailableForSaleSecuritiesDebtSecuritiesCurrent", "AvailableForSaleSecuritiesEquitySecuritiesCurrent", "TradingSecuritiesCurrent", "OtherShortTermInvestments"]
     },
     "long_term": {
       "totals": ["LongTermInvestments", "MarketableSecuritiesNoncurrent"],
-      "components": ["AvailableForSaleSecuritiesDebtSecuritiesNoncurrent", "AvailableForSaleSecuritiesEquitySecuritiesNoncurrent", "TradingSecuritiesNoncurrent"]
+      "components": ["AvailableForSaleSecuritiesDebtSecuritiesNoncurrent", "AvailableForSaleSecuritiesEquitySecuritiesNoncurrent", "TradingSecuritiesNoncurrent", "OtherLongTermInvestments", "EquitySecuritiesFVNINoncurrent", "EquityInvestments"]
     }
   }
 }

@@ -7,6 +7,7 @@ import { unavailableBalanceSheet } from "../src/ingest/sec/fsn/balance-sheet";
 import { fsnTargets } from "./fsn-fixture";
 import { proposedV11IncomeCriterion } from "../src/lib/methodology/proposed-v1.1";
 import { upperBoundFallback } from "../src/engine/upper-bound";
+import draft from "../data/methodologies/al-rajhi-adapted-1.1-draft.json";
 import type { EngineInput } from "../src/engine";
 import type { Tx } from "../src/lib/auth/audit";
 
@@ -35,6 +36,23 @@ export function evidenceFixture() {
   return { facts, sources, target, sheet };
 }
 describe("stored upper-bound inputs", () => {
+  it("accepts a sourced cash/short-term subtotal only when its zero allocation is backed by that cash subtotal", () => {
+    const f = evidenceFixture(), subtotal = "CashCashEquivalentsAndShortTermInvestments";
+    f.sheet.components.cash.tags = [subtotal];
+    f.sheet.components.short_term = { value: 0, state: "included_in_subtotal",
+      label: "included in cash + short-term subtotal", reason: null, tags: [subtotal], rows: [] };
+    for (const fact of storedBalanceFacts(f.target, f.sheet)) {
+      const current = f.facts.find(row => row.line_item === fact.line_item)!;
+      Object.assign(current, { value: fact.value, value_text: fact.value_text,
+        input_state: fact.input_state, calculation_version: fact.calculation_version });
+    }
+    expect(boundScreeningFacts(f.facts, f.sources).find(row => row.lineItem === draft.upper_bound.eligibility_line_item)!.value).toBe(1);
+    const ctx = f.facts.find(row => row.line_item === BOUND_CONTEXT)!;
+    const metadata = JSON.parse(ctx.value_text!);
+    metadata.components.cash.tags = [];
+    ctx.value_text = JSON.stringify(metadata);
+    expect(boundScreeningFacts(f.facts, f.sources).find(row => row.lineItem === draft.upper_bound.eligibility_line_item)!.value).toBe(0);
+  });
   it("stores the component evidence and completeness, never prohibited income or a yield-derived amount", () => {
     const { target, sheet } = evidenceFixture(), facts = storedBalanceFacts(target, sheet);
     expect(facts).toHaveLength(4);

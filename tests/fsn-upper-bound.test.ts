@@ -19,6 +19,11 @@ async function archive() {
     "pre.tsv": table(bs.pre),
   })), fsnTargets, true), retrieval: fsnRetrieval };
 }
+it("financial-institution exclusion uses the selected SUB through the real FSN mapping path", async () => {
+  const a = await archive();
+  a.submissions.find(row => row.adsh === fsnTargets[0].mapped.period.filing_reference)!.sic = "6100";
+  expect(mapFsn(fsnTargets[0], a).balanceSheet?.components.cash.reason).toBe("not applicable: financial institution");
+});
 function sheet(a: FsnArchive) {
   return assessBalanceSheet(fsnTargets[0], a, a.numbers.find(row => row.tag === "Revenues")!);
 }

@@ -3,6 +3,7 @@ import { candidates } from "../mapping";
 import { SecRequestError } from "../client";
 import { accession, revenueTag, CUSTOM_TAG_ALLOWLIST, type FsnTarget, type TableRow } from "./contracts";
 import { balanceSheetTags } from "./balance-sheet";
+import { CUSTOM_BOUND_TAG_ALLOWLIST } from "./bound-tag-policy";
 
 const wanted = (name: string) => /^(?:sub|num|pre|cal)\.(?:txt|tsv)$/.test(name);
 // Starting every entry prevents fflate retaining compressed chunks for unopened
@@ -60,7 +61,8 @@ export async function readArchive(response: Response, targets: FsnTarget[], bala
   if (!response.body) throw new SecRequestError("SEC Notes archive has no body");
   const identities = new Map(targets.map(t => [accession(t), Number(t.cik)]));
   const tags = new Set<string>([...candidates.prohibited_income, ...candidates.total_revenue, ...targets.map(revenueTag),
-    ...CUSTOM_TAG_ALLOWLIST.map(entry => entry.tag), ...(balanceSheet ? balanceSheetTags : [])]);
+    ...CUSTOM_TAG_ALLOWLIST.map(entry => entry.tag),
+    ...(balanceSheet ? [...balanceSheetTags, ...CUSTOM_BOUND_TAG_ALLOWLIST.map(entry => entry.tag)] : [])]);
   const submissions: TableRow[] = [], numbers: TableRow[] = [], presentation: TableRow[] = [], calculations: TableRow[] = [];
   const seen = new Set<string>(), complete = new Set<string>();
   let failure: Error | undefined;

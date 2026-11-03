@@ -10,11 +10,11 @@ export const possibleFinancialAsset = (row: TableRow) =>
   /cash|deposit|invest|securit|marketable|trading|financial.?assets|money.?market/i.test(`${row.tag} ${row.plabel}`);
 
 /** Keep distinct CAL groups separate. Versions are part of identity. */
-function descendants(calculations: TableRow[], assets: boolean) {
+function descendants(calculations: TableRow[], assets: boolean, root = "Assets") {
   const found = new Set<string>();
   for (const group of new Set(calculations.map(row => row.grp))) {
     const arcs = calculations.filter(row => row.grp === group);
-    const roots = arcs.filter(row => assets ? standard(row.ptag, row.pversion) && row.ptag === "Assets"
+    const roots = arcs.filter(row => assets ? standard(row.ptag, row.pversion) && row.ptag === root
       : liability(row.ptag, row.pversion));
     const pending = roots.map(row => JSON.stringify([row.ptag, row.pversion]));
     const visited = new Set<string>();
@@ -27,6 +27,24 @@ function descendants(calculations: TableRow[], assets: boolean) {
     }
   }
   return found;
+}
+
+/** Generic investment tags require a proven current/noncurrent location.
+ * PRE subtotal order and explicit CAL membership must not contradict each other.
+ */
+export function assetPosition(row: TableRow, presentation: TableRow[], calculations: TableRow[]) {
+  const current = descendants(calculations, true, "AssetsCurrent").has(reference(row));
+  const noncurrent = descendants(calculations, true, "AssetsNoncurrent").has(reference(row));
+  const report = presentation.filter(r => r.report === row.report && numeric(r.inpth) === 0);
+  const boundaries = report.filter(r => standard(r.tag, r.version) && r.tag === "AssetsCurrent");
+  const ends = report.filter(r => standard(r.tag, r.version) && r.tag === "Assets");
+  const positioned = boundaries.length === 1 && ends.length === 1 &&
+    Number(boundaries[0].line) < Number(ends[0].line);
+  const before = positioned ? Number(row.line) <= Number(boundaries[0].line) : null;
+  if ((current && noncurrent) || (current && before === false) || (noncurrent && before === true)) return "ambiguous";
+  if (current || before === true) return "current";
+  if (noncurrent || before === false) return "noncurrent";
+  return null;
 }
 
 /** A normal PRE report lists asset details before its Assets total. CAL supplies

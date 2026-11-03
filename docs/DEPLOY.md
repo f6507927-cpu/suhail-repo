@@ -119,6 +119,18 @@ pass/unknown with its reason. It includes skipped tickers and absence labels.
 When blocked, it also prints every blocker tag and PRE `plabel` (including
 unreadable-component presentation rows), deduplicated without losing distinct
 tag/label pairs. Missing labels are explicitly marked unavailable.
+The summary also prints unreadable NUM candidates with values, dates, units,
+dimension/context fields, `iprx` and rejection reasons (including WMT-style cash
+ambiguity). `EquityMethodInvestments` is labelled **excluded: equity-method
+investment** and is neither selected nor a blocker. A cash/short-term subtotal
+appears once in cash; short-term is labelled **included in cash + short-term
+subtotal**, not absent. Maturity is established with Assets/AssetsCurrent PRE
+subtotals and CAL membership. Custom INTC `EquityInvestments` is approved only
+for ticker INTC + CIK 0000050863 and the selected filing's custom namespace.
+SIC 6000–6299 skips the bound: **not applicable: financial institution**.
+Prepared evidence uses `sec-fsn-bound-2`; old preparations require refresh before
+becoming eligible. No engine or companyfacts calculation version changes.
+
 This is a hypothetical bound preview, not stored screening status. Existing
 income taking precedence is labelled unknown/bound-not-used rather than implying
 that a favorable bound overrides it. Full JSON remains the default.

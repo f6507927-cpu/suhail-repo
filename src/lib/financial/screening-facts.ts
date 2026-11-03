@@ -5,6 +5,7 @@ import type { Tx } from "../auth/audit";
 import type { Fact } from "../../engine/types";
 import { BOUND_CONTEXT, boundContextSchema, boundKeys, BOUND_VERSION } from "../../ingest/sec/fsn/stored-bound";
 import draft from "../../../data/methodologies/al-rajhi-adapted-1.1-draft.json";
+import { CASH_SHORT_SUBTOTAL } from "../../ingest/sec/fsn/bound-tag-policy";
 
 type Row = typeof financialFact.$inferSelect;
 type Source = typeof source.$inferSelect;
@@ -43,7 +44,11 @@ export function boundScreeningFacts(rows: Row[], sources: Source[]): Fact[] {
             row.source_id === ctx.source_id && row.as_of_date === c.fiscalEnd &&
             row.value !== null && row.value === expected.value && row.input_state !== "missing" &&
             row.input_state !== "unknown" && (expected.state === "reported" ||
-              (name !== "cash" && expected.state === "not_on_balance_sheet" && expected.value === 0));
+              (name !== "cash" && expected.state === "not_on_balance_sheet" && expected.value === 0) ||
+              (name === "short_term" && expected.state === "included_in_subtotal" && expected.value === 0 &&
+                expected.tags.length === 1 && expected.tags[0] === CASH_SHORT_SUBTOTAL &&
+                c.components.cash.state === "reported" && c.components.cash.tags.length === 1 &&
+                c.components.cash.tags[0] === CASH_SHORT_SUBTOTAL));
         });
     }
   }

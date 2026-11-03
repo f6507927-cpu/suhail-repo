@@ -12,6 +12,37 @@
 | --- | --- |
 | D-155 | **Founder approved local implementation and tests only.** During covered-universe SEC refresh, store versioned upper-bound cash, short/long securities and completeness/context as normal sourced evidence in existing financial facts, never as `prohibited_income`. Preserve filing/accession/fiscal context, tags, component states, revenue anchor and primary Verified provenance; derived upper-bound results remain Estimated. Incomplete refreshes supersede prior completeness. Download/parse outside transactions; reuse existing SEC limiter. Screen all, screening jobs and methodology impact/universe reports share stored-evidence preparation, with no SEC download during screening. Recheck current protected decisions, source authenticity and exact component/revenue context before eligibility; analyst decisions (including protected unknown/zero), then existing income/proxies, then eligible upper bound, then unknown. Only opt-in v1.1 gets prepared inputs; v1.0 inputs and historical replay stay unchanged. Use the named version-configured 6% assumption, identified as Suhail's and not Al Rajhi's. Keep prepared context out of ordinary public fundamentals; criterion traces/source links retain the amounts and assumption. Add `setup:methodology-v11 -- --actor <existing-admin-email> [--dry-run]`: dry-run is read-only; write mode atomically uses existing lock and audited services to create an unpublished draft with its criteria and the same eligible Verified document linked to v1.0. Require existing identities/document; never fabricate a source. Identical reruns write nothing, even after governance advances. Conflicting/partial v1.1 stops; never overwrite or reset it. Never approve, publish, advance workflow, enable production, set defaults, alter v1.0/examples or copy test outcomes. Fixture tests and disposable loopback PostgreSQL only; no Supabase writes, live refresh, installer execution or activation without separate owner authorization. No new migration or deployment configuration is needed. |
 
+### D-155 addendum — founder-approved upper-bound tag mapping
+
+Extend only the draft v1.1 asset evidence mapping (prepared-input version
+`sec-fsn-bound-2`); companyfacts income mapping, v1.0 and replay versions are
+unchanged. Include restricted cash, the reviewed additional investment tags and
+cash/short-term subtotal. The cash/short-term subtotal replaces its cash and
+short-term components: retain its full amount once in cash and mark short-term
+zero as **included in subtotal**, not reported zero or absent. The combined
+restricted-cash total replaces cash/restricted components; otherwise add
+restricted current/noncurrent cash to reported cash and equivalents. Refuse
+unproven overlap between cash/short-term and restricted-cash subtotals.
+
+Use Assets/AssetsCurrent PRE subtotals and CAL membership for location, rejecting
+contradictions. Generic MarketableSecurities is only accepted inside current
+assets; generic EquityInvestments requires noncurrent placement. Explicitly
+current/noncurrent tags cannot contradict a proven placement. OtherShortTerm-
+Investments and OtherLongTermInvestments are additive components, not totals.
+Standard EquityMethodInvestments is excluded from both amounts and blockers,
+labelled **excluded: equity-method investment**. Custom lookalikes remain unsafe
+unless separately reviewed. The founder-approved custom INTC EquityInvestments
+entry is exact ticker + CIK 0000050863 + tag + filing namespace; the saved local
+report identifies namespace/accession 0000050863-26-000011. No other issuer or
+custom tag inherits that approval.
+
+SIC 6000–6299 in the selected filing's SUB excludes the bound, reason **not
+applicable: financial institution**; reported income/overrides still win.
+Unreadable values retain all NUM candidates and rejection reasons (including
+dimensions, fiscal context, value and iprx) in JSON and one-line summary output.
+Fixture tests only; no live SEC requests, import, installer or Supabase
+operations are authorized by this extension.
+
 ### D-154 correction — asset-side completeness and fact indices
 
 Follow-up diagnostics: `--summary` includes blocker tags and PRE labels, with
