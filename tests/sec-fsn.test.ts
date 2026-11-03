@@ -91,7 +91,7 @@ describe("sec_fsn exact filing fallback", () => {
     const target = structuredClone(fsnTargets[0]), a = await archive();
     target.mapped.facts[0].source!.document_reference = "0000000001-26-000010";
     expect(mapFsn(target, a).reason).toContain("accession");
-    const badSub = structuredClone(a); badSub.submissions[0].period = "20250930";
+    const badSub = structuredClone(a); badSub.submissions[0].period = "20251031";
     expect(mapFsn(fsnTargets[0], badSub).reason).toContain("fiscal period");
     const badValue = structuredClone(a);
     badValue.numbers.push({ ...badValue.numbers[1], value: "999" });
@@ -141,12 +141,13 @@ describe("sec_fsn exact filing fallback", () => {
     const cli = (await import("node:fs")).readFileSync("src/ingest/sec/fsn/dry-run.ts", "utf8");
     expect(cli).not.toMatch(/dbApp|dbPublic|writeFile|persistAnnual/);
   });
-  it("the actual dry-run CLI runs with DB credentials absent and writes no files (fixture HTTP only)", async () => {
+  it.each(["fsn-dry-run.ts", "upper-bound-dry-run.ts"])("the actual %s CLI has no DB credentials and writes no files (fixture HTTP only)", async script => {
     const dir = await mkdtemp(join(tmpdir(), "fsn-cli-"));
     try {
       for (const name of ["scripts", "src", "node_modules"]) await symlink(resolve(name), join(dir, name));
       await mkdir(join(dir, "data/launch"), { recursive: true });
-      await writeFile(join(dir, "data/launch/universe.csv"), "ticker\n" + fsnTargets.map(t => t.ticker).join("\n") + "\n");
+      await writeFile(join(dir, "data/launch/universe.csv"), "ticker\n" + fsnTargets.map(t => t.ticker).join("\n") +
+        (script === "upper-bound-dry-run.ts" ? "\nUNLISTED" : "") + "\n");
       const env = { ...process.env };
       for (const key of Object.keys(env)) if (/DATABASE|^PG|SUPABASE|SESSION_SECRET|NODE_OPTIONS/.test(key)) delete env[key];
       env.SEC_USER_AGENT = "Offline fixture test test@example.invalid";
@@ -155,11 +156,18 @@ describe("sec_fsn exact filing fallback", () => {
       const before = await files();
       const { stdout } = await promisify(execFile)(process.execPath, [
         "--conditions=react-server", "--import", resolve("tests/fixtures/sec-fsn/mock-http.mjs"),
-        "--import", "tsx", "scripts/sec/fsn-dry-run.ts",
+        "--import", "tsx", `scripts/sec/${script}`,
       ], { cwd: dir, env, timeout: 20_000 });
-      expect((stdout.match(/"dryRun": true/g) ?? [])).toHaveLength(8);
+      expect((stdout.match(/"dryRun": true/g) ?? [])).toHaveLength(script === "upper-bound-dry-run.ts" ? 9 : 8);
       expect(stdout).toContain('"value": 12');
       expect(stdout).toContain("InterestIncomeCustom");
+      if (script === "upper-bound-dry-run.ts") {
+        expect(stdout).toContain("UNLISTED");
+        expect(stdout).toContain('"bound": 36');
+        expect(stdout).toContain('"annual_yield_assumption": 0.06');
+        expect(stdout).toContain("Existing income wins");
+        expect(stdout).toContain("conservative assumption chosen by Suhail");
+      }
       expect(await files()).toEqual(before);
     } finally { await rm(dir, { recursive: true, force: true }); }
   }, 30_000);

@@ -1,6 +1,56 @@
 # Phase 0 Autoscale operating guide
 
-## SEC Notes-data dry run (D-142)
+## SEC Notes-data dry run (D-142, D-154)
+
+**Local v1.1 upper-bound comparison (D-154):**
+
+```sh
+pnpm sec:upper-bound:dry-run
+pnpm sec:upper-bound:dry-run -- --dataset 2026_07
+```
+
+Only run against SEC after the owner authorizes the dry run. Implementation was
+verified with fixture HTTP only, with database credentials absent. This command
+does not import, persist evidence, create a methodology version, advance a
+workflow, screen live securities or connect to any database. No new deployment
+variables, build commands or migrations are required.
+
+It compares **every ticker in `data/launch/universe.csv`**, using each
+companyfacts-selected annual filing's archive (monthly when available, otherwise
+quarterly). The override is optional; a mismatched archive cannot supply evidence.
+It reads covered accessions' SUB, NUM and BS PRE rows only. The existing SEC
+User-Agent, process-local limiter and download limits apply unchanged.
+
+`data/methodologies/al-rajhi-adapted-1.1-draft.json` holds the named
+`annual_yield_assumption` (0.06) and explicit standard balance-sheet tag mapping.
+`proposedV11Definition()` resolves the draft over the unchanged v1.0 definition
+in memory; it does not write a database version. Normal source verification,
+universe testing, approval, publication and production gates still apply.
+
+For every mapped stock the comparison shows cash, short-term and long-term
+securities, their values/tags or the reason they are unknown, and the filing link.
+Absent securities count as zero **only** when a complete BS presentation exists;
+they are labelled **not on balance sheet**. Cash is required. Custom BS lines and
+unmapped asset lines block completeness; a presented line with no unique readable
+consolidated value is unknown. One total takes precedence over its presented
+children; multiple alternative totals are ambiguous, never added together.
+
+The bound and ratio are hypothetical. A complete ratio ≤5% previews a pass with
+Estimated evidence; above 5% stays unknown, not fail. Existing reported/selected
+income, including zero, wins. Analyst overrides and actual stored screening
+impact require DB reads and are explicitly **not checked**. Draft engine inputs
+require explicit eligibility after checking protected overrides; missing
+eligibility cannot pass. The dry run's prepared inputs are illustrative only,
+not importable live screening authority. The public criterion explanation and
+calculation evidence identify the rate as Suhail's conservative assumption,
+not part of the Al Rajhi document.
+
+Both dry runs now print NUM revenue candidates, values, dimensions, date offsets,
+context counts and individual rejection reasons. AAPL/PEP rounded FSN dates keep
+the exact companyfacts fiscal dates. Offsets are preserved as NUM context keys,
+not converted with a guessed unit; numerator and revenue must share that context.
+Actual MSFT/TXN/NFLX/LLY causes require an owner-authorized dry run—the tests
+demonstrate diagnostic behavior, not a conclusion from unrecorded live rows.
 
 Deployment commands are unchanged. The workspace-only read-only command is:
 
@@ -32,7 +82,7 @@ Estimated income proxy removes a security's review status.
 The custom-tag allowlist starts empty and must remain exact and reviewed.
 Suggestions are never mappings. Source provenance remains Verified, but D-124
 income proxies remain Estimated with their warnings. Fallback facts carry
-`sec-fsn-1`; companyfacts and screening keep `calc-2026.10.6`.
+`sec-fsn-2` (D-154 normalization); companyfacts and screening keep `calc-2026.10.6`.
 
 Normal future `job:ingest`/admin ingestion can use the fallback only for an
 in-universe issuer with missing companyfacts prohibited income; protected

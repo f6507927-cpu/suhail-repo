@@ -4,7 +4,7 @@ import { readArchive } from "./archive";
 import { mapFsn, type FsnResult } from "./mapping";
 import type { FsnTarget } from "./contracts";
 
-export async function resolveFsn(targets: FsnTarget[], client: SecClient, override?: string) {
+export async function resolveFsn(targets: FsnTarget[], client: SecClient, override?: string, balanceSheet = false) {
   const results = new Map<string, FsnResult>();
   if (!targets.length) return results;
   const catalog = archiveCatalog((await client.notesCatalog()).data);
@@ -19,7 +19,7 @@ export async function resolveFsn(targets: FsnTarget[], client: SecClient, overri
   }
   for (const [url, group] of groups) {
     try {
-      const downloaded = await client.notesArchive(url, response => readArchive(response, group));
+      const downloaded = await client.notesArchive(url, response => readArchive(response, group, balanceSheet));
       for (const target of group) results.set(target.ticker, mapFsn(target, { ...downloaded.data, retrieval: downloaded.retrieval }));
     } catch (error) {
       for (const target of group) results.set(target.ticker, { fact: null, tag: null, suggestions: [],

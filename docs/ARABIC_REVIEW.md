@@ -1,6 +1,6 @@
 # Live Arabic review — unapproved documentation-only drafts
 
-Generated deterministically by `pnpm ar-review:list`. Live pending rows: **171**.
+Generated deterministically by `pnpm ar-review:list`. Live pending rows: **172**.
 
 ## Boundaries and coverage
 
@@ -67,6 +67,12 @@ Step 6 and locale-aware navigation restoration are merged in this checkout.
 This inventory includes their actual callers, including breadcrumbs, version
 sections and recovery-screen home/retry controls. D-107 approved these recorded
 origins; unknown future navigation copy is not approved or invented.
+
+## Admin methodology — /admin/methodologies
+
+| ID | Key/source | Page/component rendering context | Current English source | Arabic draft — UNAPPROVED, documentation only | Category |
+| --- | --- | --- | --- | --- | --- |
+| U-e7351e0e3784d668c1b33399e4e818ea81dc79413e958ca3b518d2c62f68b429 | runtime phrase | Conditionally rendered: methodology review-error via action result: src/lib/methodology/contracts.ts:57 | Upper-bound fallback requires a maximum custom ratio against total revenue | يتطلب البديل القائم على الحد الأعلى نسبة مخصّصة بحد أقصى إلى إجمالي الإيرادات. | help/error |
 
 ## Legal pages — /terms and /privacy
 

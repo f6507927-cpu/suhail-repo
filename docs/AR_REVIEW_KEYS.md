@@ -1,6 +1,6 @@
 # Live Arabic review keys
 
-Generated deterministically by `pnpm ar-review:list`. Live pending rows: **171**.
+Generated deterministically by `pnpm ar-review:list`. Live pending rows: **172**.
 
 ## Boundaries and coverage
 
@@ -67,6 +67,12 @@ Step 6 and locale-aware navigation restoration are merged in this checkout.
 This inventory includes their actual callers, including breadcrumbs, version
 sections and recovery-screen home/retry controls. D-107 approved these recorded
 origins; unknown future navigation copy is not approved or invented.
+
+## Admin methodology — /admin/methodologies
+
+| Key/source | Page/component rendering context | Current English source | Arabic draft — UNAPPROVED, documentation only | Approved Arabic (leave empty until approved) |
+| --- | --- | --- | --- | --- |
+| runtime phrase | Conditionally rendered: methodology review-error via action result: src/lib/methodology/contracts.ts:57 | Upper-bound fallback requires a maximum custom ratio against total revenue | يتطلب البديل القائم على الحد الأعلى نسبة مخصّصة بحد أقصى إلى إجمالي الإيرادات. |  |
 
 ## Legal pages — /terms and /privacy
 

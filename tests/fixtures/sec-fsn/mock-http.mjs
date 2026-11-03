@@ -4,6 +4,11 @@ import { zipSync, strToU8 } from "fflate";
 const root = new URL("./", import.meta.url);
 const text = name => readFileSync(new URL(name, root), "utf8");
 const targets = JSON.parse(text("targets.json"));
+const bs = JSON.parse(text("balance-sheet.json"));
+const table = rows => {
+  const keys = Object.keys(rows[0]);
+  return [keys.join("\t"), ...rows.map(row => keys.map(key => row[key]).join("\t"))].join("\n") + "\n";
+};
 globalThis.fetch = async (input) => {
   const url = String(input);
   if (url === "https://www.sec.gov/files/company_tickers_exchange.json")
@@ -18,6 +23,7 @@ globalThis.fetch = async (input) => {
   if (url === "https://www.sec.gov/data-research/sec-markets-data/financial-statement-notes-data-sets")
     return new Response(text("catalog.html"));
   if (/^https:\/\/www\.sec\.gov\/files\/dera\/data\/financial-statement-notes-data-sets\/(?:2025q4|2026_07|2026_02)_notes\.zip$/.test(url))
-    return new Response(zipSync({ "num.tsv": strToU8(text("num.tsv")), "sub.tsv": strToU8(text("sub.tsv")) }));
+    return new Response(zipSync({ "num.tsv": strToU8(text("num.tsv") + table(bs.num).split("\n").slice(1).join("\n")),
+      "sub.tsv": strToU8(text("sub.tsv")), "pre.tsv": strToU8(table(bs.pre)) }));
   throw new Error("Fixture CLI forbids all unmocked network requests");
 };

@@ -290,6 +290,7 @@ function criterionFromRow(row?: CriterionRow): CriterionData {
   const rawTreatment = row?.treatment_rule_data as {
     prohibited_categories?: unknown;
     non_permissible_categories?: unknown;
+    suhail_upper_bound?: NonNullable<CriterionData["treatment_rule_data"]>["suhail_upper_bound"];
   } | null;
   const safeCategories = (values: unknown) => Array.isArray(values)
     ? values.filter((value): value is typeof categories[number] =>
@@ -314,6 +315,7 @@ function criterionFromRow(row?: CriterionRow): CriterionData {
     treatment_rule_data: rawTreatment ? {
       prohibited_categories: safeCategories(rawTreatment.prohibited_categories),
       non_permissible_categories: safeCategories(rawTreatment.non_permissible_categories),
+      ...(rawTreatment.suhail_upper_bound ? { suhail_upper_bound: rawTreatment.suhail_upper_bound } : {}),
     } : null,
     edge_cases: row?.edge_cases ?? null, source_reference: row?.source_reference ?? null,
     effective_date: row?.effective_date ?? null, sort_order: row?.sort_order ?? 0, notes: row?.notes ?? null,
@@ -362,7 +364,7 @@ export function CriterionForm({
       effective_date: optionalValue(nullable(form.effective_date)),
       notes: optionalValue(nullable(form.notes)),
       treatment_rule_data: form.treatment_rule_data &&
-        ((form.treatment_rule_data.prohibited_categories?.length ?? 0) > 0 || (form.treatment_rule_data.non_permissible_categories?.length ?? 0) > 0)
+        (Boolean(form.treatment_rule_data.suhail_upper_bound) || (form.treatment_rule_data.prohibited_categories?.length ?? 0) > 0 || (form.treatment_rule_data.non_permissible_categories?.length ?? 0) > 0)
         ? form.treatment_rule_data : null,
     });
   };

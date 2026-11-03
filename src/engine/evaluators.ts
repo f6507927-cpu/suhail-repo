@@ -3,6 +3,7 @@ import { compareCodePoints } from "./canonical";
 import { add, finite, decide, formatNumber, roundRatio, unitSuffix } from "./math";
 import type { Criterion, CriterionResult, EngineInput, ReasonCode, ScreeningUnknown } from "./types";
 import { ratioTypes } from "./validate";
+import { upperBoundFallback } from "./upper-bound";
 
 export interface Evaluation {
   criterion: CriterionResult;
@@ -61,6 +62,19 @@ const ratio: Evaluator = (c, input) => {
   // D-44/D-62: use only explicit configured line items, never silently add leases.
   const numerator = factSum(c.numeratorLineItems, input.facts);
   const denominator = factSum(c.denominatorLineItems, input.facts);
+  const upper = upperBoundFallback(c, input);
+  if (upper) {
+    const evaluated = finishRatio(c, upper.bound, denominator.value, upper.evidence, input.engineVersion);
+    evaluated.criterion.calculationTrace = `${upper.trace} ${upper.reason ?? "Upper-bound criterion passes."}`;
+    // An excessive upper bound is NOT evidence of excessive actual income.
+    if (upper.bound !== null) {
+      evaluated.criterion.result = upper.passes ? "pass" : "unknown";
+      evaluated.criterion.resultReasonCode = upper.passes ? "max_within_limit" : "numerator_unavailable";
+      if (!upper.passes) evaluated.unknowns.push(unknown(c, c.numeratorDefinition, "review", "numerator_unavailable",
+        upper.reason!));
+    }
+    return evaluated;
+  }
   return finishRatio(c, numerator.value, denominator.value, combine(numerator, denominator), input.engineVersion);
 };
 

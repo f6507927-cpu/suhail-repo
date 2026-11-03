@@ -1,0 +1,12 @@
+{
+  "pre": [
+    {"adsh":"0000320193-25-000079","tag":"CashAndCashEquivalentsAtCarryingValue","version":"us-gaap/2025","stmt":"BS","plabel":"Cash and cash equivalents"},
+    {"adsh":"0000320193-25-000079","tag":"ShortTermInvestments","version":"us-gaap/2025","stmt":"BS","plabel":"Short-term investments"},
+    {"adsh":"0000320193-25-000079","tag":"LongTermInvestments","version":"us-gaap/2025","stmt":"BS","plabel":"Long-term investments"}
+  ],
+  "num": [
+    {"adsh":"0000320193-25-000079","tag":"CashAndCashEquivalentsAtCarryingValue","version":"us-gaap/2025","ddate":"20250930","qtrs":"0","uom":"USD","dimh":"0x00000000000000000000000000000000","iprx":"1","value":"100","dimn":"0","coreg":"","durp":"0","datp":"-0.1000"},
+    {"adsh":"0000320193-25-000079","tag":"ShortTermInvestments","version":"us-gaap/2025","ddate":"20250930","qtrs":"0","uom":"USD","dimh":"0x00000000000000000000000000000000","iprx":"1","value":"200","dimn":"0","coreg":"","durp":"0","datp":"-0.1000"},
+    {"adsh":"0000320193-25-000079","tag":"LongTermInvestments","version":"us-gaap/2025","ddate":"20250930","qtrs":"0","uom":"USD","dimh":"0x00000000000000000000000000000000","iprx":"1","value":"300","dimn":"0","coreg":"","durp":"0","datp":"-0.1000"}
+  ]
+}

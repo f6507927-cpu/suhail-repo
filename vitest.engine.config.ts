@@ -5,7 +5,7 @@ export default defineConfig({
     environment: "node",
     // Avoid CPU oversubscription when unit tests and coverage validate together.
     maxWorkers: 1,
-    include: ["src/engine/**/*.test.ts"],
+    include: ["src/engine/**/*.test.ts", "tests/upper-bound-engine.test.ts"],
     coverage: {
       provider: "v8",
       // All executable production engine modules, including validators/renderers.

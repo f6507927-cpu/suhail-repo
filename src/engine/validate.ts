@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { upperBoundPolicySchema } from "./upper-bound";
 import type { EngineInput, JsonValue } from "./types";
 import { EngineInputError } from "./errors";
 export { EngineInputError } from "./errors";
@@ -79,6 +80,13 @@ export function validate(input: EngineInput): void {
     if (f.value === null && f.inputState !== "unknown") throw new EngineInputError("fact.value", "null value requires unknown inputState");
   }
   for (const c of input.methodologyVersion.criteria) {
+    if (c.treatmentRuleData.suhail_upper_bound !== undefined &&
+      (!upperBoundPolicySchema.safeParse(c.treatmentRuleData.suhail_upper_bound).success ||
+        input.engineVersion === "engine-1.0.1" ||
+        c.numeratorLineItems.join() !== "prohibited_income" || c.denominatorLineItems.join() !== "total_revenue" ||
+        c.criterionType !== "custom_ratio" || c.thresholdDirection !== "max" ||
+        c.thresholdUnit !== "percent_of_total_revenue" || c.threshold === null || c.threshold <= 0))
+      throw new EngineInputError("criterion.suhail_upper_bound", "invalid opt-in upper-bound rule configuration");
     dateMillis(c.effectiveDate, "criterion.effectiveDate");
     const categoryKey = c.criterionType === "business_activity" ? "prohibited_categories"
       : c.criterionType === "non_permissible_revenue" ? "non_permissible_categories" : null;

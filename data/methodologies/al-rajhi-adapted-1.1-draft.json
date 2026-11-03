@@ -1,0 +1,25 @@
+{
+  "extends": "al-rajhi-adapted-1.0.json",
+  "version": "1.1",
+  "version_label": "Adapted research 1.1 — draft; Suhail upper-bound assumption",
+  "decision": "D-154",
+  "upper_bound": {
+    "annual_yield_assumption": 0.06,
+    "cash_line_item": "suhail_bound_cash",
+    "short_term_line_item": "suhail_bound_short_term_securities",
+    "long_term_line_item": "suhail_bound_long_term_securities",
+    "eligibility_line_item": "suhail_bound_eligible",
+    "explanation": "Upper bound: a conservative assumption chosen by Suhail, not part of the Al Rajhi document. It is an estimate, not reported prohibited income or a guaranteed bound on actual income."
+  },
+  "balance_sheet_tags": {
+    "cash": { "totals": ["CashAndCashEquivalentsAtCarryingValue"], "components": [] },
+    "short_term": {
+      "totals": ["ShortTermInvestments", "MarketableSecuritiesCurrent"],
+      "components": ["AvailableForSaleSecuritiesDebtSecuritiesCurrent", "AvailableForSaleSecuritiesEquitySecuritiesCurrent", "TradingSecuritiesCurrent"]
+    },
+    "long_term": {
+      "totals": ["LongTermInvestments", "MarketableSecuritiesNoncurrent"],
+      "components": ["AvailableForSaleSecuritiesDebtSecuritiesNoncurrent", "AvailableForSaleSecuritiesEquitySecuritiesNoncurrent", "TradingSecuritiesNoncurrent"]
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { criterionType, thresholdDirection, thresholdUnit } from "../../db/schema/core";
+import { upperBoundPolicySchema } from "../../engine/upper-bound";
 import { licensingStatus, methodologyType, officialOrInspired } from "../../db/schema/methodology";
 import { evaluatorRegistry } from "../../engine/evaluators";
 import type { Criterion, EngineInput, CriterionResultCode, Status } from "../../engine";
@@ -35,6 +36,7 @@ export const criterionSchema = z.object({
   borderline_margin: z.number().finite().nonnegative().nullable(),
   treatment_rules: nullableText,
   treatment_rule_data: z.object({
+    suhail_upper_bound: upperBoundPolicySchema.optional(),
     prohibited_categories: z.array(z.enum(categories)).optional(),
     non_permissible_categories: z.array(z.enum(categories)).optional(),
   }).strict().nullable(),
@@ -48,6 +50,11 @@ export const criterionSchema = z.object({
   if(c.threshold_direction !== "boolean" && c.threshold === null) issue("Threshold is required");
   const business = c.criterion_type === "business_activity";
   const revenue = c.criterion_type === "non_permissible_revenue";
+  if (c.treatment_rule_data?.suhail_upper_bound &&
+    (c.criterion_type !== "custom_ratio" || c.threshold_direction !== "max" ||
+      c.numerator_line_items.join() !== "prohibited_income" || c.denominator_line_items.join() !== "total_revenue" ||
+      c.threshold_unit !== "percent_of_total_revenue" || c.threshold === null || c.threshold <= 0))
+    issue("Upper-bound fallback requires a maximum custom ratio against total revenue");
   if(business && (c.threshold_direction !== "boolean" || c.threshold_unit !== "boolean")) issue("Business activity requires boolean direction and unit");
   if(!business && c.threshold_unit === "boolean" && c.threshold_direction !== "boolean") issue("A boolean unit requires boolean direction");
   if(!business && !revenue && (!c.numerator_line_items.length || !c.denominator_line_items.length)) issue("Ratio operands cannot be empty");
