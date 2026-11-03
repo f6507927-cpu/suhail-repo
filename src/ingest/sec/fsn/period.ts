@@ -14,8 +14,11 @@ export function monthEnd(value: string) {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).toISOString().slice(0, 10);
 }
 export function consolidated(row: TableRow) {
+  // SEC FSN §5.4: iprx disambiguates facts, not a primary/verified flag.
+  // Supplied archives use 0 as well as 1. Value/context sets collapse equal
+  // duplicates; no iprx rank is allowed to hide a conflicting value.
   return row.uom === "USD" && row.coreg === "" && numeric(row.dimn) === 0 &&
-    /^(?:0x)?0+$/i.test(row.dimh) && numeric(row.iprx) === 1;
+    /^(?:0x)?0+$/i.test(row.dimh);
 }
 export function periodKey(row: TableRow) {
   return JSON.stringify([row.ddate, numeric(row.qtrs), numeric(row.datp), numeric(row.durp)]);

@@ -13,7 +13,7 @@ export function proposedV11Definition() {
     definition: `${income.definition} ${draft.upper_bound.explanation}`,
     formula_text: "Prefer existing income evidence. Otherwise (cash + short-term securities + long-term securities) × annual_yield_assumption / total_revenue × 100 ≤ threshold.",
     treatment_rule_data: { suhail_upper_bound: draft.upper_bound },
-    treatment_rules: `${income.treatment_rules} D-154: cash is required; securities absent from the filing's BS presentation count as zero, labelled not on balance sheet. Custom/unreadable asset evidence is unknown. An excessive bound is unknown, not fail. Protected analyst decisions win.`,
+    treatment_rules: `${income.treatment_rules} D-154: cash is required; securities absent from the filing's Assets section (PRE/CAL) count as zero, labelled not on balance sheet. Only potentially cash, deposit, investment or securities asset lines with custom/unreadable evidence block completeness; unrelated custom assets and liabilities do not. An excessive bound is unknown, not fail. Protected analyst decisions win.`,
     source_reference: `${income.source_reference}; D-154 Suhail assumption, not part of the Al Rajhi document`,
     notes: draft.upper_bound.explanation,
   });

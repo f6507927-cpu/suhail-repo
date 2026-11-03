@@ -7,6 +7,8 @@
 ```sh
 pnpm sec:upper-bound:dry-run
 pnpm sec:upper-bound:dry-run -- --dataset 2026_07
+pnpm --silent sec:upper-bound:dry-run -- --summary
+pnpm --silent sec:upper-bound:dry-run -- --summary --dataset 2026_07
 ```
 
 Only run against SEC after the owner authorizes the dry run. Implementation was
@@ -18,7 +20,7 @@ variables, build commands or migrations are required.
 It compares **every ticker in `data/launch/universe.csv`**, using each
 companyfacts-selected annual filing's archive (monthly when available, otherwise
 quarterly). The override is optional; a mismatched archive cannot supply evidence.
-It reads covered accessions' SUB, NUM and BS PRE rows only. The existing SEC
+It reads covered accessions' SUB, NUM, BS PRE and (when present) CAL rows only. The existing SEC
 User-Agent, process-local limiter and download limits apply unchanged.
 
 `data/methodologies/al-rajhi-adapted-1.1-draft.json` holds the named
@@ -30,8 +32,12 @@ universe testing, approval, publication and production gates still apply.
 For every mapped stock the comparison shows cash, short-term and long-term
 securities, their values/tags or the reason they are unknown, and the filing link.
 Absent securities count as zero **only** when a complete BS presentation exists;
-they are labelled **not on balance sheet**. Cash is required. Custom BS lines and
-unmapped asset lines block completeness; a presented line with no unique readable
+they are labelled **not on balance sheet**. Cash is required. Only potentially
+cash/deposit/investment/securities lines **within Assets** can block completeness:
+use each PRE report's Assets total/line order and CAL descendants without joining
+calculation groups. Liability lines and unrelated custom inventory/prepaid lines
+do not block. An unprovable asset boundary remains unknown, never zero.
+Custom or unmapped financial asset lines, and a presented line with no unique readable
 consolidated value is unknown. One total takes precedence over its presented
 children; multiple alternative totals are ambiguous, never added together.
 
@@ -46,6 +52,22 @@ calculation evidence identify the rate as Suhail's conservative assumption,
 not part of the Al Rajhi document.
 
 Both dry runs now print NUM revenue candidates, values, dimensions, date offsets,
+and rejection reasons. `--summary` applies to the upper-bound command and emits
+one line per universe ticker: cash, short-term, long-term, bound, ratio and
+pass/unknown with its reason. It includes skipped tickers and absence labels.
+This is a hypothetical bound preview, not stored screening status. Existing
+income taking precedence is labelled unknown/bound-not-used rather than implying
+that a favorable bound overrides it. Full JSON remains the default.
+
+SEC's [FSN specification §5.4](https://www.sec.gov/dera/data/fsnds.pdf)
+defines `iprx` as an otherwise-identical-fact discriminator/priority index, not
+a boolean primary-fact flag. Although the PDF describes positive integers,
+the supplied output has zeroes; neither 0 nor 1 is excluded. Same-filing,
+same-version, same-fiscal-context consolidated values are deduplicated by value,
+not selected by `iprx`. Different values remain ambiguous, including competing
+revenue values; a higher index never hides them.
+
+The JSON diagnostics retain
 context counts and individual rejection reasons. AAPL/PEP rounded FSN dates keep
 the exact companyfacts fiscal dates. Offsets are preserved as NUM context keys,
 not converted with a guessed unit; numerator and revenue must share that context.
@@ -82,7 +104,7 @@ Estimated income proxy removes a security's review status.
 The custom-tag allowlist starts empty and must remain exact and reviewed.
 Suggestions are never mappings. Source provenance remains Verified, but D-124
 income proxies remain Estimated with their warnings. Fallback facts carry
-`sec-fsn-2` (D-154 normalization); companyfacts and screening keep `calc-2026.10.6`.
+`sec-fsn-3` (D-154 asset-scope/iprx correction); companyfacts and screening keep `calc-2026.10.6`.
 
 Normal future `job:ingest`/admin ingestion can use the fallback only for an
 in-universe issuer with missing companyfacts prohibited income; protected

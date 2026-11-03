@@ -2,6 +2,7 @@ import draft from "../../../../data/methodologies/al-rajhi-adapted-1.1-draft.jso
 import type { Fact } from "../../../engine/types";
 import { accession, FSN_PROVIDER, type FsnArchive, type FsnTarget, type TableRow } from "./contracts";
 import { consolidated, matchesEnd, numeric, periodKey } from "./period";
+import { assetScope, possibleFinancialAsset } from "./asset-scope";
 
 export const balanceSheetTags = Object.values(draft.balance_sheet_tags)
   .flatMap(bucket => [...bucket.totals, ...bucket.components]);
@@ -26,13 +27,17 @@ export function unavailableBalanceSheet(target: FsnTarget, reason: string): Bala
 /** D-154: PRE BS is evidence of absence. Never infer absence from NUM alone. */
 export function assessBalanceSheet(target: FsnTarget, archive: FsnArchive, revenueAnchor: TableRow | null): BalanceSheet {
   const result = unavailableBalanceSheet(target, "No complete balance-sheet presentation");
-  const lines = archive.presentation?.filter(row => row.adsh === accession(target) && row.stmt === "BS") ?? [];
-  if (!lines.length) return result;
+  const presentation = archive.presentation?.filter(row => row.adsh === accession(target) && row.stmt === "BS") ?? [];
+  if (!presentation.length) return result;
   if (!revenueAnchor) return unavailableBalanceSheet(target, "No unique NUM revenue anchor; fiscal context unproven");
+  const scope = assetScope(presentation, archive.calculations?.filter(row => row.adsh === accession(target)) ?? []);
+  if (scope.reason) return unavailableBalanceSheet(target, scope.reason);
+  const lines = scope.lines;
   // Name checks only refuse unsafe zero inference; they NEVER select a value.
-  // Every custom BS tag is a blocker: do not guess its asset classification.
-  result.blockers = lines.filter(row => !row.version.startsWith("us-gaap/") ||
-    (!balanceSheetTags.includes(row.tag) && /cash|invest|securit/i.test(`${row.tag} ${row.plabel}`)));
+  // Only potentially financial ASSET lines block. Inventory, prepaid expenses,
+  // liabilities and unrelated custom tags never establish missing securities.
+  result.blockers = lines.filter(row => possibleFinancialAsset(row) &&
+    (!row.version.startsWith("us-gaap/") || !balanceSheetTags.includes(row.tag)));
   let cashContext: string | null = null;
   for (const name of ["cash", "short_term", "long_term"] as const) {
     const mapping = draft.balance_sheet_tags[name];

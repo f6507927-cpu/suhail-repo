@@ -1,0 +1,17 @@
+{
+  "pre": [
+    {"adsh":"0000320193-25-000079","report":"1","line":"40","inpth":"0","tag":"IssuerInventories","version":"0000320193-25-000079","stmt":"BS","plabel":"Inventories"},
+    {"adsh":"0000320193-25-000079","report":"1","line":"50","inpth":"0","tag":"IssuerPrepaidExpenses","version":"0000320193-25-000079","stmt":"BS","plabel":"Prepaid expenses"},
+    {"adsh":"0000320193-25-000079","report":"1","line":"110","inpth":"0","tag":"AccruedRebatesReturnsAndPromotions","version":"0000320193-25-000079","stmt":"BS","plabel":"Accrued rebates, returns and promotions"},
+    {"adsh":"0000320193-25-000079","report":"1","line":"120","inpth":"0","tag":"SalesRebatesAndDiscounts","version":"0000320193-25-000079","stmt":"BS","plabel":"Sales rebates and discounts"},
+    {"adsh":"0000320193-25-000079","report":"1","line":"130","inpth":"0","tag":"CustomerCashInvestmentDeposits","version":"0000320193-25-000079","stmt":"BS","plabel":"Customer cash investment deposits payable"},
+    {"adsh":"0000320193-25-000079","report":"1","line":"140","inpth":"0","tag":"Liabilities","version":"us-gaap/2025","stmt":"BS","plabel":"Total liabilities"}
+  ],
+  "cal": [
+    {"adsh":"0000320193-25-000079","grp":"1","ptag":"Assets","pversion":"us-gaap/2025","ctag":"AssetsCurrent","cversion":"us-gaap/2025"},
+    {"adsh":"0000320193-25-000079","grp":"1","ptag":"AssetsCurrent","pversion":"us-gaap/2025","ctag":"CashAndCashEquivalentsAtCarryingValue","cversion":"us-gaap/2025"},
+    {"adsh":"0000320193-25-000079","grp":"1","ptag":"AssetsCurrent","pversion":"us-gaap/2025","ctag":"ShortTermInvestments","cversion":"us-gaap/2025"},
+    {"adsh":"0000320193-25-000079","grp":"1","ptag":"Assets","pversion":"us-gaap/2025","ctag":"LongTermInvestments","cversion":"us-gaap/2025"},
+    {"adsh":"0000320193-25-000079","grp":"1","ptag":"Liabilities","pversion":"us-gaap/2025","ctag":"CustomerCashInvestmentDeposits","cversion":"0000320193-25-000079"}
+  ]
+}

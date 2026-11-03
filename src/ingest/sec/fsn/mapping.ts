@@ -22,7 +22,7 @@ export function mapFsn(target: FsnTarget, archive: FsnArchive) {
       const rejectedBy = [
         ...(row.tag !== revenueTag(target) ? ["tag differs from companyfacts"] : []),
         ...(!row.version.startsWith("us-gaap/") ? ["not standard us-gaap"] : []),
-        ...(!consolidated(row) ? ["not consolidated USD, zero dimensions, iprx=1"] : []),
+        ...(!consolidated(row) ? ["not consolidated USD, zero dimensions"] : []),
         ...(numeric(row.qtrs) !== 4 ? ["not annual qtrs=4"] : []),
         ...(!matchesEnd(row, target.mapped.period.period_end) ? ["incompatible normalized end or invalid offsets"] : []),
         ...(numeric(row.value) !== revenue?.value ? ["value differs from companyfacts"] : []),
@@ -31,10 +31,15 @@ export function mapFsn(target: FsnTarget, archive: FsnArchive) {
     });
   const anchors = revenueCandidates.filter(row => !row.rejectedBy.length);
   const keys = new Set(anchors.map(row => row.periodKey));
+  const conflictingValues = [...keys].some(key => new Set(revenueCandidates
+    .filter(candidate => candidate.periodKey === key &&
+      candidate.rejectedBy.every(reason => reason === "value differs from companyfacts"))
+    .map(candidate => candidate.numericValue)).size > 1);
   const revenueAnchor = { expected: { accession: accession(target), tag: revenueTag(target), value: revenue?.value ?? null,
     start: target.mapped.period.period_start, end: target.mapped.period.period_end },
     candidates: revenueCandidates, eligibleContexts: keys.size,
-    reason: keys.size === 0 ? "No eligible NUM revenue rows" : keys.size > 1 ? "Multiple eligible NUM fiscal contexts" : null };
+    reason: conflictingValues ? "Conflicting NUM revenue values" : keys.size === 0 ? "No eligible NUM revenue rows"
+      : keys.size > 1 ? "Multiple eligible NUM fiscal contexts" : null };
   let balanceSheet: ReturnType<typeof assessBalanceSheet> | undefined;
   const submissions = archive.submissions.filter(row => row.adsh === accession(target) && Number(row.cik) === Number(target.cik));
   const suggestions = submissions.length === 1 ? rows.filter(row =>
@@ -53,10 +58,10 @@ export function mapFsn(target: FsnTarget, archive: FsnArchive) {
     ![period.period_end, monthEnd(period.period_end)].includes(date(sub.period)) || date(sub.filed) !== period.reported_date)
     return refuse("SUB filing metadata does not match the selected annual filing and fiscal period");
   if (archive.presentation !== undefined)
-    balanceSheet = assessBalanceSheet(target, archive, keys.size === 1 ? anchors[0].row : null);
+    balanceSheet = assessBalanceSheet(target, archive, keys.size === 1 && !conflictingValues ? anchors[0].row : null);
   const existing = target.mapped.facts.find(f => f.line_item === "prohibited_income");
   if (existing?.value != null) return refuse("Companyfacts already supplies prohibited_income; fallback not used");
-  if (keys.size !== 1) return refuse("No unique NUM revenue anchor matching companyfacts tag, value and annual period");
+  if (keys.size !== 1 || conflictingValues) return refuse("No unique NUM revenue anchor matching companyfacts tag, value and annual period");
   const key = [...keys][0];
   const custom = CUSTOM_TAG_ALLOWLIST.filter(entry => entry.ticker === target.ticker &&
     Number(entry.cik) === Number(target.cik) && entry.field === "prohibited_income");
@@ -87,7 +92,7 @@ export function mapFsn(target: FsnTarget, archive: FsnArchive) {
     };
     return { fact, tag: candidate.tag, reason: null, suggestions, revenueAnchor, balanceSheet };
   }
-  return refuse("No allowed income tag with the same accession and fiscal period as total_revenue (USD, consolidated, iprx=1)");
+  return refuse("No allowed income tag with the same accession and fiscal period as total_revenue (USD, consolidated)");
 }
 type MappingResult = ReturnType<typeof mapFsn>;
 export type FsnResult = Omit<MappingResult, "revenueAnchor" | "balanceSheet"> &

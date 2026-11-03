@@ -79,7 +79,7 @@ describe("sec_fsn exact filing fallback", () => {
     expect(mapFsn({ ...target, cik: "1" }, a).fact).toBeNull();
   });
   it.each([
-    ["uom", "EUR"], ["qtrs", "1"], ["dimn", "1"], ["dimh", "abcd"], ["coreg", "subsidiary"], ["iprx", "2"],
+    ["uom", "EUR"], ["qtrs", "1"], ["dimn", "1"], ["dimh", "abcd"], ["coreg", "subsidiary"],
     ["ddate", "20240930"], ["datp", "0"], ["durp", "0.1"], ["adsh", "0000000001-26-000010"],
     ["version", "custom/2025"], ["value", ""], ["value", "-1"], ["value", "Infinity"],
   ])("refuses incompatible income %s=%s", async (field, value) => {
@@ -141,7 +141,8 @@ describe("sec_fsn exact filing fallback", () => {
     const cli = (await import("node:fs")).readFileSync("src/ingest/sec/fsn/dry-run.ts", "utf8");
     expect(cli).not.toMatch(/dbApp|dbPublic|writeFile|persistAnnual/);
   });
-  it.each(["fsn-dry-run.ts", "upper-bound-dry-run.ts"])("the actual %s CLI has no DB credentials and writes no files (fixture HTTP only)", async script => {
+  it.each([["fsn-dry-run.ts", false], ["upper-bound-dry-run.ts", false], ["upper-bound-dry-run.ts", true]] as const)(
+    "the actual %s CLI summary=%s has no DB credentials and writes no files (fixture HTTP only)", async (script, summary) => {
     const dir = await mkdtemp(join(tmpdir(), "fsn-cli-"));
     try {
       for (const name of ["scripts", "src", "node_modules"]) await symlink(resolve(name), join(dir, name));
@@ -157,16 +158,25 @@ describe("sec_fsn exact filing fallback", () => {
       const { stdout } = await promisify(execFile)(process.execPath, [
         "--conditions=react-server", "--import", resolve("tests/fixtures/sec-fsn/mock-http.mjs"),
         "--import", "tsx", `scripts/sec/${script}`,
+        ...(summary ? ["--summary", "--dataset", "2025q4"] : []),
       ], { cwd: dir, env, timeout: 20_000 });
-      expect((stdout.match(/"dryRun": true/g) ?? [])).toHaveLength(script === "upper-bound-dry-run.ts" ? 9 : 8);
-      expect(stdout).toContain('"value": 12');
-      expect(stdout).toContain("InterestIncomeCustom");
-      if (script === "upper-bound-dry-run.ts") {
-        expect(stdout).toContain("UNLISTED");
-        expect(stdout).toContain('"bound": 36');
-        expect(stdout).toContain('"annual_yield_assumption": 0.06');
-        expect(stdout).toContain("Existing income wins");
-        expect(stdout).toContain("conservative assumption chosen by Suhail");
+      if (summary) {
+        const lines = stdout.trim().split("\n");
+        expect(lines).toHaveLength(9);
+        expect(lines.find(line => line.startsWith("AAPL "))).toContain("cash=100 short-term=200 long-term=300 bound=36");
+        expect(lines.find(line => line.startsWith("UNLISTED "))).toContain("unknown reason=No SEC CIK identity");
+        expect(stdout).not.toContain('"balanceSheet"');
+      } else {
+        expect((stdout.match(/"dryRun": true/g) ?? [])).toHaveLength(script === "upper-bound-dry-run.ts" ? 9 : 8);
+        expect(stdout).toContain('"value": 12');
+        expect(stdout).toContain("InterestIncomeCustom");
+        if (script === "upper-bound-dry-run.ts") {
+          expect(stdout).toContain("UNLISTED");
+          expect(stdout).toContain('"bound": 36');
+          expect(stdout).toContain('"annual_yield_assumption": 0.06');
+          expect(stdout).toContain("Existing income wins");
+          expect(stdout).toContain("conservative assumption chosen by Suhail");
+        }
       }
       expect(await files()).toEqual(before);
     } finally { await rm(dir, { recursive: true, force: true }); }

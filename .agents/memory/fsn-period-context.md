@@ -14,3 +14,10 @@ pair the wrong context while appearing to fix rounded month-end dates.
 **How to apply:** Keep filing identity, normalized fiscal end and revenue anchoring
 strict. Any future offset decoder needs archive-format evidence and fixtures,
 not a conversion inferred from decimal appearance.
+
+Do not interpret `iprx` as a primary-fact boolean or require it to be 1.
+
+**Why:** SEC's FSN documentation describes a disambiguation/priority index;
+the owner's actual output included 0 despite the PDF saying positive integers.
+Filtering to 1 discarded usable rows. Equal values can collapse within one
+filing/taxonomy/fiscal context; a preferred index must never hide different values.

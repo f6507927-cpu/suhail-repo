@@ -4,7 +4,7 @@ import { SecRequestError } from "../client";
 import { accession, revenueTag, CUSTOM_TAG_ALLOWLIST, type FsnTarget, type TableRow } from "./contracts";
 import { balanceSheetTags } from "./balance-sheet";
 
-const wanted = (name: string) => /^(?:sub|num|pre)\.(?:txt|tsv)$/.test(name);
+const wanted = (name: string) => /^(?:sub|num|pre|cal)\.(?:txt|tsv)$/.test(name);
 // Starting every entry prevents fflate retaining compressed chunks for unopened
 // entries. Unneeded DEFLATE entries are discarded without inflating/parsing them.
 class SelectiveInflate {
@@ -12,7 +12,7 @@ class SelectiveInflate {
   ondata: UnzipInflate["ondata"] = () => {};
   private inflater?: UnzipInflate;
   constructor(name: string, balanceSheet: boolean) {
-    if (wanted(name) && (balanceSheet || !/^pre\./.test(name))) {
+    if (wanted(name) && (balanceSheet || !/^(?:pre|cal)\./.test(name))) {
       this.inflater = new UnzipInflate();
       this.inflater.ondata = (error, data, final) => this.ondata(error, data, final);
     }
@@ -61,11 +61,11 @@ export async function readArchive(response: Response, targets: FsnTarget[], bala
   const identities = new Map(targets.map(t => [accession(t), Number(t.cik)]));
   const tags = new Set<string>([...candidates.prohibited_income, ...candidates.total_revenue, ...targets.map(revenueTag),
     ...CUSTOM_TAG_ALLOWLIST.map(entry => entry.tag), ...(balanceSheet ? balanceSheetTags : [])]);
-  const submissions: TableRow[] = [], numbers: TableRow[] = [], presentation: TableRow[] = [];
+  const submissions: TableRow[] = [], numbers: TableRow[] = [], presentation: TableRow[] = [], calculations: TableRow[] = [];
   const seen = new Set<string>(), complete = new Set<string>();
   let failure: Error | undefined;
   const zip = new Unzip(entry => {
-    if (!wanted(entry.name) || (!balanceSheet && /^pre\./.test(entry.name))) {
+    if (!wanted(entry.name) || (!balanceSheet && /^(?:pre|cal)\./.test(entry.name))) {
       entry.ondata = () => {};
       entry.start();
       return;
@@ -73,16 +73,18 @@ export async function readArchive(response: Response, targets: FsnTarget[], bala
     const kind = entry.name.slice(0, 3);
     if (seen.has(kind)) throw new SecRequestError("SEC Notes archive has duplicate tables");
     seen.add(kind);
-    const consume = tableReader(kind === "pre" ? ["adsh", "tag", "version", "stmt", "plabel"] :
+    const consume = tableReader(kind === "cal" ? ["adsh", "grp", "ptag", "pversion", "ctag", "cversion"] :
+      kind === "pre" ? ["adsh", "report", "line", "inpth", "tag", "version", "stmt", "plabel"] :
       kind === "sub" ? ["adsh", "cik", "form", "period", "fy", "fp", "filed"] :
       ["adsh", "tag", "version", "ddate", "qtrs", "uom", "dimh", "iprx", "value", "dimn", "coreg", "durp", "datp"], row => {
       if (!identities.has(row.adsh)) return;
-      if (kind === "pre") {
+      if (kind === "cal") calculations.push(row);
+      else if (kind === "pre") {
         if (row.stmt === "BS") presentation.push(row);
       } else if (kind === "sub") {
         if (Number(row.cik) === identities.get(row.adsh)) submissions.push(row);
       } else if (tags.has(row.tag) || (row.version === row.adsh && /Interest|InvestmentIncome/.test(row.tag))) numbers.push(row);
-      if (submissions.length + numbers.length + presentation.length > 100_000) throw new SecRequestError("SEC Notes selected evidence exceeds row limit");
+      if (submissions.length + numbers.length + presentation.length + calculations.length > 100_000) throw new SecRequestError("SEC Notes selected evidence exceeds row limit");
     });
     entry.ondata = (error, data, final) => {
       if (error) { failure = new SecRequestError("SEC Notes archive decompression failed"); return; }
@@ -104,7 +106,8 @@ export async function readArchive(response: Response, targets: FsnTarget[], bala
     }
     if (!complete.has("sub") || !complete.has("num")) throw new SecRequestError("SEC Notes archive is missing complete SUB/NUM tables");
     if (balanceSheet && !complete.has("pre")) throw new SecRequestError("SEC Notes archive is missing complete PRE table; no absence inferred");
-    return { submissions, numbers, ...(balanceSheet ? { presentation } : {}) };
+    if (seen.has("cal") && !complete.has("cal")) throw new SecRequestError("SEC Notes archive has incomplete CAL table");
+    return { submissions, numbers, ...(balanceSheet ? { presentation, calculations } : {}) };
   } finally {
     await reader.cancel();
     reader.releaseLock();

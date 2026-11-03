@@ -6,6 +6,29 @@
 | --- | --- |
 | D-154 | **Founder approved local implementation and fixture tests only; methodology approval and activation remain pending.** Match SEC Notes by accession, CIK, selected annual filing metadata, rounded month-end and one consolidated USD NUM revenue context matching companyfacts. Preserve companyfacts' exact fiscal start/end; numeric `datp`/`durp` distinguish NUM contexts, without guessing conversions between offset encodings. Require numerator and revenue to share the complete NUM context. Accept explicit zero-dimensional hexadecimal hashes, including `0x` prefix. `sec-fsn-2` versions this adapter change; existing evidence and historical engine replay remain unchanged. Include AAPL 2025-09-27 and PEP 2025-12-27 fixtures and per-candidate rejection/context diagnostics. Prepare an opt-in v1.1 draft, leaving v1.0 untouched: only when existing income and protected analyst decisions do not take precedence, estimate an upper bound from same-filing/end cash/equivalents plus short/long-term securities, multiplied by the named version configuration `annual_yield_assumption` (0.06). Completeness comes from `pre.txt`, `stmt=BS`: cash is required; securities with no BS line count as zero labelled “not on balance sheet”; custom BS tags, unmapped cash/investment/securities lines or unreadable values make completeness unknown. Use explicit standard tags, and prefer one total over disjoint presented children without double counting. A complete bound / positive annual revenue ≤5% passes as estimated/Estimated, labelled “upper bound”; an excessive or unprovable bound stays unknown, never automatically fails. State publicly that this is a conservative assumption chosen by Suhail, not part of the Al Rajhi document, reported income or a guaranteed actual income ceiling. Eligibility must be explicitly supplied after checking protected analyst evidence; absent eligibility fails closed. The no-write comparison covers every universe ticker, prints per-component evidence, bound, ratio, selected income and filing links, and skips actual screening-status/override claims without database reads. The local definition must pass normal version/criterion contracts and remain unpublished; no governance bypass. No live SEC requests/import, Supabase access/writes, migrations, database draft creation, workflow advancement or production/default changes are authorized. |
 
+### D-154 correction — asset-side completeness and fact indices
+
+The founder's dry-run correction supersedes the blanket custom-BS blocker above.
+Use PRE report/line order within the Assets total and CAL Assets descendants
+(keeping CAL groups and taxonomy versions separate). Only potential
+cash/deposit/investment/securities **asset** lines can block completeness.
+Unrelated custom inventory/prepaid assets and liabilities, including
+`AccruedRebatesReturnsAndPromotions` and `SalesRebatesAndDiscounts`, do not block.
+Missing or ambiguous asset boundaries remain unknown; they never establish zero.
+
+The [SEC FSN specification, §5.4](https://www.sec.gov/dera/data/fsnds.pdf) describes
+`iprx` as a sequential/disambiguating priority index, not a primary-fact flag.
+The documentation describes positive integers, whereas supplied rows include 0.
+Do not require `iprx=1`: identical consolidated values in the same filing,
+taxonomy and fiscal context count once regardless of index; different values
+still fail, including revenue anchors. This is `sec-fsn-3`; historical evidence,
+v1.0 and the engine's version/precision rules are unchanged.
+
+Add upper-bound `--summary` output: one line per ticker with cash, short-term,
+long-term, bound, ratio and pass/unknown plus reason. It remains hypothetical and
+read-only, preserves unknown/absence states and never overrides selected income.
+Verification uses fixtures only; no live data import or Supabase writes.
+
 ## Optional stored month-end closes
 
 Storage rollout clarification for D-153: `API_NINJAS_STORAGE_READY` defaults off

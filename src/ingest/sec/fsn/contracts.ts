@@ -2,12 +2,13 @@ import type { mapAnnual } from "../annual";
 import type { Retrieval } from "../types";
 
 export const FSN_PROVIDER = "SEC Financial Statement and Notes data set" as const;
-export const FSN_VERSION = "sec-fsn-2";
+export const FSN_VERSION = "sec-fsn-3";
 export const REVIEW_TICKERS = ["AAPL", "MSFT", "AMD", "TXN", "NFLX", "PEP", "LLY", "XOM"] as const;
 export type AnnualMapping = ReturnType<typeof mapAnnual>;
 export type FsnTarget = { ticker: string; cik: string; mapped: AnnualMapping };
 export type TableRow = Record<string, string>;
-export type FsnArchive = { submissions: TableRow[]; numbers: TableRow[]; presentation?: TableRow[]; retrieval: Retrieval };
+export type FsnArchive = { submissions: TableRow[]; numbers: TableRow[]; presentation?: TableRow[];
+  calculations?: TableRow[]; retrieval: Retrieval };
 export type CustomTag = {
   ticker: string; cik: string; tag: string; field: "prohibited_income"; reviewReference: string;
 };
