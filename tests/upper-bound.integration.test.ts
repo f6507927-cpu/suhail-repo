@@ -119,7 +119,8 @@ it("installer is idempotent, audited, source-gated, and never advances/publishes
   const result = await installV11(tx, actor.email!, false);
   expect(result.action).toBe("created draft");
   const [v] = await tx.select().from(schema.methodologyVersion).where(eq(schema.methodologyVersion.id, result.versionId!));
-  expect(v).toMatchObject({ workflow_status: "draft", is_public: false, production_enabled: false, analyst_test_cases: [] });
+  expect(v).toMatchObject({ workflow_status: "draft", is_public: false, production_enabled: false });
+  expect(v.analyst_test_cases.length).toBeGreaterThan(0);
   const definition = await candidateDefinition(tx, v.id);
   expect(definition.criteria.find(c => !!c.treatmentRuleData.suhail_upper_bound)?.treatmentRuleData.suhail_upper_bound)
     .toMatchObject({ annual_yield_assumption: 0.06 });

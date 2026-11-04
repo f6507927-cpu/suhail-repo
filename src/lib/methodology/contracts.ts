@@ -90,7 +90,8 @@ export const analystCasesSchema = z.array(z.object({
     securityId:z.string().min(1),asOf:z.string(),stalenessLimitDays:z.number().int().positive().optional(),
     period:z.object({id:z.string().min(1),label:z.string(),periodEnd:z.string()}).strict(),
     facts:z.array(z.object({
-      lineItem:z.enum(lineItems),value:z.number().finite().nullable(),
+      lineItem:z.enum([...lineItems, "suhail_bound_cash", "suhail_bound_short_term_securities",
+        "suhail_bound_long_term_securities", "suhail_bound_eligible"]),value:z.number().finite().nullable(),
       inputState:z.enum(["reported","derived","estimated","unknown"]),
       confidenceTier:z.enum(["Verified","Calculated","Estimated","AI Interpretation"]),sourceId:z.string(),
     }).strict()),

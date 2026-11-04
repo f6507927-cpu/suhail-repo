@@ -55,6 +55,16 @@ an unpublished draft. Identical repeat runs change no rows, timestamps or audit
 events, including after normal workflow advancement. A partial/conflicting v1.1
 (including a plain v1.0 clone) stops without repair or overwrite.
 
+The installer also copies v1.0's analyst-case inputs and expected outcomes,
+remapping only criterion identities, and adds eight synthetic upper-bound and
+precedence cases. On an existing v1.1 draft it appends only missing cases via
+the audited case service; it never edits existing cases. Dry-run reports
+`casesAdded` without saving. An identical repeat is a no-op. Missing cases after
+the version has left draft cause refusal rather than an immutability bypass.
+Analyst-override cases use already-resolved facts/eligibility, as the engine has
+no separate override flag. Tests and coverage still have to be run through the
+normal admin workflow; no passing report is copied or fabricated.
+
 It never changes the parent, v1.0, examples, default, workflow stage, production
 enablement or approval. It does not copy reports or mark tests as passed.
 After installation, select version 1.1 in `/en/admin/methodologies` (Arabic:

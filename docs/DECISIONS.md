@@ -12,6 +12,27 @@
 | --- | --- |
 | D-155 | **Founder approved local implementation and tests only.** During covered-universe SEC refresh, store versioned upper-bound cash, short/long securities and completeness/context as normal sourced evidence in existing financial facts, never as `prohibited_income`. Preserve filing/accession/fiscal context, tags, component states, revenue anchor and primary Verified provenance; derived upper-bound results remain Estimated. Incomplete refreshes supersede prior completeness. Download/parse outside transactions; reuse existing SEC limiter. Screen all, screening jobs and methodology impact/universe reports share stored-evidence preparation, with no SEC download during screening. Recheck current protected decisions, source authenticity and exact component/revenue context before eligibility; analyst decisions (including protected unknown/zero), then existing income/proxies, then eligible upper bound, then unknown. Only opt-in v1.1 gets prepared inputs; v1.0 inputs and historical replay stay unchanged. Use the named version-configured 6% assumption, identified as Suhail's and not Al Rajhi's. Keep prepared context out of ordinary public fundamentals; criterion traces/source links retain the amounts and assumption. Add `setup:methodology-v11 -- --actor <existing-admin-email> [--dry-run]`: dry-run is read-only; write mode atomically uses existing lock and audited services to create an unpublished draft with its criteria and the same eligible Verified document linked to v1.0. Require existing identities/document; never fabricate a source. Identical reruns write nothing, even after governance advances. Conflicting/partial v1.1 stops; never overwrite or reset it. Never approve, publish, advance workflow, enable production, set defaults, alter v1.0/examples or copy test outcomes. Fixture tests and disposable loopback PostgreSQL only; no Supabase writes, live refresh, installer execution or activation without separate owner authorization. No new migration or deployment configuration is needed. |
 
+### D-155 addendum — founder-approved analyst-case installation
+
+The draft installer now copies v1.0 analyst cases without changing inputs,
+expected outcomes or aggregate statuses; only criterion UUIDs are remapped to
+matching v1.1 criteria. This authorizes copying case definitions/expectations,
+not stored test reports, gate results or workflow approval. Add synthetic v1.1
+cases for an upper bound below/at 5% (Estimated), reported income precedence,
+excessive/incomplete bounds and analyst-resolved income/zero/protected unknown.
+Overrides are resolved before the engine; the synthetic cases provide the
+resolved fact and eligibility, rather than inventing a new engine override flag.
+
+On existing drafts, append missing cases through the existing audited
+`saveCases` service. Preserve existing cases exactly, including owner edits;
+an existing name or identical inputs/expectations is not inserted again.
+Dry-run reports planned additions using a read-only transaction. A completed
+rerun writes nothing. Missing cases on a version that has left draft are refused,
+never backfilled by bypassing immutability. The installer never marks tests as
+passed or advances workflow; the normal report must execute and pass every
+case and criterion-coverage requirement. Local fixture tests only; no hosted
+database access or live installer execution is authorized by this change.
+
 ### D-155 addendum — founder-approved upper-bound tag mapping
 
 Extend only the draft v1.1 asset evidence mapping (prepared-input version
