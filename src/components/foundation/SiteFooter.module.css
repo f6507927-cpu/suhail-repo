@@ -69,16 +69,6 @@
   color: var(--brass-soft);
 }
 
-.wordmark {
-  margin-top: clamp(2.5rem, 7vw, 5rem);
-  color: var(--brass-soft);
-  font-size: clamp(6rem, 22vw, 18rem);
-  font-weight: 600;
-  letter-spacing: -0.045em;
-  line-height: 0.95;
-  white-space: nowrap;
-}
-
 @media (max-width: 700px) {
   .legalRow {
     flex-direction: column;
@@ -89,9 +79,6 @@
     gap: 0.25rem 1rem;
   }
 
-  .wordmark {
-    margin-inline-start: -0.08em;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

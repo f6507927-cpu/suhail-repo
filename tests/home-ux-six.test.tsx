@@ -98,6 +98,8 @@ describe("UX-6 homepage rendering",()=>{
     const html=render(<SiteFooter locale={locale}/>,locale);
     expect(html).toContain(dictionary.disclaimer.short);
     expect(html).toContain(dictionary.disclaimer.full);
+    expect(html).not.toMatch(/<div[^>]*>سهيل<\/div>/);
+    expect(readFileSync("src/components/foundation/SiteFooter.module.css","utf8")).not.toContain(".wordmark");
     expect(html).not.toContain("<details");
     expect(readFileSync("src/components/foundation/SiteFooter.module.css","utf8")).toContain(".fullDisclosure:target");
     expect(html).toContain('href="#full-disclaimer"');
