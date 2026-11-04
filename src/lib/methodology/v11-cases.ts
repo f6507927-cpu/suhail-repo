@@ -70,14 +70,4 @@ export function v11Cases(baseCases: unknown, baseCriteria: Identity[], criteria:
   return analystCasesSchema.parse([...copied, ...added]);
 }
 
-/** A stable name or identical inputs/outcomes identifies an already installed case.
- * Existing cases, including owner edits, always remain byte-for-byte intact.
- */
-export function missingV11Cases(existing: AnalystCase[], candidates: AnalystCase[]) {
-  const merged = structuredClone(existing);
-  for (const candidate of candidates) {
-    if (!merged.some(c => c.name === candidate.name ||
-      (isDeepStrictEqual(c.inputs, candidate.inputs) && isDeepStrictEqual(c.expected, candidate.expected)))) merged.push(candidate);
-  }
-  return { cases: merged, added: merged.length - existing.length };
-}
+export { missingAnalystCases as missingV11Cases } from "./analyst-case-policy";

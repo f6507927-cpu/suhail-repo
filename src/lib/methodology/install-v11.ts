@@ -8,8 +8,9 @@ import type { Tx } from "../auth/audit";
 import { requireLaunchActor } from "../launch/draft";
 import { proposedV11Definition } from "./proposed-v1.1";
 import { analystCasesSchema, criterionSchema, versionSchema } from "./contracts";
-import { associateSource, saveVersion, saveCriterion, saveCases } from "./service";
+import { associateSource, saveVersion, saveCriterion, saveCases, appendCases } from "./service";
 import { missingV11Cases, v11Cases } from "./v11-cases";
+import { canAppendAnalystCases } from "./analyst-case-policy";
 
 export class V11InstallError extends Error {}
 function check(value: unknown, message: string): asserts value {
@@ -59,10 +60,11 @@ export async function installV11(tx: Tx, email: string, dryRun: boolean) {
     const plan = missingV11Cases(analystCasesSchema.parse(version.analyst_test_cases),
       v11Cases(bases[0].analyst_test_cases, baseCriteria, rows));
     if (plan.added) {
-      check(version.workflow_status === "draft", "Missing analyst cases can only be added while v1.1 is draft; no changes made");
+      check(canAppendAnalystCases(version.workflow_status, version.production_enabled),
+        "Missing analyst cases can only be added before tests_passed; no changes made");
       if (!dryRun) {
         await requireLaunchActor(tx, actor);
-        await saveCases(tx, actor, version.id, plan.cases);
+        await appendCases(tx, actor, version.id, plan.cases);
       }
     }
     return { dryRun, action: plan.added ? (dryRun ? "add missing cases" : "added missing cases") : "unchanged",

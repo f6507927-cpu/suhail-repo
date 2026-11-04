@@ -12,6 +12,7 @@ import { testReport, impactReport, type ImpactEvidence } from "./reports";
 import { screen, ENGINE_VERSION, CALCULATION_VERSION } from "../../engine";
 import type { JsonObject } from "../../db/schema/types";
 import { refreshMarketValue, securityFacts } from "../financial/market-value-persistence";
+import { canAppendAnalystCases, missingAnalystCases } from "./analyst-case-policy";
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function identity(id:string) {requireGate(uuid.test(id),"Invalid record identity");return id;}
@@ -120,6 +121,27 @@ export async function saveCases(tx:Tx,actor:AppUser,versionId:string,data:unknow
   }
   await tx.update(methodologyVersion).set({analyst_test_cases:cases as unknown as JsonObject[],updated_at:new Date()}).where(eq(methodologyVersion.id,v.id));
   await audit(tx,actor,{event_type:"methodology_update",entity_name:"methodology_version",entity_id:v.id,summary:"Draft analyst cases saved",details:{count:cases.length}});
+}
+/** D-156: append only; existing case authoring/replacement remains draft-only. */
+export async function appendCases(tx:Tx,actor:AppUser,versionId:string,data:unknown) {
+  await lock(tx);const v=await versionRow(tx,versionId);
+  requireGate(canAppendAnalystCases(v.workflow_status,v.production_enabled),
+    "Missing analyst cases can only be added before tests_passed; no changes made");
+  const existing=analystCasesSchema.parse(v.analyst_test_cases);
+  const plan=missingAnalystCases(existing,analystCasesSchema.parse(data));
+  if(!plan.added) return {added:0,total:existing.length};
+  const cases=analystCasesSchema.parse(plan.cases);
+  const definition=await candidateDefinition(tx,v.id);
+  for(const c of cases.slice(existing.length)) {
+    requireGate(Object.keys(c.expected.criteria).every(id=>definition.criteria.some(d=>d.id===id)),
+      "Expected results reference a criterion outside this version");
+    screen({...c.inputs,methodologyVersion:definition,engineVersion:ENGINE_VERSION,calculationVersion:CALCULATION_VERSION});
+  }
+  await tx.update(methodologyVersion).set({analyst_test_cases:cases as unknown as JsonObject[],updated_at:new Date()})
+    .where(eq(methodologyVersion.id,v.id));
+  await audit(tx,actor,{event_type:"methodology_update",entity_name:"methodology_version",entity_id:v.id,
+    summary:"Missing analyst cases appended",details:{added:plan.added,total:cases.length,workflow_status:v.workflow_status}});
+  return {added:plan.added,total:cases.length};
 }
 export async function associateSource(tx:Tx,actor:AppUser,versionId:string,sourceId:string) {
   await lock(tx);const v=await versionRow(tx,versionId);const m=await parentRow(tx,v.methodology_id);

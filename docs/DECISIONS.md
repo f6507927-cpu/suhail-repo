@@ -6,6 +6,12 @@
 | --- | --- |
 | D-154 | **Founder approved local implementation and fixture tests only; methodology approval and activation remain pending.** Match SEC Notes by accession, CIK, selected annual filing metadata, rounded month-end and one consolidated USD NUM revenue context matching companyfacts. Preserve companyfacts' exact fiscal start/end; numeric `datp`/`durp` distinguish NUM contexts, without guessing conversions between offset encodings. Require numerator and revenue to share the complete NUM context. Accept explicit zero-dimensional hexadecimal hashes, including `0x` prefix. `sec-fsn-2` versions this adapter change; existing evidence and historical engine replay remain unchanged. Include AAPL 2025-09-27 and PEP 2025-12-27 fixtures and per-candidate rejection/context diagnostics. Prepare an opt-in v1.1 draft, leaving v1.0 untouched: only when existing income and protected analyst decisions do not take precedence, estimate an upper bound from same-filing/end cash/equivalents plus short/long-term securities, multiplied by the named version configuration `annual_yield_assumption` (0.06). Completeness comes from `pre.txt`, `stmt=BS`: cash is required; securities with no BS line count as zero labelled “not on balance sheet”; custom BS tags, unmapped cash/investment/securities lines or unreadable values make completeness unknown. Use explicit standard tags, and prefer one total over disjoint presented children without double counting. A complete bound / positive annual revenue ≤5% passes as estimated/Estimated, labelled “upper bound”; an excessive or unprovable bound stays unknown, never automatically fails. State publicly that this is a conservative assumption chosen by Suhail, not part of the Al Rajhi document, reported income or a guaranteed actual income ceiling. Eligibility must be explicitly supplied after checking protected analyst evidence; absent eligibility fails closed. The no-write comparison covers every universe ticker, prints per-component evidence, bound, ratio, selected income and filing links, and skips actual screening-status/override claims without database reads. The local definition must pass normal version/criterion contracts and remain unpublished; no governance bypass. No live SEC requests/import, Supabase access/writes, migrations, database draft creation, workflow advancement or production/default changes are authorized. |
 
+## Pre-test analyst-case additions
+
+| ID | Decision |
+| --- | --- |
+| D-156 | **Founder-approved narrow exception to D-11.** Missing analyst-case definitions may be appended while a non-production-enabled version is `draft`, `source_verified` or `rules_normalized`. Existing cases must remain unchanged and ordered; duplicates by name or identical inputs/expected outcomes must not be appended. The installer reuses a dedicated audited append service under the methodology lock, with read-only dry-run and write-free no-op reruns. Replacement/editing through `saveCases` remains draft-only. At `tests_passed` or later, additions are refused; no workflow reset, advance, approval, report copying, production enablement or default change is authorized. Migration `0014_pretest_analyst_cases` narrowly permits only the append and timestamp at the two non-draft pre-test stages, preserving all other immutability rules. Supersedes D-155's draft-only case-backfill restriction, not rule/criterion immutability. Local implementation and synthetic fixture tests only; the founder applies the migration and runs the installer separately. |
+
 ## Stored v1.1 evidence and draft installation
 
 | ID | Decision |
@@ -27,8 +33,9 @@ On existing drafts, append missing cases through the existing audited
 `saveCases` service. Preserve existing cases exactly, including owner edits;
 an existing name or identical inputs/expectations is not inserted again.
 Dry-run reports planned additions using a read-only transaction. A completed
-rerun writes nothing. Missing cases on a version that has left draft are refused,
-never backfilled by bypassing immutability. The installer never marks tests as
+rerun writes nothing. D-156 extends append-only case backfill to `source_verified`
+and `rules_normalized`; additions at `tests_passed` or later remain refused.
+The installer never marks tests as
 passed or advances workflow; the normal report must execute and pass every
 case and criterion-coverage requirement. Local fixture tests only; no hosted
 database access or live installer execution is authorized by this change.

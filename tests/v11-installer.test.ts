@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 const services = vi.hoisted(() => ({
-  saveCases: vi.fn(), saveVersion: vi.fn(), saveCriterion: vi.fn(),
+  saveCases: vi.fn(), appendCases: vi.fn(), saveVersion: vi.fn(), saveCriterion: vi.fn(),
   associateSource: vi.fn(), requireLaunchActor: vi.fn(),
 }));
 vi.mock("../src/lib/methodology/service", () => services);
@@ -57,26 +57,38 @@ describe("fixture-only v1.1 installer case backfill", () => {
   it("backfills through the audited service, preserves existing cases, and reruns without writes", async () => {
     const f = fixture(); f.enqueue();
     await installV11(f.tx, f.actor.email, false);
-    const saved = services.saveCases.mock.calls[0][3];
+    const saved = services.appendCases.mock.calls[0][3];
     expect(saved).toHaveLength(f.cases.length + 8);
-    expect(services.saveCases).toHaveBeenCalledWith(f.tx, f.actor, f.v11.id, saved);
+    expect(services.appendCases).toHaveBeenCalledWith(f.tx, f.actor, f.v11.id, saved);
     Object.assign(f.v11, { analyst_test_cases: [saved[0]] });
-    services.saveCases.mockClear(); f.enqueue();
+    services.appendCases.mockClear(); f.enqueue();
     expect(await installV11(f.tx, f.actor.email, false)).toMatchObject({ casesAdded: saved.length - 1 });
     Object.assign(f.v11, { analyst_test_cases: saved });
-    services.saveCases.mockClear(); f.enqueue();
+    services.appendCases.mockClear(); f.enqueue();
     expect(await installV11(f.tx, f.actor.email, false)).toMatchObject({ action: "unchanged", casesAdded: 0 });
-    expect(services.saveCases).not.toHaveBeenCalled();
+    expect(services.appendCases).not.toHaveBeenCalled();
     expect(f.v11.workflow_status).toBe("draft");
     expect(f.v11.production_enabled).toBe(false);
     expect(services.saveVersion).not.toHaveBeenCalled();
     expect(services.saveCriterion).not.toHaveBeenCalled();
     expect(services.associateSource).not.toHaveBeenCalled();
   });
-  it("refuses missing cases after draft without mutation", async () => {
-    const f = fixture(); f.v11.workflow_status = "source_verified"; f.enqueue();
-    await expect(installV11(f.tx, f.actor.email, false)).rejects.toThrow("only be added while v1.1 is draft");
-    expect(services.saveCases).not.toHaveBeenCalled();
+  it.each(["draft", "source_verified", "rules_normalized"])("allows missing cases at %s, without advancing workflow", async stage => {
+    const f = fixture(); f.v11.workflow_status = stage; f.enqueue();
+    expect(await installV11(f.tx, f.actor.email, false)).toMatchObject({ action: "added missing cases" });
+    expect(services.appendCases).toHaveBeenCalledOnce();
+    expect(f.v11.workflow_status).toBe(stage);
+  });
+  it.each(["tests_passed", "universe_tested", "human_reviewed", "approved", "production"])(
+    "refuses missing cases at %s without mutation", async stage => {
+      const f = fixture(); f.v11.workflow_status = stage; f.enqueue();
+      await expect(installV11(f.tx, f.actor.email, false)).rejects.toThrow("only be added before tests_passed");
+      expect(services.appendCases).not.toHaveBeenCalled();
+    });
+  it.each(["source_verified", "rules_normalized"])("dry-run at %s remains read-only", async stage => {
+    const f = fixture(); f.v11.workflow_status = stage; f.enqueue();
+    expect(await installV11(f.tx, f.actor.email, true)).toMatchObject({ action: "add missing cases" });
+    for (const mock of Object.values(services)) expect(mock).not.toHaveBeenCalled();
   });
   it("includes copied and new cases on initial creation; dry-run creates nothing", async () => {
     const f = fixture(false); f.enqueue();

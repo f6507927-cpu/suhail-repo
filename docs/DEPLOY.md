@@ -57,10 +57,15 @@ events, including after normal workflow advancement. A partial/conflicting v1.1
 
 The installer also copies v1.0's analyst-case inputs and expected outcomes,
 remapping only criterion identities, and adds eight synthetic upper-bound and
-precedence cases. On an existing v1.1 draft it appends only missing cases via
+precedence cases. On an existing v1.1 before `tests_passed` it appends only missing cases via
 the audited case service; it never edits existing cases. Dry-run reports
-`casesAdded` without saving. An identical repeat is a no-op. Missing cases after
-the version has left draft cause refusal rather than an immutability bypass.
+`casesAdded` without saving. An identical repeat is a no-op. D-156 allows this
+only at `draft`, `source_verified` or `rules_normalized`, with production off.
+At `tests_passed` or later, missing cases cause refusal. Editing/replacing cases
+remains draft-only; no workflow is reset or advanced. The owner must first apply
+the pending migration `0014_pretest_analyst_cases` through the normal migration
+process before backfilling a non-draft version. This change does not authorize
+the agent to apply it or run the installer against Supabase.
 Analyst-override cases use already-resolved facts/eligibility, as the engine has
 no separate override flag. Tests and coverage still have to be run through the
 normal admin workflow; no passing report is copied or fabricated.

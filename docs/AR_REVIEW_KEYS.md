@@ -1,6 +1,6 @@
 # Live Arabic review keys
 
-Generated deterministically by `pnpm ar-review:list`. Live pending rows: **172**.
+Generated deterministically by `pnpm ar-review:list`. Live pending rows: **173**.
 
 ## Boundaries and coverage
 
@@ -73,6 +73,7 @@ origins; unknown future navigation copy is not approved or invented.
 | Key/source | Page/component rendering context | Current English source | Arabic draft — UNAPPROVED, documentation only | Approved Arabic (leave empty until approved) |
 | --- | --- | --- | --- | --- |
 | runtime phrase | Conditionally rendered: methodology review-error via action result: src/lib/methodology/contracts.ts:57 | Upper-bound fallback requires a maximum custom ratio against total revenue | يتطلب البديل القائم على الحد الأعلى نسبة مخصّصة بحد أقصى إلى إجمالي الإيرادات. |  |
+| runtime phrase | Conditionally rendered: methodology review-error via action result: src/lib/methodology/service.ts:128 | Missing analyst cases can only be added before tests_passed; no changes made | لا يمكن إضافة حالات المحلّل الناقصة إلا قبل مرحلة ⁦tests_passed⁩؛ لم تُجرَ أي تغييرات. |  |
 
 ## Legal pages — /terms and /privacy
 

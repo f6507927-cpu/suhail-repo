@@ -226,11 +226,11 @@ describe("audited governed lifecycle and SQL boundaries",()=>{
     await tx.update(schema.methodologyVersion).set({impact_report_id:null}).where(eq(schema.methodologyVersion.id,v));
     await expect(service.transition(tx,actor,v,"approved","")).rejects.toThrow("Same-version");
   }));
-  it("finalized test cases and criteria are immutable at SQL and service layers",()=>isolated(async(tx,actor)=>{
+  it("post-draft case replacement and criteria remain immutable; malformed appends are refused",()=>isolated(async(tx,actor)=>{
     const {v,c}=await fixture(tx,actor);await service.transition(tx,actor,v,"source_verified","");
     await expect(service.saveCases(tx,actor,v,[])).rejects.toThrow("immutable");
     await expect(service.saveCriterion(tx,actor,v,c,rule)).rejects.toThrow("immutable");
-    await expect(tx.transaction(sp=>sp.execute(sql`update app.methodology_version set analyst_test_cases='[{}]' where id=${v}`))).rejects.toMatchObject({cause:{code:"P0001",message:expect.stringContaining("immutable")}});
+    await expect(tx.transaction(sp=>sp.execute(sql`update app.methodology_version set analyst_test_cases='[{}]' where id=${v}`))).rejects.toMatchObject({cause:{code:"P0001",message:expect.stringContaining("invalid analyst case structure")}});
     await expect(tx.transaction(sp=>sp.execute(sql`update app.methodology_criterion set threshold=1 where id=${c}`))).rejects.toMatchObject({cause:{code:"P0001",message:expect.stringContaining("immutable")}});
   }));
   it("reports remain append-only and new cases never gain public grants",()=>isolated(async(tx,actor)=>{
