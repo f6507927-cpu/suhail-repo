@@ -1,0 +1,106 @@
+/*
+ * UX-7 public interaction states. Imported by the public shell and scoped to
+ * its content wrapper; no theme or document behavior is introduced here.
+ */
+/* Passive cards get the same restrained feedback, without becoming fake
+   controls or adding tab stops. Existing controls within cards retain focus. */
+[data-public-ux] [data-ux-card] {
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+[data-public-ux] [data-ux-card]:focus-within {
+  outline: 2px solid var(--brass-soft);
+  outline-offset: 3px;
+}
+@media (hover: hover) {
+  [data-public-ux] [data-ux-card]:hover {
+    background-color: color-mix(in srgb, var(--brass-soft) 8%, transparent);
+    border-color: color-mix(in srgb, var(--brass-soft) 58%, currentColor);
+  }
+}
+[data-public-ux] [data-ux-card]:active {
+  background-color: color-mix(in srgb, var(--brass-soft) 15%, transparent);
+  border-color: var(--brass-soft);
+}
+[data-public-ux] :is(
+  a,
+  button,
+  summary,
+  [role="button"],
+  [role="link"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  [data-clickable="true"]
+) {
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    text-decoration-color 140ms ease;
+}
+
+[data-public-ux] :is(
+  a,
+  button,
+  summary,
+  [role="button"],
+  [role="link"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  [data-clickable="true"]
+):focus-visible {
+  --tw-ring-color: var(--brass-soft);
+  outline: 2px solid var(--brass-soft);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  [data-public-ux] :is(
+    a,
+    button,
+    summary,
+    [role="button"],
+    [role="link"],
+    input[type="button"],
+    input[type="submit"],
+    input[type="reset"],
+    [data-clickable="true"]
+  ):hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--brass-soft) 58%, currentColor);
+    background-color: color-mix(in srgb, var(--brass-soft) 8%, transparent);
+    text-decoration-color: var(--brass-soft);
+  }
+}
+
+[data-public-ux] :is(
+  a,
+  button,
+  summary,
+  [role="button"],
+  [role="link"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  [data-clickable="true"]
+):active:not(:disabled) {
+  background-color: color-mix(in srgb, var(--brass-soft) 15%, transparent);
+  border-color: var(--brass-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-public-ux] :is(
+    a,
+    button,
+    summary,
+    [role="button"],
+    [role="link"],
+    input[type="button"],
+    input[type="submit"],
+    input[type="reset"],
+    [data-clickable="true"]
+  ) {
+    transition: none;
+  }
+}

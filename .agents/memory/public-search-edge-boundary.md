@@ -3,9 +3,10 @@ name: Public search edge boundary
 description: Why local search-protection verification and live edge activation must remain separate.
 ---
 
-Treat the approved public-search policy as an edge configuration contract, not
-permission to enable infrastructure or add an application-process limiter.
-Consult D-129 in `docs/DECISIONS.md` and the activation checklist in
+Treat the approved public-search edge policy as a preparation contract, not
+permission to activate infrastructure. D-136 separately authorizes the existing
+per-instance local budgets; it does not activate Cloudflare.
+Consult D-129/D-136 in `docs/DECISIONS.md` and the activation checklist in
 `docs/PUBLIC_SEARCH_PROTECTION.md` before changing enforcement.
 
 **Why:** The founder approved traffic limits and bilingual block copy while

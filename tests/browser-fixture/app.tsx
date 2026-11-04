@@ -1,10 +1,13 @@
 import { createRoot } from "react-dom/client";
 import { NextIntlClientProvider } from "next-intl";
 import { DISPLAY_TIME_ZONE } from "../../src/lib/format";
+import { reviewText } from "../../src/components/accounts/types";
 import { AccountControl } from "../../src/components/accounts/AccountControl";
 import { SignInScreen,ConsentScreen } from "../../src/components/accounts/AuthScreens";
 import { MfaClientPanel } from "../../src/components/accounts/MfaScreens";
 import { AccountScreen } from "../../src/components/accounts/AccountScreen";
+import { AccountStockRequests } from "../../src/components/accounts/AccountStockRequests";
+import { StockRequestAction } from "../../src/components/search/StockRequestAction";
 import { fixture } from "./auth";
 import { accountFixture } from "./actions";
 import { AdminFixture } from "./AdminFixture";
@@ -35,6 +38,7 @@ const mode=new URLSearchParams(window.location.search).get("screen")??
     window.location.pathname.endsWith("/admin/methodologies")?"methodologies":
     window.location.pathname.endsWith("/account")?"account":"header");
 const content=mode==="forbidden"?<Forbidden/>:
+  mode==="stock-request"?<main><h1>Search fixture</h1><StockRequestAction locale={locale} query={query.get("q")??"zzzz"}/></main>:
   mode==="error"||mode==="not-found"||mode==="global-error"?<RecoveryScreen locale={locale} kind={mode==="not-found"?"not-found":"error"}/>:
   mode==="signin"?<SignInScreen locale={locale} next={next} providerError={query.has("error")?"Sign-in was cancelled. You can try again.":null} valueStatement={locale==="en"?en.app.tagline:ar.app.tagline}/>:
   mode==="methodologies"?<AdminShell locale={locale} role="admin" currentPath={window.location.pathname} userLabel="Fixture Admin"><MethodologyFixture locale={locale}/></AdminShell>:
@@ -42,12 +46,12 @@ const content=mode==="forbidden"?<Forbidden/>:
   ["users","audit","settings","deferred"].includes(mode)?<AdminFixture locale={locale} mode={mode}/>:
   mode==="consent"?<ConsentScreen locale={locale} next={next??localePath(locale,"/account")} backTo={next??localePath(locale,"/")}/>:
   mode==="enroll"||mode==="verify"?<MfaClientPanel locale={locale} mode={mode} next={query.has("next")?next??undefined:"/done"} backTo={next??localePath(locale,"/")}/>:
-  mode==="account"?<AccountScreen locale={locale} profile={{id:"fixture",full_name:"Fixture",email:null,role:new URLSearchParams(window.location.search).get("role")==="admin"?"admin":new URLSearchParams(window.location.search).get("role")==="editor"?"editor":"user",locale_pref:new URLSearchParams(window.location.search).get("pref")==="en"?"en":"ar",terms_version:CURRENT_TERMS_VERSION,privacy_version:CURRENT_PRIVACY_VERSION,accepted_at:"2026-10-11T00:00:00Z"}} updateLocale={(...args)=>accountFixture.action("updateLocale",...args)} deleteAccount={(...args)=>accountFixture.action("deleteAccount",...args)}/>:
+  mode==="account"?<AccountScreen locale={locale} profile={{id:"fixture",full_name:"Fixture",email:null,role:new URLSearchParams(window.location.search).get("role")==="admin"?"admin":new URLSearchParams(window.location.search).get("role")==="editor"?"editor":"user",locale_pref:new URLSearchParams(window.location.search).get("pref")==="en"?"en":"ar",terms_version:CURRENT_TERMS_VERSION,privacy_version:CURRENT_PRIVACY_VERSION,accepted_at:"2026-10-11T00:00:00Z"}} updateLocale={(...args)=>accountFixture.action("updateLocale",...args)} deleteAccount={(...args)=>accountFixture.action("deleteAccount",...args)} stockRequests={query.has("requests")?<AccountStockRequests locale={locale} requests={query.get("requests")==="empty"?[]:[{normalized_query:"zzzz",created_at:"2026-11-04T12:00:00.000Z"}]}/>:undefined}/>:
   <main><h1>Suhail home</h1></main>;
 const messages=locale==="en"?en:ar;
  const hasAdminShell=["methodologies","users","audit","settings","deferred","financial"].includes(mode);
 const header=hasAdminShell||mode==="not-found"||mode==="global-error"?null:
-  <SiteHeader locale={locale} labels={{appName:messages.app.name,menu:messages.nav.menu,picks:messages.nav.picks,methodologies:messages.nav.methodologies}}
+  <SiteHeader locale={locale} labels={{appName:messages.app.name,menu:messages.nav.menu,screenStock:reviewText(locale,"Screen a stock"),methodologies:reviewText(locale,"Methodology")}}
     accountControl={mode==="enroll"||mode==="verify"?null:query.has("identity")?<AccountIdentityControl locale={locale} identity={query.get("identity")==="anonymous"?null:{fullName:"Fixture Admin",role:"admin"}}/>:<AccountControl locale={locale}/>}/>;
 if (mode==="global-error") {
   // Exercise the real provider-independent root recovery document, not a

@@ -5,12 +5,14 @@ import { useTranslations } from "next-intl";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "../ui/button";
 import { LocalizedText } from "./shared";
+import { THEME_COLORS } from "../../lib/theme-script";
 
 const THEME_KEY = "suhail-theme";
 type Theme = "dark" | "light";
 
 function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle("dark", theme === "dark");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content",THEME_COLORS[theme]);
   window.dispatchEvent(new Event("suhail-theme-change"));
 }
 

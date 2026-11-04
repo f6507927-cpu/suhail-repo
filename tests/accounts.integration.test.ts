@@ -51,6 +51,8 @@ import { GET as recover } from "../src/app/[locale]/(private)/auth/recover/route
 import { POST as consent } from "../src/app/[locale]/(private)/auth/consent/accept/route";
 import { POST as signOut } from "../src/app/[locale]/(private)/auth/sign-out/route";
 import { searchUsers, readAudit, readSettings } from "../src/lib/auth/admin-data";
+import { readMethodologies } from "../src/lib/methodology/admin-data";
+import { CURRENT_PRIVACY_VERSION } from "../src/lib/auth/policies";
 let owner:Sql, app:Sql, control:Sql, fixtureUrl:string;
 const database=`accounts_${randomUUID().replaceAll("-","")}`;
 function identity(id=randomUUID(),email:string|undefined="fixture@example.test"):User {
@@ -94,6 +96,50 @@ function post(url:string,values:Record<string,string>) {
   return new Request(`https://fixture.test${url}`,{method:"POST",headers:{origin:"https://fixture.test"},body:new URLSearchParams(values)});
 }
 describe("verified auth and atomic callbacks",()=>{
+  it("requires old privacy acceptances to re-consent, including account-scope access",async()=>{
+    boundary.identity=await user();
+    await owner`update app.users set privacy_version='draft-2026-10-11' where id=${boundary.identity.id}`;
+    await expect(requireUser()).rejects.toMatchObject({status:403,code:"consent_required"});
+    await expect(requireRole(["user","editor","admin"],{scope:"account"})).rejects.toMatchObject({status:403,code:"consent_required"});
+    const result=await consent(post("/auth/consent/accept",{decision:"accept",next:"/account"}),context);
+    expect(result.status).toBe(303);
+    expect((await requireUser()).user.privacy_version).toBe(CURRENT_PRIVACY_VERSION);
+  });
+  it.each(["user","editor","admin"] as const)("account-scope priming cannot bypass real admin/editor entry points for %s",async role=>{
+    boundary.identity=await user(role);
+    for(const verified of [false,true]){
+      boundary.aal="aal1";boundary.verified=verified;
+      await requireRole(["user","editor","admin"],{scope:"account"});
+      await expect(readSettings()).rejects.toMatchObject({status:403});
+      await expect(readMethodologies()).rejects.toMatchObject({status:403});
+      expect(await saveSettings(null,false)).toMatchObject({ok:false,status:403});
+      await expect(requirePageRole("ar","/admin",["admin","editor"])).rejects.toThrow();
+    }
+    boundary.aal="aal2";boundary.verified=true;
+    await requireRole(["user","editor","admin"],{scope:"account"});
+    if(role==="user"){
+      await expect(readSettings()).rejects.toMatchObject({status:403,code:"role_required"});
+      await expect(readMethodologies()).rejects.toMatchObject({status:403,code:"role_required"});
+      expect(await saveSettings(null,false)).toMatchObject({ok:false,status:403});
+    }else{
+      await expect(readMethodologies()).resolves.toBeDefined();
+      if(role==="editor"){
+        await expect(readSettings()).rejects.toMatchObject({status:403,code:"role_required"});
+        expect(await saveSettings(null,false)).toMatchObject({ok:false,status:403});
+      }else{
+        await expect(readSettings()).resolves.toBeDefined();
+      }
+    }
+  });
+  it("opts all roles into own-account capabilities without relaxing privileged MFA",async()=>{
+    boundary.aal="aal1";boundary.verified=false;
+    for(const role of ["user","editor","admin"] as const){
+      boundary.identity=await user(role);
+      expect((await requireRole(["user","editor","admin"],{scope:"account"})).user.id).toBe(boundary.identity.id);
+      await expect(requireRole(["admin","editor"])).rejects.toMatchObject({status:403});
+      expect(()=>requireRole(["admin"],{scope:"account"})).toThrow("role_required");
+    }
+  });
   it.each(["accept","decline"])("consent %s ignores forged request/forwarded hosts",async decision=>{
     boundary.identity=await user();
     const request=new Request("https://evil.invalid/auth/consent/accept",{method:"POST",headers:{origin:"https://fixture.test",host:"evil.invalid","x-forwarded-host":"evil.invalid","x-forwarded-proto":"http"},body:new URLSearchParams({decision,next:"/account"})});

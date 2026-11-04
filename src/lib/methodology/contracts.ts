@@ -27,6 +27,8 @@ export const versionSchema = z.object({
   is_public: z.boolean(),
 }).strict();
 export const criterionSchema = z.object({
+  // D-147: optional for existing callers; these never enter engineCriterion().
+  explanation_ar: nullableText.optional(), explanation_en: nullableText.optional(),
   criterion_type: z.enum(criterionType.enumValues), label: z.string().trim().min(1).max(500),
   definition: nullableText, formula_text: nullableText, numerator_definition: nullableText,
   denominator_definition: nullableText,

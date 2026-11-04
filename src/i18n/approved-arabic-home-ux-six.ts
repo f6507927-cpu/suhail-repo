@@ -1,0 +1,31 @@
+// D-144: exact mockup UI copy; earlier approvals retain precedence.
+// The founder separately approved the missing-state/admin labels and revised
+// the supporting sentence. These approvals do not include engine/legal copy.
+export const homeUxSixArabic: Readonly<Record<string, string>> = {
+  "Your bearing in the market.": "دليلك في السوق.",
+  "Enter a ticker to see its screening result under the selected methodology and the figures behind it.": "اكتب رمز السهم، لترى نتيجة الفحص وفق المنهجية المختارة، والأرقام التي بُنيت عليها.",
+  "No default methodology has been set yet.": "لم تُحدَّد منهجية افتراضية بعد.",
+  "Featured security on the homepage": "السهم المميّز في الصفحة الرئيسية",
+  "View the full screening": "عرض الفحص كاملاً ←",
+  "Three outcomes, not two.": "ثلاث نتائج، لا اثنتان.",
+  "Most screening tools stop at pass or fail. We add a distinction that matters: a stock that passed screening and has research signed by its analyst.": "أغلب أدوات الفحص تتوقف عند «مقبول» أو «مرفوض». نحن نضيف الحالة التي تهمّك: سهم اجتاز الفحص، وكتب عنه محلل باسمه.",
+  "Did not pass screening": "لم يجتز الفحص",
+  "We show the criterion it failed and the actual ratio against the limit.": "نعرض المعيار الذي أخفق فيه، والنسبة الفعلية مقابل الحد.",
+  "Passed screening": "اجتاز الفحص",
+  "Each ratio is within its limit, with a source for every figure. Screening alone is not an investment decision.": "كل النسب تحت حدودها، مع مصدر كل رقم. التوافق وحده ليس توصية.",
+  "Passed, with analyst coverage": "اجتاز، ويغطيه محلل",
+  "Published research carrying the analyst's name, credentials and views supported by figures.": "بحث منشور يحمل اسم المحلل ومؤهلاته، ورأيه بالأرقام.",
+  "Research signed by a Suhail analyst": "بحث موقّع من محلل سهيل",
+  "From filing to result.": "من الإفصاح إلى النتيجة.",
+  "A deterministic engine calculates every result. The language model only explains it and never changes it.": "محرك ثابت يحسب كل نتيجة. النموذج اللغوي يشرحها فقط، ولا يغيّرها أبداً.",
+  "We read the official filing": "نقرأ الإفصاح الرسمي",
+  "Financial statements from the company's filings with the US Securities and Exchange Commission.": "القوائم المالية من تقارير الشركة لدى هيئة الأوراق المالية الأمريكية.",
+  "We apply published criteria": "نطبّق معايير منشورة",
+  "Business activity, interest-bearing debt and non-permissible revenue, each with its own limit.": "نشاط الشركة، والديون بفوائد، والإيرادات غير المباحة، كلٌّ بحدّه.",
+  "We show what we know and what we do not": "نعرض ما نعرفه وما لا نعرفه",
+  "Every ratio comes with its calculation and source. When a figure is missing, we say so without assuming it.": "كل نسبة مع حسابها ومصدرها. وإن غاب رقم، نقول ذلك ولا نفترضه.",
+  "An immutable screening record": "سجل فحص لا يُعدَّل",
+  "Screening is not an investment decision.": "التوافق ليس توصية.",
+  "Screening tells you what falls outside the criteria. A Suhail analyst writes each week about companies that pass, signing the research by name.": "الفحص الشرعي يخبرك بما لا يجوز تملّكه. محلل سهيل يكتب كل أسبوع عن شركات تجتازه، ويوقّع باسمه.",
+  "Weekly edition: Editor's Pick": "الإصدار الأسبوعي: اختيار المحرر",
+};

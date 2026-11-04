@@ -182,3 +182,45 @@ mtime_ms = 1792575950571
 storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/e708953d-89cd-4b61-8f63-17e9fed71495/62ee6503-404b-4056-bdc0-45e398c112b4"
 storage_version_token = "1792575967158943"
 content_type = "text/csv"
+
+[[outputs]]
+id = "eZaz2w3Xo0Ch-Gw5IYk82"
+uri = "file://generated-artifacts/ux-five/stock-phone.jpg"
+type = "image"
+title = "UX-5 — Arabic stock page at 375px"
+description = "Full-page phone capture from the isolated Next development server. Uses clearly labelled synthetic review-state data; the full record is closed."
+logical_id = "f7bd541d-8ce1-40a8-b962-32592a69df00"
+content_hash = "sha256:88d7eeb3ff82aca18d86797bc43270c7275017a8a895b7df372c9547849f35dc"
+size = 150885
+mtime_ms = 1793723205773
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/f7bd541d-8ce1-40a8-b962-32592a69df00/60e355ac-9f17-418b-9f0c-f1361f8bc1fd"
+storage_version_token = "1793723405280857"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "gntjOBTAW_NFMsTe3V21q"
+uri = "file://generated-artifacts/ux-six/home-1440.jpg"
+type = "image"
+title = "UX-6 homepage — 1440px"
+description = "Arabic desktop layout verified with disposable PostgreSQL fixtures. The featured company is synthetic; no live editorial setting was activated."
+logical_id = "61473710-e0e1-4b01-b5b2-ae275930749e"
+content_hash = "sha256:ba828bfbeb17b2f005d02c9385dee66e5f4c3589d4815e4830dba4cc5220b29b"
+size = 200639
+mtime_ms = 1793749169042
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/61473710-e0e1-4b01-b5b2-ae275930749e/fb75143d-3f70-4e39-bf7a-8b5d3fa8f29f"
+storage_version_token = "1793749237438277"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "6119hhvjjyVFmoIcI8tqe"
+uri = "file://generated-artifacts/ux-six/home-375.jpg"
+type = "image"
+title = "UX-6 homepage — 375px"
+description = "Arabic phone layout verified with disposable PostgreSQL fixtures, including the conditional featured card and single full-disclaimer link."
+logical_id = "d432c1fe-9721-4692-b662-be1ee10cf3a4"
+content_hash = "sha256:b880894d55d40977ff0a8339de4ea8585e094ffedd7a663dcaaa501f7a8ac34b"
+size = 127207
+mtime_ms = 1793749171146
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/d432c1fe-9721-4692-b662-be1ee10cf3a4/4cf01241-c1cd-4e14-a1cd-78100c1aa6d4"
+storage_version_token = "1793749238743462"
+content_type = "image/jpeg"

@@ -21,3 +21,11 @@ fixtures, restore any cluster-wide fixture settings, and keep live role/auth
 settings untouched. Use a separate disposable database when read-only command
 tests require committed prerequisites, so append-only audit fixtures need no
 deletion bypass or cross-suite contamination.
+
+Browser fixture setup also needs the existing runner's `react-server` condition when it imports server-only services. Preserve both the scoped ESM boundary and this launch condition when extending a fixture harness.
+
+**Why:** Fixing ESM compilation alone can expose a separate `server-only` import failure in the actual Node entrypoint; Vitest's mocks do not prove that entrypoint starts.
+
+Next's configuration also runs in ordinary Node, not the React server condition. Do not import a `server-only` environment module there; keep public configuration validation in a pure shared helper.
+
+**Why:** Type checking and mocked unit imports can pass while the actual development server fails to load its configuration.

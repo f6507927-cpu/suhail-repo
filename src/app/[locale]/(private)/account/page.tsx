@@ -4,6 +4,8 @@ import { privatePageMetadata } from "@/components/accounts/private-page-metadata
 import { requirePageUser } from "@/lib/auth/guards";
 import { localePath } from "@/lib/auth/paths";
 import { deleteAccount, updateLocale } from "./actions";
+import { getOwnStockRequests } from "@/lib/stock-requests";
+import { AccountStockRequests } from "@/components/accounts/AccountStockRequests";
 
 type PageProps = {
   params: Promise<{ locale: string }>;
@@ -21,6 +23,7 @@ export default async function AccountPage({ params, searchParams }: PageProps) {
   const t = await getTranslations({ locale });
   const nextValue = Array.isArray(query.next) ? query.next[0] : query.next;
   const context = await requirePageUser(locale, nextValue ?? localePath(locale, "/account"));
+  const requests=await getOwnStockRequests();
 
   return (
     <div lang={locale} aria-label={t("app.name")}>
@@ -29,6 +32,7 @@ export default async function AccountPage({ params, searchParams }: PageProps) {
         profile={context.user}
         updateLocale={updateLocale}
         deleteAccount={deleteAccount}
+        stockRequests={<AccountStockRequests locale={locale} requests={requests} />}
       />
     </div>
   );

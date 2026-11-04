@@ -6,7 +6,7 @@ import { createBrowserAuth } from "@/lib/auth/browser";
 import { localePath } from "@/lib/auth/paths";
 import { LogOut, Shield, UserRound } from "lucide-react";
 import type { AccountProfile, AuthSession, BrowserAuth, Locale } from "./types";
-import { initials, reviewText } from "./types";
+import { reviewText } from "./types";
 
 type Props = { locale: Locale };
 
@@ -176,8 +176,8 @@ export function AccountControl({ locale }: Props) {
     return (
       <span
         aria-label={reviewText(locale, "Checking account")}
-        className="inline-block size-9 animate-pulse rounded-full bg-secondary"
-      />
+        className="inline-flex min-h-11 items-center text-sm text-foreground/70"
+      >{copy.account}</span>
     );
   }
 
@@ -192,7 +192,7 @@ export function AccountControl({ locale }: Props) {
             const next = `${window.location.pathname}${window.location.search}`;
             router.push(`/auth/sign-in?next=${encodeURIComponent(next)}` as never);
           }}
-          className="inline-flex min-h-10 items-center gap-2 rounded-md border border-border px-3 text-sm text-foreground hover:bg-secondary"
+          className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap text-sm text-foreground/80 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <UserRound aria-hidden="true" size={17} strokeWidth={1.6} />
           {copy.signIn}
@@ -208,9 +208,9 @@ export function AccountControl({ locale }: Props) {
       <details className="group relative">
         <summary
           aria-label={reviewText(locale, "Open account menu")}
-          className="flex size-10 cursor-pointer list-none items-center justify-center rounded-full border border-border bg-secondary text-sm font-semibold text-foreground outline-none transition-colors hover:border-primary focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex min-h-11 cursor-pointer list-none items-center whitespace-nowrap text-sm text-foreground/80 underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
         >
-          {initials(profile.full_name)}
+          {copy.account}
         </summary>
         <div className="absolute end-0 top-[calc(100%+0.65rem)] z-50 w-64 rounded-md border border-border bg-card p-2 text-card-foreground shadow-xl">
           <div className="border-b border-border px-3 py-2">

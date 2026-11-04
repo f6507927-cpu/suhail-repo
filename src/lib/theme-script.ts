@@ -2,5 +2,6 @@
 // regression checks byte equality. Root-owned async resource blocks rendering,
 // independently of the Next bootstrap. Only private documents supply a nonce.
 // No request nonce, cookie, system-theme detection or server personalization.
+export const THEME_COLORS = { dark: "#0b2e33", light: "#f5f1e9" } as const;
 export const THEME_SCRIPT =
   'try{var t=localStorage.getItem("suhail-theme");if(t==="light"||t==="dark"){document.documentElement.classList.toggle("dark",t==="dark")}}catch{}';

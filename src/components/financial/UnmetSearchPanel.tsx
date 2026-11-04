@@ -4,7 +4,7 @@ import { reviewText } from "@/components/accounts/types";
 import { LocalizedText } from "@/components/foundation/shared";
 
 type Props = {
-  rows: { query: string; count: number }[];
+  rows: { query: string; count: number; requests?: number }[];
   locale: "ar" | "en";
 };
 
@@ -32,18 +32,35 @@ export function UnmetSearchPanel({ rows, locale }: Props) {
             </p>
           </div>
         ) : (
-          <ol className="divide-y divide-border border-y border-border">
-            {topRows.map((row) => (
-              <li key={row.query} className="flex min-h-12 items-center justify-between gap-4 py-3 text-sm">
-                <bdi dir="auto" className="min-w-0 break-words text-start [unicode-bidi:isolate]">
-                  {row.query}
-                </bdi>
-                <bdi dir="ltr" className="shrink-0 font-mono tabular-nums text-muted-foreground [unicode-bidi:isolate]">
-                  {row.count}
-                </bdi>
-              </li>
-            ))}
-          </ol>
+          <div className="overflow-x-auto">
+            <table className="w-full border-y border-border text-sm">
+              <thead>
+                <tr className="border-b border-border text-start text-xs text-muted-foreground">
+                  <th scope="col" className="py-3 pe-4 font-medium"><LocalizedText>{reviewText(locale, "Normalized query")}</LocalizedText></th>
+                  <th scope="col" className="px-3 py-3 text-end font-medium"><LocalizedText>{reviewText(locale, "Searches")}</LocalizedText></th>
+                  <th scope="col" className="ps-3 py-3 text-end font-medium"><LocalizedText>{reviewText(locale, "Requests")}</LocalizedText></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {topRows.map((row) => (
+                  <tr key={row.query}>
+                    <td className="py-3 pe-4">
+                      <bdi dir="auto" className="block min-w-0 break-words text-start [unicode-bidi:isolate]">{row.query}</bdi>
+                    </td>
+                    <td className="px-3 py-3 text-end">
+                      <bdi dir="ltr" className="font-mono tabular-nums text-muted-foreground [unicode-bidi:isolate]">{row.count}</bdi>
+                    </td>
+                    <td className="ps-3 py-3 text-end">
+                      <bdi dir="ltr" className="font-mono tabular-nums text-muted-foreground [unicode-bidi:isolate]">{row.requests ?? 0}</bdi>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="mt-3 text-xs leading-5 text-muted-foreground">
+              <LocalizedText>{reviewText(locale, "Search counts are anonymous; requests count distinct users.")}</LocalizedText>
+            </p>
+          </div>
         )}
       </div>
     </section>

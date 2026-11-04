@@ -4,14 +4,14 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 import { LegalDocument } from "../src/components/accounts/LegalDocument";
-import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION } from "../src/lib/auth/policies";
+import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION, currentConsent } from "../src/lib/auth/policies";
 
 // SHA-256 of the founder-completed drafts (D-140), normalized for whitespace only.
 const hashes = {
   "terms.ar": "3ad668cc22b108f5bf611eed33440dfaafbbbd5477e8a7f467939b7dc37c95d9",
-  "privacy.ar": "9e8a4cea69ee0f94f331da66aadb87f55b949ca69fe324e21989b4f6c226a9e8",
+  "privacy.ar": "4ddd48b027de63ce91c18eecad9691f150d475b0c9d0fdfcd17221c64cb4ea84",
   "terms.en": "8109161444e13af2165515b97d9d48e99db05a120150eccf8d836298414a6754",
-  "privacy.en": "b2e2694bafe606c5bcbe52a81afcde81a475206ed5e979ba290b29be0007f127",
+  "privacy.en": "e5def5ff883c12b3588888401324d1bb08566836f62a7e70d0a7cde7569581e2",
 } as const;
 function digest(text: string) {
   return createHash("sha256").update(text.replace(/\s+/g, " ").trim()).digest("hex");
@@ -28,12 +28,37 @@ function sourceWording(markdown: string) {
 describe("supplied, unapproved bilingual legal drafts", () => {
   it("retains both real draft acceptance versions", () => {
     expect(CURRENT_TERMS_VERSION).toBe("draft-2026-10-11");
-    expect(CURRENT_PRIVACY_VERSION).toBe("draft-2026-10-11");
+    expect(CURRENT_PRIVACY_VERSION).toBe("draft-2026-11-04");
+  });
+  it("requires existing accounts to re-accept the new privacy version without changing Terms",()=>{
+    const accepted={terms_version:CURRENT_TERMS_VERSION,privacy_version:"draft-2026-10-11",accepted_at:new Date("2026-10-23T12:00:00Z")};
+    expect(currentConsent(accepted)).toBe(false);
+    expect(currentConsent({...accepted,privacy_version:CURRENT_PRIVACY_VERSION})).toBe(true);
+    expect(currentConsent({...accepted,privacy_version:CURRENT_PRIVACY_VERSION,accepted_at:null})).toBe(false);
+  });
+  it.each(["ar","en"] as const)("keeps all three supplied stock-request bullets in the requested %s sections",locale=>{
+    const file=readFileSync(`content/legal/privacy.${locale}.md`,"utf8");
+    const bullets=locale==="ar"?[
+      "طلبات الأسهم التي ترسلها (رمز السهم أو نص البحث)، ونحتفظ بها حتى تحذفها أو تحذف حسابك.",
+      "لتسجيل الأسهم التي طلبت إضافتها، ولإحصاء الطلبات إجمالًا عند تحديد الأسهم التي نضيفها.",
+      "يمكنك حذف أي طلب سهم من صفحة الحساب في أي وقت.",
+    ]:[
+      "stock requests you submit (the ticker or search text), kept until you remove them or delete your account.",
+      "To record the stocks you asked us to add, and to count requests in total when deciding which stocks to cover.",
+      "You can remove any stock request from the account page at any time.",
+    ];
+    for(const [index,section] of [2,3,7].entries()){
+      const block=file.split(`## ${section}.`)[1].split("\n## ")[0];
+      expect(block).toContain(`- ${bullets[index]}`);
+    }
+    expect(file).toContain(locale==="ar"?"النص العربي هو المعتمد":"the Arabic text prevails");
+    const review=readFileSync("docs/ARABIC_REVIEW.md","utf8");
+    if(locale==="ar")for(const bullet of bullets)expect(review).toContain(bullet);
   });
   for (const locale of ["ar", "en"] as const) for (const kind of ["terms", "privacy"] as const) {
     it(`pins exact ${kind}.${locale} founder-completed wording`, () => {
       const file = readFileSync(`content/legal/${kind}.${locale}.md`, "utf8");
-      expect(file).toContain("version: draft-2026-10-11");
+      expect(file).toContain(`version: ${kind==="privacy"?CURRENT_PRIVACY_VERSION:CURRENT_TERMS_VERSION}`);
       expect(file).toContain("⟦LEGAL-REVIEW⟧");
       if (locale === "ar") expect(file).toContain("⟦AR-REVIEW⟧");
       // D-140: founder-supplied facts replace every placeholder; open legal questions live in docs/LEGAL_REVIEW_QUESTIONS.md.
@@ -52,7 +77,7 @@ describe("supplied, unapproved bilingual legal drafts", () => {
       expect(html.match(/<h2>/g)).toHaveLength(12);
       expect(html).toContain("<ul>");
       expect(html).not.toContain("[CONFIRM");
-      expect(html).toContain("draft-2026-10-11");
+      expect(html).toContain(kind==="privacy"?CURRENT_PRIVACY_VERSION:CURRENT_TERMS_VERSION);
       if (kind === "privacy") {
         expect(html).toContain("<table");
         expect(html.match(/<tr>/g)).toHaveLength(4);

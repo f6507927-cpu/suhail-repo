@@ -106,6 +106,48 @@
       "when": 1792402529670,
       "tag": "0014_pretest_analyst_cases",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1793662592989,
+      "tag": "0015_company_display_name_en",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793710953404,
+      "tag": "0016_company_display_name_en_public_read",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793716000000,
+      "tag": "0017_methodology_criterion_explanations",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793749000000,
+      "tag": "0018_home_featured_security",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793749000001,
+      "tag": "0019_published_pick_author_profile",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1793795011245,
+      "tag": "0020_stock_requests",
+      "breakpoints": true
     }
   ]
 }

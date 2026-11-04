@@ -24,5 +24,6 @@ export default async function StockPage({ params }: Props) {
   const data = await getPublicStockData(slug);
   if (!data) notFound();
   // Database errors propagate; never publish/cache a successful error fallback.
-  return <StockVerdict data={data} locale={locale} />;
+  const metadata = stockMetadata(data, locale, getSiteUrl());
+  return <StockVerdict data={data} locale={locale} canonicalUrl={String(metadata.alternates!.canonical)} />;
 }

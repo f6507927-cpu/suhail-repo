@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
-import { assertDrafts, discover, draftFor, draftGap, escapeCell, generate, leaves, marker, phraseId, renderInventory, type Entry } from "../scripts/ar-review";
+import { assertDrafts, discover, draftFor, draftGap, escapeCell, generate, leaves, marker, phraseId, renderInventory, retiredPublicPresentationKeys, type Entry } from "../scripts/ar-review";
 import en from "../src/i18n/messages/en.json";
 import ar from "../src/i18n/messages/ar.json";
 import removed from "../docs/arabic-dead-keys.json";
@@ -16,6 +16,7 @@ describe("live-only pending Arabic inventory with pinned founder approvals", () 
     expect(audit.errors).toEqual([]);
     expect(audit.unresolved).toEqual([]);
     expect(audit.unused).toEqual([]);
+    expect(audit.usage.has("publicSearch.coverageCount")).toBe(true);
     expect(removed.removed.length).toBeGreaterThan(8);
     for (const key of removed.removed) {
       expect(leaves(en)[key], key).toBeUndefined();
@@ -45,6 +46,20 @@ describe("live-only pending Arabic inventory with pinned founder approvals", () 
     }
     for (const source of ["Edit segment", "New segment", "Filing confirmation", "New fact override"]) {
       expect(audit.entries.find(entry => entry.source === source)?.contexts.join()).toContain("FinancialAdmin.tsx");
+    }
+  });
+  it("retains retired decorative approvals without inventing runtime callers or hiding pending keys", () => {
+    expect(audit.retired).toEqual([...retiredPublicPresentationKeys].sort());
+    for (const key of retiredPublicPresentationKeys) {
+      expect(audit.usage.has(key), key).toBe(false);
+      if (key.startsWith("publicMethodology.")) expect(audit.en[key], key).toMatch(/^[A-Z /]+$/);
+      else expect(["Weekly picks", "Methodologies", "Search", "No listed stocks in the screening universe match this search."]).toContain(audit.en[key]);
+      if (key === "publicSearch.noResultsBody") expect(audit.ar[key], key).toBe(`${marker}${audit.en[key]}`);
+      else {
+        expect(audit.ar[key], key).toMatch(/[\u0600-\u06ff]/);
+        expect(audit.ar[key], key).not.toContain(marker);
+      }
+      expect(audit.entries.some(entry => entry.key === key), key).toBe(false);
     }
   });
   it("has stable surviving IDs, no approved/dead rows, and supplied legal drafts under original IDs", () => {

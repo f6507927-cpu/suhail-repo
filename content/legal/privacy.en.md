@@ -1,11 +1,11 @@
 ---
-version: draft-2026-10-11
+version: draft-2026-11-04
 ---
 ⟦LEGAL-REVIEW⟧
 
 # Privacy Policy (English)
 
-Draft for legal review. Version draft-2026-10-11, last updated 22 October 2026. This is a translation; the Arabic text prevails.
+Draft for legal review. Version draft-2026-11-04, last updated 4 November 2026. This is a translation; the Arabic text prevails.
 
 ## 1. Who we are
 
@@ -21,6 +21,7 @@ If you create an account:
 - sign-in timestamps;
 - the version of the Terms and Privacy Policy you accepted, and when;
 - an audit log of actions on your account (such as creation, sign-in and deletion).
+- stock requests you submit (the ticker or search text), kept until you remove them or delete your account.
 
 Later, when phone sign-in is added: your mobile number, to send a one-time code by WhatsApp.
 
@@ -29,6 +30,7 @@ We do not collect sensitive data, financial data or payment data.
 ## 3. Why we use your data
 
 - To create your account, sign you in and manage it.
+- To record the stocks you asked us to add, and to count requests in total when deciding which stocks to cover.
 - To prove that you accepted the Terms and Privacy Policy.
 - To protect accounts and the site, and investigate misuse.
 - To comply with the law and respond to requests from competent authorities.
@@ -65,6 +67,7 @@ Your data is processed by providers outside the Kingdom of Saudi Arabia, as show
 ## 7. Retention and deletion
 
 - We keep your account data while your account exists.
+- You can remove any stock request from the account page at any time.
 - You can delete your account yourself from the account page. Deletion removes your personal data; audit records keep only a reference that does not identify you.
 
 ## 8. Security

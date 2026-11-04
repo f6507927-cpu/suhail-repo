@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { Globe2, ShieldCheck, Trash2, UserRound } from "lucide-react";
 import { localePath } from "@/lib/auth/paths";
@@ -19,9 +19,10 @@ type Props = {
   };
   updateLocale: (locale: Locale) => Promise<ActionResult>;
   deleteAccount: (confirmation: string) => Promise<ActionResult>;
+  stockRequests?: ReactNode;
 };
 
-export function AccountScreen({ locale, profile, updateLocale, deleteAccount }: Props) {
+export function AccountScreen({ locale, profile, updateLocale, deleteAccount, stockRequests }: Props) {
   const router = useRouter();
   const [selectedLocale, setSelectedLocale] = useState<Locale>(profile.locale_pref);
   const [confirmation, setConfirmation] = useState("");
@@ -195,6 +196,8 @@ export function AccountScreen({ locale, profile, updateLocale, deleteAccount }: 
             </div>
           </div>
         </section>
+
+        {stockRequests}
 
         <section className="py-9">
           <div className="flex items-center gap-3">

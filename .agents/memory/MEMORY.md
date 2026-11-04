@@ -32,6 +32,8 @@
 - [Security browser budgets](security-browser-budget-isolation.md) — verify prefetch accounting through real Next; keep repeated-navigation regressions on one identity.
 - [Arabic review drafts](arabic-review-drafts.md) — the founder requires genuine Arabic proposals in review inventories; drafts never imply approval.
 - [Launch document authority](launch-document-authority.md) — Verified Al Rajhi document authorization is not methodology approval or permission to run against Supabase.
-- [Repository authority](repository-authority.md) — development is authoritative; do not reconstruct unmerged-copy decisions or deployment changes automatically.
+- [Repository authority](repository-authority.md) — development is authoritative; Supabase writes and deployment require explicit founder authorization.
 - [Month-end provider authorization](month-end-provider-authorization.md) — preparation and mocked tests only; free-tier attribution is not commercial permission.
 - [SEC Notes fiscal context](fsn-period-context.md) — preserve raw offset contexts; do not guess a date conversion from decimal appearance.
+- [Public column grants](public-column-grants.md) — adding a public projection column also needs an explicit column-level grant; mocked SQL tests cannot prove access.
+- [Theme-color hydration](theme-color-hydration.md) — mutating hoisted meta content before hydration creates duplicate tags; restore the class early, chrome colour afterwards.

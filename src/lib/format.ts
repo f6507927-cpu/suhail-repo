@@ -9,6 +9,7 @@ export function formatNumber(
   options?: Intl.NumberFormatOptions,
 ) {
   return new Intl.NumberFormat(formats[locale], {
+    maximumFractionDigits: 2,
     ...options,
     numberingSystem: "latn",
   }).format(value);
@@ -20,6 +21,7 @@ export function formatPercent(
   options?: Intl.NumberFormatOptions,
 ) {
   return formatNumber(value, locale, {
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
     ...options,
     style: "percent",
@@ -37,7 +39,21 @@ export function formatMoney(
   return formatNumber(value * unitScale, locale, {
     style: "currency",
     currency,
+    maximumFractionDigits: 2,
   });
+}
+/** UX-2 / D-21: summary dollars, at most three significant figures in either locale. */
+export function formatCompactMoney(value: number | null) {
+  if (value === null || !Number.isFinite(value)) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency", currency: "USD", notation: "compact",
+    maximumSignificantDigits: 3, numberingSystem: "latn",
+  }).format(value);
+}
+
+/** D-148 extends D-30: curate presentation without replacing SEC issuer identity. */
+export function englishCompanyName(company: { name: string; display_name_en?: string | null }) {
+  return company.display_name_en?.trim() || company.name;
 }
 export function formatDate(
   value: Date | string | null | undefined,

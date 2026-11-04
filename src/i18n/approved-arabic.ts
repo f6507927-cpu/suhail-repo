@@ -1,9 +1,24 @@
 import batchTwo from "./approved-arabic-batch-two.json";
+import { stockUxFiveArabic } from "./approved-arabic-stock-ux-five";
+import { homeUxSixArabic } from "./approved-arabic-home-ux-six";
+import { stockRequestsArabic } from "./approved-arabic-stock-requests";
 import { isolateArabicCode } from "./bidi";
 import { publicUiCopy } from "./presentation";
 
 // Founder-approved UI wording (D-96/D-101/D-107). Unknown copy stays marked.
 const approvedCopy: Readonly<Record<string, string>> = {
+  // UX-4: founder-supplied UI wording / D-144 mockup. Existing approved
+  // Search and Not screened yet keys retain their previous translations.
+  "For example, AAPL or Apple": "مثلاً AAPL أو Apple",
+  "Screen": "افحص",
+  "Try:": "جرّب:",
+  "Listed": "في القائمة",
+  "Not covered yet": "لا نغطي هذا السهم بعد.",
+  "Search is unavailable right now. Try again.": "تعذّر البحث الآن. حاول مرة أخرى.",
+  "Try again": "حاول مرة أخرى",
+  "We currently cover <number>{total}</number> {count, plural, one {US stock} other {US stocks}}, and are adding more. Try:": "{count, plural, zero {نغطي حالياً <number>{total}</number> سهم أمريكي، ونضيف غيرها تباعاً. جرّب:} one {نغطي حالياً سهماً أمريكياً واحداً، ونضيف غيرها تباعاً. جرّب:} two {نغطي حالياً سهمين أمريكيين، ونضيف غيرها تباعاً. جرّب:} few {نغطي حالياً <number>{total}</number> أسهم أمريكية، ونضيف غيرها تباعاً. جرّب:} many {نغطي حالياً <number>{total}</number> سهماً أمريكياً، ونضيف غيرها تباعاً. جرّب:} other {نغطي حالياً <number>{total}</number> سهم أمريكي، ونضيف غيرها تباعاً. جرّب:}}",
+  // D-144 mockup wording, explicitly requested for the D-149 / UX-3 header.
+  "Screen a stock": "افحص سهماً",
   "Sign in": "تسجيل الدخول",
   "ACCOUNT ACCESS": "الدخول إلى الحساب",
   "SUHAIL ACCOUNT": "حساب سهيل",
@@ -239,5 +254,6 @@ const approvedCopy: Readonly<Record<string, string>> = {
 };
 export const approvedArabicCopy: Readonly<Record<string, string>> = Object.fromEntries(
   // publicUiCopy includes D-144's exact UX-1 table with older approvals taking precedence.
-  Object.entries({ ...approvedCopy, ...batchTwo, ...publicUiCopy }).map(([source, text]) => [source, isolateArabicCode(text)]),
+  // D-144: earlier approvals win even where the redesign uses another label.
+  Object.entries({ ...stockRequestsArabic, ...homeUxSixArabic, ...stockUxFiveArabic, ...approvedCopy, ...batchTwo, ...publicUiCopy }).map(([source, text]) => [source, isolateArabicCode(text)]),
 );

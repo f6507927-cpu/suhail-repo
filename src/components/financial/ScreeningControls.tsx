@@ -47,7 +47,7 @@ const input = "min-h-9 border border-border bg-background px-2 text-xs outline-n
 const ltr = (value: unknown) => <bdi dir="ltr" className="font-mono tabular-nums">{value == null || value === "" ? "—" : String(value)}</bdi>;
 const formattedNumber = (locale: Locale, value: unknown) => {
   const number = Number(value);
-  return value == null || value === "" || !Number.isFinite(number) ? ltr(value) : <bdi dir="ltr" className="font-mono tabular-nums">{formatNumber(number, locale, { maximumFractionDigits: 6 })}</bdi>;
+  return value == null || value === "" || !Number.isFinite(number) ? ltr(value) : <bdi dir="ltr" className="font-mono tabular-nums">{formatNumber(number, locale, { maximumFractionDigits: 2 })}</bdi>;
 };
 const reasonKinds = new Set(["failure", "borderline", "criterion_unknown", "blocking_unknown", "review_unknown", "counts"]);
 const reasonCodes = new Set([
@@ -213,7 +213,7 @@ export function ScreeningRunDetail({ detail, role }: DetailProps) {
       <Link href="/admin/securities" className="mb-4 inline-flex items-center gap-1 text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground">{t(locale, "Securities and data")}<ArrowUpRight size={12} aria-hidden="true" /></Link>
       <p className="font-mono text-[10px] tracking-[0.18em] text-[var(--byline)]">{t(locale, "SUHAIL / SCREENING RUN")}</p>
       <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
-        <div><h1 className="text-2xl font-semibold">{run.company_name ?? run.ticker ?? t(locale, "Run details")} <bdi dir="ltr" className="font-mono text-base text-muted-foreground">({run.ticker ?? "—"})</bdi></h1>
+        <div><h1 className="text-2xl font-semibold">{detail.companyDisplayNameEn || run.company_name || run.ticker || t(locale, "Run details")} <bdi dir="ltr" className="font-mono text-base text-muted-foreground">({run.ticker ?? "—"})</bdi></h1>
           <p className="mt-2 text-sm text-muted-foreground">{run.methodology_name ?? "—"} · {run.methodology_version_label ?? "—"}</p><div className="mt-3"><StatusBadge status={run.status as StatusCode} /></div></div>
         <div className="flex flex-wrap gap-2">
           <button type="button" className={button} disabled={pending} onClick={verify}><ShieldCheck size={14} aria-hidden="true" />{t(locale, "Verify")}</button>

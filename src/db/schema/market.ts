@@ -44,6 +44,8 @@ export const company = appSchema.table("company", {
   name: text("name").notNull(),
   cik: text("cik").unique(),
   name_ar: text("name_ar"),
+  // D-148: nullable curated presentation, independent of the SEC issuer name.
+  display_name_en: text("display_name_en"),
   legal_name: text("legal_name"),
   country: text("country"),
   domicile: text("domicile"),

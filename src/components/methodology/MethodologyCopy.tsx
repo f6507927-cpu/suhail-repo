@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import type messages from "../../i18n/messages/en.json";
-import { LocalizedText } from "../foundation";
+import { PublicLocalizedText as LocalizedText } from "../foundation";
 import { formatCalendarDate } from "@/lib/format";
 
 export function MethodologyCopy({

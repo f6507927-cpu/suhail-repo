@@ -87,6 +87,27 @@ async function advance(tx:Tx,actor:AppUser,v:string,to:string) {
   }
 }
 describe("audited governed lifecycle and SQL boundaries",()=>{
+  it("saves explanatory UI with an audit, preserves engine inputs and locks it after draft",()=>isolated(async(tx,actor)=>{
+    const {v,c}=await fixture(tx,actor);
+    const before=await service.candidateDefinition(tx,v);
+    await service.saveCriterion(tx,actor,v,c,{...rule,explanation_ar:"شرح اختباري",explanation_en:"Test explanation"});
+    const after=await service.candidateDefinition(tx,v);
+    expect(after.criteria).toEqual(before.criteria);
+    const [event]=await tx.select().from(schema.auditEvent).where(eq(schema.auditEvent.entity_id,c)).orderBy(desc(schema.auditEvent.occurred_at));
+    expect(event.event_type).toBe("criterion_update");
+    expect(event.details).toMatchObject({explanation_ar:"شرح اختباري",explanation_en:"Test explanation"});
+    await service.setVisibility(tx,actor,v,true);
+    await service.transition(tx,actor,v,"source_verified","Source verified for local test");
+    await expect(service.saveCriterion(tx,actor,v,c,{...rule,explanation_en:"Cannot edit"})).rejects.toThrow("Finalized criteria");
+    await expect(tx.transaction(async nested=>{
+      await nested.execute(sql`set local role postgres`);
+      await nested.update(schema.methodologyCriterion).set({explanation_en:"Cannot bypass"}).where(eq(schema.methodologyCriterion.id,c));
+    })).rejects.toThrow();
+    await tx.execute(sql`set local role suhail_public`);
+    expect(await tx.select({ar:schema.methodologyCriterion.explanation_ar,en:schema.methodologyCriterion.explanation_en})
+      .from(schema.methodologyCriterion).where(eq(schema.methodologyCriterion.id,c)))
+      .toEqual([{ar:"شرح اختباري",en:"Test explanation"}]);
+  }));
   it("refuses private production enablement in the service and direct owner SQL",()=>isolated(async(tx,actor)=>{
     const {v,c}=await fixture(tx,actor);
     await service.saveCases(tx,actor,v,cases(c));await advance(tx,actor,v,"approved");

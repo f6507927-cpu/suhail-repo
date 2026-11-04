@@ -4,7 +4,7 @@ import { AccountIdentityControl } from "./AccountIdentityControl";
 import { AuthError } from "@/lib/auth/errors";
 import { requireUser } from "@/lib/auth/guards";
 import { SiteHeader } from "@/components/foundation/SiteHeader";
-import type { Locale } from "./types";
+import { reviewText, type Locale } from "./types";
 
 export async function PrivateSiteHeader({ locale, publicOnly = false }: { locale: Locale; publicOnly?: boolean }) {
   const t = await getTranslations({ locale });
@@ -29,8 +29,8 @@ export async function PrivateSiteHeader({ locale, publicOnly = false }: { locale
       labels={{
         appName: t("app.name"),
         menu: t("nav.menu"),
-        picks: t("nav.picks"),
-        methodologies: t("nav.methodologies"),
+        screenStock: reviewText(locale, "Screen a stock"),
+        methodologies: reviewText(locale, "Methodology"),
       }}
       accountControl={publicOnly ? null : <AccountIdentityControl locale={locale} identity={identity} />}
     />

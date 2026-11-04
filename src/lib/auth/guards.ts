@@ -75,8 +75,15 @@ const cachedRole = cache(async (roleKey: string) => {
   if (context.nextLevel === "aal2") throw new AuthError(403, "mfa_verify_required");
   throw new AuthError(403, "mfa_enroll_required");
 });
-export function requireRole(roles: readonly Role[] = ["admin", "editor"]) {
-  return cachedRole([...new Set(roles)].sort().join(","));
+export function requireRole(roles: readonly Role[] = ["admin", "editor"], options?:{scope:"account"}) {
+  const roleKey=[...new Set(roles)].sort().join(",");
+  // D-45/D-152: explicitly account-owned capabilities admit all signed-in
+  // roles. This opt-in never relaxes the existing privileged/TOTP guard.
+  if(options?.scope==="account"){
+    if(roleKey!=="admin,editor,user")throw new AuthError(403,"role_required");
+    return requireUser();
+  }
+  return cachedRole(roleKey);
 }
 async function pageGuard<T>(locale: string, next: string, check: () => Promise<T>): Promise<T> {
   try { return await check(); } catch (error) {

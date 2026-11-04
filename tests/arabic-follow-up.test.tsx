@@ -61,7 +61,7 @@ describe("D-138 bounded, independently pinned founder wording", () => {
       expect(html).toContain(locale === "ar" ? followUp["No unmet searches have been recorded yet."] : "No unmet searches have been recorded yet.");
       const search = renderToStaticMarkup(<NextIntlClientProvider locale={locale} messages={locale === "ar" ? ar : en} timeZone="UTC">
         <SearchResults locale={locale} valid results={[{
-          slug: "fixture", ticker: "FIX", name: "Fixture", name_ar: "شركة الاختبار",
+          slug: "fixture", ticker: "FIX", name: "Fixture", name_ar: "شركة الاختبار", display_name_en: null,
           exchange: "NASDAQ", status: null,
         }]} />
       </NextIntlClientProvider>);

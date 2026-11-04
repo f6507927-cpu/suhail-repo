@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { PublicLocalizedText as LocalizedText, stripPublicReviewMarker } from "../foundation/shared";
 import { Num } from "../foundation/Num";
 import { reviewText, type Locale } from "../accounts/types";
-import { formatCalendarDate, formatNumber } from "@/lib/format";
+import { formatCalendarDate, formatCompactMoney, formatNumber, formatPercent } from "@/lib/format";
 import { renderArabicDraft } from "@/engine/reasons/ar";
 import { renderEnglish } from "@/engine/reasons/en";
 import type { StatusReason } from "@/engine/types";
@@ -74,6 +74,8 @@ export function hasEnglishOnlyNarrative(value: string | null | undefined) {
   const text = stripPublicReviewMarker(value?.trim() ?? "");
   if (!text || /[\p{Script=Arabic}]/u.test(text) || !/[A-Za-z]/.test(text)) return false;
   if (/^[A-Z0-9]+(?:[._:/+-][A-Z0-9]+)*$/.test(text)) return false;
+  if (/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(text)) return false;
+  if (/^(?:v|engine-|calc-)\d+(?:[.-]\d+)*$/i.test(text)) return false;
   if (/^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$/.test(text)) return false;
   return true;
 }
@@ -101,7 +103,7 @@ export function UnknownFieldLabel({ value, locale }: { value: string; locale: Lo
   return <span className={styles.fallback}><bdi lang={fallback ? "en" : locale} dir={fallback || locale === "en" ? "ltr" : "rtl"}>{stripPublicReviewMarker(reviewText(locale, value))}</bdi></span>;
 }
 
-/** Call once at the section boundary, only for actual missing-language narrative. */
+/** D-150: stock callers aggregate once beneath the company header. */
 export function LanguageNotice({ locale, needed, reverse = false }: { locale: Locale; needed: boolean; reverse?: boolean }) {
   if (!needed) return null;
   return <p data-language-notice className={styles.languageMarker}><Copy locale={locale}>{reverse ? "Arabic only" : "English only"}</Copy></p>;
@@ -149,17 +151,17 @@ export function SourceRefs({
 
 function amount(value: number | null, locale: Locale) {
   if (value === null || !Number.isFinite(value)) return "—";
-  return formatNumber(value, locale, { maximumFractionDigits: 6 });
+  return formatNumber(value, locale, { maximumFractionDigits: 2 });
 }
 
-export function CriterionValue({ value, locale }: { value: number | null; locale: Locale }) {
-  return value === null ? <>—</> : <Num>{amount(value, locale)}</Num>;
+export function CriterionValue({ value, locale, compactMoney = false }: { value: number | null; locale: Locale; compactMoney?: boolean }) {
+  return <Num>{compactMoney ? formatCompactMoney(value) : value === null ? "—" : amount(value, locale)}</Num>;
 }
 
 function ThresholdValue({ criterion, value, locale }: { criterion: StockCriterion; value: number | null; locale: Locale }) {
   if (value === null) return <>—</>;
   const isPercent = criterion.threshold_unit?.startsWith("percent_");
-  return <Num>{formatNumber(value, locale, { maximumFractionDigits: 4 })}{isPercent ? "%" : ""}</Num>;
+  return <Num>{isPercent ? formatPercent(value / 100, locale) : formatNumber(value, locale, { maximumFractionDigits: 2 })}</Num>;
 }
 
 export function RatioValue({ criterion, value, locale }: { criterion: StockCriterion; value: number | null; locale: Locale }) {
@@ -240,7 +242,8 @@ export function ReasonList({ reasons, locale, passing = false }: { reasons: unkn
       {reasons.map((stored, index) => {
         const reason = storedReasonToEngine(stored);
         return <li key={`${reason?.kind ?? "unknown"}-${reason?.criterionId ?? reason?.field ?? index}`} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
-          {reason ? render(reason) : <Copy locale={locale}>No reason template available.</Copy>}
+          {/* D-150: strip only the rendered token, never edit/approve §7.3 templates or stored reasons. */}
+          {reason ? stripPublicReviewMarker(render(reason)) : <Copy locale={locale}>No reason template available.</Copy>}
         </li>;
       })}
     </ul>
@@ -302,7 +305,7 @@ export function structuredEvidenceNeedsFallback(value: unknown) {
 
 export function sourcesNeedFallback(sources: StockSource[], data: PublicStockData) {
   return sources.some(source =>
-    hasEnglishOnlyNarrative(source.document_title || source.label) ||
+    hasEnglishOnlyNarrative(source.label === "API Ninjas" ? "Prices: API Ninjas" : source.document_title || source.label) ||
     hasEnglishOnlyNarrative(sourceFiledDate(source, data, "ar")),
   );
 }
@@ -316,7 +319,7 @@ function StructuredValue({ value, locale, field }: { value: unknown; locale: Loc
       : /^[a-z]+(?:_[a-z]+)+$/.test(String(value)) ? stripPublicReviewMarker(displayLabel("structured", String(value), locale)) : String(value);
     return <bdi dir="auto">{stripPublicReviewMarker(text)}</bdi>;
   }
-  if (typeof value === "number") return <Num>{formatNumber(value, locale, { maximumFractionDigits: 6 })}</Num>;
+  if (typeof value === "number") return <Num>{formatNumber(value, locale, { maximumFractionDigits: 2 })}</Num>;
   if (Array.isArray(value)) {
     return value.length ? <ul className={styles.nestedList}>{value.map((item, i) => <li key={i}><StructuredValue value={item} locale={locale} field={field} /></li>)}</ul> : <>—</>;
   }
@@ -345,7 +348,7 @@ export function CriteriaTable({ criteria, sources, locale }: { criteria: StockCr
   if (!criteria.length) return <p className={styles.muted}><Copy locale={locale}>No criteria were recorded for this run.</Copy></p>;
   return (
     <>
-      {booleanCriteria.map(criterion => <article className={styles.booleanCard} key={criterion.id}>
+      {booleanCriteria.map(criterion => <article data-ux-card className={styles.booleanCard} key={criterion.id}>
         <h3><Bilingual locale={locale} arabic={null} english={label(criterion)} /></h3>
         <dl className={styles.cardFields}>
           <Field label={<Copy locale={locale}>Result</Copy>}><Label family="result" value={criterion.result} locale={locale} /></Field>
@@ -378,7 +381,7 @@ export function CriteriaTable({ criteria, sources, locale }: { criteria: StockCr
       </table>
       <div className={styles.criteriaCards}>
         {ratioCriteria.map((criterion) => (
-          <article className={styles.criterionCard} key={criterion.id}>
+          <article data-ux-card className={styles.criterionCard} key={criterion.id}>
             <h3><Bilingual locale={locale} arabic={null} english={label(criterion)} /> <span className={styles.result}><Label family="result" value={criterion.result} locale={locale} /></span></h3>
             <dl className={styles.cardFields}>
               {headers.filter((head) => !["Criterion", "Calculation"].includes(head)).map((head) => {
@@ -419,7 +422,7 @@ export function ExplanationSlot({ explanation, locale }: { explanation: NonNulla
           {locale === "en" && explanation.validation_status === "failed" && <p><Copy locale={locale}>The generated text did not pass validation against the engine&apos;s evidence, so it was discarded. Every figure below comes straight from the engine.</Copy></p>}
         </div>
       ) : (
-        <div className={styles.aiText}><p className={styles.validationNote}><Copy locale={locale}>Every figure in this text was checked against the engine&apos;s evidence.</Copy></p>{explanation.ai_text}</div>
+        <div className={styles.aiText}><p className={styles.validationNote}><Copy locale={locale}>Every figure in this text was checked against the engine&apos;s evidence.</Copy></p>{stripPublicReviewMarker(explanation.ai_text ?? "")}</div>
       )}
       {((explanation.evidence ?? []).length > 0 || (explanation.unknowns ?? []).length > 0) && (
         <div className={styles.explanationStructured}>

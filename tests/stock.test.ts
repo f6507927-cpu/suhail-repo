@@ -16,6 +16,17 @@ const data = {
 } as PublicStockData;
 
 describe("public stock boundary and metadata", () => {
+  it.each(["en", "ar"] as const)("%s metadata prefers curated English, retaining Arabic and empty-name fallbacks", locale => {
+    const fixture = { ...data, company: { ...data.company, display_name_en: "Curated Alpha" } };
+    expect(JSON.stringify(stockMetadata(fixture, locale, "https://public.example"))).toContain("Curated Alpha");
+    expect(JSON.stringify(stockMetadata(fixture, locale, "https://public.example"))).not.toContain("Fixture Alpha Co");
+    const arabic = { ...fixture, company: { ...fixture.company, name_ar: "شركة الاختبار" } };
+    expect(JSON.stringify(stockMetadata(arabic, locale, "https://public.example").title))
+      .toContain(locale === "ar" ? "شركة الاختبار" : "Curated Alpha");
+    const cleared = { ...fixture, company: { ...fixture.company, display_name_en: " " } };
+    expect(JSON.stringify(stockMetadata(cleared, locale, "https://public.example").title)).toContain("Fixture Alpha Co");
+    expect(fixture.company.name).toBe("Fixture Alpha Co");
+  });
   for (const locale of ["ar", "en"] as const) {
     it(`${locale} has stock-specific metadata and bilingual canonical links`, () => {
       const meta = stockMetadata(data, locale, "https://public.example");
@@ -37,6 +48,18 @@ describe("public stock boundary and metadata", () => {
     expect(JSON.stringify(meta.title)).toContain("No run yet");
     expect(meta.description).not.toContain("2025-12-31");
     expect(() => stockMetadata(data, "en", "https://user:password@public.example")).toThrow("without credentials");
+  });
+  it.each(["ar", "en"] as const)("%s public no-run metadata hides review tokens without changing evidence", locale => {
+    const fixture = {
+      ...data, run: null, company: { ...data.company, name: "⟦AR-REVIEW⟧ Fixture Alpha Co" },
+      version: { ...data.version!, version_label: "⟦AR-REVIEW⟧ First version" },
+      methodology: { ...data.methodology!, name: "⟦AR-REVIEW⟧ Fixture method" },
+    };
+    const original = structuredClone(fixture);
+    const meta = stockMetadata(fixture, locale, "https://public.example");
+    expect(JSON.stringify(meta)).not.toContain("⟦AR-REVIEW⟧");
+    expect(JSON.stringify(meta.title)).toContain("No run yet");
+    expect(fixture).toEqual(original);
   });
   it("failed reads throw instead of producing cacheable fallback data", async () => {
     const db = { select() { throw new Error("Read unavailable"); }, execute: vi.fn() } as unknown as Parameters<typeof loadPublicStock>[1];

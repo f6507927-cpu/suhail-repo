@@ -75,6 +75,9 @@ const accountMessages = [
   "Change account role",
   "Change role",
   "Checking account",
+  // D-149: shared navigation also appears in the private header.
+  "Screen a stock",
+  "Methodology",
   "Close",
   "Confirm role change",
   "Connecting to Google",
@@ -193,6 +196,8 @@ const accountMessages = [
   "Your account",
   "Your agreement needs to be renewed before you continue using your account.",
   "Your public research remains open to everyone.",
+  // Founder-approved UX-6 setting label; paired through the existing registry.
+  "Featured security on the homepage",
   // D-101: audit event types and current code-valued summaries share approved copy.
   "methodology_create",
   "methodology_update",

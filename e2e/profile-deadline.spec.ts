@@ -8,6 +8,7 @@ for (const stage of ["headers", "body"] as const) {
       const hold = new Promise(resolve => { finish = resolve; });
       Object.assign(window, {
         profileStarted: false,
+        profileSettled: false,
         releaseProfile: () => finish({
           id: "admin", role: "admin", full_name: "Late Admin",
         }),
@@ -20,9 +21,14 @@ for (const stage of ["headers", "body"] as const) {
           // the browser fetch implementation's normal cancellation behavior.
           if (stage === "headers") {
             const body = await hold;
+            (window as unknown as { profileSettled: boolean }).profileSettled = true;
             return Response.json(body);
           }
-          return { ok: true, json: () => hold } as Response;
+          return { ok: true, json: async () => {
+            const body = await hold;
+            (window as unknown as { profileSettled: boolean }).profileSettled = true;
+            return body;
+          } } as Response;
         }
         return Response.json({ id: "user", role: "user", full_name: "Ordinary User" });
       };
@@ -42,11 +48,17 @@ for (const stage of ["headers", "body"] as const) {
     await page.evaluate(() => window.fixture.session({
       access_token: "fixture-user", user: { id: "user" },
     }));
-    await expect(page.locator("summary")).toHaveText("OU");
+    const accountMenu = page.locator("header details");
+    await expect(accountMenu.locator("summary")).toHaveText("Account");
+    await accountMenu.locator("summary").click();
+    await expect(accountMenu.getByText("Ordinary User", { exact: true })).toBeVisible();
+    await expect(accountMenu.getByRole("link", { name: "Admin", exact: true })).toHaveCount(0);
     await page.evaluate(() => (window as unknown as { releaseProfile: () => void }).releaseProfile());
-    await expect(page.locator("summary")).toHaveText("OU");
-    await page.locator("summary").click();
-    await expect(page.getByRole("link", { name: "Admin", exact: true })).toHaveCount(0);
+    await expect.poll(() => page.evaluate(() =>
+      (window as unknown as { profileSettled: boolean }).profileSettled)).toBe(true);
+    await expect(accountMenu.getByText("Ordinary User", { exact: true })).toBeVisible();
+    await expect(accountMenu.getByText("Late Admin", { exact: true })).toHaveCount(0);
+    await expect(accountMenu.getByRole("link", { name: "Admin", exact: true })).toHaveCount(0);
   });
 }
 

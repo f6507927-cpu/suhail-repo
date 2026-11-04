@@ -214,6 +214,7 @@ export const editorialSetting = appSchema.table("editorial_setting", {
     "default_shariah_methodology_version_id",
   ).references(() => methodologyVersion.id),
   weekly_universe_note: text("weekly_universe_note"),
+  featured_security_id: uuid("featured_security_id").references(() => security.id),
   updated_by_email: text("updated_by_email"),
   notes: text("notes"),
 });

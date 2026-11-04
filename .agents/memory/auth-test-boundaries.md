@@ -43,3 +43,24 @@ provider XML prolog/comment caused the real enrollment screen to reject the imag
 when diagnosing image failures. Preserve representative prologs and comments in
 fixtures, use only synthetic factor material, and verify actual browser decoding
 under the existing CSP rather than weakening it.
+
+Treat the older isolated account fixtures as behavioral checks, not proof of
+the public site's final CSS-module layout.
+
+**Why:** their served global styles omit the public header's CSS-module output;
+a fixture screenshot can show a stacked header while the real Next page is
+correct. This does not justify changing the production header.
+
+**How to apply:** use the real Next app or a faithful isolated Next copy for
+visual/width verification. Label account-fixture screenshots as behavioral
+evidence only.
+
+Quiet account labels are not evidence of session identity or race safety.
+
+**Why:** The header's shared account text is identical for different users;
+checking that label alone cannot detect a late privileged-profile response.
+
+**How to apply:** Open the account menu and assert the actual current identity
+and absence of privileged links after the stale response settles. Keep the
+deadline and cancellation assertions; do not restore deprecated initials just
+to satisfy old browser expectations.

@@ -1,6 +1,6 @@
 import { Shield, UserRound, LogOut } from "lucide-react";
 import { localePath } from "@/lib/auth/paths";
-import { initials, reviewText, type Locale, type Role } from "./types";
+import { reviewText, type Locale, type Role } from "./types";
 
 type AccountIdentity = {
   fullName: string;
@@ -18,7 +18,7 @@ export function AccountIdentityControl({
     return (
       <a
         href={localePath(locale, "/auth/sign-in")}
-        className="inline-flex min-h-10 items-center gap-2 rounded-md border border-border px-3 text-sm text-foreground hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap text-sm text-foreground/80 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <UserRound aria-hidden="true" size={17} strokeWidth={1.6} />
         {reviewText(locale, "Sign in")}
@@ -32,9 +32,9 @@ export function AccountIdentityControl({
       <details className="group relative">
         <summary
           aria-label={reviewText(locale, "Open account menu")}
-          className="flex size-10 cursor-pointer list-none items-center justify-center rounded-full border border-border bg-secondary text-sm font-semibold text-foreground outline-none transition-colors hover:border-primary focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex min-h-11 cursor-pointer list-none items-center whitespace-nowrap text-sm text-foreground/80 underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
         >
-          {initials(identity.fullName)}
+          {reviewText(locale, "Account")}
         </summary>
         <div className="absolute end-0 top-[calc(100%+0.65rem)] z-50 w-64 rounded-md border border-border bg-card p-2 text-card-foreground shadow-xl">
           <div className="border-b border-border px-3 py-2">

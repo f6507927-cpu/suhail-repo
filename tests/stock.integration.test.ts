@@ -32,6 +32,22 @@ async function isolated(work: (tx: Tx) => Promise<void>) {
   } catch (error) { if (error !== rollback) throw error; }
 }
 describe("public stock role and synthetic-only development seed", () => {
+  it("links only published research and exposes only the bounded public projection",async()=>isolated(async tx=>{
+    const page=await loadPublicStock("demo-fixa",tx);
+    const [publication]=await tx.insert(schema.edition).values({
+      edition_id:"UX-5-SYNTHETIC",week_start:"2026-10-12",week_end:"2026-10-18",status:"draft",is_demo:true,
+    }).returning();
+    await tx.insert(schema.pick).values({
+      edition_id:publication.id,slot_key:"editor",security_id:page!.security.id,is_demo:true,
+      editor_thesis_en:"Synthetic published research body",editor_author_email:"private-fixture@example.invalid",
+    });
+    expect((await loadPublicStock("demo-fixa",tx))?.publishedPick).toBeNull();
+    await tx.update(schema.edition).set({status:"published_demo",published_at:new Date()}).where(eq(schema.edition.id,publication.id));
+    await tx.execute(sql`set local role suhail_public`);
+    const publicPage=await loadPublicStock("demo-fixa",tx);
+    expect(publicPage?.publishedPick).toMatchObject({href:"#stock-published-research",thesis_en:"Synthetic published research body"});
+    expect(JSON.stringify(publicPage)).not.toContain("private-fixture");
+  }));
   it("public role reads four actual engine statuses, sources and no private payload", async () => isolated(async tx => {
     await tx.execute(sql`set local role suhail_public`);
     expect((await tx.execute<{ current_user: string }>(sql`select current_user`))[0].current_user).toBe("suhail_public");

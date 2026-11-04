@@ -19,7 +19,7 @@ function stockFixture(): PublicStockData {
       company_id: "company-fixture", exchange_id: null, coverage_analyst_id: null, is_demo: false,
     },
     company: {
-      id: "company-fixture", name: "شركة الاختبار", name_ar: "شركة الاختبار",
+      id: "company-fixture", name: "شركة الاختبار", name_ar: "شركة الاختبار", display_name_en: null,
       description_ar: null, description_en: null, sector_label: null, is_demo: false,
     },
     exchange: { code: "NYSE", name: "NYSE" },
@@ -103,6 +103,7 @@ function renderStock(data: PublicStockData, locale: "ar" | "en" = "ar") {
 
 const englishFallbackCases: Array<[string, (data: PublicStockData) => void]> = [
   ["company name", data => { data.company.name = "Fixture Systems"; data.company.name_ar = null; }],
+  ["secondary English company name beside Arabic identity", data => { data.company.name = "Fixture Systems"; }],
   ["company sector", data => { data.company.sector_label = "Consumer technology"; }],
   ["exchange description", data => { data.exchange = { code: "XNYS", name: "New York Stock Exchange" }; }],
   ["analyst name", data => {
@@ -120,6 +121,7 @@ const englishFallbackCases: Array<[string, (data: PublicStockData) => void]> = [
     };
   }],
   ["methodology name", data => { data.methodology!.name = "Revenue screen"; }],
+  ["methodology version label", data => { data.version!.version_label = "Initial reviewed edition"; }],
   ["stored run methodology name", data => {
     data.methodology = null;
     data.run!.methodology_name = "Revenue screen";
@@ -150,10 +152,34 @@ const englishFallbackCases: Array<[string, (data: PublicStockData) => void]> = [
   ["source title", data => { data.sources[0].document_title = "Annual report"; }],
   ["source label fallback", data => { data.sources[0].document_title = null; data.sources[0].label = "Annual filing"; }],
   ["structured evidence string", data => { data.explanation!.evidence = [{ claim: "Revenue increased during the year." }]; }],
+  ["structured unknown string", data => { data.explanation!.unknowns = [{ reason: "No annual filing." }]; }],
 ];
 
 describe("stock public-label cleanup (D-150)", () => {
-  it("does not show a notice for a fully Arabic stock record with numeric and boolean evidence", () => {
+  it.each(["ar", "en"] as const)("%s summary money and English identity are presentation-only (D-148 / UX-2)", locale => {
+    const data = stockFixture();
+    data.company.name = "COSTCO WHOLESALE CORP /NEW";
+    data.company.display_name_en = "Costco Wholesale";
+    data.criteria[0].numerator_value = 98_657_000_000;
+    data.criteria[0].denominator_value = 4_664_202_633_466.667;
+    data.criteria[0].ratio = 2.1152091212;
+    const original = structuredClone(data);
+    const html = renderStock(data, locale);
+    const summary = html.split('data-section="known"')[1].split("</section>")[0];
+    const record = html.split('data-section="criteria"')[1].split("</section>")[0];
+    expect(summary).toContain("$98.7B");
+    expect(summary).toContain("$4.66T");
+    expect(summary).toContain("2.12%");
+    expect(record).not.toContain("$4.66T");
+    expect(record).not.toContain("466.667");
+    expect(html).toContain("Costco Wholesale");
+    expect(html).not.toContain("COSTCO WHOLESALE CORP /NEW");
+    if (locale === "ar") expect(html).toContain("شركة الاختبار");
+    expect(data).toEqual(original);
+    data.company.display_name_en = " ";
+    expect(renderStock(data, locale)).toContain("COSTCO WHOLESALE CORP /NEW");
+  });
+  it("shows the single §11 context notice even for an otherwise Arabic record", () => {
     const data = stockFixture();
     data.explanation!.evidence = [{ description: "بيان عربي" }];
     expect({
@@ -165,7 +191,7 @@ describe("stock public-label cleanup (D-150)", () => {
       structuredUnknowns: structuredEvidenceNeedsFallback(data.explanation!.unknowns),
     }).toEqual({ criteria: false, unknowns: false, sources: false, reasons: false, evidence: false, structuredUnknowns: false });
     const html = renderStock(data);
-    expect(html).not.toContain("data-language-notice");
+    expect(html.match(/data-language-notice=/g)).toHaveLength(1);
     expect(html).not.toContain("⟦AR-REVIEW⟧");
   });
 
@@ -186,9 +212,13 @@ describe("stock public-label cleanup (D-150)", () => {
     data.sources[0].document_reference = "0001234567";
     data.facts[0].currency = "USD";
     data.facts[0].value = 123.45;
+    data.explanation!.evidence = [{
+      source_id: "a1234567-abcd-1234-abcd-123456789abc",
+      value: ["v1", "engine-1.0.1", "calc-2026.10.6", "USD", 123.45],
+    }];
     data.period!.reported_date = null;
     const html = renderStock(data);
-    expect(html).not.toContain("data-language-notice");
+    expect(html.match(/data-language-notice=/g)).toHaveLength(1);
   });
 
   it("suppresses a review marker embedded in displayed structured evidence without altering the fixture", () => {
@@ -198,5 +228,89 @@ describe("stock public-label cleanup (D-150)", () => {
     expect(html).not.toContain("⟦AR-REVIEW⟧");
     expect(data.explanation!.evidence).toEqual([{ claim: "⟦AR-REVIEW⟧ Future narrative" }]);
     expect([...html.matchAll(/data-language-notice=/g)]).toHaveLength(1);
+  });
+
+  it.each(["ar", "en"] as const)("suppresses tokens in %s stored identity, scope, reasons and validated narrative without mutating them", locale => {
+    const data = stockFixture();
+    data.company.name = "⟦AR-REVIEW⟧ Fixture Systems";
+    data.company.name_ar = "⟦AR-REVIEW⟧ شركة الاختبار";
+    data.methodology!.scope = "⟦AR-REVIEW⟧ English scope";
+    data.run!.status_reasons[0].field = "⟦AR-REVIEW⟧ Data freshness";
+    data.explanation!.validation_status = "passed";
+    data.explanation!.ai_text = "⟦AR-REVIEW⟧ Validated fixture narrative";
+    const original = structuredClone(data);
+    const html = renderStock(data, locale);
+    expect(html).not.toContain("⟦AR-REVIEW⟧");
+    expect(html).toContain("Data freshness");
+    expect(data).toEqual(original);
+  });
+
+  it("ignores undisplayed analyst and run-only evidence in the no-run state", () => {
+    const data = stockFixture();
+    data.run = null;
+    data.company.name = "FXT";
+    data.analyst = {
+      name_ar: "", name_en: "Hidden analyst", title_ar: null, title_en: "Hidden title",
+      credentials: "Hidden credentials", bio_ar: null, bio_en: null, headshot_object_key: null,
+    };
+    data.methodology!.scope = "Hidden methodology scope";
+    data.criteria[0].criterion_label = "Hidden criterion";
+    data.unknowns[0].why_missing = "Hidden explanation";
+    data.facts[0].value = null;
+    data.facts[0].value_text = "Hidden fact";
+    data.sources[0].document_title = "Hidden title";
+    data.explanation!.evidence = [{ claim: "Hidden evidence" }];
+    const html = renderStock(data);
+    expect(html).not.toContain("Hidden");
+    expect(html.match(/data-language-notice=/g)).toHaveLength(1);
+  });
+
+  it("keeps a displayed English company notice in the no-run state", () => {
+    const data = stockFixture();
+    data.run = null;
+    data.company.name = "Fixture Systems";
+    expect(renderStock(data).match(/data-language-notice=/g)).toHaveLength(1);
+  });
+
+  it("ignores boolean-only hidden definitions and facts with a displayed numeric value", () => {
+    const data = stockFixture();
+    data.criteria = [data.criteria[1]];
+    data.criteria[0].numerator_definition = "Hidden English definition";
+    data.criteria[0].calculation_trace = "Hidden English trace";
+    data.facts[0].value_text = "Hidden English fact";
+    expect(renderStock(data).match(/data-language-notice=/g)).toHaveLength(1);
+  });
+
+  it("uses the rendered source title, not a hidden English label", () => {
+    const data = stockFixture();
+    data.sources[0].label = "Hidden English source label";
+    expect(renderStock(data).match(/data-language-notice=/g)).toHaveLength(1);
+  });
+
+  it("never adds an English-only notice on the English stock page", () => {
+    const data = stockFixture();
+    data.company.name = "Fixture Systems";
+    expect(renderStock(data, "en")).not.toContain("data-language-notice");
+  });
+
+  it.each(["manual", "API Ninjas"])("counts displayed %s close attribution even without a screening run", provider => {
+    const data = stockFixture();
+    data.run = null;
+    data.storedClose = {
+      id: "close-fixture", created_at: "2026-10-01", date: "2026-09-30", month_end_for: "2026-09-30",
+      close: 100, currency: "USD", source_id: "source-fixture", price_provider: provider,
+      source_label: "⟦AR-REVIEW⟧ Analyst closing record",
+    };
+    const html = renderStock(data);
+    expect(html).not.toContain("⟦AR-REVIEW⟧");
+    expect(html.match(/data-language-notice=/g)).toHaveLength(1);
+    data.storedClose.close = null;
+    expect(renderStock(data).match(/data-language-notice=/g)).toHaveLength(1);
+  });
+
+  it("checks the displayed provider attribution rather than its unused source title", () => {
+    const data = stockFixture();
+    data.sources[0].label = "API Ninjas";
+    expect(renderStock(data).match(/data-language-notice=/g)).toHaveLength(1);
   });
 });

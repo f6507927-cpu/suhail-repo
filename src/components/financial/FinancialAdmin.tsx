@@ -5,7 +5,7 @@ import { cloneElement, isValidElement, useId, useMemo, useState, useTransition, 
 import { useLocale } from "next-intl";
 import { AlertTriangle, ArrowUpRight, FileCheck2, LockKeyhole, Plus, RefreshCw, Search, ShieldCheck, Trash2 } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
-import { formatDate, formatNumber } from "@/lib/format";
+import { englishCompanyName, formatDate, formatNumber } from "@/lib/format";
 import { completedQuarter, deriveMarketValue, selectMonthEnd } from "@/lib/financial/market-value";
 import { reviewText, type Locale } from "@/components/accounts/types";
 import { LocalizedText } from "@/components/foundation/shared";
@@ -26,7 +26,7 @@ const financialCopy = [
   "Accept SEC", "Activity category", "Add a security", "Add segment", "Arabic description", "Arabic name", "Assigned analyst",
   "Cancel", "Category basis", "Close", "Confidence tier", "Confirm and ingest", "Confirm from filing", "Confirm removal",
   "Coverage started", "Currency", "Date", "Delete", "Delete this segment?", "Description", "Edit", "Editors have read-only access.",
-  "English description", "English name", "Estimated", "Filing note reference", "In universe", "Ingest now", "Input state",
+  "English description", "English name", "SEC label", "Estimated", "Filing note reference", "In universe", "Ingest now", "Input state",
   "Look up a US ticker before adding it to the curated universe.", "Mapping note", "No", "No analyst assigned",
   "No business segments are recorded for the latest period.", "No facts are recorded for this period.", "No ingestion jobs recorded.",
   "No latest period", "No manual prices are recorded.", "No securities in the curated universe.", "Note",
@@ -125,6 +125,7 @@ export function FinancialAdmin({ data, role, view, screening }: Props) {
     if (!selected) return;
     run({ operation: "company", securityId: selected.id, data: {
       name_ar: String(form.get("name_ar") ?? ""), description_ar: String(form.get("description_ar") ?? ""), description_en: String(form.get("description_en") ?? ""),
+      display_name_en: String(form.get("display_name_en") ?? ""),
     } }, "Saved.");
   };
 
@@ -176,7 +177,7 @@ export function FinancialAdmin({ data, role, view, screening }: Props) {
               return <button type="button" key={security.id} aria-current={active ? "true" : undefined} onClick={() => { setSelectedId(security.id); setTab("facts"); setFeedback(""); }}
                 className={`block w-full border-b border-border px-4 py-3 text-start transition-colors ${active ? "border-s-[2px] border-s-[var(--brass)] bg-secondary" : "hover:bg-secondary/60"}`}>
                 <span className="flex items-center justify-between gap-3"><b className="font-mono text-sm" dir="ltr">{security.ticker}</b><span className="text-xs text-muted-foreground">{security.exchange_code ?? security.exchange_id ?? "—"}</span></span>
-                <span className="mt-1 block truncate text-sm">{firm?.name_ar || firm?.name || "—"}</span>
+                <span className="mt-1 block truncate text-sm">{firm ? (locale === "ar" && firm.name_ar?.trim() || englishCompanyName(firm)) : "—"}</span>
                 <span className="mt-2 flex flex-wrap justify-between gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
                   <span>{period?.fiscal_period_label ?? "—"} · {text(locale, "Unknown")}: {ltr(formatNumber(unknowns, locale))} · {text(locale, "Estimated")}: {ltr(formatNumber(estimated, locale))}{hasSecChanges && <span className="ms-2 border border-[var(--brass)] px-1.5 py-0.5 text-[var(--brass)]">{text(locale, "SEC changed")}</span>}</span>
                   <span>{formatDate(security.last_ingest_at, locale, { dateStyle: "medium" })}</span>
@@ -210,10 +211,10 @@ export function FinancialAdmin({ data, role, view, screening }: Props) {
       </div>
     </Panel>
 
-    {screening && <ScreeningControls data={screening} role={role} securityId={selected?.id} securityLabel={selected ? `${selected.ticker} · ${company?.name_ar || company?.name || ""}` : undefined} />}
+    {screening && <ScreeningControls data={screening} role={role} securityId={selected?.id} securityLabel={selected ? `${selected.ticker} · ${company ? (locale === "ar" && company.name_ar?.trim() || englishCompanyName(company)) : ""}` : undefined} />}
     {selected && company && <section className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
-        <div><p className="text-xs text-[var(--byline)]">{text(locale, "Security record")}</p><h2 className="mt-1 text-2xl font-semibold">{company.name_ar || company.name} <bdi dir="ltr" className="font-mono text-base text-muted-foreground">({selected.ticker})</bdi></h2>
+        <div><p className="text-xs text-[var(--byline)]">{text(locale, "Security record")}</p><h2 className="mt-1 text-2xl font-semibold">{locale === "ar" && company.name_ar?.trim() || englishCompanyName(company)} <bdi dir="ltr" className="font-mono text-base text-muted-foreground">({selected.ticker})</bdi></h2>
           <p className="mt-1 text-xs text-muted-foreground">{selected.slug} · {latestPeriod?.fiscal_period_label ?? text(locale, "No latest period")} · {formatDate(latestPeriod?.period_end, locale)}</p></div>
         <span className="border border-border px-3 py-2 text-xs">{selected.in_universe ? text(locale, "In universe") : text(locale, "Outside universe")}</span>
       </div>
@@ -227,7 +228,8 @@ export function FinancialAdmin({ data, role, view, screening }: Props) {
       {tab === "coverage" && <Panel locale={locale} title="Analyst coverage"><Coverage locale={locale} security={selected} analysts={data.analysts} canEdit={canEdit} pending={pending} run={run} /></Panel>}
       {tab === "company" && <div className="space-y-4"><Panel locale={locale} title="Company profile"><form className="grid gap-4 md:grid-cols-2" onSubmit={(event) => submit(event, companyUpdate)}>
         <Field label={text(locale, "Arabic name")}><input className={inputClass} name="name_ar" defaultValue={company.name_ar ?? ""} readOnly={!canEdit} /></Field>
-        <Field label={text(locale, "English name")}><input className={inputClass} value={company.name} readOnly /></Field>
+        <Field label={text(locale, "English name")}><input className={inputClass} name="display_name_en" defaultValue={company.display_name_en ?? ""} placeholder={company.name} maxLength={1000} readOnly={!canEdit} /></Field>
+        <Field label={text(locale, "SEC label")}><input className={inputClass} value={company.name} readOnly /></Field>
         <Field label={text(locale, "Arabic description")}><textarea className={`${inputClass} min-h-28`} name="description_ar" defaultValue={company.description_ar ?? ""} readOnly={!canEdit} /></Field>
         <Field label={text(locale, "English description")}><textarea className={`${inputClass} min-h-28`} name="description_en" defaultValue={company.description_en ?? ""} readOnly={!canEdit} /></Field>
         {canEdit && <div className="md:col-span-2"><button className={buttonClass} type="submit" disabled={pending}>{text(locale, "Save company fields")}</button></div>}
@@ -291,7 +293,7 @@ function FactsPanel({ locale, facts, period, sources, canEdit, pending, editor, 
             {extensions.calculation_version && <p className="mt-1 font-mono text-[10px] text-muted-foreground" dir="ltr">calc {extensions.calculation_version}</p>}
             {source?.source_url && <a href={source.source_url} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs underline underline-offset-4">{text(locale, "Open source")}<ArrowUpRight size={12} aria-hidden="true" /></a>}
           </div>
-          <strong className="font-mono text-lg tabular-nums" dir="ltr">{fact.value === null ? "—" : formatNumber(Number(fact.value), locale, { maximumFractionDigits: 4 })}{fact.currency ? ` ${fact.currency}` : ""}</strong>
+          <strong className="font-mono text-lg tabular-nums" dir="ltr">{fact.value === null ? "—" : formatNumber(Number(fact.value), locale, { maximumFractionDigits: 2 })}{fact.currency ? ` ${fact.currency}` : ""}</strong>
         </div>
         {alternatives.length > 0 && <div className="mt-3 border-t border-border pt-3"><p className="text-xs font-medium">{text(locale, "Retained SEC alternatives")}</p>{alternatives.map((alt) => <div key={alt.id} className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
           <span dir="ltr" className="font-mono">{String(alt.value ?? "—")} · {alt.mapping_note ?? alt.line_item} · {getSource(alt.source_id)?.label ?? "—"}</span>

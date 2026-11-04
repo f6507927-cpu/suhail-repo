@@ -11,6 +11,8 @@ export type Verification = {
 };
 export type RunDetail = {
   run: typeof screeningRun.$inferSelect;
+  /** D-148: current UI identity, outside the immutable stored run. */
+  companyDisplayNameEn?: string;
   criteria: (typeof screeningCriterionResult.$inferSelect)[];
   unknowns: (typeof screeningUnknown.$inferSelect)[];
 };

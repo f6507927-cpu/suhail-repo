@@ -1,0 +1,101 @@
+.footer {
+  overflow: hidden;
+  background: var(--deep-night);
+  color: var(--canopus);
+  padding-block: clamp(3rem, 7vw, 5rem) 1.75rem;
+}
+
+.wrap {
+  width: min(100% - clamp(2rem, 7vw, 6rem), 75rem);
+  margin-inline: auto;
+}
+
+.legalRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.legalCopy {
+  max-width: 47rem;
+  color: var(--muted-dark);
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.9;
+}
+
+.shortDisclaimer,
+.fullDisclaimer {
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.9;
+}
+
+.fullDisclosure {
+  display: none;
+}
+
+.fullDisclosure:target {
+  display: block;
+  margin-block-start: 1rem;
+}
+
+.legalCopy > :global(a) {
+  display: inline-flex;
+  min-block-size: 2.75rem;
+  align-items: center;
+  color: var(--brass-soft);
+}
+
+.legalLinks {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.35rem;
+  font-size: 0.9rem;
+}
+
+.legalLinks a {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  color: var(--home-soft, #b9cbca);
+  text-underline-offset: 0.25rem;
+  transition: color 160ms ease;
+}
+
+.legalLinks a:hover {
+  color: var(--brass-soft);
+}
+
+.wordmark {
+  margin-top: clamp(2.5rem, 7vw, 5rem);
+  color: var(--brass-soft);
+  font-size: clamp(6rem, 22vw, 18rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .legalRow {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .legalLinks {
+    gap: 0.25rem 1rem;
+  }
+
+  .wordmark {
+    margin-inline-start: -0.08em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .legalLinks a {
+    transition: none;
+  }
+}

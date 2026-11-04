@@ -431,11 +431,12 @@ export function SettingsAdminScreen({
   saveSettings,
 }: {
   locale: Locale;
-  settings: { default_shariah_methodology_version_id: string | null; allow_ineligible_editor_pick: boolean } | null;
+  settings: { default_shariah_methodology_version_id: string | null; allow_ineligible_editor_pick: boolean; featured_security_slug?: string | null } | null;
   versions: VersionOption[];
-  saveSettings: (defaultId: string | null, allow: boolean) => Promise<ActionResult>;
+  saveSettings: (defaultId: string | null, allow: boolean, featuredSlug?: string | null) => Promise<ActionResult>;
 }) {
   const [defaultId, setDefaultId] = useState(settings?.default_shariah_methodology_version_id ?? "");
+  const [featuredSlug, setFeaturedSlug] = useState(settings?.featured_security_slug ?? "");
   const [allow, setAllow] = useState(settings?.allow_ineligible_editor_pick ?? false);
   const [pending, setPending] = useState(false);
   const pendingRef = useRef(false);
@@ -447,7 +448,7 @@ export function SettingsAdminScreen({
     setPending(true);
     setFeedback("");
     try {
-      const result = await saveSettings(defaultId || null, allow);
+      const result = await saveSettings(defaultId || null, allow, featuredSlug.trim() || null);
       setFeedback(
         result.ok
           ? reviewText(locale, "Settings saved.")
@@ -473,6 +474,12 @@ export function SettingsAdminScreen({
             <option value="">{reviewText(locale, "No default")}</option>
             {versions.map((version) => <option key={version.id} value={version.id}>{version.version_label}</option>)}
           </select>
+        </div>
+        <div className="p-5 sm:p-7">
+          <label htmlFor="settings-featured-security">{reviewText(locale,"Featured security on the homepage")}</label>
+          <input id="settings-featured-security" placeholder="nasdaq-aapl" value={featuredSlug} onChange={event=>setFeaturedSlug(event.target.value)}
+            dir="ltr" spellCheck={false} autoCapitalize="none" maxLength={200}
+            className="mt-4 min-h-11 w-full border border-input bg-background px-3 font-mono text-sm" />
         </div>
         <div className="flex items-start gap-4 p-5 sm:p-7">
           <input id="settings-allow-ineligible" aria-describedby="settings-allow-help" type="checkbox" checked={allow} onChange={(event) => setAllow(event.target.checked)} className="mt-1 size-4 accent-primary" />

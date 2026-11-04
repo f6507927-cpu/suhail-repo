@@ -39,6 +39,8 @@ export const routeInventory: Record<string, string> = {
   "src/app/[locale]/(public)/styleguide/page.tsx#page": "public",
   "src/app/[locale]/(public)/terms/page.tsx#page": "public",
   "src/app/api/account/profile/route.ts#GET": "authenticated",
+  "src/app/api/stock-requests/route.ts#POST": "authenticated",
+  "src/app/api/stock-requests/route.ts#DELETE": "authenticated",
   "src/app/api/health/route.ts#GET": "public",
   "src/app/manifest.ts#metadata": "public",
   "src/app/robots.ts#metadata": "public",

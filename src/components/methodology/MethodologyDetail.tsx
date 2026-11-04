@@ -8,6 +8,7 @@ import type { JsonValue } from "../../db/schema/types";
 import type { PublicMethodologyPageData } from "../../db/methodology-public";
 import { formatMethodologyDate, MethodologyCopy } from "./MethodologyCopy";
 import { lineItemFamily, lineItemLabel, structuredKeyLabel, structuredValueLabel } from "./structured-labels";
+import { stripPublicReviewMarker } from "../foundation/shared";
 
 function Field({
   label,
@@ -28,7 +29,7 @@ function Field({
 
 function StoredValue({ value, locale, family }: { value: JsonValue; locale: "ar" | "en"; family?: LabelFamily }) {
   if (value === null) return <span lang="en" dir="ltr">null</span>;
-  if (typeof value === "string") return <span className="whitespace-pre-wrap">{family ? displayLabel(family, value, locale) : value}</span>;
+  if (typeof value === "string") return <span className="whitespace-pre-wrap">{stripPublicReviewMarker(family ? displayLabel(family, value, locale) : value)}</span>;
   if (typeof value === "number") return <Num>{formatNumber(value, "en", { maximumFractionDigits: 8 })}</Num>;
   if (typeof value === "boolean") return <span>{structuredValueLabel("", value, locale)}</span>;
   if (Array.isArray(value)) {
@@ -50,7 +51,7 @@ function StoredValue({ value, locale, family }: { value: JsonValue; locale: "ar"
       {entries.map(([key, entry]) => (
         <div key={key} className="grid gap-1 sm:grid-cols-[minmax(8rem,0.35fr)_minmax(0,1fr)] sm:gap-4">
           <dt className="break-words text-xs text-muted-foreground">{structuredKeyLabel(key, locale)}</dt>
-          <dd className="min-w-0">{typeof entry === "string" ? <span className="whitespace-pre-wrap">{structuredValueLabel(key, entry, locale)}</span> : <StoredValue value={entry} locale={locale} family={lineItemFamily(key)} />}</dd>
+          <dd className="min-w-0">{typeof entry === "string" ? <span className="whitespace-pre-wrap">{stripPublicReviewMarker(structuredValueLabel(key, entry, locale) ?? "")}</span> : <StoredValue value={entry} locale={locale} family={lineItemFamily(key)} />}</dd>
         </div>
       ))}
     </dl>
@@ -108,7 +109,7 @@ export function MethodologyDetail({
           <LocalizedText>{t("title")}</LocalizedText>
         </Link>
         <span aria-hidden="true" className="mx-3">/</span>
-        <span aria-current="page" className="text-foreground">{method.name}</span>
+        <span aria-current="page" className="text-foreground">{stripPublicReviewMarker(method.name)}</span>
       </nav>
 
       {example && (
@@ -122,16 +123,16 @@ export function MethodologyDetail({
           <p className="mb-4 text-sm text-[var(--byline)]">
             {displayLabel("methodType", method.type, labelLocale)}
           </p>
-          <h1 id={`${headingId}-title`} className="max-w-4xl text-4xl leading-tight sm:text-5xl">{method.name}</h1>
-          {method.short_label && <p className="mt-2 text-[var(--brass-soft)]">{method.short_label}</p>}
-          {method.scope && <p className="mt-5 max-w-3xl text-base text-muted-foreground">{method.scope}</p>}
+          <h1 id={`${headingId}-title`} className="max-w-4xl text-4xl leading-tight sm:text-5xl">{stripPublicReviewMarker(method.name)}</h1>
+          {method.short_label && <p className="mt-2 text-[var(--brass-soft)]">{stripPublicReviewMarker(method.short_label)}</p>}
+          {method.scope && <p className="mt-5 max-w-3xl text-base text-muted-foreground">{stripPublicReviewMarker(method.scope)}</p>}
           <p className="mt-5 max-w-3xl border-s-2 border-[var(--brass)] ps-4 text-sm leading-6">
             <LocalizedText>{appT("pageNote")}</LocalizedText>
           </p>
           <p className="mt-5 inline-flex items-center gap-3 border border-[var(--divider)] px-3 py-2">
             <span className="text-xs text-muted-foreground"><LocalizedText>{t("version")}</LocalizedText></span>
              {version.version_label
-               ? <span className="text-sm text-[var(--brass-soft)]">{version.version_label}</span>
+               ? <span className="text-sm text-[var(--brass-soft)]">{stripPublicReviewMarker(version.version_label)}</span>
                : <Num className="text-sm text-[var(--brass-soft)]">{version.version}</Num>}
           </p>
         </div>
@@ -143,11 +144,11 @@ export function MethodologyDetail({
             <LocalizedText>{t("sourceDocument")}</LocalizedText>
           </h2>
           {version.version_label
-            ? <span className="text-sm text-[var(--brass-soft)]">{version.version_label}</span>
+            ? <span className="text-sm text-[var(--brass-soft)]">{stripPublicReviewMarker(version.version_label)}</span>
             : <span className="font-mono text-sm text-[var(--brass-soft)]" dir="ltr">{version.version}</span>}
         </div>
         <dl className="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
-          <Field label={<LocalizedText>{t("publisher")}</LocalizedText>}>{method.publisher ?? "—"}</Field>
+          <Field label={<LocalizedText>{t("publisher")}</LocalizedText>}>{stripPublicReviewMarker(method.publisher ?? "—")}</Field>
           <Field label={<LocalizedText>{t("officialOrAdapted")}</LocalizedText>}>
             {displayLabel("methodSource", method.official_or_inspired, labelLocale)}
           </Field>
@@ -158,12 +159,12 @@ export function MethodologyDetail({
             {method.source_title ? (
               sourceUrl ? (
                 <a href={sourceUrl} target="_blank" rel="noreferrer" className="underline decoration-[var(--brass)] underline-offset-4 hover:text-[var(--brass-soft)]">
-                  {method.source_title}
+                  {stripPublicReviewMarker(method.source_title)}
                 </a>
-              ) : method.source_title
+              ) : stripPublicReviewMarker(method.source_title)
             ) : "—"}
           </Field>
-          <Field label={<LocalizedText>{t("verifiedBy")}</LocalizedText>}>{method.verified_by ?? "—"}</Field>
+          <Field label={<LocalizedText>{t("verifiedBy")}</LocalizedText>}>{stripPublicReviewMarker(method.verified_by ?? "—")}</Field>
           <Field label={<LocalizedText>{t("verificationDate")}</LocalizedText>}>
             <bdi>{formatMethodologyDate(method.verification_date, locale)}</bdi>
           </Field>
@@ -171,7 +172,7 @@ export function MethodologyDetail({
             <LocalizedText>{method.production_enabled && version.production_enabled ? t("inProduction") : t("notInProduction")}</LocalizedText>
           </Field>
           <Field label={<LocalizedText>{t("version")}</LocalizedText>}>
-            {version.version_label ? version.version_label : <Num>{version.version}</Num>}
+            {version.version_label ? stripPublicReviewMarker(version.version_label) : <Num>{version.version}</Num>}
           </Field>
           <Field label={<LocalizedText>{t("effectiveDate")}</LocalizedText>}>
             <bdi>{formatMethodologyDate(version.effective_date, locale)}</bdi>
@@ -180,19 +181,16 @@ export function MethodologyDetail({
             {displayLabel("workflow", version.workflow_status, labelLocale)}
           </Field>
           <Field label={<LocalizedText>{t("changeHistory")}</LocalizedText>} className="sm:col-span-2 lg:col-span-3">
-            {version.changelog ? <p className="whitespace-pre-wrap">{version.changelog}</p> : <LocalizedText>{t("noChangeHistory")}</LocalizedText>}
+            {version.changelog ? <p className="whitespace-pre-wrap"><LocalizedText>{version.changelog}</LocalizedText></p> : <LocalizedText>{t("noChangeHistory")}</LocalizedText>}
           </Field>
         </dl>
       </section>
 
       {version.purification_treatment != null && (
         <section aria-labelledby={`purification-${version.id}`} className="border-y border-[var(--divider)] py-8">
-          <p className="text-sm text-[var(--byline)]">
-            <MethodologyCopy id="storedMethodologyData" />
-          </p>
           <h2 id={`purification-${version.id}`} className="mt-2 text-2xl">
             {typeof version.purification_treatment.label === "string"
-              ? version.purification_treatment.label
+              ? <LocalizedText>{version.purification_treatment.label}</LocalizedText>
               : <MethodologyCopy id="purificationTreatment" />}
           </h2>
           <div className="mt-5 max-w-4xl">
@@ -204,9 +202,6 @@ export function MethodologyDetail({
       <section aria-labelledby={`criteria-${version.id}`} className="pt-10">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-[var(--divider)] pb-5">
           <div>
-            <p className="text-sm text-[var(--byline)]">
-              <MethodologyCopy id="ruleRegister" />
-            </p>
             <h2 id={`criteria-${version.id}`} className="mt-2 text-3xl">
               <LocalizedText>{t("ruleGroups")}</LocalizedText>
             </h2>
@@ -238,7 +233,7 @@ export function MethodologyDetail({
               <tbody>
                 {criteria.map((criterion) => (
                   <tr key={criterion.id} className="border-t border-[var(--divider)]">
-                    <th scope="row" className="px-4 py-3 text-start font-medium">{criterion.label}</th>
+                    <th scope="row" className="px-4 py-3 text-start font-medium">{stripPublicReviewMarker(criterion.label)}</th>
                     <td className="px-4 py-3 text-xs">{displayLabel("criterionType", criterion.criterion_type, labelLocale)}</td>
                     <td className="px-4 py-3 font-mono" dir="ltr">
                       {criterion.threshold === null ? <span>null</span> : <Num>{criterion.threshold}</Num>}
@@ -269,7 +264,7 @@ export function MethodologyDetail({
                   <div className="flex gap-4">
                     <Num className="pt-1 text-sm text-[var(--byline)]">{String(index + 1).padStart(2, "0")}</Num>
                     <div>
-                      <h3 className="text-lg leading-snug">{criterion.label}</h3>
+                      <h3 className="text-lg leading-snug">{stripPublicReviewMarker(criterion.label)}</h3>
                       <span className="mt-1 inline-block text-xs text-muted-foreground">
                         {displayLabel("criterionType", criterion.criterion_type, labelLocale)}
                       </span>
@@ -284,16 +279,16 @@ export function MethodologyDetail({
                 </div>
                 <dl className="grid gap-x-8 gap-y-5 px-5 py-5 sm:grid-cols-2 sm:px-7 lg:grid-cols-3">
                   <Field label={<LocalizedText>{t("definition")}</LocalizedText>} className="lg:col-span-3">
-                    {criterion.definition ?? "—"}
+                    <LocalizedText>{criterion.definition ?? "—"}</LocalizedText>
                   </Field>
                   <Field label={<LocalizedText>{t("formula")}</LocalizedText>}>
-                    {criterion.formula_text ?? "—"}
+                    <LocalizedText>{criterion.formula_text ?? "—"}</LocalizedText>
                   </Field>
                   <Field label={<LocalizedText>{stock("numerator")}</LocalizedText>}>
-                    {criterion.numerator_definition ?? "—"}
+                    <LocalizedText>{criterion.numerator_definition ?? "—"}</LocalizedText>
                   </Field>
                   <Field label={<LocalizedText>{stock("denominator")}</LocalizedText>}>
-                    {criterion.denominator_definition ?? "—"}
+                    <LocalizedText>{criterion.denominator_definition ?? "—"}</LocalizedText>
                   </Field>
                   <Field label={<MethodologyCopy id="numeratorLineItems" />}>
                     <StringList values={criterion.numerator_line_items} locale={labelLocale} />
@@ -316,7 +311,7 @@ export function MethodologyDetail({
                     ) : <Num>{criterion.borderline_margin}</Num>}
                   </Field>
                   <Field label={<LocalizedText>{t("treatment")}</LocalizedText>}>
-                    {criterion.treatment_rules ?? "—"}
+                    <LocalizedText>{criterion.treatment_rules ?? "—"}</LocalizedText>
                   </Field>
                   <Field label={<MethodologyCopy id="treatmentRuleData" />}>
                     {criterion.treatment_rule_data ? (
@@ -324,13 +319,13 @@ export function MethodologyDetail({
                     ) : "—"}
                   </Field>
                   <Field label={<LocalizedText>{t("edgeCases")}</LocalizedText>}>
-                    {criterion.edge_cases ?? "—"}
+                    <LocalizedText>{criterion.edge_cases ?? "—"}</LocalizedText>
                   </Field>
                   <Field label={<LocalizedText>{t("requiredInputs")}</LocalizedText>}>
                     <StringList values={criterion.required_inputs} locale={labelLocale} />
                   </Field>
                   <Field label={<LocalizedText>{t("sourceRef")}</LocalizedText>}>
-                    {criterion.source_reference ?? "—"}
+                    <LocalizedText>{criterion.source_reference ?? "—"}</LocalizedText>
                   </Field>
                 </dl>
               </li>

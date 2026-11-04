@@ -25,7 +25,7 @@ describe("public copy, not only dictionaries (D-120 exact disclaimers retained)"
       const messages = locale === "ar" ? ar : en;
       for (const text of strings(messages)) expect(requestedBans(text, locale), text).toEqual([]);
       const markup = renderToStaticMarkup(<NextIntlClientProvider locale={locale} messages={messages} timeZone="UTC">
-        <SearchResults locale={locale} valid results={[]} />
+        <SearchResults locale={locale} valid results={[]} coverage={{ count: 25, screened: [] }} />
         <SearchResults locale={locale} valid={false} results={[]} />
         <EmptyState title={messages.controls.emptyTitle}>{messages.controls.emptyBody}</EmptyState>
         <Disclaimer variant="short" /><Disclaimer variant="full" />

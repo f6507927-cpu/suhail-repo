@@ -6,7 +6,7 @@ import { cliConnection } from "../scripts/db/connection";
 import { applyMigrations } from "../scripts/db/migrate";
 import { seedDatabase } from "../scripts/db/seed";
 import { createDemoFixtures } from "../scripts/db/seed-demo";
-import { searchPublicStocks } from "../src/db/search-public";
+import { countPublicListedSecurities, getPublicScreenedTickers, searchPublicStocks } from "../src/db/search-public";
 import * as schema from "../src/db/schema";
 import type { Tx } from "../src/lib/auth/audit";
 vi.mock("server-only", () => ({}));
@@ -48,6 +48,21 @@ async function isolated(work: (tx: Tx) => Promise<void>) {
 }
 const asPublic = (tx: Tx) => tx.execute(sql`set local role suhail_public`);
 describe("search through real PostgreSQL public role", () => {
+  it("counts listed universe rows as an aggregate and recommends at most five visible default-version runs", () => isolated(async tx => {
+    await asPublic(tx);
+    const before = await countPublicListedSecurities(tx);
+    const screened = await getPublicScreenedTickers(tx);
+    expect(before).toBeGreaterThan(screened.length);
+    expect(screened).toHaveLength(5);
+    expect(screened.some(stock => stock.ticker === "FIXA")).toBe(true);
+    expect(screened.some(stock => stock.ticker === "FIXN" || stock.ticker === "SFXOUT" || stock.ticker === "SFXDEL")).toBe(false);
+    await tx.execute(sql`set local role suhail_app`);
+    const [c] = await tx.insert(schema.company).values({ name: "Count fixture", is_demo: true }).returning();
+    await tx.insert(schema.security).values({ slug: "count-fixture", ticker: "COUNT", company_id: c.id, in_universe: true, listing_status: "listed", is_demo: true });
+    await asPublic(tx);
+    expect(await countPublicListedSecurities(tx)).toBe(before + 1);
+    expect(await getPublicScreenedTickers(tx)).toEqual(screened);
+  }));
   it("matches ticker prefix but not ticker substring; names are case-insensitive substrings", () => isolated(async tx => {
     await asPublic(tx);
     expect((await searchPublicStocks(" sfxa ", tx)).map(r => r.ticker)).toEqual(["SFXABC"]);

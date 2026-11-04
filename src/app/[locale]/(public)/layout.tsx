@@ -1,12 +1,15 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import {
-  Disclaimer,
   PublicLocalizedText as LocalizedText,
 } from "../../../components/foundation";
 import { SiteHeader } from "../../../components/foundation/SiteHeader";
-import { FullDisclaimerLink } from "../../../components/foundation/FullDisclaimerLink";
+import { SiteFooter } from "../../../components/foundation/SiteFooter";
 import { LocaleDocument, documentMetadata } from "../../../components/foundation/LocaleDocument";
 import { AccountControl } from "../../../components/accounts/AccountControl";
+import { reviewText } from "../../../components/accounts/types";
+import { PublicMotion } from "../../../components/foundation/PublicMotion";
+import "../../../components/foundation/PublicInteractions.css";
+import "../../../components/foundation/PublicMotion.css";
 export const metadata = documentMetadata;
 export const revalidate = 900;
 // Static policy belongs to each leaf: search alone must read searchParams.
@@ -28,6 +31,7 @@ export default async function PublicLayout({
   const t = await getTranslations({ locale });
   return (
     <LocaleDocument locale={locale}>
+      <PublicMotion>
       <a
         href="#content"
         className="fixed start-4 top-2 z-50 -translate-y-24 bg-card px-4 py-2 text-card-foreground focus:translate-y-0"
@@ -39,18 +43,14 @@ export default async function PublicLayout({
         labels={{
           appName: t("app.name"),
           menu: t("nav.menu"),
-          picks: t("nav.picks"),
-          methodologies: t("nav.methodologies"),
+          screenStock: reviewText(locale === "en" ? "en" : "ar", "Screen a stock"),
+          methodologies: reviewText(locale === "en" ? "en" : "ar", "Methodology"),
         }}
         accountControl={<AccountControl locale={locale === "en" ? "en" : "ar"} />}
       />
       {children}
-      <footer className="mx-auto max-w-6xl border-t border-[var(--divider)] px-6 py-8 text-sm text-muted-foreground">
-        <section id="full-disclaimer" tabIndex={-1} className="max-w-prose" aria-label={t("controls.fullDisclaimer")}>
-          <Disclaimer variant="full" />
-        </section>
-        <FullDisclaimerLink />
-      </footer>
+      <SiteFooter locale={locale==="en"?"en":"ar"} />
+      </PublicMotion>
     </LocaleDocument>
   );
 }

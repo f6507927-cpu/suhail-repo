@@ -16,6 +16,7 @@
     "sec:fsn:dry-run": "node --conditions=react-server --import tsx scripts/sec/fsn-dry-run.ts",
     "sec:upper-bound:dry-run": "node --conditions=react-server --import tsx scripts/sec/upper-bound-dry-run.ts",
     "smoke": "node scripts/smoke.mjs",
+    "live-check": "node scripts/live-check.mjs",
     "admin:reset-mfa": "tsx scripts/admin/reset-mfa.ts",
     "brand:icons": "tsx scripts/brand-icons.ts",
     "dev": "next dev -H 0.0.0.0 -p ${PORT:-3000}",

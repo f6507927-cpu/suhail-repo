@@ -27,6 +27,7 @@ for (const locale of ["ar", "en"] as const) {
       page.on("pageerror", error => errors.push(error.message));
       page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
       await page.goto(path);
+      await page.locator('details[data-section="full-record"] > summary').click();
       await expect(page.locator("html")).toHaveAttribute("lang", locale);
       await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
       await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", new RegExp(company));
@@ -42,7 +43,7 @@ for (const locale of ["ar", "en"] as const) {
       expect(png.readUInt32BE(16)).toBe(512);
       expect(png.readUInt32BE(20)).toBe(512);
       await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary");
-      expect(await page.locator("[data-section]").evaluateAll(nodes => nodes.map(node => node.getAttribute("data-section")))).toEqual(["header", "screening", "why", "known", "unknown", "methodology", "criteria", "fundamentals", "sources", "history", "metadata"]);
+      expect(await page.locator("[data-section]").evaluateAll(nodes => nodes.map(node => node.getAttribute("data-section")))).toEqual(["intro", "header", "why", "short-context", "full-record", "screening", "known", "unknown", "methodology", "criteria", "fundamentals", "sources", "history", "metadata", "disclaimer", "search-again"]);
       expect(checkRegister(await page.locator("body").innerText(), locale).hardBans).toEqual([]);
       await expect(page.locator("[data-coverage-seal]")).toHaveCount(slug === "demo-fixa" ? 1 : 0);
       for (const theme of ["dark", "light"]) {
@@ -50,7 +51,7 @@ for (const locale of ["ar", "en"] as const) {
         const results = await new AxeBuilder({ page }).analyze();
         expect(results.violations.filter(v => v.impact === "serious" || v.impact === "critical")).toEqual([]);
         await mkdir("generated-artifacts/stock-screenshots", { recursive: true });
-        await page.screenshot({ path: `generated-artifacts/stock-screenshots/${slug}-${locale}-${theme}.png`, fullPage: true });
+        await page.screenshot({ path: `generated-artifacts/stock-screenshots/${slug}-${locale}-${theme}.png`, fullPage: true, caret: "initial" });
       }
       expect(errors).toEqual([]);
     });
@@ -59,8 +60,9 @@ for (const locale of ["ar", "en"] as const) {
     const prefix = locale === "en" ? "/en" : "";
     expect((await request.get(`${prefix}/stock/demo-hidden`)).status()).toBe(404);
     await page.goto(`${prefix}/stock/demo-new`);
+    expect(await page.title()).not.toContain("⟦AR-REVIEW⟧");
     await expect(page.locator("[data-section=header]")).toContainText("Fixture New Co");
-    await expect(page.locator("[data-section=screening]")).toContainText("No screening run recorded");
+    await expect(page.locator("[data-section=why]")).toContainText("No screening run recorded");
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${prefix}/stock/demo-fixu`);
     await expect(page.locator("[data-coverage-seal]")).toHaveCount(0);
@@ -74,8 +76,9 @@ for (const locale of ["ar", "en"] as const) for (const width of [390, 1366]) {
   test(`${locale} ${width}: precise failures and optional evidence labels`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto(`${locale === "en" ? "/en" : ""}/stock/demo-fixa?variant=precision`);
+    await page.locator('details[data-section="full-record"] > summary').click();
     const criteria = page.locator('[data-section="criteria"]');
-    await expect(criteria.locator("article:visible").filter({ hasText: "Near threshold fixture" })).toContainText("30.004");
+    await expect(criteria.locator("article:visible").filter({ hasText: "Near threshold fixture" })).toContainText("> 30.00");
     await expect(criteria.locator("article:visible").filter({ hasText: "Tiny boolean fixture" })).toContainText("> 0");
     await expect(criteria.locator("article:visible").filter({ hasText: "Near threshold fixture" })).not.toContainText("Not recorded");
     expect(await criteria.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
@@ -83,6 +86,7 @@ for (const locale of ["ar", "en"] as const) for (const width of [390, 1366]) {
   test(`${locale} ${width}: public evidence matrix`, async ({ page }, info) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto(`${locale === "en" ? "/en" : ""}/stock/demo-fixa`);
+    await page.locator('details[data-section="full-record"] > summary').click();
     await checkCriteriaReachability(page);
     const table = page.locator('[data-section="criteria"] table');
     if (width === 1366) expect(await table.isVisible()).toBe(false);
@@ -92,6 +96,9 @@ for (const locale of ["ar", "en"] as const) for (const width of [390, 1366]) {
     for (const section of await page.locator("[data-section]").all()) {
       expect(await section.locator("[data-language-notice]").count()).toBeLessThanOrEqual(1);
     }
+    await expect(page.locator("body")).not.toContainText("⟦AR-REVIEW⟧");
+    await expect(page.locator("[data-language-notice]")).toHaveCount(locale === "ar" ? 1 : 0);
+    await expect(page.locator("[data-section=header] [data-language-notice]")).toHaveCount(locale === "ar" ? 1 : 0);
     await checkPublicUi(page, info, `stock-${locale}-${width}`);
     const text = await page.locator("[data-section=fundamentals]").innerText();
     expect(text).not.toMatch(/interest_bearing|total_assets|reported|adequate_with_estimates/);

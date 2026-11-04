@@ -1,0 +1,16 @@
+/* UX-7: width remains the stored metric. Only its decorative fill is animated.
+   Physical transform-origin values implement logical inline-start explicitly. */
+[data-public-ux] [data-ux-ratio] { transform-origin: left center; }
+[dir="rtl"] [data-public-ux] [data-ux-ratio] { transform-origin: right center; }
+[dir="ltr"] [data-public-ux] [data-ux-ratio] { transform-origin: left center; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-public-ux] *, [data-public-ux] *::before, [data-public-ux] *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  [data-public-ux] :is(a,button,[role="button"]):is(:hover,:active,:focus-visible) {
+    transform: none !important;
+  }
+}

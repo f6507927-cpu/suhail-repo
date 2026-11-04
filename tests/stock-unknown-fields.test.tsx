@@ -29,7 +29,7 @@ function missingEvidence(): PublicStockData {
   return {
     security: { id: "security", slug: "fixture-unknowns", ticker: "FXU", display_symbol: null,
       company_id: "company", exchange_id: null, coverage_analyst_id: null, is_demo: true },
-    company: { id: "company", name: "Fixture company", name_ar: null, description_ar: null,
+    company: { id: "company", name: "Fixture company", name_ar: null, display_name_en: null, description_ar: null,
       description_en: null, sector_label: null, is_demo: true },
     exchange: null, methodology: null, version: null, period: null, facts: [], criteria: [],
     sources: [], priorRuns: [], analyst: null, explanation: null,

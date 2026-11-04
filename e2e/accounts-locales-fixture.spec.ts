@@ -67,8 +67,11 @@ for (const locale of ["ar", "en"] as const) {
     const remove = page.getByRole("button", { name: text("Delete my account"), exact: true });
     await expect(save).toBeDisabled();
     await expect(remove).toBeDisabled();
-    // The shared header now also contains the Stock Search submit button.
-    await page.locator("header.surface-dark button[aria-pressed]").focus();
+    // UX-3's language switch is the final header link. Keep checking keyboard
+    // entry into the form rather than assuming the old theme button is last.
+    const headerExit = page.locator("header a").last();
+    await expect(headerExit).toBeVisible();
+    await headerExit.focus();
     await tab(page, language);
     // Change the preference with the keyboard; keep this save on the current locale.
     await page.keyboard.press(locale === "ar" ? "ArrowUp" : "ArrowDown");
@@ -254,8 +257,10 @@ for (const locale of ["ar", "en"] as const) {
     await page.goto(screen("settings"));
     await headings(page, [text("Settings")]);
     const version = page.getByRole("combobox", { name: text("Default methodology version"), exact: true });
+    const featured = page.getByRole("textbox", { name: text("Featured security on the homepage"), exact: true });
     const allow = page.getByRole("checkbox", { name: text("Allow editor picks for ineligible securities"), exact: true });
     await associated(version, text("Default methodology version"));
+    await associated(featured, text("Featured security on the homepage"));
     await associated(allow, text("Allow editor picks for ineligible securities"));
     await expect(version).toHaveAccessibleDescription(text("Only public, eligible versions are listed."));
     await expect(allow).toHaveAccessibleDescription(text("Editors may publish an explicitly marked pick even when it is not eligible under the selected screening configuration."));
@@ -263,6 +268,9 @@ for (const locale of ["ar", "en"] as const) {
     await version.focus();
     await page.keyboard.press("ArrowDown");
     await expect(version).toHaveValue("fixture-version");
+    await tab(page, featured);
+    await page.keyboard.type("nasdaq-aapl");
+    await expect(featured).toHaveValue("nasdaq-aapl");
     await tab(page, allow);
     await page.keyboard.press("Space");
     await expect(allow).toBeChecked();
@@ -278,7 +286,7 @@ for (const locale of ["ar", "en"] as const) {
     await expect(save).toBeFocused();
     await expect(save).toHaveAttribute("aria-disabled", "false");
     expect(await page.evaluate(() => window.accountFixture.calls)).toEqual([
-      { action: "saveSettings", args: ["fixture-version", true] },
+      { action: "saveSettings", args: ["fixture-version", true, "nasdaq-aapl"] },
     ]);
     await page.evaluate(() => { window.accountFixture.fail = true; });
     await page.keyboard.press("Enter");
@@ -288,8 +296,8 @@ for (const locale of ["ar", "en"] as const) {
     await expect(save).toBeFocused();
     await expect(save).toHaveAttribute("aria-disabled", "false");
     expect(await page.evaluate(() => window.accountFixture.calls)).toEqual([
-      { action: "saveSettings", args: ["fixture-version", true] },
-      { action: "saveSettings", args: ["fixture-version", true] },
+      { action: "saveSettings", args: ["fixture-version", true, "nasdaq-aapl"] },
+      { action: "saveSettings", args: ["fixture-version", true, "nasdaq-aapl"] },
     ]);
     await expect(page.getByRole("status")).not.toContainText("⟦AR-REVIEW⟧");
     await page.goto(screen("deferred", "&role=editor"));

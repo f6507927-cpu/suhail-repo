@@ -135,6 +135,9 @@ export const methodologyCriterion = appSchema.table("methodology_criterion", {
   criterion_type: criterionType("criterion_type").notNull(),
   label: text("label").notNull(),
   definition: text("definition"),
+  // D-147: explanatory UI only; draft immutability is still enforced by D-11.
+  explanation_ar: text("explanation_ar"),
+  explanation_en: text("explanation_en"),
   formula_text: text("formula_text"),
   numerator_definition: text("numerator_definition"),
   denominator_definition: text("denominator_definition"),

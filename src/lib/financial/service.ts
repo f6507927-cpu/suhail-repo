@@ -71,9 +71,14 @@ export async function mutateFinancial(tx: Tx, actor: Actor, command: FinancialCo
   }
   if (command.operation === "company") {
     const values = z.object({ name_ar: z.string().max(1000), description_ar: z.string().max(20000),
+      display_name_en: z.string().trim().max(1000).nullable().optional().transform(value => value === "" ? null : value),
       description_en: z.string().max(20000) }).parse(data);
     await tx.update(company).set(values).where(eq(company.id, c.id));
-    await note("Company descriptions updated"); return c.id;
+    // D-148: the same locked transaction audits curation; SEC name stays intact.
+    await note("Company descriptions updated", {
+      display_name_en_before: c.display_name_en,
+      display_name_en_after: values.display_name_en === undefined ? c.display_name_en : values.display_name_en,
+    }); return c.id;
   }
   if (command.operation === "coverage") {
     const { analystId } = z.object({ analystId: idSchema.nullable() }).parse(data);

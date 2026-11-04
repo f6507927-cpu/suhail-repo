@@ -1,0 +1,1 @@
+ALTER TABLE "app"."company" ADD COLUMN "display_name_en" text;

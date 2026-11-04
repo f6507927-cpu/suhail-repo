@@ -5,6 +5,7 @@ import { dbApp } from "../../db/app";
 import { users, auditEvent, auditEventType } from "../../db/schema/accounts";
 import { editorialSetting } from "../../db/schema/editorial";
 import { methodologyVersion } from "../../db/schema/methodology";
+import { security } from "../../db/schema/market";
 import { AuthError } from "./errors";
 function pageNumber(page: unknown) {
   const n = Number(page ?? 1);
@@ -42,5 +43,7 @@ export async function readSettings() {
   await requireRole(["admin"]);
   const [settings]=await dbApp.select().from(editorialSetting).where(eq(editorialSetting.setting_key,"editorial"));
   const versions=await dbApp.select({id:methodologyVersion.id,version_label:methodologyVersion.version_label}).from(methodologyVersion).where(eq(methodologyVersion.is_public,true));
-  return {settings:settings??null,versions:versions.map(v=>({...v,version_label:v.version_label??v.id}))};
+  const [featured] = settings?.featured_security_id ? await dbApp.select({slug:security.slug})
+    .from(security).where(eq(security.id,settings.featured_security_id)).limit(1) : [];
+  return {settings:settings?{...settings,featured_security_slug:featured?.slug??null}:null,versions:versions.map(v=>({...v,version_label:v.version_label??v.id}))};
 }

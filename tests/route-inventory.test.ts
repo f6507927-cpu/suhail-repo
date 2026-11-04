@@ -1,9 +1,14 @@
-import { expect, it } from "vitest";
+import { beforeAll, expect, it } from "vitest";
 import { Project } from "ts-morph";
 import { routeInventory } from "../src/security/route-inventory";
 import { discoverAccessEntries, inventoryViolations } from "../scripts/route-inventory";
+let accessEntries: ReturnType<typeof discoverAccessEntries>;
+beforeAll(() => {
+  // Cold repository-wide TypeScript discovery is setup, not an assertion.
+  accessEntries = discoverAccessEntries();
+}, 30_000);
 it("lists every existing page, method, metadata handler and server action explicitly", () => {
-  expect(inventoryViolations(routeInventory, discoverAccessEntries())).toEqual([]);
+  expect(inventoryViolations(routeInventory, accessEntries)).toEqual([]);
   expect(Object.keys(routeInventory).some(key => key.includes("*"))).toBe(false);
 });
 it.each([

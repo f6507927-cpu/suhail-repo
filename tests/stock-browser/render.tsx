@@ -29,7 +29,7 @@ export async function renderStock(slug: string, locale: "ar" | "en", variant?: s
     ];
   }
   return {
-    html: renderToStaticMarkup(<NextIntlClientProvider locale={locale} messages={locale === "ar" ? ar : en} timeZone={DISPLAY_TIME_ZONE}><StockVerdict data={data} locale={locale} /></NextIntlClientProvider>),
+    html: renderToStaticMarkup(<NextIntlClientProvider locale={locale} messages={locale === "ar" ? ar : en} timeZone={DISPLAY_TIME_ZONE}><StockVerdict data={data} locale={locale} canonicalUrl={String(stockMetadata(data, locale, "http://127.0.0.1:3400").alternates!.canonical)} /></NextIntlClientProvider>),
     metadata: stockMetadata(data, locale, "http://127.0.0.1:3400"),
   };
 }

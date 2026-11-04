@@ -32,6 +32,9 @@ export const tables = [
 // Operational bookkeeping has natural keys and narrower grants, not the
 // domain tables' id/updated_at/DELETE contract.
 export const operationalTables = ["price_call_usage", "price_provider_status", "price_target_claim"] as const;
+// D-152: owned rows have natural keys/narrow grants and no admin audit event.
+// Their dedicated integration suite checks grants, cap, isolation and cascade.
+export const ownedTables=["stock_request"] as const;
 export const appendOnly = [
   "screening_run",
   "screening_criterion_result",

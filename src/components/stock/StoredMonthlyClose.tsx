@@ -18,6 +18,6 @@ export function StoredMonthlyClose({ close, locale }: { close?: StoredClose | nu
     })}</bdi></time>{" · "}
     {close.price_provider === "API Ninjas"
       ? <ApiNinjasAttribution />
-      : <bdi>{close.source_label}</bdi>}
+      : <bdi><PublicLocalizedText>{close.source_label}</PublicLocalizedText></bdi>}
   </p>;
 }

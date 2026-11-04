@@ -7,6 +7,8 @@ import { notFound } from "next/navigation";
 import { routing } from "../../i18n/routing";
 import { DISPLAY_TIME_ZONE } from "../../lib/format";
 import "../../app/globals.css";
+import { THEME_COLORS } from "../../lib/theme-script";
+import { ThemeColor } from "./ThemeColor";
 const arabic = IBM_Plex_Sans_Arabic({subsets:["arabic"],weight:["300","400","500","600","700"],variable:"--font-arabic",display:"swap"});
 const latin = IBM_Plex_Sans({subsets:["latin"],weight:["300","400","500","600","700"],variable:"--font-latin",display:"swap"});
 const mono = IBM_Plex_Mono({subsets:["latin"],weight:["400","500"],variable:"--font-numbers",display:"swap"});
@@ -23,6 +25,7 @@ export async function LocaleDocument({children,locale,nonce}: {children: React.R
     {/* App Router root document owns this head; next/head is for the Pages Router. */}
     {/* eslint-disable-next-line @next/next/no-head-element */}
     <head>
+      <meta name="theme-color" content={THEME_COLORS.dark} suppressHydrationWarning />
       {/* D-22: React's async external-script resource is hoisted/deduplicated by
           the installed App Router renderer. blocking=render applies the choice
           before paint even when the Next bootstrap is slow; beforeInteractive
@@ -30,6 +33,6 @@ export async function LocaleDocument({children,locale,nonce}: {children: React.R
           Unlike an inline raw script, this resource also executes on client insertion. */}
       <script id="suhail-theme-restore" src="/theme-restore.js" async blocking="render" nonce={nonce} />
     </head>
-    <body><NextIntlClientProvider locale={locale} messages={messages} timeZone={DISPLAY_TIME_ZONE}>{children}</NextIntlClientProvider></body>
+    <body><ThemeColor /><NextIntlClientProvider locale={locale} messages={messages} timeZone={DISPLAY_TIME_ZONE}>{children}</NextIntlClientProvider></body>
   </html>;
 }

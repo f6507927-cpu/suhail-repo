@@ -20,3 +20,8 @@ const storageEnvSchema = z.object({
 export function getStorageEnv() {
   return parseEnv("Storage", storageEnvSchema);
 }
+
+// Public media URL construction needs no S3 credentials (reference §4.4).
+export function getPublicMediaEnv() {
+  return parseEnv("Public media", z.object({PUBLIC_MEDIA_BASE_URL:z.url()}));
+}

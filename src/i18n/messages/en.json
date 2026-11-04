@@ -7,6 +7,13 @@
     "tagline": "Your bearing in the market."
   },
   "publicSearch": {
+    "placeholder": "For example, AAPL or Apple",
+    "screenSubmit": "Screen",
+    "examplesLabel": "Try:",
+    "listedPrefix": "Listed",
+    "searchUnavailable": "Search is unavailable right now. Try again.",
+    "retry": "Try again",
+    "coverageCount": "We currently cover <number>{total}</number> {count, plural, one {US stock} other {US stocks}}, and are adding more. Try:",
     "title": "Stock search",
     "label": "Ticker or company name",
     "submit": "Search",

@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{source: "/:path*", headers: [
       ...Object.entries(securityHeaders).map(([key,value]) => ({key,value})),
-      {key: "Content-Security-Policy", value: publicCsp(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NODE_ENV === "development")},
+      {key: "Content-Security-Policy", value: publicCsp(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NODE_ENV === "development",process.env.PUBLIC_MEDIA_BASE_URL)},
     ]}];
   },
   allowedDevOrigins: [

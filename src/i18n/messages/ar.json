@@ -7,11 +7,18 @@
     "tagline": "دليلك في السوق."
   },
   "publicSearch": {
+    "placeholder": "مثلاً AAPL أو Apple",
+    "screenSubmit": "افحص",
+    "examplesLabel": "جرّب:",
+    "listedPrefix": "في القائمة",
+    "searchUnavailable": "تعذّر البحث الآن. حاول مرة أخرى.",
+    "retry": "حاول مرة أخرى",
+    "coverageCount": "{count, plural, zero {نغطي حالياً <number>{total}</number> سهم أمريكي، ونضيف غيرها تباعاً. جرّب:} one {نغطي حالياً سهماً أمريكياً واحداً، ونضيف غيرها تباعاً. جرّب:} two {نغطي حالياً سهمين أمريكيين، ونضيف غيرها تباعاً. جرّب:} few {نغطي حالياً <number>{total}</number> أسهم أمريكية، ونضيف غيرها تباعاً. جرّب:} many {نغطي حالياً <number>{total}</number> سهماً أمريكياً، ونضيف غيرها تباعاً. جرّب:} other {نغطي حالياً <number>{total}</number> سهم أمريكي، ونضيف غيرها تباعاً. جرّب:}}",
     "title": "البحث عن سهم",
     "label": "رمز السهم أو اسم الشركة",
     "submit": "بحث",
     "hint": "⟦AR-REVIEW⟧ Enter 1–40 characters of a ticker or company name.",
-    "noResults": "⟦AR-REVIEW⟧ Not covered yet",
+    "noResults": "لا نغطي هذا السهم بعد.",
     "noResultsBody": "⟦AR-REVIEW⟧ No listed stocks in the screening universe match this search.",
     "notScreened": "لم يُفحص بعد",
     "methodologyLine": "اقرأ كيف نطبّق منهجية الفحص."

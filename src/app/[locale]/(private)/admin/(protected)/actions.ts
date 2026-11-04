@@ -8,7 +8,7 @@ export async function changeRole(targetId:string,role:Role,note:string):Promise<
   try { await withAdminAction(["admin"],(tx,user)=>mutateRole(tx,user,targetId,role,note),"exclusive");return {ok:true}; }
   catch(error) {return actionError(error);}
 }
-export async function saveSettings(defaultId:string|null,allow:boolean):Promise<ActionResult> {
-  try {const publicImpact=await withAdminAction(["admin"],(tx,user)=>mutateSettings(tx,user,defaultId,allow));if(publicImpact) revalidatePublic("settings");return {ok:true};}
+export async function saveSettings(defaultId:string|null,allow:boolean,featuredSlug?:string|null):Promise<ActionResult> {
+  try {const publicImpact=await withAdminAction(["admin"],(tx,user)=>mutateSettings(tx,user,defaultId,allow,featuredSlug));if(publicImpact) revalidatePublic("settings");return {ok:true};}
   catch(error) {return actionError(error);}
 }

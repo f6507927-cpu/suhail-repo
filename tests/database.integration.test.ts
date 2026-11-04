@@ -12,6 +12,7 @@ import {
   fixtureRows,
   tables,
   operationalTables,
+  ownedTables,
   appendOnly,
   privateTables,
   publicTables,
@@ -338,7 +339,8 @@ describe("schema and reference fixtures", () => {
   it("has exactly the registered app tables, all with RLS and safe roles/defaults", async () => {
     const rows =
       await sql`select relname,relrowsecurity from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='app' and c.relkind='r' order by relname`;
-    expect(rows.map((r) => r.relname)).toEqual([...tables, ...operationalTables].sort());
+    // Bookkeeping and owned requests retain separate narrow-grant contracts.
+    expect(rows.map((r) => r.relname)).toEqual([...tables, ...operationalTables,...ownedTables].sort());
     expect(rows.every((r) => r.relrowsecurity)).toBe(true);
     const roles =
       await sql`select rolname,rolcanlogin,rolsuper,rolbypassrls,rolcreaterole,rolcreatedb from pg_roles where rolname in ('suhail_public','suhail_app')`;
@@ -535,6 +537,9 @@ describe("schema and reference fixtures", () => {
     await asRole("postgres", async (tx) => {
       const before =
         await tx`select id,updated_at from app.methodology_criterion order by id`;
+      // Isolated rollback-only replay of historical security migrations.
+      // D-146 later extends this view; CREATE OR REPLACE cannot drop columns.
+      await tx`drop view app.public_settings`;
       for (const file of [
         "drizzle/0001_security.sql",
         "drizzle/0002_integrity.sql",
@@ -655,11 +660,12 @@ describe("public grants and row policies", () => {
         denied(tx, `select ${email.column_name} from app.${email.table_name}`),
       );
   });
-  it("exposes exactly one setting column despite direct table denial", async () => {
+  it("exposes exactly two permitted setting columns despite direct table denial", async () => {
     const columns =
       await sql`select column_name from information_schema.columns where table_schema='app' and table_name='public_settings'`;
     expect(columns.map((r) => r.column_name)).toEqual([
       "default_shariah_methodology_version_id",
+      "featured_security_id",
     ]);
     expect(
       (
@@ -668,7 +674,7 @@ describe("public grants and row policies", () => {
     ).toContain("security_barrier=true");
     await asRole("suhail_public", async (tx) => {
       expect(await tx`select * from app.public_settings`).toEqual([
-        { default_shariah_methodology_version_id: f.publicVersion },
+        { default_shariah_methodology_version_id: f.publicVersion, featured_security_id:null },
       ]);
       await denied(
         tx,

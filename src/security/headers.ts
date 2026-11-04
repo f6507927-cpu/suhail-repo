@@ -10,16 +10,22 @@ export const securityHeaders = {
 };
 
 /** D-40/D-51: fixed public policy; never add request reads to ISR rendering. */
-export function publicCsp(url: string | undefined, development: boolean) {
-  return privateCsp("unused", url, development)
+export function publicCsp(url: string | undefined, development: boolean, publicMediaBaseUrl?:string) {
+  const policy=privateCsp("unused", url, development)
     .replace("'nonce-unused' 'strict-dynamic'", "'unsafe-inline'");
+  if(!publicMediaBaseUrl)return policy;
+  const media=new URL(publicMediaBaseUrl);
+  if(!["https:","http:"].includes(media.protocol)||media.username||media.password||media.search||media.hash)
+    throw new Error("Public media requires an ordinary public HTTP(S) base URL");
+  // Fixed, configured origin only; private pages keep their stricter policy.
+  return policy.replace("img-src 'self' data:",`img-src 'self' data: ${media.origin}`);
 }
 
 export function secureResponse<T extends Response>(response: T, preview: boolean, nextStatic = false) {
   for (const [name, value] of Object.entries(securityHeaders)) response.headers.set(name, value);
   if (!response.headers.has("Content-Security-Policy")) {
     response.headers.set("Content-Security-Policy",
-      publicCsp(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NODE_ENV === "development"));
+       publicCsp(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NODE_ENV === "development",process.env.PUBLIC_MEDIA_BASE_URL));
   }
   if (preview) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow");

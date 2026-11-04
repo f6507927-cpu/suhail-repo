@@ -25,6 +25,100 @@ test.afterEach(async ({ page }, info) => {
   expect(errors, "Every console error, hydration warning and page error is a regression").toEqual([]);
 });
 
+for (const locale of ["ar", "en"] as const) {
+  test(`UX-3 ${locale}: 375px single-row header and keyboard-accessible menu`, async ({ page }) => {
+    const prefix = locale === "en" ? "/en" : "";
+    const messages = locale === "ar" ? ar : en;
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto(prefix || "/");
+    const header = page.locator("header");
+    const menu = header.getByRole("button", { name: messages.nav.menu, exact: true, includeHidden: true });
+    const language = header.getByRole("link", { name: messages.controls.locale, exact: true });
+    const brand = header.getByRole("link", { name: messages.app.name, exact: true });
+    const theme = header.getByRole("button", { name: messages.controls.theme, exact: true });
+    const screen = header.getByRole("link", { name: locale === "ar" ? "افحص سهماً" : "Screen a stock", exact: true });
+    const methodology = header.getByRole("link", { name: locale === "ar" ? "المنهجية" : "Methodology", exact: true });
+    const panelId = await menu.getAttribute("aria-controls");
+    expect(panelId).toBeTruthy();
+    const panel = page.locator(`[id="${panelId}"]`);
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+    await expect(panel).toBeHidden();
+    await expect(language).toBeVisible();
+    await expect(header.locator("form, input")).toHaveCount(0);
+    await expect(header.locator('a[href*="/edition"], a[href*="/picks"]')).toHaveCount(0);
+    const box = await header.boundingBox();
+    expect(box!.height).toBeLessThanOrEqual(72);
+    const rowBoxes = await Promise.all([brand, menu, language].map(locator => locator.boundingBox()));
+    const centers = rowBoxes.map(rect => rect!.y + rect!.height / 2);
+    expect(Math.max(...centers) - Math.min(...centers)).toBeLessThanOrEqual(2);
+    await page.keyboard.press("Tab");
+    const skip = page.getByRole("link", { name: messages.controls.skip, exact: true });
+    await expect(skip).toBeFocused();
+    expect((await skip.boundingBox())!.y).toBeGreaterThanOrEqual(0);
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(`${prefix || "/"}#content`);
+    await expect(page.locator("#content")).toHaveCount(1);
+
+    await menu.click();
+    await expect(menu).toHaveAttribute("aria-expanded", "true");
+    await expect(panel).toBeVisible();
+    await expect(theme).toBeEnabled();
+    const panelBox = await panel.boundingBox();
+    expect(Math.abs(panelBox!.width - box!.width)).toBeLessThanOrEqual(1);
+    // The skip link can scroll the header; compare current geometry and allow
+    // the real reduced-motion-aware reveal animation to reach its final state.
+    await expect.poll(async () => {
+      const currentHeader = await header.boundingBox();
+      const currentPanel = await panel.boundingBox();
+      return Math.abs(currentPanel!.y - (currentHeader!.y + currentHeader!.height));
+    }).toBeLessThanOrEqual(2);
+    await methodology.focus();
+    await page.keyboard.press("Escape");
+    await expect(panel).toBeHidden();
+    await expect(menu).toBeFocused();
+    await menu.click();
+    await menu.click();
+    await expect(panel).toBeHidden();
+
+    await menu.click();
+    await theme.click();
+    await expect(page.locator("html")).not.toHaveClass(/dark/);
+    expect(await page.evaluate(() => localStorage.getItem("suhail-theme"))).toBe("light");
+    await screen.click();
+    await expect(page).toHaveURL(`${prefix || "/"}#stock-query`);
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+    await expect(panel).toBeHidden();
+    await menu.click();
+    await methodology.click();
+    await expect(page).toHaveURL(`${prefix}/methodology`);
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+
+    for (const width of [320, 375, 759, 760, 1440]) {
+      await page.setViewportSize({ width, height: 812 });
+      expect((await header.boundingBox())!.height).toBeLessThanOrEqual(72);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+      if (width < 760) {
+        await expect(menu).toBeVisible();
+        await expect(panel).toBeHidden();
+      } else {
+        await expect(menu).toBeHidden();
+        await expect(screen).toBeVisible();
+        await expect(language).toBeVisible();
+        await expect(theme).toBeVisible();
+      }
+    }
+    await page.setViewportSize({ width: 375, height: 812 });
+    await menu.click();
+    await page.setViewportSize({ width: 760, height: 812 });
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+    await page.setViewportSize({ width: 375, height: 812 });
+    await expect(panel).toBeHidden();
+    await language.click();
+    await expect(page.locator("html")).toHaveAttribute("lang", locale === "ar" ? "en" : "ar");
+    await expect(page.locator("html")).not.toHaveClass(/dark/);
+  });
+}
+
 async function checkTheme(page: Page, theme: string) {
   // toHaveURL can resolve at document commit, before delayed async chunks load.
   // Direct goto defaults to load; use that same boundary for link navigation.

@@ -1,5 +1,7 @@
 // D-130 supersedes these applied values, not the immutable batch-2 drafts.
 export const publicUiAmendments: Record<string, string> = {
+  // UX-4 founder wording, replacing an unapproved fallback only.
+  "publicSearch.noResults": "لا نغطي هذا السهم بعد.",
   "methodologies.officialOrAdapted": "رسمي أو مُعدّل",
   "governed.officialOrAdapted": "رسمي أو مُعدّل",
   "methodologies.subtitle": "كل قاعدة يطبّقها سهيل، مع مرجع مصدرها وإصدارها وحالة التحقق منها.",

@@ -18,3 +18,16 @@ A completion-time synchronization can introduce newer main-project edits after
 the working tree was tested. Treat those earlier passing checks as evidence for
 the pre-sync tree only. Reconcile against the latest intact main versions,
 preserve both behaviors, and validate the exact combined files again.
+
+Parallel custom migrations can reserve the same numeric prefix. Inspect the
+live registry read-only before renumbering anything; only renumber unapplied
+feature migrations. Preserve SQL checksums and timestamps, shift the associated
+snapshot filenames without changing their identity chain, and regenerate unique
+journal indexes. Regenerate Arabic inventories from the combined source rather
+than choosing one branch's generated rows.
+
+**Why:** Main can gain another pending migration during completion-time syncing;
+a conflict-free textual merge can still leave duplicate journal indexes.
+
+**How to apply:** Verify both migrations survive, keep applied migration files
+unchanged, then test the combined migration chain against disposable PostgreSQL.

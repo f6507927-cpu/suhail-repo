@@ -38,10 +38,15 @@ describe("financial admin UI wiring", () => {
       "confidence_tier: String(form.get(\"confidence_tier\")", "factId: alt.id", "segment_name: String(form.get(\"segment_name\"))",
       "data: { id: segment.id }", "date: String(form.get(\"date\"))", "analystId }",
       "name_ar: String(form.get(\"name_ar\")", "data: { confirm: true }", "operation: \"runJob\"",
+      "display_name_en: String(form.get(\"display_name_en\")",
     ]) expect(component).toContain(field);
     expect(component).toContain('operation: "company"');
     expect(component).toContain('operation: "price"');
     expect(component).toContain('operation: "coverage"');
+    expect(component).toContain('name="display_name_en"');
+    expect(component).toContain('defaultValue={company.display_name_en ?? ""}');
+    expect(component).toContain('placeholder={company.name}');
+    expect(component).toContain('maxLength={1000} readOnly={!canEdit}');
   });
 
   it("keeps editors read-only and provides accessible feedback and source provenance", () => {

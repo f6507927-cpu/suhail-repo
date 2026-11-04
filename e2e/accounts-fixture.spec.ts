@@ -32,7 +32,7 @@ for (const locale of ["ar", "en"] as const) {
       expect(await page.evaluate(() => window.accountFixture.calls)).toEqual([
         screen === "users"
           ? { action: "changeRole", args: ["fixture-user", "editor", "  Fixture reason  "] }
-          : { action: "saveSettings", args: [null, false] },
+          : { action: "saveSettings", args: [null, false, null] },
       ]);
       await page.evaluate(() => window.accountFixture.release?.());
       await expect(page.getByRole("status")).toContainText(
@@ -126,7 +126,12 @@ test("anonymous header makes zero private profile requests; browser sessions cle
     }),
   );
   await expect(page.getByRole("link", { name: "الإدارة" })).toHaveCount(0);
-  await expect(page.locator("summary")).toHaveText(/OU/);
+  const accountMenu = page.locator("header details");
+  await expect(accountMenu.locator("summary")).toHaveText("حسابك");
+  await accountMenu.locator("summary").click();
+  await expect(accountMenu.getByText("Ordinary User", { exact: true })).toBeVisible();
+  await expect(accountMenu.getByText("Fixture Admin", { exact: true })).toHaveCount(0);
+  await expect(accountMenu.getByRole("link", { name: "الإدارة" })).toHaveCount(0);
   await page.evaluate(() => window.fixture.session(null));
   await expect(page.getByRole("link", { name: "تسجيل الدخول" })).toBeVisible();
   await expect(page.locator("summary")).toHaveCount(0);

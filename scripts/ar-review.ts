@@ -6,6 +6,21 @@ import { Node, Project, SyntaxKind, type Type } from "ts-morph";
 import { approvedArabicCopy } from "../src/i18n/approved-arabic";
 
 export const marker = "⟦AR-REVIEW⟧ ";
+// D-150 / D-149 retire these renderers, not their D-107 approval history.
+// Keep both dictionary values and independent approval fixtures intact. These
+// are explicitly NOT runtime callers and never enter the live pending sheet.
+export const retiredPublicPresentationKeys = [
+  "publicMethodology.publicResearchDocumentation",
+  "publicMethodology.researchRegister",
+  "publicMethodology.ruleRegister",
+  "publicMethodology.storedMethodologyData",
+  "nav.picks",
+  "nav.methodologies",
+  // UX-4 replaces the submit label and pending generic empty-state body,
+  // without rewriting either historical dictionary value/approval state.
+  "publicSearch.submit",
+  "publicSearch.noResultsBody",
+] as const;
 type Tree = { [key: string]: string | Tree };
 export type Entry = {
   id: string; key: string; source: string; group: string;
@@ -106,7 +121,10 @@ export function discover(options: {
       const expr = call.getExpression();
       const name = expr.getText();
       // Resolve the actual translator binding, not a global regex for "t".
-      const declaration = expr.getSymbol()?.getDeclarations().find(Node.isVariableDeclaration);
+      // next-intl rich() is a real render caller too; has()/raw() alone are not.
+      const translator = Node.isPropertyAccessExpression(expr) && expr.getName() === "rich"
+        ? expr.getExpression() : expr;
+      const declaration = translator.getSymbol()?.getDeclarations().find(Node.isVariableDeclaration);
       const initializer = declaration?.getInitializer();
       const factory = initializer && (Node.isCallExpression(initializer) ? initializer :
         initializer.getFirstDescendantByKind(SyntaxKind.CallExpression));
@@ -282,8 +300,10 @@ export function discover(options: {
   }
   entries.sort((a, b) => a.group.localeCompare(b.group, "en") || a.id.localeCompare(b.id, "en"));
   if (new Set(entries.map((entry) => entry.id)).size !== entries.length) errors.push("Duplicate stable review IDs");
+  const retired = new Set<string>(retiredPublicPresentationKeys);
   return { entries, usage, en, ar, unresolved: [...unresolved].sort(), errors,
-    unused: Object.keys(en).filter((key) => !usage.has(key)).sort() };
+    retired: Object.keys(en).filter(key => !usage.has(key) && retired.has(key)).sort(),
+    unused: Object.keys(en).filter((key) => !usage.has(key) && !retired.has(key)).sort() };
 }
 
 export const escapeCell = (text: string) =>
@@ -340,8 +360,17 @@ approval evidence is pinned independently in tests/fixtures/arabic-approval-base
 D-107 batch-2 evidence is pinned separately in tests/fixtures/arabic-batch-two-approval.json;
 docs/ARABIC_APPROVAL_BATCH_TWO.md lists every applied row. Approved rows are
 excluded from this pending sheet; the O-7 legal bodies remain unapproved.
-D-144 approves only the public UX-1 table phrases. D-150 hides review markers
+D-144 approves redesign UI wording only; UX-4 applies the requested search wording.
+D-150 hides review markers
 on public pages without approving other pending copy; those keys remain here.
+D-150's four retired public-methodology decorative labels stay in both
+dictionaries to preserve their independent D-107 approval history. They are
+explicitly listed in retiredPublicPresentationKeys, not treated as runtime
+callers, pending rows or candidates for dictionary pruning.
+D-149 similarly retires the old nav.picks and nav.methodologies callers;
+the header now uses the approved Screen a stock and Methodology phrases.
+UX-4 replaces the publicSearch.submit and publicSearch.noResultsBody callers.
+Their old values remain unchanged, including the latter's pending marker.
 No translations are applied by this command. Existing IDs survive; keyed IDs
 are J-namespace-key; new unkeyed phrases use a full SHA-256 source ID (U-...).
 Drafts are retained only while their exact English source matches. A source
@@ -437,7 +466,7 @@ export function pruneUnused() {
       Object.entries(node).flatMap<[string, string | Tree]>(([key, value]) => {
         const path = prefix ? `${prefix}.${key}` : key;
         if (typeof value === "string") {
-          if (audit.usage.has(path)) return [[key, value]];
+          if (audit.usage.has(path) || audit.retired.includes(path)) return [[key, value]];
           removed.add(path); return [];
         }
         const child = prune(value, path);

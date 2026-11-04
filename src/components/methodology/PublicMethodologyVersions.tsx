@@ -2,7 +2,8 @@
 
 import { Children, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { LocalizedText } from "../foundation";
+import { PublicLocalizedText as LocalizedText } from "../foundation";
+import { stripPublicReviewMarker } from "../foundation/shared";
 
 export type PublicVersionChoice = { value: string; label: string };
 
@@ -57,7 +58,7 @@ export function PublicMethodologyVersions({
             <select id="public-version-selector" value={selected} onChange={(event) => changeVersion(event.target.value)}
               className="min-h-11 w-full border border-border bg-background px-3 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--brass)]">
               {versions.map((version) => (
-                <option key={version.value} value={version.value}>{version.label}</option>
+                <option key={version.value} value={version.value}>{stripPublicReviewMarker(version.label)}</option>
               ))}
             </select>
           </label>

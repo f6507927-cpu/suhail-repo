@@ -10,9 +10,9 @@ if (process.env.NODE_ENV !== "test") throw new Error("Search browser server is t
 const root = process.cwd();
 const out = path.join(root, "generated-artifacts/next-search");
 await mkdir(out, { recursive: true });
-for (const name of ["src", "public", "content"])
+for (const name of ["src", "public", "content", "data"])
   await rm(path.join(out, name), { recursive: true, force: true });
-for (const name of ["src", "public", "content", "package.json", "tsconfig.json", "next.config.ts", "postcss.config.mjs"])
+for (const name of ["src", "public", "content", "data", "package.json", "tsconfig.json", "next.config.ts", "postcss.config.mjs"])
   await cp(path.join(root, name), path.join(out, name), { recursive: true });
 await writeFile(path.join(out, "src/db/public.ts"), `
 import "server-only";
@@ -41,7 +41,8 @@ for (const key of Object.keys(env))
   if (/^(DATABASE_URL|PG|SUPABASE_|NEXT_PUBLIC_SUPABASE_|SESSION_SECRET|NODE_ENV)/.test(key))
     delete env[key];
 Object.assign(env, {
-  SITE_MODE: "live",
+  // Fixtures and EX-A are explicitly synthetic; do not hide them with live mode.
+  SITE_MODE: "preview",
   HOSTNAME: "127.0.0.1",
   NEXT_PUBLIC_SUPABASE_URL: "https://auth.fixture.test",
   NEXT_PUBLIC_SUPABASE_ANON_KEY: "synthetic-test-key",
@@ -54,7 +55,13 @@ function run(script: string, args: string[]) {
     child.once("exit", code => code === 0 ? resolve() : reject(new Error(`Search fixture server exited ${code}`)));
   });
 }
+if (process.env.PLAYWRIGHT_FIXTURE_MODE === "development") {
+  // UX-5 §13.3 checks explicitly target a dev server. Connection replacement
+  // remains confined to this generated copy, including in development mode.
+  await run(path.join(root, "node_modules/next/dist/bin/next"), ["dev", "-H", "0.0.0.0", "-p", "3500"]);
+} else {
 await run(path.join(root, "node_modules/next/dist/bin/next"), ["build"]);
 // Match this repository's production/browser runner (pnpm start), including
 // its bind address. Packaging/relocation is a separate deployment check.
 await run(path.join(root, "node_modules/next/dist/bin/next"), ["start", "-H", "0.0.0.0", "-p", "3500"]);
+}

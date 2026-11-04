@@ -63,15 +63,15 @@ function TextField({
 }
 
 function TextArea({
-  id, label, value, onChange, rows = 3, hint,
+  id, label, value, onChange, rows = 3, hint, language,
 }: {
   id: string; label: GovernedKey; value: string; onChange: (value: string) => void;
-  rows?: number; hint?: ReactNode;
+  rows?: number; hint?: ReactNode; language?: "ar" | "en";
 }) {
   return (
     <label htmlFor={id} className="block min-w-0 text-sm">
-      <span className="mb-1.5 block text-xs text-muted-foreground"><GovernedCopy id={label} /></span>
-      <textarea id={id} rows={rows} value={value} onChange={(event) => onChange(event.target.value)}
+      <span className="mb-1.5 block text-xs text-muted-foreground"><GovernedCopy id={label} />{language && <> · <bdi dir="ltr">{language.toUpperCase()}</bdi></>}</span>
+      <textarea id={id} rows={rows} value={value} lang={language} dir={language === "ar" ? "rtl" : language === "en" ? "ltr" : undefined} onChange={(event) => onChange(event.target.value)}
         className="w-full border border-input bg-background p-3 text-sm leading-6 text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring" />
       {hint && <span className="mt-1 block text-xs leading-5 text-muted-foreground">{hint}</span>}
     </label>
@@ -305,6 +305,7 @@ function criterionFromRow(row?: CriterionRow): CriterionData {
   return {
     criterion_type: row?.criterion_type ?? "interest_bearing_debt",
     label: row?.label ?? "",
+    explanation_ar: row?.explanation_ar ?? null, explanation_en: row?.explanation_en ?? null,
     definition: row?.definition ?? null, formula_text: row?.formula_text ?? null,
     numerator_definition: row?.numerator_definition ?? null, denominator_definition: row?.denominator_definition ?? null,
     numerator_line_items: numeratorLineItems,
@@ -355,6 +356,8 @@ export function CriterionForm({
     onSave(initial?.id ?? null, {
       ...form,
       definition: optionalValue(nullable(form.definition)),
+      explanation_ar: optionalValue(nullable(form.explanation_ar)),
+      explanation_en: optionalValue(nullable(form.explanation_en)),
       formula_text: optionalValue(nullable(form.formula_text)),
       numerator_definition: optionalValue(nullable(form.numerator_definition)),
       denominator_definition: optionalValue(nullable(form.denominator_definition)),
@@ -396,6 +399,10 @@ export function CriterionForm({
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <TextArea id="criterion-definition" label="definition" value={nullable(form.definition)} onChange={(value) => update("definition", optionalValue(value))} />
+        <TextArea id="criterion-explanation-ar" label="definition" language="ar" value={nullable(form.explanation_ar)}
+          onChange={(value) => update("explanation_ar", optionalValue(value))} />
+        <TextArea id="criterion-explanation-en" label="definition" language="en" value={nullable(form.explanation_en)}
+          onChange={(value) => update("explanation_en", optionalValue(value))} />
         <TextArea id="criterion-formula" label="formula" value={nullable(form.formula_text)} onChange={(value) => update("formula_text", optionalValue(value))} />
         <TextArea id="criterion-numerator" label="numeratorDefinition" value={nullable(form.numerator_definition)} onChange={(value) => update("numerator_definition", optionalValue(value))} />
         <TextArea id="criterion-denominator" label="denominatorDefinition" value={nullable(form.denominator_definition)} onChange={(value) => update("denominator_definition", optionalValue(value))} />

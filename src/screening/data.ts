@@ -8,6 +8,8 @@ import { isExample } from "./service";
 import { idSchema } from "../lib/financial/service";
 import { requireFinancial } from "../lib/financial/persistence";
 import type { ScreeningAdminData, RunDetail } from "./contracts";
+import { company, security } from "../db/schema/market";
+import { englishCompanyName } from "../lib/format";
 
 /** Only call after the page/action's requireRole guard. No public list-all API. */
 export async function getScreeningAdminData(): Promise<ScreeningAdminData> {
@@ -34,5 +36,8 @@ export async function getRunDetail(id: string): Promise<RunDetail> {
   const criteria = await dbApp.select().from(screeningCriterionResult).where(eq(screeningCriterionResult.screening_run_id, run.id))
     .orderBy(asc(screeningCriterionResult.sort_order));
   const unknowns = await dbApp.select().from(screeningUnknown).where(eq(screeningUnknown.screening_run_id, run.id));
-  return { run, criteria, unknowns };
+  // D-148: never replace company_name inside a historical run or its hash.
+  const [issuer] = await dbApp.select({ name: company.name, display_name_en: company.display_name_en })
+    .from(security).innerJoin(company, eq(company.id, security.company_id)).where(eq(security.id, run.security_id));
+  return { run, criteria, unknowns, companyDisplayNameEn: issuer ? englishCompanyName(issuer) : undefined };
 }

@@ -5,6 +5,8 @@ import { BrandMark } from "./BrandMark";
 import { RecoveryScreen } from "./RecoveryScreen";
 import { publicUiCopy } from "@/i18n/presentation";
 import { reviewText, type Locale } from "@/components/accounts/types";
+import { THEME_COLORS } from "../../lib/theme-script";
+import { ThemeColor } from "./ThemeColor";
 
 const subscribe = () => () => {};
 const getLocale = (): Locale => /^\/en(?:\/|$)/.test(window.location.pathname) ? "en" : "ar";
@@ -26,10 +28,12 @@ export function RecoveryDocumentClient({ kind }: { kind: "error" | "not-found" }
     {/* The global recovery document owns its App Router root. */}
     {/* eslint-disable-next-line @next/next/no-head-element */}
     <head>
+      <meta name="theme-color" content={THEME_COLORS.dark} suppressHydrationWarning />
       <title>{documentTitle}</title>
       <script id="suhail-theme-restore" src="/theme-restore.js" async blocking="render" />
     </head>
     <body>
+      <ThemeColor />
       <div className="min-h-[100dvh] bg-background text-foreground">
         <header className="surface-dark border-b border-[var(--divider)]">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-5 px-6 py-4">

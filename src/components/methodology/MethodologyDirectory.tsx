@@ -5,6 +5,7 @@ import type { PublicMethodologyGroup } from "../../db/methodology-public";
 import { MethodologyCopy } from "./MethodologyCopy";
 import { formatNumber } from "@/lib/format";
 import { displayLabel } from "@/i18n/presentation";
+import { stripPublicReviewMarker } from "../foundation/shared";
 
 export function MethodologyDirectory({
   groups,
@@ -20,9 +21,6 @@ export function MethodologyDirectory({
     <main id="content" className="mx-auto min-h-[55vh] max-w-6xl px-5 pb-20 pt-10 sm:px-8 lg:pt-16">
       <div className="grid gap-10 border-b border-[var(--divider)] pb-12 md:grid-cols-[minmax(0,1fr)_15rem] md:items-end">
         <div className="max-w-3xl">
-          <p className="mb-4 text-sm text-[var(--byline)]">
-            <MethodologyCopy id="publicResearchDocumentation" />
-          </p>
           <h1 className="text-4xl leading-tight sm:text-5xl">
             <LocalizedText>{t("title")}</LocalizedText>
           </h1>
@@ -42,9 +40,6 @@ export function MethodologyDirectory({
 
       {groups.length === 0 ? (
         <section className="my-12 border border-[var(--divider)] bg-card px-6 py-10 sm:px-9">
-          <p className="text-sm text-[var(--byline)]">
-            <MethodologyCopy id="researchRegister" />
-          </p>
           <h2 className="mt-3 text-2xl">
             <LocalizedText>{controls("emptyTitle")}</LocalizedText>
           </h2>
@@ -68,26 +63,26 @@ export function MethodologyDirectory({
                 <div className="min-w-0">
                   <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                     <span>{displayLabel("methodType", group.type, locale === "ar" ? "ar" : "en")}</span>
-                    {group.publisher && <span className="border-s border-[var(--divider)] ps-3">{group.publisher}</span>}
+                    {group.publisher && <span className="border-s border-[var(--divider)] ps-3">{stripPublicReviewMarker(group.publisher)}</span>}
                   </div>
                   <h2 className="text-2xl leading-snug sm:text-3xl">
                     <Link
                       href={`/methodology/${group.slug}`}
                       className="decoration-[var(--brass)] decoration-1 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--brass)]"
                     >
-                      {group.name}
+                      {stripPublicReviewMarker(group.name)}
                     </Link>
                   </h2>
                   {group.short_label && (
-                    <p className="mt-2 text-sm text-[var(--brass-soft)]">{group.short_label}</p>
+                    <p className="mt-2 text-sm text-[var(--brass-soft)]">{stripPublicReviewMarker(group.short_label)}</p>
                   )}
-                  {group.scope && <p className="mt-3 max-w-3xl text-muted-foreground">{group.scope}</p>}
+                  {group.scope && <p className="mt-3 max-w-3xl text-muted-foreground">{stripPublicReviewMarker(group.scope)}</p>}
                   <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
                     <span>
                       <span className="text-muted-foreground"><LocalizedText>{t("version")}</LocalizedText>: </span>
                       {current?.version_label
-                        ? <span>{latest}</span>
-                        : <bdi dir="ltr" className="font-mono">{latest ?? "—"}</bdi>}
+                        ? <span>{stripPublicReviewMarker(latest ?? "—")}</span>
+                        : <bdi dir="ltr" className="font-mono">{stripPublicReviewMarker(latest ?? "—")}</bdi>}
                     </span>
                     <span>
                       <span className="text-muted-foreground"><MethodologyCopy id="publicVersions" />: </span>
