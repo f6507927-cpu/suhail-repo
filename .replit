@@ -123,3 +123,6 @@ run = ["pnpm", "start"]
 NODE_EXTRA_CA_CERTS = "/etc/ssl/certs/ca-certificates.crt"
 
 [userenv.shared]
+
+[userenv.development]
+SITE_URL = "https://895f244d-f680-4fbc-97ba-da0cb308e612-00-3gbqmslzw2kae.sisko.replit.dev"
