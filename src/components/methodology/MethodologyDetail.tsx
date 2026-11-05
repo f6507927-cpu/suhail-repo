@@ -9,6 +9,7 @@ import type { PublicMethodologyPageData } from "../../db/methodology-public";
 import { formatMethodologyDate, MethodologyCopy } from "./MethodologyCopy";
 import { lineItemFamily, lineItemLabel, structuredKeyLabel, structuredValueLabel } from "./structured-labels";
 import { stripPublicReviewMarker } from "../foundation/shared";
+import { publicMethodologyVersionLabel } from "@/i18n/methodology-labels";
 
 function Field({
   label,
@@ -132,7 +133,7 @@ export function MethodologyDetail({
           <p className="mt-5 inline-flex items-center gap-3 border border-[var(--divider)] px-3 py-2">
             <span className="text-xs text-muted-foreground"><LocalizedText>{t("version")}</LocalizedText></span>
              {version.version_label
-               ? <span className="text-sm text-[var(--brass-soft)]">{stripPublicReviewMarker(version.version_label)}</span>
+               ? <span className="text-sm text-[var(--brass-soft)]">{stripPublicReviewMarker(publicMethodologyVersionLabel(version.version_label))}</span>
                : <Num className="text-sm text-[var(--brass-soft)]">{version.version}</Num>}
           </p>
         </div>
@@ -144,7 +145,7 @@ export function MethodologyDetail({
             <LocalizedText>{t("sourceDocument")}</LocalizedText>
           </h2>
           {version.version_label
-            ? <span className="text-sm text-[var(--brass-soft)]">{stripPublicReviewMarker(version.version_label)}</span>
+            ? <span className="text-sm text-[var(--brass-soft)]">{stripPublicReviewMarker(publicMethodologyVersionLabel(version.version_label))}</span>
             : <span className="font-mono text-sm text-[var(--brass-soft)]" dir="ltr">{version.version}</span>}
         </div>
         <dl className="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -172,7 +173,7 @@ export function MethodologyDetail({
             <LocalizedText>{method.production_enabled && version.production_enabled ? t("inProduction") : t("notInProduction")}</LocalizedText>
           </Field>
           <Field label={<LocalizedText>{t("version")}</LocalizedText>}>
-            {version.version_label ? stripPublicReviewMarker(version.version_label) : <Num>{version.version}</Num>}
+            {version.version_label ? stripPublicReviewMarker(publicMethodologyVersionLabel(version.version_label)) : <Num>{version.version}</Num>}
           </Field>
           <Field label={<LocalizedText>{t("effectiveDate")}</LocalizedText>}>
             <bdi>{formatMethodologyDate(version.effective_date, locale)}</bdi>

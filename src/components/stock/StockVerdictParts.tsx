@@ -5,7 +5,7 @@ import { reviewText, type Locale } from "../accounts/types";
 import { formatCalendarDate, formatCompactMoney, formatNumber, formatPercent } from "@/lib/format";
 import { renderArabicDraft } from "@/engine/reasons/ar";
 import { renderEnglish } from "@/engine/reasons/en";
-import { stockCriterionLabel, stockReasonField } from "@/i18n/stock-labels";
+import { stockCriterionLabel, stockReasonField, stockUnknownEffect, arabicKnownReason } from "@/i18n/stock-labels";
 import type { StatusReason } from "@/engine/types";
 import type { PublicStockData, StockCriterion, StockSource } from "@/stock/types";
 import styles from "./StockVerdict.module.css";
@@ -107,9 +107,14 @@ export function UnknownFieldLabel({ value, locale }: { value: string; locale: Lo
 }
 
 /** D-150: stock callers aggregate once beneath the company header. */
-export function LanguageNotice({ locale, needed, reverse = false }: { locale: Locale; needed: boolean; reverse?: boolean }) {
+export function LanguageNotice({ locale, needed, reverse = false, sections = [] }: { locale: Locale; needed: boolean; reverse?: boolean; sections?: string[] }) {
   if (!needed) return null;
-  return <p data-language-notice className={styles.languageMarker}><Copy locale={locale}>{reverse ? "Arabic only" : "English only"}</Copy></p>;
+  return <p data-language-notice className={styles.languageMarker}>
+    <Copy locale={locale}>{reverse ? "Arabic only" : "English only"}</Copy>
+    {sections.length > 0 && <>: {sections.map((section, index) => <span key={section}>
+      {index > 0 ? locale === "ar" ? "، " : ", " : ""}<Copy locale={locale}>{section}</Copy>
+    </span>)}</>}
+  </p>;
 }
 
 export function isBooleanCriterion(criterion: StockCriterion) {
@@ -295,8 +300,8 @@ export function unknownsNeedFallback(unknowns: PublicStockData["unknowns"]) {
         ? displayLabel("lineItem", item.field_or_input, "ar")
         : reviewText("ar", item.field_or_input),
     ) ||
-    hasEnglishOnlyNarrative(item.why_missing) ||
-    hasEnglishOnlyNarrative(item.effect),
+    hasEnglishOnlyNarrative(arabicKnownReason(item.why_missing) ?? item.why_missing) ||
+    hasEnglishOnlyNarrative(item.effect ? stockUnknownEffect(item.effect, "ar") : null),
   );
 }
 

@@ -6,6 +6,7 @@ import { MethodologyCopy } from "./MethodologyCopy";
 import { formatNumber } from "@/lib/format";
 import { displayLabel } from "@/i18n/presentation";
 import { stripPublicReviewMarker } from "../foundation/shared";
+import { publicMethodologyVersionLabel } from "@/i18n/methodology-labels";
 
 export function MethodologyDirectory({
   groups,
@@ -51,7 +52,7 @@ export function MethodologyDirectory({
         <section aria-label={publicText("methodologyRecords")} className="divide-y divide-[var(--divider)]">
           {groups.map((group, index) => {
             const current = group.versions[0];
-            const latest = current?.version_label ?? current?.version;
+            const latest = publicMethodologyVersionLabel(current?.version_label, current?.version);
             return (
               <article
                 key={group.id}

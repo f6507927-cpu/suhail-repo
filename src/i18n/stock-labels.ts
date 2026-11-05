@@ -1,4 +1,4 @@
-import { displayLabel, publicUiCopy } from "./presentation";
+import { displayLabel, presentationLabels, publicUiCopy } from "./presentation";
 import { stripPublicReviewMarker } from "../components/foundation/shared";
 import type { StockCriterion } from "../stock/types";
 import type { ReasonCode, StatusReason } from "../engine/types";
@@ -6,6 +6,12 @@ import { renderEnglish } from "../engine/reasons/en";
 import { renderArabicDraft } from "../engine/reasons/ar";
 
 type Locale = "ar" | "en";
+/** Recognized impact keys use existing approved severity labels; prose is preserved. */
+export function stockUnknownEffect(value: string, locale: Locale) {
+  return Object.hasOwn(presentationLabels.severity, value)
+    ? displayLabel("severity", value, locale)
+    : locale === "ar" ? publicUiCopy[value] ?? value : value;
+}
 // Exact governed definitions only; arbitrary free-text labels retain identity.
 const knownCriteria: Record<string, { family: "criterionType" | "lineItem"; value: string }> = {
   "Prohibited primary business activity": { family: "criterionType", value: "business_activity" },

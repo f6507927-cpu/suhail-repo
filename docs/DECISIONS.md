@@ -1,5 +1,11 @@
 # Suhail — Decision Log
 
+## Public stock localization and methodology display
+
+| ID | Decision |
+| --- | --- |
+| D-159 | **Founder-requested presentation fixes; fixture tests only, no Supabase writes.** The stock's short disclaimer uses the existing locale dictionary, superseding D-150's hard-coded English §11 context. Known unknown-impact keys use existing approved severity labels; arbitrary prose is preserved. The once-per-page language notice names sections actually containing English-only content, including the closed evidence record, and is absent when none exist. Known Al Rajhi launch labels “Adapted research 1.0 — draft” and “Adapted research 1.1 — draft; Suhail upper-bound assumption” omit only their stale draft wording on public stock/methodology displays and stock document/social metadata; preserve the upper-bound assumption qualifier. Stored names, labels, workflow badges, methodology status, evidence, legal wording and arbitrary custom labels remain unchanged. No approval, publication, production enablement or hosted write is authorized. |
+
 ## Activity-evidence Arabic copy approval
 
 | ID | Decision |

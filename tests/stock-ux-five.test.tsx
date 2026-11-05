@@ -50,8 +50,8 @@ describe("UX-5 answer-first record", () => {
     expect(html).toContain("a".repeat(64));
     expect(html).toContain("data-section=\"fundamentals\"");
     expect(html).toContain("data-section=\"disclaimer\"");
-    expect(html).toContain(en.disclaimer.short);
-    expect(html).not.toContain(ar.disclaimer.short);
+    expect(html).toContain((locale === "ar" ? ar : en).disclaimer.short);
+    expect(html).not.toContain((locale === "ar" ? en : ar).disclaimer.short);
     expect(html.match(/data-language-notice=/g)?.length??0).toBe(locale==="ar"?1:0);
     expect(html).not.toContain("⟦AR-REVIEW⟧");
     expect(html).toContain("Curated Company");

@@ -1,4 +1,6 @@
-import { stockCriterionLabel, arabicKnownReason } from "@/i18n/stock-labels";
+import { stockCriterionLabel, arabicKnownReason, stockUnknownEffect } from "@/i18n/stock-labels";
+import { publicMethodologyVersionLabel } from "@/i18n/methodology-labels";
+import { stockEnglishOnlySections } from "./stock-language";
 import {
   ConfidenceNote,
   DemoBanner,
@@ -50,7 +52,7 @@ export function StockVerdict({
   const { security, company, run, methodology, version } = data;
   const englishName = englishCompanyName(company);
   const sourceIndex = sourceNumbers(data.sources);
-  const versionLabel = version?.version_label || version?.version || run?.methodology_version_label;
+  const versionLabel = publicMethodologyVersionLabel(version?.version_label || version?.version || run?.methodology_version_label);
   const methodologyName = methodology?.name
     ? <Bilingual locale={locale} arabic={null} english={methodology.name} />
     : run?.methodology_name
@@ -60,8 +62,7 @@ export function StockVerdict({
     .sort((a, b) => new Date(b.generated_at).getTime() - new Date(a.generated_at).getTime());
   const needsReverseLanguageNotice = locale === "en" &&
     Boolean(data.analyst && !data.analyst.name_en && data.analyst.name_ar);
-  // D-150: the English-only §11 short context always needs one aggregated Arabic notice.
-  const needsArabicLanguageNotice = locale === "ar";
+  const englishSections = locale === "ar" ? stockEnglishOnlySections(data) : [];
 
   return (
     <main className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
@@ -107,14 +108,15 @@ export function StockVerdict({
           </div>
           {canonicalUrl !== undefined && <StockShare canonicalUrl={canonicalUrl} locale={locale} />}
         </div>
-        <LanguageNotice locale={locale} needed={needsArabicLanguageNotice || needsReverseLanguageNotice} reverse={needsReverseLanguageNotice} />
+        <LanguageNotice locale={locale} needed={englishSections.length > 0 || needsReverseLanguageNotice}
+          reverse={needsReverseLanguageNotice} sections={needsReverseLanguageNotice ? ["Coverage by"] : englishSections} />
       </header>
 
       <StockSummary data={data} locale={locale} />
       <StockFigures data={data} locale={locale} />
 
       <div className={styles.shortContext} data-section="short-context">
-        <p lang="en" dir="ltr">Informational screening only — not a fatwa. Methodologies and scholarly interpretations differ. Financial analysis is not personalized investment advice.</p>
+        <Disclaimer variant="short" locale={locale} />
       </div>
 
       {/* D-147: preserve the complete evidence record in server-rendered, initially closed details. */}
@@ -199,7 +201,7 @@ export function StockVerdict({
                           </Field>
                           <Field label={<Copy locale={locale}>Effect</Copy>}>
                             {unknown.effect
-                              ? <Bilingual locale={locale} arabic={null} english={unknown.effect} />
+                              ? <Bilingual locale={locale} arabic={null} english={stockUnknownEffect(unknown.effect, locale)} />
                               : <Copy locale={locale}>Not recorded</Copy>}
                           </Field>
                           <Field label={<Copy locale={locale}>Severity</Copy>}>

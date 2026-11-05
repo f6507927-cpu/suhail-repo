@@ -4,6 +4,7 @@ import en from "../i18n/messages/en.json";
 import type { PublicStockData } from "./types";
 import { stripPublicReviewMarker } from "../components/foundation/shared";
 import { englishCompanyName } from "../lib/format";
+import { publicMethodologyVersionLabel } from "../i18n/methodology-labels";
 
 export function stockMetadata(data: PublicStockData, locale: "ar" | "en", siteUrl: string): Metadata {
   const origin = new URL(siteUrl);
@@ -14,7 +15,7 @@ export function stockMetadata(data: PublicStockData, locale: "ar" | "en", siteUr
   const englishName = englishCompanyName(data.company);
   const company = locale === "ar" ? data.company.name_ar?.trim() || englishName : englishName;
   const status = data.run ? messages.status[data.run.status] : locale === "ar" ? "⟦AR-REVIEW⟧ No run yet" : "No run yet";
-  const version = data.version?.version_label ?? data.version?.version ?? "";
+  const version = publicMethodologyVersionLabel(data.version?.version_label || data.version?.version || data.run?.methodology_version_label);
   // D-150 applies to public document/social text too, including the no-run title.
   const title = stripPublicReviewMarker(`${company} (${data.security.ticker}) — ${status}${version ? ` · ${version}` : ""} | ${locale === "ar" ? "سهيل" : "Suhail"}`);
   const description = stripPublicReviewMarker([status, data.methodology?.name, version, data.run?.data_as_of].filter(Boolean).join(" · "));

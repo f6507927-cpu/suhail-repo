@@ -8,7 +8,8 @@ import {
 } from "../foundation";
 import { formatCalendarDate, formatCompactMoney, formatMoney, formatNumber } from "@/lib/format";
 import { displayLabel } from "@/i18n/presentation";
-import { stockCriterionLabel } from "@/i18n/stock-labels";
+import { stockCriterionLabel, stockUnknownEffect } from "@/i18n/stock-labels";
+import { publicMethodologyVersionLabel } from "@/i18n/methodology-labels";
 import { reviewText } from "../accounts/types";
 import { stripPublicReviewMarker } from "../foundation/shared";
 import type { PublicStockData, StockCriterion } from "@/stock/types";
@@ -226,7 +227,7 @@ export function StockSummary({ data, locale }: { data: PublicStockData; locale: 
     security.coverage_analyst_id && run?.status === "passes_selected_methodology",
   );
   const methodologyTitle = methodology?.name || run?.methodology_name;
-  const versionLabel = version?.version_label || version?.version || run?.methodology_version_label;
+  const versionLabel = publicMethodologyVersionLabel(version?.version_label || version?.version || run?.methodology_version_label);
   const methodologyHref = methodology && version
     ? `${locale === "en" ? "/en" : ""}/methodology/${encodeURIComponent(methodology.slug)}?version=${encodeURIComponent(version.version)}#methodology-${methodology.slug}-version-${encodeURIComponent(version.version)}`
     : null;
@@ -301,7 +302,7 @@ export function StockSummary({ data, locale }: { data: PublicStockData; locale: 
                       <span className={styles.effect}>
                         <Copy locale={locale}>Effect</Copy>:{" "}
                         {unknown.effect
-                          ? <Bilingual locale={locale} arabic={null} english={unknown.effect} />
+                          ? <Bilingual locale={locale} arabic={null} english={stockUnknownEffect(unknown.effect, locale)} />
                           : <Copy locale={locale}>Not recorded</Copy>}
                       </span>
                     </li>

@@ -7,6 +7,10 @@ import en from "../../i18n/messages/en.json";
 import { StockVerdict } from "./StockVerdict";
 import { criteriaNeedFallback, unknownsNeedFallback, sourcesNeedFallback, statusReasonsNeedFallback, structuredEvidenceNeedsFallback } from "./StockVerdictParts";
 import type { PublicStockData } from "@/stock/types";
+import { stockMetadata } from "@/stock/metadata";
+import { publicMethodologyVersionLabel } from "@/i18n/methodology-labels";
+import { displayLabel } from "@/i18n/presentation";
+import { stockUnknownEffect } from "@/i18n/stock-labels";
 
 vi.mock("server-only", () => ({}));
 vi.mock("../../i18n/navigation", () => ({ usePathname: () => "/", getPathname: () => "/" }));
@@ -179,7 +183,7 @@ describe("stock public-label cleanup (D-150)", () => {
     data.company.display_name_en = " ";
     expect(renderStock(data, locale)).toContain("COSTCO WHOLESALE CORP /NEW");
   });
-  it("shows the single §11 context notice even for an otherwise Arabic record", () => {
+  it("uses the Arabic disclaimer and hides the notice for an entirely Arabic record", () => {
     const data = stockFixture();
     data.explanation!.evidence = [{ description: "بيان عربي" }];
     expect({
@@ -191,7 +195,10 @@ describe("stock public-label cleanup (D-150)", () => {
       structuredUnknowns: structuredEvidenceNeedsFallback(data.explanation!.unknowns),
     }).toEqual({ criteria: false, unknowns: false, sources: false, reasons: false, evidence: false, structuredUnknowns: false });
     const html = renderStock(data);
-    expect(html.match(/data-language-notice=/g)).toHaveLength(1);
+    expect(html).not.toContain("data-language-notice");
+    const context = html.split('data-section="short-context"')[1].split("</div>")[0];
+    expect(context).toContain(ar.disclaimer.short);
+    expect(context).not.toContain(en.disclaimer.short);
     expect(html).not.toContain("⟦AR-REVIEW⟧");
   });
 
@@ -201,8 +208,65 @@ describe("stock public-label cleanup (D-150)", () => {
     const html = renderStock(data);
     const header = html.match(/<header\b[^>]*data-section="header"[\s\S]*?<\/header>/)?.[0] ?? "";
     expect(header).toContain("data-language-notice");
+    expect(header).toMatch(/data-language-notice[^>]*>.*?:/);
     expect([...html.matchAll(/data-language-notice=/g)]).toHaveLength(1);
     expect(html).not.toContain("⟦AR-REVIEW⟧");
+  });
+
+  it("names the English-only methodology rather than blaming the share buttons or disclaimer", () => {
+    const data = stockFixture();
+    data.methodology!.name = "Revenue screen";
+    const html = renderStock(data);
+    const notice = html.match(/<p data-language-notice[\s\S]*?<\/p>/)?.[0] ?? "";
+    expect(notice).toContain("متاح بالإنجليزية فقط");
+    expect(notice).toContain("المنهجية");
+    expect(notice).not.toContain("مشاركة");
+    expect(notice).not.toContain("إخلاء");
+  });
+
+  it.each(["review", "blocking", "informational"])("localizes the recognized unknown impact %s in both views", effect => {
+    const data = stockFixture();
+    data.unknowns[0].effect = effect;
+    const original = structuredClone(data);
+    const html = renderStock(data);
+    const summary = html.split('data-section="why"')[1].split('data-section="known"')[0];
+    expect(summary).toContain(displayLabel("severity", effect, "ar"));
+    expect(summary).not.toContain(`>${effect}<`);
+    expect(html).not.toContain(`>${effect}<`);
+    expect(stockUnknownEffect(effect, "en")).toBe(displayLabel("severity", effect, "en"));
+    expect(data).toEqual(original);
+    expect(stockUnknownEffect("Analyst custom impact", "ar")).toBe("Analyst custom impact");
+  });
+
+  it.each([
+    ["Adapted research 1.0 — draft", "Adapted research 1.0"],
+    ["Adapted research 1.1 — draft; Suhail upper-bound assumption", "Adapted research 1.1 — Suhail upper-bound assumption"],
+  ])("uses the public label for %s in rendered and social/document titles without editing evidence", (stored, shown) => {
+    const data = stockFixture();
+    data.version!.version_label = stored;
+    data.version!.workflow_status = "approved";
+    data.run!.methodology_version_label = stored;
+    const original = structuredClone(data);
+    const html = renderStock(data);
+    expect(html).toContain(shown);
+    expect(html).not.toContain(stored);
+    const metadata = stockMetadata(data, "ar", "https://example.test");
+    expect(JSON.stringify(metadata)).toContain(shown);
+    expect(JSON.stringify(metadata)).not.toContain(stored);
+    expect(html).toContain(displayLabel("workflow", "approved", "ar"));
+    expect(data).toEqual(original);
+    data.version = null;
+    expect(renderStock(data)).not.toContain(stored);
+    expect(JSON.stringify(stockMetadata(data, "ar", "https://example.test"))).not.toContain(stored);
+  });
+
+  it("preserves arbitrary methodology labels and real draft workflow badges", () => {
+    expect(publicMethodologyVersionLabel("Analyst draft — custom title")).toBe("Analyst draft — custom title");
+    const data = stockFixture();
+    data.version!.version_label = "Adapted research 1.0 — draft";
+    data.version!.workflow_status = "draft";
+    expect(renderStock(data)).toContain(displayLabel("workflow", "draft", "ar"));
+    expect(publicMethodologyVersionLabel(null, "1.1")).toBe("1.1");
   });
 
   it("does not classify criterion source references, codes, or numeric values as English narrative", () => {
@@ -218,7 +282,7 @@ describe("stock public-label cleanup (D-150)", () => {
     }];
     data.period!.reported_date = null;
     const html = renderStock(data);
-    expect(html.match(/data-language-notice=/g)).toHaveLength(1);
+    expect(html).not.toContain("data-language-notice");
   });
 
   it("suppresses a review marker embedded in displayed structured evidence without altering the fixture", () => {
@@ -262,7 +326,7 @@ describe("stock public-label cleanup (D-150)", () => {
     data.explanation!.evidence = [{ claim: "Hidden evidence" }];
     const html = renderStock(data);
     expect(html).not.toContain("Hidden");
-    expect(html.match(/data-language-notice=/g)).toHaveLength(1);
+    expect(html).not.toContain("data-language-notice");
   });
 
   it("keeps a displayed English company notice in the no-run state", () => {
@@ -278,13 +342,13 @@ describe("stock public-label cleanup (D-150)", () => {
     data.criteria[0].numerator_definition = "Hidden English definition";
     data.criteria[0].calculation_trace = "Hidden English trace";
     data.facts[0].value_text = "Hidden English fact";
-    expect(renderStock(data).match(/data-language-notice=/g)).toHaveLength(1);
+    expect(renderStock(data)).not.toContain("data-language-notice");
   });
 
   it("uses the rendered source title, not a hidden English label", () => {
     const data = stockFixture();
     data.sources[0].label = "Hidden English source label";
-    expect(renderStock(data).match(/data-language-notice=/g)).toHaveLength(1);
+    expect(renderStock(data)).not.toContain("data-language-notice");
   });
 
   it("never adds an English-only notice on the English stock page", () => {
@@ -305,7 +369,7 @@ describe("stock public-label cleanup (D-150)", () => {
     expect(html).not.toContain("⟦AR-REVIEW⟧");
     expect(html.match(/data-language-notice=/g)).toHaveLength(1);
     data.storedClose.close = null;
-    expect(renderStock(data).match(/data-language-notice=/g)).toHaveLength(1);
+    expect(renderStock(data)).not.toContain("data-language-notice");
   });
 
   it("checks the displayed provider attribution rather than its unused source title", () => {
