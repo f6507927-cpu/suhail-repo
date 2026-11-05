@@ -4,6 +4,7 @@ import type { StockCriterion } from "../stock/types";
 import type { ReasonCode, StatusReason } from "../engine/types";
 import { renderEnglish } from "../engine/reasons/en";
 import { renderArabicDraft } from "../engine/reasons/ar";
+import { uiOneDisplay } from "./approved-arabic-ui-one";
 
 type Locale = "ar" | "en";
 /** Recognized impact keys use existing approved severity labels; prose is preserved. */
@@ -25,6 +26,8 @@ const knownCriteria: Record<string, { family: "criterionType" | "lineItem"; valu
 };
 export function stockCriterionLabel(criterion: Pick<StockCriterion, "criterion_label">, locale: Locale) {
   const raw = criterion.criterion_label ?? "";
+  const approved = uiOneDisplay(raw, locale);
+  if (approved !== raw) return approved;
   if (locale === "ar" && raw === "Interest-bearing debt / market value basis")
     return `${displayLabel("lineItem", "interest_bearing_debt", locale)} / ${displayLabel("lineItem", "market_value_basis", locale)}`;
   if (locale === "ar" && raw === "Prohibited income / total revenue")
@@ -34,6 +37,8 @@ export function stockCriterionLabel(criterion: Pick<StockCriterion, "criterion_l
     : locale === "ar" && publicUiCopy[raw] ? publicUiCopy[raw] : stripPublicReviewMarker(raw);
 }
 export function stockReasonField(field: string, locale: Locale) {
+  const approved = uiOneDisplay(field, locale);
+  if (approved !== field) return approved;
   if (locale !== "ar") return field;
   if (field === "Business segments") return displayLabel("lineItem", "business_segments", locale);
   // Composite definitions remain distinct, but each confirmed key is localized.

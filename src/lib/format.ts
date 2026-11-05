@@ -51,6 +51,19 @@ export function formatCompactMoney(value: number | null) {
   }).format(value);
 }
 
+/** UI-2: full dollar amounts, no currency suffix or redundant integer cents. */
+export function formatFullDollars(value: number) {
+  return formatNumber(value, "en", { style: "currency", currency: "USD",
+    minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+
+export function scaleMultiplier(scale: string | null | undefined) {
+  const values: Readonly<Record<string, number>> = {
+    absolute: 1, thousands: 1_000, millions: 1_000_000, billions: 1_000_000_000,
+  };
+  return scale && Object.hasOwn(values, scale) ? values[scale] : null;
+}
+
 /** D-148 extends D-30: curate presentation without replacing SEC issuer identity. */
 export function englishCompanyName(company: { name: string; display_name_en?: string | null }) {
   return company.display_name_en?.trim() || company.name;

@@ -33,13 +33,16 @@ describe("financial admin UI wiring", () => {
 
   it("sends the backend contract payloads from each editor form", () => {
     for (const field of [
-      "data: { ticker }", "securityId: error.securityId as string", "data: { id: job.id }",
+      "data: { ticker }", "data: { id: job.id }",
       "factId: fact.id", "reason: String(form.get(\"reason\")", "input_state: String(form.get(\"input_state\")",
       "confidence_tier: String(form.get(\"confidence_tier\")", "factId: alt.id", "segment_name: String(form.get(\"segment_name\"))",
       "data: { id: segment.id }", "date: String(form.get(\"date\"))", "analystId }",
       "name_ar: String(form.get(\"name_ar\")", "data: { confirm: true }", "operation: \"runJob\"",
       "display_name_en: String(form.get(\"display_name_en\")",
     ]) expect(component).toContain(field);
+    // Job cards moved in UI-9, but preserve the stored-ID retry wiring.
+    expect(component).toContain('onRetry={securityId=>run({ operation: "ingest", securityId }');
+    expect(readFileSync("src/components/financial/AdminJobHistory.tsx","utf8")).toContain("onRetry(error.securityId as string)");
     expect(component).toContain('operation: "company"');
     expect(component).toContain('operation: "price"');
     expect(component).toContain('operation: "coverage"');

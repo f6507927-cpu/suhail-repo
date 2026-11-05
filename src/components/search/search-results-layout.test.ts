@@ -4,9 +4,12 @@ import { describe, expect, it } from "vitest";
 const source = readFileSync(new URL("./SearchResults.tsx", import.meta.url), "utf8");
 
 describe("search result alignment", () => {
-  it("uses shared grid tracks and a neutral unscreened badge", () => {
-    expect(source).toContain("sm:grid-cols-[minmax(0,1fr)_6rem_7rem_14rem]");
-    expect(source).toContain("border-border bg-secondary");
+  it("uses whole-row targets and a plain unscreened label without column tracks", () => {
+    expect(source).toContain("group flex min-h-14 w-full");
+    expect(source).not.toContain("grid-cols");
+    expect(source).toContain('className="text-sm text-muted-foreground" role="status"');
+    expect(source).toContain("focus-visible:ring-2");
+    expect(source).toContain("hover:bg-");
     expect(source).toContain("role=\"status\"");
     expect(source).not.toContain('<StatusBadge status="insufficient_data"');
   });

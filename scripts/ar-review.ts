@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 import { relative } from "node:path";
 import { Node, Project, SyntaxKind, type Type } from "ts-morph";
 import { approvedArabicCopy } from "../src/i18n/approved-arabic";
+import { uiOneLabels } from "../src/i18n/approved-arabic-ui-one";
 
 export const marker = "⟦AR-REVIEW⟧ ";
 // D-150 / D-149 retire these renderers, not their D-107 approval history.
@@ -20,6 +21,14 @@ export const retiredPublicPresentationKeys = [
   // without rewriting either historical dictionary value/approval state.
   "publicSearch.submit",
   "publicSearch.noResultsBody",
+] as const;
+// Unlike the historical decorative uppercase labels above, these are ordinary
+// independently approved prose labels. Keep their distinct retirement category.
+export const retiredMethodologySummaryKeys = [
+  // D-164 replaces the wide methodology comparison table with compact cards.
+  // Retain these approved labels verbatim as history, not fake runtime callers.
+  "publicMethodology.criteriaSummaryTable",
+  "stock.criterion",
 ] as const;
 type Tree = { [key: string]: string | Tree };
 export type Entry = {
@@ -167,8 +176,11 @@ export function discover(options: {
       if (name === "reviewText" && !path.endsWith("/types.ts")) {
         const arg = call.getArguments()[1];
         values(arg).forEach((source) => {
-          if (!approvedArabicCopy[source]) add(phrases, source, context(call));
+          add(phrases, source, context(call));
         });
+      }
+      if (name === "privatePageMetadata") {
+        values(call.getArguments()[1]).forEach(source => add(phrases, source, context(call, "Private page metadata")));
       }
       // Finite callers of local presentation wrappers also count. A registry
       // can omit a newly added conditional label; broad forwarding is not proof
@@ -177,7 +189,7 @@ export function discover(options: {
       if (wrapper && wrapper.getReturnType().isString() && wrapper.getDescendantsOfKind(SyntaxKind.CallExpression)
         .some(node => node.getExpression().getText() === "reviewText")) {
         values(call.getArguments()[1]).forEach(source => {
-          if (!approvedArabicCopy[source]) add(phrases, source, context(call));
+          add(phrases, source, context(call));
         });
       }
       if (name === "reviewError") {
@@ -190,6 +202,16 @@ export function discover(options: {
         const arg = name === "requireGate" ? call.getArguments()[1] :
           name === "issue" ? call.getArguments()[0] : undefined;
         values(arg).forEach((source) => add(phrases, source, context(call, "Conditionally rendered: methodology review-error via action result")));
+      }
+    }
+    for (const element of file.getDescendantsOfKind(SyntaxKind.JsxElement)) {
+      const name = element.getOpeningElement().getTagNameNode().getText();
+      if (!["Copy", "LocalizedText", "PublicLocalizedText"].includes(name)) continue;
+      for (const child of element.getJsxChildren().filter(Node.isJsxText)) {
+        const source = child.getText().trim().replace(/\s+/g, " ")
+          .replaceAll("&apos;", "'").replaceAll("&quot;", "\"").replaceAll("&amp;", "&");
+        if (/[A-Za-z]/.test(source) && !/[\u0600-\u06ff]/.test(source))
+          add(phrases, source, context(child, "JSX copy-helper child"));
       }
     }
     for (const declaration of file.getDescendantsOfKind(SyntaxKind.VariableDeclaration)) {
@@ -270,6 +292,9 @@ export function discover(options: {
     const current = ar[key];
     if (current === undefined) errors.push(`Missing Arabic counterpart: ${key}`);
     if (!current?.includes(marker)) continue;
+    // D-157: the dictionary remains a historical pin; this public caller now
+    // applies the independently approved UI-1 display override.
+    if (key === "storedClose.closingOn" && uiOneLabels[en[key]]) continue;
     const sorted = [...contexts].sort();
     entries.push({ id: `J-${key.replaceAll(".", "-")}`, key, source: en[key],
       contexts: sorted, group: groupFor(sorted), category: categoryFor(en[key], key) });
@@ -301,9 +326,11 @@ export function discover(options: {
   entries.sort((a, b) => a.group.localeCompare(b.group, "en") || a.id.localeCompare(b.id, "en"));
   if (new Set(entries.map((entry) => entry.id)).size !== entries.length) errors.push("Duplicate stable review IDs");
   const retired = new Set<string>(retiredPublicPresentationKeys);
-  return { entries, usage, en, ar, unresolved: [...unresolved].sort(), errors,
+  const retiredSummary = new Set<string>(retiredMethodologySummaryKeys);
+  return { entries, usage, en, ar, copySources: [...phrases.keys()].sort(), copyUsage: phrases, unresolved: [...unresolved].sort(), errors,
     retired: Object.keys(en).filter(key => !usage.has(key) && retired.has(key)).sort(),
-    unused: Object.keys(en).filter((key) => !usage.has(key) && !retired.has(key)).sort() };
+    retiredSummary: Object.keys(en).filter(key => !usage.has(key) && retiredSummary.has(key)).sort(),
+    unused: Object.keys(en).filter((key) => !usage.has(key) && !retired.has(key) && !retiredSummary.has(key)).sort() };
 }
 
 export const escapeCell = (text: string) =>
@@ -367,10 +394,13 @@ D-150's four retired public-methodology decorative labels stay in both
 dictionaries to preserve their independent D-107 approval history. They are
 explicitly listed in retiredPublicPresentationKeys, not treated as runtime
 callers, pending rows or candidates for dictionary pruning.
+D-164 likewise retires the former methodology comparison-table column/caption
+labels while retaining their exact dictionary values and approval history.
 D-149 similarly retires the old nav.picks and nav.methodologies callers;
 the header now uses the approved Screen a stock and Methodology phrases.
 UX-4 replaces the publicSearch.submit and publicSearch.noResultsBody callers.
-Their old values remain unchanged, including the latter's pending marker.
+Their English source keys remain unchanged; UI-1B now supplies Arabic for the
+retired empty-state body as well.
 No translations are applied by this command. Existing IDs survive; keyed IDs
 are J-namespace-key; new unkeyed phrases use a full SHA-256 source ID (U-...).
 Drafts are retained only while their exact English source matches. A source
@@ -389,8 +419,11 @@ on initial load. Foundation samples include development-only styleguide usages.
 Methodology forms/reports are live, authenticated admin/editor UI, not future-only.
 Stored source metadata, criterion labels, rules, report JSON, workflow notes,
 engine evidence and audit summaries are arbitrary data, not finite translation keys.
-reviewText/reviewError preserve markers on arbitrary unapproved auth/audit/action
-fallbacks; Zod paths/issues and EngineInputError details are unbounded.
+UI-1B supersedes runtime markers on public and private pages: unknown
+auth/audit/action fallbacks retain their unmarked English source and are
+language-isolated at rendering boundaries. Zod paths/issues and EngineInputError
+details are unbounded. The supplied UI-1B table is approved; additional runtime
+UI proposals are listed separately in docs/UI_ONE_B_REVIEW.md for founder review.
 Concrete custom validation and governance-error sources are listed; generated
 Zod built-in messages are described here, not fabricated as an infinite list.
 Known finite report errors are localized for display only under D-107; unknown
@@ -466,7 +499,7 @@ export function pruneUnused() {
       Object.entries(node).flatMap<[string, string | Tree]>(([key, value]) => {
         const path = prefix ? `${prefix}.${key}` : key;
         if (typeof value === "string") {
-          if (audit.usage.has(path) || audit.retired.includes(path)) return [[key, value]];
+          if (audit.usage.has(path) || audit.retired.includes(path) || audit.retiredSummary.includes(path)) return [[key, value]];
           removed.add(path); return [];
         }
         const child = prune(value, path);

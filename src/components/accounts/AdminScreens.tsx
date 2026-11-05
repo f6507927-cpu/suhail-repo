@@ -1,4 +1,5 @@
 "use client";
+import { LocalizedText } from "../foundation/shared";
 
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "@/i18n/navigation";
@@ -21,6 +22,8 @@ import { formatNumber, formatTimestamp } from "@/lib/format";
 import { localePath } from "@/lib/auth/paths";
 import { Lockup } from "@/components/foundation/Lockup";
 import { activeAdminSection } from "@/lib/auth/admin-navigation";
+import styles from "./AdminUx.module.css";
+import { adminVersionLabel, uiNineText } from "@/i18n/admin-presentation";
 
 type UserRow = {
   id: string;
@@ -40,7 +43,7 @@ type AuditEvent = {
   details: unknown;
   occurred_at: Date | string;
 };
-type VersionOption = { id: string; version_label: string };
+type VersionOption = { id: string; version_label: string; version?: string; isExample?: boolean };
 
 const navItems = [
   { href: "/admin", label: "Methodologies", icon: BookOpenText, mode: "deferred" },
@@ -69,8 +72,9 @@ export function AdminShell({
   children: ReactNode;
 }) {
   const visible = navItems.filter((item) => item.mode !== "admin" || role === "admin");
+  const activeLabel = visible.find((item) => activeAdminSection(currentPath) === item.href)?.label ?? "Admin navigation";
   return (
-    <div className="min-h-[100dvh] bg-background text-foreground">
+    <div data-admin-ux className={`${styles.root} min-h-[100dvh] bg-background text-foreground`}>
       <header className="flex min-h-16 flex-wrap items-center justify-between gap-4 border-b border-border px-5 py-4 sm:px-8">
         <a href={localePath(locale, "/")} aria-label={reviewText(locale, "Suhail · Public research")} className="focus-visible:outline-2 focus-visible:outline-offset-4">
           <Lockup />
@@ -88,19 +92,31 @@ export function AdminShell({
         </form>
       </header>
       <div className="mx-auto grid max-w-[1440px] grid-cols-[minmax(0,1fr)] md:grid-cols-[230px_minmax(0,1fr)]">
-        <aside className="min-w-0 border-b border-border p-4 md:min-h-[calc(100dvh-4rem)] md:border-b-0 md:border-e md:p-5">
+        <aside className={`${styles.navigation} min-w-0 border-b border-border p-4 md:min-h-[calc(100dvh-4rem)] md:border-b-0 md:border-e md:p-5`}>
+          <details className={styles.mobileNavigation}>
+            <summary aria-label={`${uiNineText(locale, "Admin menu")}: ${reviewText(locale, activeLabel)}`} className="min-h-11 cursor-pointer list-none border border-border px-3 py-2 text-sm">
+              <span>{uiNineText(locale, "Admin menu")}</span><span className="ms-2 text-muted-foreground">· {reviewText(locale, activeLabel)}</span>
+            </summary>
+            <nav aria-label={reviewText(locale, "Admin navigation")} className="mt-2 grid border border-border bg-card p-2">
+              {visible.filter((item) => item.href !== "/admin/editions" && item.href !== "/admin/analysts").map(({ href, label, icon: Icon }) => (
+                <a key={href} href={localePath(locale, href)} aria-current={activeAdminSection(currentPath) === href ? "page" : undefined} className="flex min-h-11 items-center gap-3 px-3 text-sm hover:bg-secondary">
+                  <Icon aria-hidden="true" size={16} strokeWidth={1.6} />{reviewText(locale, label)}
+                </a>
+              ))}
+            </nav>
+          </details>
           <p className="px-3 pb-3 pt-1 text-xs text-muted-foreground">
             {reviewText(locale, "WORKSPACE")}
           </p>
-          <nav aria-label={reviewText(locale, "Admin navigation")} className="flex gap-1 overflow-x-auto md:flex-col">
-            {visible.map(({ href, label, icon: Icon }) => {
+          <nav aria-label={reviewText(locale, "Admin navigation")} className={`${styles.desktopNavigation} flex gap-1 overflow-x-auto md:flex-col`}>
+            {visible.filter((item) => item.href !== "/admin/editions" && item.href !== "/admin/analysts").map(({ href, label, icon: Icon }) => {
               const active = activeAdminSection(currentPath) === href;
               return (
                 <a
                   key={href}
                   href={localePath(locale, href)}
                   aria-current={active ? "page" : undefined}
-                  className={`flex min-h-10 shrink-0 items-center gap-3 rounded px-3 text-sm transition-colors ${
+                   className={`flex min-h-11 shrink-0 items-center gap-3 rounded px-3 text-sm transition-colors ${
                     active ? "bg-secondary text-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                   }`}
                 >
@@ -227,8 +243,8 @@ export function UsersAdminScreen({
             {reviewText(locale, "Search")}
         </button>
       </form>
-      {message && <p className="mt-4 text-sm text-muted-foreground" role="status">{message}</p>}
-      <div className="mt-6 overflow-x-auto border border-border">
+      {message && <p className="mt-4 text-sm text-muted-foreground" role="status"><LocalizedText>{message}</LocalizedText></p>}
+       <div className={`${styles.userResults} mt-6 border border-border`}>
         <table className="w-full min-w-[820px] border-collapse text-start text-sm">
           <thead className="bg-secondary text-xs text-muted-foreground">
             <tr>
@@ -243,22 +259,22 @@ export function UsersAdminScreen({
           <tbody>
             {initialRows.map((row) => (
               <tr key={row.id} className="border-t border-border">
-                <td className="px-4 py-4">
+                <td data-label={reviewText(locale, "User")} className="px-4 py-4">
                   <div className="font-medium">{row.full_name || reviewText(locale, "Name not provided")}</div>
                   <div className="mt-1 text-xs text-muted-foreground" dir="ltr">{row.email || reviewText(locale, "No email")}</div>
                 </td>
-                <td className="px-4 py-4"><span className="text-xs">{reviewText(locale, row.role)}</span></td>
-                <td className="px-4 py-4">
+                <td data-label={reviewText(locale, "Role")} className="px-4 py-4"><span className="text-xs">{reviewText(locale, row.role)}</span></td>
+                <td data-label={reviewText(locale, "TOTP")} className="px-4 py-4">
                   <span className={`inline-flex items-center gap-2 text-xs ${row.verified_totp ? "text-foreground" : "text-muted-foreground"}`}>
                     <span className={`size-2 rounded-full ${row.verified_totp ? "bg-primary" : "bg-border"}`} />
                     {row.verified_totp ? reviewText(locale, "Verified") : reviewText(locale, "Not enrolled")}
                   </span>
                 </td>
-                <td className="px-4 py-4 text-xs text-muted-foreground"><bdi>{formatDate(locale, row.created_at)}</bdi></td>
-                <td className="px-4 py-4 text-xs text-muted-foreground">
+                <td data-label={reviewText(locale, "Created")} className="px-4 py-4 text-xs text-muted-foreground"><bdi>{formatDate(locale, row.created_at)}</bdi></td>
+                <td data-label={reviewText(locale, "Last sign-in")} className="px-4 py-4 text-xs text-muted-foreground">
                   <bdi>{row.last_sign_in_at ? formatDate(locale, row.last_sign_in_at) : "—"}</bdi>
                 </td>
-                <td className="px-4 py-4 text-end">
+                <td data-label={reviewText(locale, "Action")} className="px-4 py-4 text-end">
                   <button
                     type="button"
                     onClick={() => {
@@ -266,7 +282,7 @@ export function UsersAdminScreen({
                       setNextRole(row.role === "user" ? "editor" : "user");
                       setNote("");
                     }}
-                    className="min-h-9 border border-border px-3 text-xs hover:bg-secondary"
+                    className="min-h-11 border border-border px-3 text-sm hover:bg-secondary"
                   >
                     {reviewText(locale, "Change role")}
                   </button>
@@ -348,12 +364,16 @@ export function AuditAdminScreen({
   initialPage,
   initialTotal,
   initialFilters,
+  eventOptions = [],
+  entityOptions = [],
 }: {
   locale: Locale;
   initialRows: AuditEvent[];
   initialPage: number;
   initialTotal: number;
   initialFilters?: { event?: string; entity?: string; from?: string; to?: string };
+  eventOptions?: string[];
+  entityOptions?: string[];
 }) {
   const router = useRouter();
   const filters = initialFilters ?? { event: "", entity: "", from: "", to: "" };
@@ -361,6 +381,16 @@ export function AuditAdminScreen({
   const [entity, setEntity] = useState(filters.entity ?? "");
   const [from, setFrom] = useState(filters.from ?? "");
   const [to, setTo] = useState(filters.to ?? "");
+  const filtersDisclosure = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 768px)");
+    const syncDisclosure = () => {
+      if (filtersDisclosure.current) filtersDisclosure.current.open = media.matches;
+    };
+    syncDisclosure();
+    media.addEventListener("change", syncDisclosure);
+    return () => media.removeEventListener("change", syncDisclosure);
+  }, []);
   const load = (nextPage = 1) => {
     const params = new URLSearchParams();
     if (event) params.set("event", event);
@@ -372,6 +402,7 @@ export function AuditAdminScreen({
     router.push(`/admin/audit${suffix}` as never);
   };
   const maxPage = Math.max(1, Math.ceil(initialTotal / 25));
+  const activeFilterCount = [event, entity, from, to].filter(Boolean).length;
   return (
     <section className="mx-auto max-w-6xl">
       <p className="text-xs text-muted-foreground">{reviewText(locale, "ADMIN / APPEND-ONLY")}</p>
@@ -379,13 +410,6 @@ export function AuditAdminScreen({
         <h1 className="text-3xl font-semibold">{reviewText(locale, "Audit trail")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{reviewText(locale, "A read-only record of privileged changes.")}</p>
       </div>
-      <form onSubmit={(e) => { e.preventDefault(); load(1); }} className="mt-7 grid gap-3 border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-5">
-        <label className="text-xs text-muted-foreground">{reviewText(locale, "Event type")}<input value={event} onChange={(e) => setEvent(e.target.value)} className="mt-1 min-h-10 w-full border border-input bg-background px-2 text-sm text-foreground" /></label>
-        <label className="text-xs text-muted-foreground">{reviewText(locale, "Entity")}<input value={entity} onChange={(e) => setEntity(e.target.value)} className="mt-1 min-h-10 w-full border border-input bg-background px-2 text-sm text-foreground" /></label>
-        <label className="text-xs text-muted-foreground">{reviewText(locale, "From")}<input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="mt-1 min-h-10 w-full border border-input bg-background px-2 text-sm text-foreground" /></label>
-        <label className="text-xs text-muted-foreground">{reviewText(locale, "To")}<input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="mt-1 min-h-10 w-full border border-input bg-background px-2 text-sm text-foreground" /></label>
-        <button className="self-end min-h-10 bg-primary px-4 text-sm text-primary-foreground">{reviewText(locale, "Apply filters")}</button>
-      </form>
       <div className="mt-5 space-y-3">
         {initialRows.map((row) => (
           <details key={row.id} className="group border border-border bg-card">
@@ -395,7 +419,7 @@ export function AuditAdminScreen({
                   <span className="text-xs text-accent">{reviewText(locale, row.event_type)}</span>
                   <span className="text-xs text-muted-foreground">{row.entity_name || "—"}</span>
                 </div>
-                <p className="mt-2 truncate text-sm">{reviewText(locale, row.summary)}</p>
+                   <p className="mt-2 break-words text-sm"><LocalizedText>{reviewText(locale, row.summary)}</LocalizedText></p>
               </div>
               <span className="flex shrink-0 items-center gap-3 text-xs text-muted-foreground">
                 <bdi>{formatDate(locale, row.occurred_at)}</bdi>
@@ -403,16 +427,38 @@ export function AuditAdminScreen({
               </span>
             </summary>
             <div className="border-t border-border px-4 py-4 sm:px-5">
-              <dl className="grid gap-4 text-xs sm:grid-cols-2">
-                <div><dt className="text-muted-foreground">{reviewText(locale, "Entity ID")}</dt><dd className="mt-1 break-all font-mono" dir="ltr">{row.entity_id || "—"}</dd></div>
-                <div><dt className="text-muted-foreground">{reviewText(locale, "Event ID")}</dt><dd className="mt-1 break-all font-mono" dir="ltr">{row.id}</dd></div>
-              </dl>
-              <pre className="mt-4 max-h-72 overflow-auto border border-border bg-background p-3 text-xs leading-6" dir="ltr">{safeJson(row.details)}</pre>
+              <details className="mt-4 border border-border">
+                <summary className="min-h-11 cursor-pointer px-3 py-2 text-sm">{uiNineText(locale, "Technical details")}</summary>
+                <div className="border-t border-border p-4">
+                  <dl className="grid gap-4 text-xs sm:grid-cols-2">
+                    <div><dt className="text-muted-foreground">{reviewText(locale, "Entity ID")}</dt><dd className="mt-1 break-all font-mono" dir="ltr">{row.entity_id || "—"}</dd></div>
+                    <div><dt className="text-muted-foreground">{reviewText(locale, "Event ID")}</dt><dd className="mt-1 break-all font-mono" dir="ltr">{row.id}</dd></div>
+                  </dl>
+                  <pre className="mt-4 max-h-72 overflow-auto border border-border bg-background p-3 text-xs leading-6" dir="ltr">{safeJson(row.details)}</pre>
+                </div>
+              </details>
             </div>
           </details>
         ))}
         {initialRows.length === 0 && <p className="border border-border px-5 py-12 text-center text-sm text-muted-foreground">{reviewText(locale, "No events match these filters.")}</p>}
       </div>
+      <details ref={filtersDisclosure} className={`${styles.auditFilters} mt-7 border border-border bg-card`}>
+        <summary className="min-h-11 cursor-pointer list-none px-4 py-3 text-sm font-medium">
+          {uiNineText(locale, "Filter")}
+          {activeFilterCount > 0 && <span className="ms-2 text-xs text-muted-foreground">· {uiNineText(locale, "{count} filters", { count: activeFilterCount })}</span>}
+        </summary>
+        <form onSubmit={(e) => { e.preventDefault(); load(1); }} className="grid gap-3 border-t border-border p-4 sm:grid-cols-2 lg:grid-cols-5">
+          <label className="text-sm text-muted-foreground">{reviewText(locale, "Event type")}<select value={event} onChange={(e) => setEvent(e.target.value)} className="mt-1 min-h-11 w-full border border-input bg-background px-2 text-sm text-foreground">
+            <option value="">—</option>{event && !eventOptions.includes(event) && <option value={event}>{event}</option>}{eventOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+          </select></label>
+          <label className="text-sm text-muted-foreground">{reviewText(locale, "Entity")}<select value={entity} onChange={(e) => setEntity(e.target.value)} className="mt-1 min-h-11 w-full border border-input bg-background px-2 text-sm text-foreground">
+            <option value="">—</option>{entity && !entityOptions.includes(entity) && <option value={entity}>{entity}</option>}{entityOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+          </select></label>
+          <label className="text-sm text-muted-foreground">{reviewText(locale, "From")}<input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="mt-1 min-h-11 w-full border border-input bg-background px-2 text-sm text-foreground" /></label>
+          <label className="text-sm text-muted-foreground">{reviewText(locale, "To")}<input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="mt-1 min-h-11 w-full border border-input bg-background px-2 text-sm text-foreground" /></label>
+          <button className="self-end min-h-11 bg-primary px-4 text-sm text-primary-foreground">{reviewText(locale, "Apply filters")}</button>
+        </form>
+      </details>
       <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
         <span>{reviewText(locale, "Page")} {initialPage} / {maxPage}</span>
         <div className="flex gap-2">
@@ -428,19 +474,27 @@ export function SettingsAdminScreen({
   locale,
   settings,
   versions,
+  securities = [],
   saveSettings,
 }: {
   locale: Locale;
   settings: { default_shariah_methodology_version_id: string | null; allow_ineligible_editor_pick: boolean; featured_security_slug?: string | null } | null;
   versions: VersionOption[];
+  securities?: { slug: string; ticker: string; name: string; nameAr?: string|null }[];
   saveSettings: (defaultId: string | null, allow: boolean, featuredSlug?: string | null) => Promise<ActionResult>;
 }) {
   const [defaultId, setDefaultId] = useState(settings?.default_shariah_methodology_version_id ?? "");
   const [featuredSlug, setFeaturedSlug] = useState(settings?.featured_security_slug ?? "");
+  const [securityQuery, setSecurityQuery] = useState("");
   const [allow, setAllow] = useState(settings?.allow_ineligible_editor_pick ?? false);
   const [pending, setPending] = useState(false);
   const pendingRef = useRef(false);
   const [feedback, setFeedback] = useState("");
+  const savedDefaultId = settings?.default_shariah_methodology_version_id ?? null;
+  const availableVersions = versions.filter((version) => !version.isExample || version.id === savedDefaultId);
+  const filteredSecurities = securities.filter((security) => `${security.ticker} ${security.name} ${security.nameAr??""}`.toLocaleLowerCase().includes(securityQuery.toLocaleLowerCase()));
+  const selectedFeatured = securities.find(security=>security.slug===featuredSlug);
+  const featuredName = (security:{name:string;nameAr?:string|null})=>locale==="ar"&&security.nameAr?.trim()||security.name;
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (pendingRef.current) return;
@@ -472,24 +526,28 @@ export function SettingsAdminScreen({
           <p id="settings-default-help" className="mt-1 block text-sm text-muted-foreground">{reviewText(locale, "Only public, eligible versions are listed.")}</p>
           <select id="settings-default-version" aria-describedby="settings-default-help" value={defaultId} onChange={(event) => setDefaultId(event.target.value)} className="mt-4 min-h-11 w-full border border-input bg-background px-3 text-sm">
             <option value="">{reviewText(locale, "No default")}</option>
-            {versions.map((version) => <option key={version.id} value={version.id}>{version.version_label}</option>)}
+             {availableVersions.map((version) => <option key={version.id} value={version.id}>{adminVersionLabel({ version: version.version, version_label: version.version_label }, locale, { isDefault: version.id === savedDefaultId, isExample: version.isExample })}</option>)}
           </select>
         </div>
         <div className="p-5 sm:p-7">
-          <label htmlFor="settings-featured-security">{reviewText(locale,"Featured security on the homepage")}</label>
-          <input id="settings-featured-security" placeholder="nasdaq-aapl" value={featuredSlug} onChange={event=>setFeaturedSlug(event.target.value)}
-            dir="ltr" spellCheck={false} autoCapitalize="none" maxLength={200}
-            className="mt-4 min-h-11 w-full border border-input bg-background px-3 font-mono text-sm" />
+          <label htmlFor="settings-security-search">{reviewText(locale,"Featured security on the homepage")}</label>
+          <input type="search" id="settings-security-search" aria-label={uiNineText(locale, "Search for a stock")} placeholder={uiNineText(locale, "Search for a stock")} value={securityQuery} onChange={(event) => setSecurityQuery(event.target.value)}
+            className="mt-4 min-h-11 w-full border border-input bg-background px-3 text-sm" />
+          <select id="settings-featured-security" aria-label={reviewText(locale, "Featured security on the homepage")} value={featuredSlug} onChange={(event) => setFeaturedSlug(event.target.value)} className="mt-2 min-h-11 w-full border border-input bg-background px-3 text-sm">
+            <option value="">{uiNineText(locale, "No featured stock")}</option>
+            {featuredSlug && !filteredSecurities.some((security) => security.slug === featuredSlug) && <option value={featuredSlug}>{selectedFeatured ? `${selectedFeatured.ticker} · ${featuredName(selectedFeatured)}` : featuredSlug}</option>}
+            {filteredSecurities.map((security) => <option key={security.slug} value={security.slug}>{security.ticker} · {featuredName(security)}</option>)}
+          </select>
         </div>
         <div className="flex items-start gap-4 p-5 sm:p-7">
-          <input id="settings-allow-ineligible" aria-describedby="settings-allow-help" type="checkbox" checked={allow} onChange={(event) => setAllow(event.target.checked)} className="mt-1 size-4 accent-primary" />
+          <label className={styles.checkboxHitArea} htmlFor="settings-allow-ineligible"><input id="settings-allow-ineligible" aria-describedby="settings-allow-help" type="checkbox" checked={allow} onChange={(event) => setAllow(event.target.checked)} className="size-4 accent-primary" /></label>
           <span>
             <label htmlFor="settings-allow-ineligible" className="cursor-pointer font-medium">{reviewText(locale, "Allow editor picks for ineligible securities")}</label>
             <span id="settings-allow-help" className="mt-1 block text-sm leading-6 text-muted-foreground">{reviewText(locale, "Editors may publish an explicitly marked pick even when it is not eligible under the selected screening configuration.")}</span>
           </span>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-4 p-5 sm:p-7">
-          <p role="status" className="text-sm text-muted-foreground">{feedback}</p>
+          <p role="status" className="text-sm text-muted-foreground"><LocalizedText>{feedback}</LocalizedText></p>
           <button aria-disabled={pending} className="min-h-11 bg-primary px-5 text-sm font-medium text-primary-foreground aria-disabled:opacity-50">{pending ? reviewText(locale, "Saving") : reviewText(locale, "Save settings")}</button>
         </div>
       </form>
@@ -499,8 +557,11 @@ export function SettingsAdminScreen({
 
 function formatDate(locale: Locale, date: Date | string) {
   return formatTimestamp(date, locale, {
-    dateStyle: "medium",
-    timeStyle: "short",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
   });
 }
 

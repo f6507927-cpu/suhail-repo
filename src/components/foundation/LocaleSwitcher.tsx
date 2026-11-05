@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { getPathname, usePathname } from "@/i18n/navigation";
+import { isEnglishText } from "@/i18n/display-text";
 
 export function LocaleSwitcher({ className = "" }: { className?: string }) {
   const locale = useLocale();
@@ -14,7 +15,8 @@ export function LocaleSwitcher({ className = "" }: { className?: string }) {
     // navigation so the D-22 before-paint script also restores the saved theme.
     <a
       href={getPathname({ href: pathname, locale: nextLocale })}
-      lang={t("locale").startsWith("⟦AR-REVIEW⟧ ") ? "en" : locale}
+      lang={isEnglishText(t("locale")) ? "en" : locale}
+      dir={isEnglishText(t("locale")) ? "ltr" : undefined}
       aria-label={t("locale")}
       className={className}
     >

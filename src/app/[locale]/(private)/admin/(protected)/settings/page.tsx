@@ -25,6 +25,7 @@ export default async function AdminSettingsPage({ params }: PageProps) {
         locale={locale}
         settings={result.settings}
         versions={result.versions}
+        securities={result.securities}
         saveSettings={saveSettings}
       />
     </section>

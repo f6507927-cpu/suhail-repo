@@ -39,10 +39,10 @@ export function StockSearchForm({ locale, query = "" }: {
         // Commit before native GET navigation can suspend the old document.
         flushSync(() => setIsSubmitting(true));
       }}
-      className="flex max-w-xl flex-wrap items-end gap-2"
+      className="flex max-w-xl flex-wrap items-end gap-2 rounded-full border border-[color-mix(in_srgb,var(--brass-soft)_55%,transparent)] bg-[var(--canopus)] p-1.5"
     >
       <div className="min-w-0 flex-1">
-        <label htmlFor={id} className="mb-2 block text-sm">
+        <label htmlFor={id} className="sr-only">
           <LocalizedText>{t("label")}</LocalizedText>
         </label>
         <input
@@ -56,14 +56,14 @@ export function StockSearchForm({ locale, query = "" }: {
           autoCapitalize="characters"
           enterKeyHint="search"
           dir="auto"
-          className="min-h-11 w-full rounded-md border border-[var(--divider)] bg-background px-3 py-2 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="min-h-[3.25rem] w-full rounded-full border-0 bg-transparent px-5 py-2 text-[1.05rem] text-[var(--night)] placeholder:text-[#5c6467] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
         />
       </div>
       <button
         type="submit"
         disabled={isSubmitting}
         aria-busy={isSubmitting}
-        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-[var(--brass)] bg-[var(--brass)] px-4 py-2 text-sm font-medium text-[var(--night)] transition-colors hover:bg-[var(--brass-soft)] disabled:cursor-wait disabled:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="inline-flex min-h-[3.25rem] shrink-0 items-center justify-center gap-2 rounded-full border border-[var(--brass)] bg-[var(--brass)] px-[1.6rem] py-2 text-base font-medium text-[var(--night)] transition-colors hover:bg-[var(--brass-soft)] disabled:cursor-wait disabled:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         {isSubmitting && (
           <LoaderCircle

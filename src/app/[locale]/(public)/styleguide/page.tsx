@@ -30,6 +30,7 @@ import {
   type StatusCode,
 } from "../../../../components/foundation";
 import { Button } from "../../../../components/ui/button";
+import { reviewText } from "../../../../components/accounts/types";
 
 export const revalidate = 900;
 const statuses: StatusCode[] = [
@@ -55,8 +56,8 @@ export default async function Styleguide({
   return (
     <main id="content" className="mx-auto max-w-6xl space-y-12 px-6 py-12">
       <section className="space-y-3">
-        <p className="font-mono text-xs text-muted-foreground" lang="en">
-          SUHAIL / FOUNDATION / 04
+        <p className="font-mono text-xs text-muted-foreground">
+          {reviewText(locale, "SUHAIL / FOUNDATION / 04")}
         </p>
         <h1 className="text-3xl">{label("title")}</h1>
         <p className="max-w-prose text-muted-foreground">{label("intro")}</p>
@@ -138,12 +139,12 @@ export default async function Styleguide({
             </p>
           </div>
           <div
-            lang="en"
-            dir="ltr"
+            lang={locale}
+            dir={locale === "ar" ? "rtl" : "ltr"}
             className="space-y-3 rounded-lg border border-border bg-card p-6"
           >
-            <h3 className="text-2xl">Your bearing in the market.</h3>
-            <p>Confidence describes the quality of the underlying data only.</p>
+            <h3 className="text-2xl">{reviewText(locale, "Your bearing in the market.")}</h3>
+            <p>{reviewText(locale, "Confidence describes the quality of the underlying data only.")}</p>
             <p>
               <Num>{formatPercent(-0.125, "en")}</Num>
             </p>
@@ -201,29 +202,27 @@ export default async function Styleguide({
       <section className="space-y-5">
         <h2 className="text-xl">{label("contrast")}</h2>
         <p className="text-sm text-muted-foreground">{label("decorative")}</p>
-        <p lang="en" className="text-sm text-muted-foreground">
-          Raw --muted = secondary text. shadcn bg-muted → --muted-surface. Text
-          ≥4.5:1; meaningful outlines/icons ≥3:1. Decorative separators are
-          exempt.
+        <p className="text-sm text-muted-foreground">
+          {reviewText(locale, "Raw --muted = secondary text. shadcn bg-muted → --muted-surface. Text ≥4.5:1; meaningful outlines/icons ≥3:1. Decorative separators are exempt.")}
         </p>
         <div className="overflow-x-auto">
-          <table lang="en" dir="ltr" className="w-full text-start text-xs">
+          <table className="w-full text-start text-xs">
             <caption className="pb-4 text-start">
               <LocalizedText>{t("styleguide.labels")}</LocalizedText>
             </caption>
             <thead>
               <tr className="border-b border-border">
                 <th scope="col" className="p-2 text-start">
-                  Mapping
+                  {reviewText(locale, "Mapping")}
                 </th>
                 <th scope="col" className="p-2 text-start">
-                  Foreground / background
+                  {reviewText(locale, "Foreground / background")}
                 </th>
                 <th scope="col" className="p-2 text-start">
-                  Ratio
+                  {reviewText(locale, "Ratio")}
                 </th>
                 <th scope="col" className="p-2 text-start">
-                  Use
+                  {reviewText(locale, "Use")}
                 </th>
               </tr>
             </thead>
@@ -233,10 +232,10 @@ export default async function Styleguide({
                   <td className="p-2">
                     {pair.proposal && (
                       <span className="me-2 text-[var(--byline)]">
-                        PROPOSAL
+                        {reviewText(locale, "PROPOSAL")}
                       </span>
                     )}
-                    {pair.mapping}
+                    {reviewText(locale, pair.mapping)}
                   </td>
                   <td className="p-2">
                     <Num>
@@ -249,7 +248,7 @@ export default async function Styleguide({
                     </Num>
                   </td>
                   <td className="p-2">
-                    {pair.kind === "divider" ? "Decorative only" : pair.kind}
+                    {reviewText(locale, pair.kind === "divider" ? "Decorative only" : pair.kind)}
                   </td>
                 </tr>
               ))}

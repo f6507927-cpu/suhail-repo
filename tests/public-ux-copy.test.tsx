@@ -60,12 +60,12 @@ describe("UX-1 founder wording and public fallback boundaries (D-144/D-150)", ()
   it("suppresses the public marker without approving the phrase or changing private copy", () => {
     const source = "Unlisted English phrase";
     const pending = reviewText("ar", source);
-    expect(pending).toBe(`⟦AR-REVIEW⟧ ${source}`);
+    expect(pending).toBe(source);
     const publicHtml = renderToStaticMarkup(<PublicLocalizedText>{pending}</PublicLocalizedText>);
     expect(publicHtml).not.toContain("AR-REVIEW");
     expect(publicHtml).toContain('lang="en" dir="ltr"');
     expect(publicHtml).toContain(source);
-    expect(renderToStaticMarkup(<LocalizedText>{pending}</LocalizedText>)).toContain("⟦AR-REVIEW⟧");
+    expect(renderToStaticMarkup(<LocalizedText>{pending}</LocalizedText>)).not.toContain("⟦");
     expect(reviewText("ar", source)).toBe(pending);
     expect(approvedArabicCopy[source]).toBeUndefined();
   });
@@ -81,10 +81,10 @@ describe("UX-1 founder wording and public fallback boundaries (D-144/D-150)", ()
     expect(html).toContain("البحث عن سهم");
     expect(html).toContain(valid
       ? "لا نغطي هذا السهم بعد."
-      : "Enter 1–40 characters of a ticker or company name.");
+      : "اكتب من حرف إلى 40 حرفاً من رمز السهم أو اسم الشركة.");
     expect(ar.publicSearch.noResults).toBe("لا نغطي هذا السهم بعد.");
     for (const key of ["hint", "noResultsBody"] as const)
-      expect(ar.publicSearch[key]).toMatch(/^⟦AR-REVIEW⟧ /);
+      expect(ar.publicSearch[key]).not.toContain("⟦");
   });
 
   it.each(["ar", "en"] as const)("%s search rows do not repeat language notices or suppress identifiers", locale => {
@@ -98,7 +98,8 @@ describe("UX-1 founder wording and public fallback boundaries (D-144/D-150)", ()
       </NextIntlClientProvider>,
     );
     expect(html).not.toContain("AR-REVIEW");
-    expect(html.match(/data-language-notice=/g) ?? []).toHaveLength(locale === "ar" ? 1 : 0);
+    // D-157: search never displays the English-only notice, including identity fallbacks.
+    expect(html.match(/data-language-notice=/g) ?? []).toHaveLength(0);
     expect(html).not.toContain('data-section="header"');
     for (const code of ["AAPL", "FXT", "NYSE"]) expect(html).toContain(code);
   });
@@ -120,6 +121,7 @@ describe("UX-1 founder wording and public fallback boundaries (D-144/D-150)", ()
     const criterion: PublicMethodologyPageData["documents"][number]["criteria"][number] = {
       id: "criterion", methodology_id: "method", methodology_version_id: "version", criterion_type: "custom_ratio",
       label: pending, definition: pending, formula_text: pending, numerator_definition: pending,
+      explanation_ar: null, explanation_en: null,
       denominator_definition: pending, numerator_line_items: ["total_revenue"], denominator_line_items: ["total_assets"],
       threshold: 10, threshold_unit: "percent_of_total_assets", threshold_direction: "max", borderline_margin: null,
       treatment_rules: pending, treatment_rule_data: { prohibited_categories: [pending] }, edge_cases: pending,

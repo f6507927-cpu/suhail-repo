@@ -202,20 +202,22 @@ describe("stock public-label cleanup (D-150)", () => {
     expect(html).not.toContain("⟦AR-REVIEW⟧");
   });
 
-  it.each(englishFallbackCases)("shows one header notice for displayed English-only %s", (_name, addFallback) => {
+  it.each(englishFallbackCases)("classifies only rendered whole English narrative for %s", (name, addFallback) => {
     const data = stockFixture();
     addFallback(data);
     const html = renderStock(data);
     const header = html.match(/<header\b[^>]*data-section="header"[\s\S]*?<\/header>/)?.[0] ?? "";
-    expect(header).toContain("data-language-notice");
-    expect(header).toMatch(/data-language-notice[^>]*>.*?:/);
-    expect([...html.matchAll(/data-language-notice=/g)]).toHaveLength(1);
+    const narrative = ["methodology scope", "criterion calculation trace", "unknown explanation",
+      "unknown effect", "free-text fact", "structured evidence string", "structured unknown string"].includes(name);
+    expect(header.includes("data-language-notice")).toBe(narrative);
+    if (narrative) expect(header).toMatch(/data-language-notice[^>]*>.*?:/);
+    expect([...html.matchAll(/data-language-notice=/g)]).toHaveLength(narrative ? 1 : 0);
     expect(html).not.toContain("⟦AR-REVIEW⟧");
   });
 
   it("names the English-only methodology rather than blaming the share buttons or disclaimer", () => {
     const data = stockFixture();
-    data.methodology!.name = "Revenue screen";
+    data.methodology!.name = "This methodology screens revenue against its published limits.";
     const html = renderStock(data);
     const notice = html.match(/<p data-language-notice[\s\S]*?<\/p>/)?.[0] ?? "";
     expect(notice).toContain("متاح بالإنجليزية فقط");
@@ -239,8 +241,9 @@ describe("stock public-label cleanup (D-150)", () => {
   });
 
   it.each([
-    ["Adapted research 1.0 — draft", "Adapted research 1.0"],
-    ["Adapted research 1.1 — draft; Suhail upper-bound assumption", "Adapted research 1.1 — Suhail upper-bound assumption"],
+    ["Adapted research 1.0 — draft", "الإصدار 1.0 · مسودة"],
+    // D-166/UI-8 applies the approved Arabic display; all evidence assertions stay.
+    ["Adapted research 1.1 — draft; Suhail upper-bound assumption", "الإصدار 1.1 · مسودة، ويعتمد على افتراض الحد الأعلى لدى سهيل"],
   ])("uses the public label for %s in rendered and social/document titles without editing evidence", (stored, shown) => {
     const data = stockFixture();
     data.version!.version_label = stored;
@@ -253,7 +256,9 @@ describe("stock public-label cleanup (D-150)", () => {
     const metadata = stockMetadata(data, "ar", "https://example.test");
     expect(JSON.stringify(metadata)).toContain(shown);
     expect(JSON.stringify(metadata)).not.toContain(stored);
-    expect(html).toContain(displayLabel("workflow", "approved", "ar"));
+    // The explicitly supplied UI-1 draft pair suppresses its adjacent approval badge only.
+    if (stored !== "Adapted research 1.0 — draft")
+      expect(html).toContain(displayLabel("workflow", "approved", "ar"));
     expect(data).toEqual(original);
     data.version = null;
     expect(renderStock(data)).not.toContain(stored);
@@ -291,7 +296,7 @@ describe("stock public-label cleanup (D-150)", () => {
     const html = renderStock(data);
     expect(html).not.toContain("⟦AR-REVIEW⟧");
     expect(data.explanation!.evidence).toEqual([{ claim: "⟦AR-REVIEW⟧ Future narrative" }]);
-    expect([...html.matchAll(/data-language-notice=/g)]).toHaveLength(1);
+    expect([...html.matchAll(/data-language-notice=/g)]).toHaveLength(0);
   });
 
   it.each(["ar", "en"] as const)("suppresses tokens in %s stored identity, scope, reasons and validated narrative without mutating them", locale => {
@@ -329,11 +334,11 @@ describe("stock public-label cleanup (D-150)", () => {
     expect(html).not.toContain("data-language-notice");
   });
 
-  it("keeps a displayed English company notice in the no-run state", () => {
+  it("excludes English company identity in the no-run state", () => {
     const data = stockFixture();
     data.run = null;
     data.company.name = "Fixture Systems";
-    expect(renderStock(data).match(/data-language-notice=/g)).toHaveLength(1);
+    expect(renderStock(data)).not.toContain("data-language-notice");
   });
 
   it("ignores boolean-only hidden definitions and facts with a displayed numeric value", () => {
@@ -357,7 +362,7 @@ describe("stock public-label cleanup (D-150)", () => {
     expect(renderStock(data, "en")).not.toContain("data-language-notice");
   });
 
-  it.each(["manual", "API Ninjas"])("counts displayed %s close attribution even without a screening run", provider => {
+  it.each(["manual", "API Ninjas"])("excludes %s source attribution without a screening run", provider => {
     const data = stockFixture();
     data.run = null;
     data.storedClose = {
@@ -367,7 +372,7 @@ describe("stock public-label cleanup (D-150)", () => {
     };
     const html = renderStock(data);
     expect(html).not.toContain("⟦AR-REVIEW⟧");
-    expect(html.match(/data-language-notice=/g)).toHaveLength(1);
+    expect(html).not.toContain("data-language-notice");
     data.storedClose.close = null;
     expect(renderStock(data)).not.toContain("data-language-notice");
   });
@@ -375,6 +380,6 @@ describe("stock public-label cleanup (D-150)", () => {
   it("checks the displayed provider attribution rather than its unused source title", () => {
     const data = stockFixture();
     data.sources[0].label = "API Ninjas";
-    expect(renderStock(data).match(/data-language-notice=/g)).toHaveLength(1);
+    expect(renderStock(data)).not.toContain("data-language-notice");
   });
 });

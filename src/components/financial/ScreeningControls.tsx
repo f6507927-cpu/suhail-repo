@@ -14,6 +14,9 @@ import { renderArabicDraft } from "@/engine/reasons/ar";
 import { renderEnglish } from "@/engine/reasons/en";
 import type { StatusReason as EngineStatusReason } from "@/engine/types";
 import { displayLabel } from "@/i18n/presentation";
+import { adminVersionLabel, uiNineText } from "@/i18n/admin-presentation";
+import { AdminRunConfirmation } from "./AdminRunConfirmation";
+import adminStyles from "@/components/accounts/AdminUx.module.css";
 
 const copy = [
   "Run screening now", "Screen all", "Ingest all", "Methodology version", "Choose a methodology version",
@@ -92,12 +95,18 @@ export function ScreeningControls({ data, role, securityId, securityLabel, inges
   const router = useRouter();
   const locale = (useLocale() === "en" ? "en" : "ar") as Locale;
   const canRun = role === "admin";
-  const [versionId, setVersionId] = useState(data.versions[0]?.id ?? "");
+  const [versionId, setVersionId] = useState(data.defaultVersionId
+    ? data.versions.find(version => version.id === data.defaultVersionId)?.id ?? ""
+    : data.versions[0]?.id ?? "");
+  const [confirmKind, setConfirmKind] = useState<"screen" | "ingest" | null>(null);
   const [feedback, setFeedback] = useState("");
   const [bulkKind, setBulkKind] = useState<"ingest" | "screen">("screen");
   const [summary, setSummary] = useState<{ jobId?: string; processed: number; failed: number; inserted: number; unchanged: number; status: string } | null>(null);
   const [runLink, setRunLink] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const jobRunning = pending || summary?.status === "running" || Boolean(data.jobs?.some(job => job.status === "running"));
+  const stockCount = data.stockCount ?? 0;
+  const bulkVersions = data.versions.filter(version => (data.bulkVersionIds ?? []).includes(version.id));
 
   const execute = (operation: () => Promise<{ ok: true; runId?: string; unchanged?: boolean; jobId?: string; summary?: { processed: number; failed: number; inserted: number; unchanged: number; status: string }; message?: string } | { ok: false; error: string }>, success: string, complete?: (result: { runId?: string; unchanged?: boolean }) => void) => {
     setFeedback("");
@@ -130,25 +139,35 @@ export function ScreeningControls({ data, role, securityId, securityLabel, inges
     execute(() => runUniverseAction(kind, id), "Universe job started.");
   };
 
-  return <section className="space-y-4 border border-border bg-card p-4 sm:p-5" aria-labelledby={ingestion ? "screening-bulk-title" : "screening-title"}>
+  return <section className={`${adminStyles.root} space-y-4 border border-border bg-card p-4 sm:p-5`} aria-labelledby={ingestion ? "screening-bulk-title" : "screening-title"}>
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div>
         <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--byline)]">{t(locale, "SUHAIL / SCREENING")}</p>
         <h2 id={ingestion ? "screening-bulk-title" : "screening-title"} className="mt-1 text-base font-semibold">{t(locale, ingestion ? "Screen all" : "Run screening now")}</h2>
         {!ingestion && securityLabel && <p className="mt-1 text-xs text-muted-foreground">{securityLabel}</p>}
       </div>
-      {ingestion && canRun && <div className="flex flex-wrap gap-2">
-        <button type="button" className={button} disabled={pending} onClick={() => bulk("ingest")}><Play size={13} aria-hidden="true" />{t(locale, "Ingest all")}</button>
-        <button type="button" className={button} disabled={pending} onClick={() => bulk("screen")}><Play size={13} aria-hidden="true" />{t(locale, "Screen all")}</button>
-      </div>}
     </div>
+    {ingestion && <div className="grid min-w-0 gap-4 md:grid-cols-2">
+      {(["screen","ingest"] as const).map(kind => <section key={kind} className="min-w-0 space-y-3 border border-border p-4" data-bulk-kind={kind}>
+        <h3 className="font-medium">{uiNineText(locale, kind === "screen" ? "Screen all" : "Ingest all")}</h3>
+        <p className="text-sm leading-6">{uiNineText(locale, kind === "screen"
+          ? "Screens all selected stocks under the chosen version, adding new results without editing earlier records."
+          : "Fetches the latest filings for all selected stocks.")}</p>
+        <p className="text-sm">{uiNineText(locale, "This will cover {count} stocks.", {count:stockCount})}</p>
+        {kind === "screen" && bulkVersions.map(version => <p key={version.id} className="break-words text-sm">{uiNineText(locale, "Version: {version}", {version:adminVersionLabel(version,locale,{isDefault:version.id===data.defaultVersionId})})}</p>)}
+        {canRun && <button type="button" className={button} disabled={jobRunning} onClick={()=>setConfirmKind(kind)}><Play size={13} aria-hidden="true"/>{jobRunning ? uiNineText(locale,"Running…") : uiNineText(locale,kind==="screen"?"Screen all":"Ingest all")}</button>}
+      </section>)}
+    </div>}
+    {confirmKind && <AdminRunConfirmation locale={locale} title={uiNineText(locale,confirmKind==="screen"?"Screen all":"Ingest all")} count={stockCount}
+      versions={confirmKind==="screen" ? (bulkVersions.length ? bulkVersions.map(version=>adminVersionLabel(version,locale,{isDefault:version.id===data.defaultVersionId})) : [t(locale,"No production methodology to screen with")]) : undefined}
+      onCancel={()=>setConfirmKind(null)} onRun={()=>{const kind=confirmKind;setConfirmKind(null);bulk(kind);}}/>}
 
     {!ingestion && <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
       <label className="grid flex-1 gap-1 text-xs text-muted-foreground">
         {t(locale, "Methodology version")}
         <select className={`${input} w-full`} value={versionId} onChange={(event) => setVersionId(event.target.value)} disabled={!canRun || data.versions.length === 0}>
           {data.versions.length === 0 && <option value="">{t(locale, "Choose a methodology version")}</option>}
-          {data.versions.map((version) => <option key={version.id} value={version.id}>{version.methodologyName} · {version.label}</option>)}
+          {data.versions.map((version) => <option key={version.id} value={version.id}>{adminVersionLabel(version,locale,{isDefault:version.id===data.defaultVersionId})}</option>)}
         </select>
       </label>
       {canRun && <button type="button" className={button} disabled={pending || !securityId || !versionId} onClick={runSelected}><Play size={13} aria-hidden="true" />{t(locale, "Run screening now")}</button>}
@@ -158,12 +177,14 @@ export function ScreeningControls({ data, role, securityId, securityLabel, inges
     {feedback && <p role="status" className="border-s-2 border-[var(--brass)] bg-secondary/40 px-3 py-2 text-xs"><LocalizedText>{feedback}</LocalizedText></p>}
     {runLink && <Link href={`/admin/runs/${runLink}`} className="inline-flex items-center gap-1 text-xs underline underline-offset-4">{t(locale, "Run details")}<ArrowUpRight size={12} aria-hidden="true" /></Link>}
     {summary && <div className="border border-border p-3">
-      <h3 className="flex items-center gap-2 text-xs font-semibold"><ShieldCheck size={14} className="text-[var(--brass)]" aria-hidden="true" />{t(locale, "Job summary")}</h3>
+      <h3 className="flex flex-wrap items-center gap-2 text-sm font-semibold"><ShieldCheck size={14} className="text-[var(--brass)]" aria-hidden="true" />{uiNineText(locale,bulkKind==="screen"?"Screen all":"Ingest all")} · {uiNineText(locale,"{count} stocks",{count:stockCount})} · {uiNineText(locale,"{count} failed",{count:summary.failed})}</h3>
+      <details className="mt-3"><summary className="cursor-pointer text-sm">{uiNineText(locale,"Details")}</summary>
       {summary.jobId && <div className="mt-3 overflow-x-auto"><table className="w-full min-w-[420px] text-start text-[10px]"><thead><tr className="border-b border-border text-muted-foreground"><th className="py-2 text-start">{t(locale, "Job")}</th><th className="py-2 text-start">{t(locale, "Status")}</th><th className="py-2 text-start">{t(locale, "Processed")}</th><th className="py-2 text-start">{t(locale, "Failed")}</th></tr></thead><tbody><tr><td className="py-2 font-mono" dir="ltr">{summary.jobId}</td><td className="py-2">{t(locale, summary.status)}</td><td className="py-2">{formattedNumber(locale, summary.processed)}</td><td className="py-2">{formattedNumber(locale, summary.failed)}</td></tr></tbody></table></div>}
       <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
         {([["Processed", summary.processed], ["Failed", summary.failed], ["Inserted", summary.inserted], ["Unchanged records", summary.unchanged], ["Status", summary.status]] as const).map(([label, value]) =>
           <div key={label}><dt className="text-[10px] text-muted-foreground">{t(locale, label)}</dt><dd className="mt-1 text-xs font-medium">{typeof value === "number" ? formattedNumber(locale, value) : t(locale, value)}</dd></div>)}
       </dl>
+      <pre dir="ltr" className="mt-3 whitespace-pre-wrap break-all text-[13px]">{JSON.stringify(summary,null,2)}</pre></details>
       {summary.jobId && canRun && bulkKind === "screen" && <button type="button" className={`${button} mt-3`} disabled={pending} onClick={() => bulk("screen", summary.jobId)}>{t(locale, "Resume screen job")}</button>}
     </div>}
 
@@ -176,11 +197,11 @@ export function ScreeningControls({ data, role, securityId, securityLabel, inges
           <tbody>{data.runs.filter((run) => !securityId || run.security_id === securityId).map((run) => {
             const unchanged = data.unchanged.some((entry) => entry.runId === run.id);
             return <tr key={run.id} className="border-b border-border align-middle">
-              <td className="whitespace-nowrap px-2 py-2">{formatDate(run.generated_at, locale, { dateStyle: "medium", timeStyle: "short" })}</td>
-              <td className="px-2 py-2">{run.methodology_version_label ?? "—"}</td>
-              <td className="px-2 py-2"><StatusBadge status={run.status as StatusCode} className="px-2 py-0.5 text-[10px]" /></td>
-              <td className="px-2 py-2"><span title={run.immutable_hash}>{ltr(run.immutable_hash.slice(0, 12))}</span>{unchanged && <span className="ms-2 inline-flex items-center gap-1 border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground"><Check size={11} aria-hidden="true" />{t(locale, "Unchanged")}</span>}</td>
-              <td className="px-2 py-2"><Link href={`/admin/runs/${run.id}`} className="inline-flex items-center gap-1 border border-border px-2 py-1.5 hover:bg-secondary">{t(locale, "Run details")}<ArrowUpRight size={12} aria-hidden="true" /></Link></td>
+              <td data-label={t(locale,"Generated")} className="px-2 py-2">{formatDate(run.generated_at, locale, { dateStyle: "medium", timeStyle: "short" })}</td>
+              <td data-label={t(locale,"Version")} className="px-2 py-2">{run.methodology_version_label ?? "—"}</td>
+              <td data-label={t(locale,"Status")} className="px-2 py-2"><StatusBadge status={run.status as StatusCode} className="px-2 py-0.5 text-[10px]" /></td>
+              <td data-label={t(locale,"Hash")} className="px-2 py-2"><span title={run.immutable_hash}>{ltr(run.immutable_hash.slice(0, 12))}</span>{unchanged && <span className="ms-2 inline-flex items-center gap-1 border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground"><Check size={11} aria-hidden="true" />{t(locale, "Unchanged")}</span>}</td>
+              <td data-label={t(locale,"Run details")} className="px-2 py-2"><Link href={`/admin/runs/${run.id}`} className="inline-flex min-h-11 items-center gap-1 border border-border px-2 py-1.5 hover:bg-secondary">{t(locale, "Run details")}</Link></td>
             </tr>;
           })}</tbody>
         </table></div>}
@@ -208,7 +229,7 @@ export function ScreeningRunDetail({ detail, role }: DetailProps) {
     });
   };
   const jsonValue = (value: unknown) => <pre dir="ltr" className="max-w-full overflow-x-auto whitespace-pre-wrap break-all font-mono text-[10px] leading-5 text-foreground">{JSON.stringify(value ?? null, null, 2)}</pre>;
-  return <main className="mx-auto max-w-[1280px] space-y-5">
+  return <main className={`${adminStyles.root} mx-auto max-w-[1280px] space-y-5`}>
     <header className="border border-border bg-card p-5 sm:p-7">
       <Link href="/admin/securities" className="mb-4 inline-flex items-center gap-1 text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground">{t(locale, "Securities and data")}<ArrowUpRight size={12} aria-hidden="true" /></Link>
       <p className="font-mono text-[10px] tracking-[0.18em] text-[var(--byline)]">{t(locale, "SUHAIL / SCREENING RUN")}</p>

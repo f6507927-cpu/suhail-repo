@@ -45,7 +45,7 @@ describe("public stock boundary and metadata", () => {
   it("production versions are indexable; no-run metadata invents no status", () => {
     expect(stockMetadata({ ...data, version: { ...data.version!, production_enabled: true } }, "en", "https://public.example").robots).toMatchObject({ index: true });
     const meta = stockMetadata({ ...data, run: null, version: null }, "en", "https://public.example");
-    expect(JSON.stringify(meta.title)).toContain("No run yet");
+    expect(JSON.stringify(meta.title)).toContain("This stock hasn't been screened yet.");
     expect(meta.description).not.toContain("2025-12-31");
     expect(() => stockMetadata(data, "en", "https://user:password@public.example")).toThrow("without credentials");
   });
@@ -58,7 +58,7 @@ describe("public stock boundary and metadata", () => {
     const original = structuredClone(fixture);
     const meta = stockMetadata(fixture, locale, "https://public.example");
     expect(JSON.stringify(meta)).not.toContain("⟦AR-REVIEW⟧");
-    expect(JSON.stringify(meta.title)).toContain("No run yet");
+    expect(JSON.stringify(meta.title)).toContain(locale === "ar" ? "لم يُفحص هذا السهم بعد." : "This stock hasn't been screened yet.");
     expect(fixture).toEqual(original);
   });
   it("failed reads throw instead of producing cacheable fallback data", async () => {

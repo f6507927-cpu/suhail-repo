@@ -8,6 +8,7 @@ export default defineConfig({
   outputDir: "generated-artifacts/playwright-hydration",
   use: {
     ...devices["Desktop Chrome"],
+    viewport: { width: 375, height: 812 },
     baseURL: "http://127.0.0.1:3500",
     timezoneId: "America/Los_Angeles",
     launchOptions: { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE },

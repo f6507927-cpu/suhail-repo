@@ -79,7 +79,10 @@ for (const locale of ["ar", "en"] as const) for (const width of [390, 1366]) {
     await page.locator('details[data-section="full-record"] > summary').click();
     const criteria = page.locator('[data-section="criteria"]');
     await expect(criteria.locator("article:visible").filter({ hasText: "Near threshold fixture" })).toContainText("> 30.00");
-    await expect(criteria.locator("article:visible").filter({ hasText: "Tiny boolean fixture" })).toContainText("> 0");
+    const boolean = criteria.locator("article:visible").filter({ hasText: "Tiny boolean fixture" });
+    await expect(boolean).toContainText(locale === "ar" ? "لم يجتز المعيار" : "Fail");
+    await expect(boolean).not.toContainText("> 0");
+    await expect(boolean.locator('[role="img"]')).toHaveCount(0);
     await expect(criteria.locator("article:visible").filter({ hasText: "Near threshold fixture" })).not.toContainText("Not recorded");
     expect(await criteria.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
   });

@@ -1,7 +1,7 @@
 import type { PublicStockData } from "@/stock/types";
 import { publicMethodologyVersionLabel } from "@/i18n/methodology-labels";
-import { englishCompanyName } from "@/lib/format";
-import { criteriaNeedFallback, hasEnglishOnlyNarrative, sourcesNeedFallback,
+import { uiOneDisplay, uiOneProse } from "@/i18n/approved-arabic-ui-one";
+import { criteriaNeedFallback, hasEnglishOnlyNarrative,
   statusReasonsNeedFallback, structuredEvidenceNeedsFallback, unknownsNeedFallback } from "./StockVerdictParts";
 import arabicMessages from "@/i18n/messages/ar.json";
 import englishMessages from "@/i18n/messages/en.json";
@@ -9,12 +9,11 @@ import englishMessages from "@/i18n/messages/en.json";
 /** D-159: name only sections actually displaying English, including closed evidence. */
 export function stockEnglishOnlySections(data: PublicStockData): string[] {
   const sections: string[] = [];
-  const english = hasEnglishOnlyNarrative;
-  if (english(englishCompanyName(data.company)) ||
-    (!data.company.description_ar?.trim() && english(data.company.description_en)) ||
-    english(data.company.sector_label) || english(data.exchange?.name)) sections.push("Company");
+  // UI-1: identities/source titles are excluded; inspect the mapped narrative actually shown.
+  const english = (value: string | null | undefined) => hasEnglishOnlyNarrative(uiOneProse(value || "", "ar"));
   if (data.run && (english(data.methodology?.name || data.run.methodology_name) ||
-    english(publicMethodologyVersionLabel(data.version?.version_label || data.run?.methodology_version_label)) ||
+    english(publicMethodologyVersionLabel(uiOneDisplay(
+      data.version?.version_label || data.version?.version || data.run?.methodology_version_label || "", "ar"))) ||
     english(data.methodology?.scope))) sections.push("Methodology");
   if (data.run) {
     if (statusReasonsNeedFallback(data.run.status_reasons)) sections.push("Why this assessment");
@@ -24,11 +23,7 @@ export function stockEnglishOnlySections(data: PublicStockData): string[] {
       structuredEvidenceNeedsFallback(data.explanation.unknowns))) sections.push("Structured evidence");
   }
   if (data.run && data.facts.some(fact => fact.value === null && english(fact.value_text))) sections.push("Fundamentals");
-  if ((data.run && sourcesNeedFallback(data.sources, data)) ||
-    (data.storedClose && data.storedClose.close !== null &&
-      (data.storedClose.price_provider === "API Ninjas" || english(data.storedClose.source_label))))
-    sections.push("Sources");
-  const analyst = data.run && data.security.coverage_analyst_id ? data.analyst : null;
+  const analyst = data.run?.status === "passes_selected_methodology" && data.security.coverage_analyst_id ? data.analyst : null;
   if (analyst && ((!analyst.name_ar?.trim() && english(analyst.name_en)) ||
     (!analyst.title_ar?.trim() && english(analyst.title_en)) || english(analyst.credentials)))
     sections.push("Coverage by");

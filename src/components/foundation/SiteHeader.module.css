@@ -4,6 +4,18 @@
   border-block-end: 1px solid var(--divider);
 }
 
+:global([data-public-ux]) .lockup,
+:global(body:has(main[data-public-ux])) .lockup {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+:global([data-public-ux]) .lockup > span > span:nth-child(2) > :global([lang="ar"]),
+:global(body:has(main[data-public-ux])) .lockup > span > span:nth-child(2) > :global([lang="ar"]) {
+  font-size: 13px !important;
+}
+
 .row {
   box-sizing: border-box;
   display: flex;
@@ -70,12 +82,6 @@
   text-decoration: none;
   text-underline-offset: 4px;
   transition: color 160ms ease;
-}
-
-.navigation a:hover,
-.localeSwitcher:hover {
-  color: var(--foreground);
-  text-decoration: underline;
 }
 
 .localeSwitcher {
@@ -159,11 +165,6 @@
     transition: background-color 160ms ease, border-color 160ms ease;
   }
 
-  .menuButton:hover {
-    border-color: var(--brass);
-    background: var(--ink-mid);
-  }
-
   .menuButton:focus-visible,
   .navigation a:focus-visible,
   .localeSwitcher:focus-visible {
@@ -224,6 +225,29 @@
   }
 }
 
+/* The header is shared with admin. Only public pages and the signed-out
+   sign-in screen opt into UI-6, leaving the private header unchanged. */
+:global([data-public-ux]) .localeSwitcher,
+:global(body:has(main[data-public-ux])) .localeSwitcher {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 0.55rem;
+  border-radius: var(--radius-pill);
+}
+
+:global([data-public-ux]) .navigation a,
+:global(body:has(main[data-public-ux])) .navigation a {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+}
+
+:global([data-public-ux]) .menuButton,
+:global(body:has(main[data-public-ux])) .menuButton {
+  border-radius: var(--radius-control);
+}
+
 @keyframes panel-reveal {
   from {
     opacity: 0;
@@ -232,6 +256,19 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (hover: hover) {
+  .navigation a:hover,
+  .localeSwitcher:hover {
+    color: var(--foreground);
+    text-decoration: underline;
+  }
+
+  .menuButton:hover {
+    border-color: var(--brass);
+    background: var(--ink-mid);
   }
 }
 

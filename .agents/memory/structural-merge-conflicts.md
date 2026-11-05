@@ -31,3 +31,14 @@ a conflict-free textual merge can still leave duplicate journal indexes.
 
 **How to apply:** Verify both migrations survive, keep applied migration files
 unchanged, then test the combined migration chain against disposable PostgreSQL.
+
+Decision numbers are also a shared registry. Recheck their uniqueness after a
+completion-time synchronization, even if the decision log merged without markers.
+Renumber only the unpublished task-local decision when a newer main-project
+approval already owns its number; preserve the main approval and historical pins.
+
+**Why:** Concurrent additions under different headings can merge cleanly while
+silently reserving the same decision number for unrelated approvals.
+
+**How to apply:** Check the combined decision log before finishing, then update
+the task's own references consistently without relabeling another approval.

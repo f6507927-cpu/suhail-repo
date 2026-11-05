@@ -4,8 +4,11 @@ import { homeUxSixArabic } from "./approved-arabic-home-ux-six";
 import { stockRequestsArabic } from "./approved-arabic-stock-requests";
 import { isolateArabicCode } from "./bidi";
 import { publicUiCopy } from "./presentation";
+import { uiOneBArabic } from "./approved-arabic-ui-one-b";
+import { uiNineLabels } from "./approved-arabic-ui-nine";
+import { uiOneBReviewProposals } from "./ui-one-b-review-proposals";
 
-// Founder-approved UI wording (D-96/D-101/D-107). Unknown copy stays marked.
+// UI-1B removes runtime review markers; older approved wording wins.
 const approvedCopy: Readonly<Record<string, string>> = {
   // D-158: founder-approved activity-evidence notices; no classification approval.
   "Source period": "فترة المصدر",
@@ -258,5 +261,7 @@ const approvedCopy: Readonly<Record<string, string>> = {
 export const approvedArabicCopy: Readonly<Record<string, string>> = Object.fromEntries(
   // publicUiCopy includes D-144's exact UX-1 table with older approvals taking precedence.
   // D-144: earlier approvals win even where the redesign uses another label.
-  Object.entries({ ...stockRequestsArabic, ...homeUxSixArabic, ...stockUxFiveArabic, ...approvedCopy, ...batchTwo, ...publicUiCopy }).map(([source, text]) => [source, isolateArabicCode(text)]),
+  // UI-9 only fills new vocabulary here: every earlier public/historical pair
+  // retains precedence. Admin-specific overrides live at the admin UI boundary.
+  Object.entries({ ...uiNineLabels, ...uiOneBReviewProposals, ...uiOneBArabic, ...stockRequestsArabic, ...homeUxSixArabic, ...stockUxFiveArabic, ...approvedCopy, ...batchTwo, ...publicUiCopy }).map(([source, text]) => [source, isolateArabicCode(text)]),
 );

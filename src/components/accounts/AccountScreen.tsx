@@ -1,4 +1,5 @@
 "use client";
+import { LocalizedText } from "../foundation/shared";
 
 import { useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "@/i18n/navigation";
@@ -228,7 +229,7 @@ export function AccountScreen({ locale, profile, updateLocale, deleteAccount, st
               </button>
             </form>
           )}
-          {error && <p className="mt-3 text-sm text-foreground" role="alert">{error}</p>}
+          {error && <p className="mt-3 text-sm text-foreground" role="alert"><LocalizedText>{error}</LocalizedText></p>}
         </section>
       </div>
     </main>

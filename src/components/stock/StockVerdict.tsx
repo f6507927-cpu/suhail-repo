@@ -11,7 +11,7 @@ import {
 } from "../foundation";
 import { reviewText } from "../accounts/types";
 import { stripPublicReviewMarker } from "../foundation/shared";
-import { englishCompanyName, formatCalendarDate, formatNumber, formatTimestamp } from "@/lib/format";
+import { englishCompanyName, formatNumber } from "@/lib/format";
 import type { PublicStockData } from "@/stock/types";
 import {
   Bilingual,
@@ -32,12 +32,19 @@ import {
   sourceNumbers,
 } from "./StockVerdictParts";
 import styles from "./StockVerdict.module.css";
-import { StoredMonthlyClose } from "./StoredMonthlyClose";
+import { StockDate } from "./StockDate";
+import { FundamentalValue } from "./FundamentalValue";
+import { fundamentalsCaption } from "@/i18n/approved-arabic-ui-two";
 import { ApiNinjasAttribution } from "./ApiNinjasAttribution";
 import { StockSearchForm } from "../foundation/StockSearchForm";
 import { StockShare } from "./StockShare";
 import { StockFigures, StockSummary } from "./StockSummary";
 import { PublishedResearch } from "./PublishedResearch";
+import { StockRecordSection } from "./StockRecordSection";
+import arMessages from "@/i18n/messages/ar.json";
+import enMessages from "@/i18n/messages/en.json";
+
+import { isSuppliedDraft, uiOneDisplay } from "@/i18n/approved-arabic-ui-one";
 
 type Locale = "ar" | "en";
 export function StockVerdict({
@@ -52,7 +59,8 @@ export function StockVerdict({
   const { security, company, run, methodology, version } = data;
   const englishName = englishCompanyName(company);
   const sourceIndex = sourceNumbers(data.sources);
-  const versionLabel = publicMethodologyVersionLabel(version?.version_label || version?.version || run?.methodology_version_label);
+  const storedVersionLabel = version?.version_label || version?.version || run?.methodology_version_label;
+  const versionLabel = publicMethodologyVersionLabel(uiOneDisplay(storedVersionLabel || "", locale));
   const methodologyName = methodology?.name
     ? <Bilingual locale={locale} arabic={null} english={methodology.name} />
     : run?.methodology_name
@@ -72,14 +80,10 @@ export function StockVerdict({
         : null}
 
       <p className={styles.introStrip} data-section="intro">
-        <span><Copy locale={locale}>Suhail screens US stocks against published Shariah criteria and shows the number behind each result.</Copy></span>
         <a href={`${locale === "en" ? "/en" : ""}/#how-we-screen`}>
           <Copy locale={locale}>How we screen</Copy>
         </a>
       </p>
-      <a className={styles.backLink} href={`${locale === "en" ? "/en" : ""}/search`}>
-        <Copy locale={locale}>Back to search</Copy>
-      </a>
 
       <header className={styles.companyHeader} data-section="header">
         <div className={styles.stockHead}>
@@ -92,28 +96,32 @@ export function StockVerdict({
             {locale === "ar" && company.name_ar?.trim() && (
               <p className={styles.arabicName} lang="en" dir="ltr">{stripPublicReviewMarker(englishName)}</p>
             )}
-            <div className={styles.identityLine}>
+            <div className={styles.identityLine} dir="ltr">
               <span className={styles.ticker} dir="ltr">{security.display_symbol || security.ticker}</span>
               {data.exchange && (
-                <span><Bilingual locale={locale} arabic={null} english={data.exchange.name} />{" "}
-                  <bdi className={styles.muted} dir="ltr">({data.exchange.code})</bdi>
-                </span>
+                <>
+                  <span aria-hidden="true">·</span>
+                  <bdi dir="ltr">{data.exchange.code}</bdi>
+                </>
               )}
               {company.sector_label && (
-                <span><Copy locale={locale}>SEC label</Copy>{" "}
-                  <Bilingual locale={locale} arabic={null} english={company.sector_label} />
-                </span>
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span title={locale === "ar" ? "تصنيف SEC" : "SEC label"}>
+                    <Bilingual locale={locale} arabic={null} english={company.sector_label} />
+                  </span>
+                </>
               )}
             </div>
           </div>
-          {canonicalUrl !== undefined && <StockShare canonicalUrl={canonicalUrl} locale={locale} />}
         </div>
         <LanguageNotice locale={locale} needed={englishSections.length > 0 || needsReverseLanguageNotice}
           reverse={needsReverseLanguageNotice} sections={needsReverseLanguageNotice ? ["Coverage by"] : englishSections} />
       </header>
 
       <StockSummary data={data} locale={locale} />
-      <StockFigures data={data} locale={locale} />
+      {run && canonicalUrl !== undefined && <StockShare canonicalUrl={canonicalUrl} locale={locale} />}
+      {run && <StockFigures data={data} locale={locale} />}
 
       <div className={styles.shortContext} data-section="short-context">
         <Disclaimer variant="short" locale={locale} />
@@ -129,23 +137,28 @@ export function StockVerdict({
           <span aria-hidden="true">⌄</span>
         </summary>
         <div className={styles.recordBody}>
+          {versionLabel && <p className={styles.versionLabel} data-record-version lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>{versionLabel}</p>}
           {run && (
             <>
-              <section className={`${styles.section} ${styles.screening}`} data-section="screening" aria-labelledby="stock-screening-title">
-                <div className={styles.sectionHeading}>
-                  <h2 id="stock-screening-title"><Copy locale={locale}>Screening</Copy></h2>
-                </div>
+              <StockRecordSection sectionKey="screening" id="stock-screening-title" title={<Copy locale={locale}>Screening</Copy>} className={styles.screening}>
                 <div className={styles.screeningTop}>
                   <StatusBadge status={run.status} />
                 </div>
                 <dl className={styles.summaryGrid}>
                   <Field label={<Copy locale={locale}>Under</Copy>}>
                     {methodologyName}{" "}
-                    <bdi className={styles.code} dir="ltr">{stripPublicReviewMarker(versionLabel ?? "")}</bdi>
-                    {version?.workflow_status && <span> · <Label family="workflow" value={version.workflow_status} locale={locale} /></span>}
+                    <span className={styles.versionLabel} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>{stripPublicReviewMarker(versionLabel ?? "")}</span>
+                    {version?.workflow_status && !isSuppliedDraft(storedVersionLabel) && <span> · <Label family="workflow" value={version.workflow_status} locale={locale} /></span>}
                   </Field>
-                  <Field label={<Copy locale={locale}>Period end</Copy>}><time>{formatCalendarDate(data.period?.period_end, locale)}</time></Field>
-                  <Field label={<Copy locale={locale}>Filing date</Copy>}><time>{periodFiledDate(data, locale)}</time></Field>
+                  {version?.workflow_status && storedVersionLabel === "Adapted research 1.1 — draft; Suhail upper-bound assumption" && (
+                    <Field label={locale === "ar" ? arMessages.publicMethodology.workflowStatus : enMessages.publicMethodology.workflowStatus}>
+                      <Label family="workflow" value={version.workflow_status} locale={locale} />
+                    </Field>
+                  )}
+                  <Field label={<Copy locale={locale}>Period end</Copy>}><StockDate value={data.period?.period_end} locale={locale} /></Field>
+                  <Field label={<Copy locale={locale}>Filing date</Copy>}>{data.period?.source_id && data.period.reported_date
+                    ? <StockDate value={data.period.reported_date} locale={locale} />
+                    : periodFiledDate(data, locale)}</Field>
                   <Field label={<Copy locale={locale}>Confidence</Copy>}>
                     <Label family="confidence" value={run.confidence} locale={locale} />
                     <ConfidenceNote className={styles.note} />
@@ -153,17 +166,14 @@ export function StockVerdict({
                   <Field label={<Copy locale={locale}>Data adequacy</Copy>}>
                     <Label family="adequacy" value={run.data_adequacy} locale={locale} />
                   </Field>
-                  <Field label={<Copy locale={locale}>Data date</Copy>}>{formatCalendarDate(run.data_as_of, locale)}</Field>
+                  <Field label={<Copy locale={locale}>Data date</Copy>}><StockDate value={run.data_as_of} locale={locale} /></Field>
                 </dl>
                 <a href="#stock-why-title" className={styles.whyLink}>
                   <Copy locale={locale}>Why?</Copy><span aria-hidden="true">↓</span>
                 </a>
-              </section>
+              </StockRecordSection>
 
-              <section className={styles.section} data-section="known" aria-labelledby="stock-known-title">
-                <div className={styles.sectionHeading}>
-                  <h2 id="stock-known-title"><Copy locale={locale}>What we know</Copy></h2>
-                </div>
+              <StockRecordSection sectionKey="known" id="stock-known-title" title={<Copy locale={locale}>What we know</Copy>}>
                 {data.criteria.length ? (
                   <ul className={styles.evidenceList}>
                     {data.criteria.map((criterion) => (
@@ -182,12 +192,9 @@ export function StockVerdict({
                     ))}
                   </ul>
                 ) : <p className={styles.muted}><Copy locale={locale}>No criterion evidence was stored for this run.</Copy></p>}
-              </section>
+              </StockRecordSection>
 
-              <section className={styles.section} data-section="unknown" aria-labelledby="stock-unknown-title">
-                <div className={styles.sectionHeading}>
-                  <h2 id="stock-unknown-title"><Copy locale={locale}>What we don&apos;t know</Copy></h2>
-                </div>
+              <StockRecordSection sectionKey="unknown" id="stock-unknown-title" title={<Copy locale={locale}>What we don&apos;t know</Copy>}>
                 {data.unknowns.length ? (
                   <ul className={styles.unknownList}>
                     {data.unknowns.map((unknown) => (
@@ -212,51 +219,40 @@ export function StockVerdict({
                     ))}
                   </ul>
                 ) : <p><Copy locale={locale}>No unknown inputs were recorded for this run.</Copy></p>}
-              </section>
+              </StockRecordSection>
 
-              <section className={styles.section} data-section="methodology" aria-labelledby="stock-method-title">
-                <div className={styles.sectionHeading}>
-                  <h2 id="stock-method-title"><Copy locale={locale}>Methodology</Copy></h2>
-                </div>
+              <StockRecordSection sectionKey="methodology" id="stock-method-title" title={<Copy locale={locale}>Methodology</Copy>}>
                 <p className={styles.methodName}>
                   {methodology?.name ? <Bilingual locale={locale} arabic={null} english={methodology.name} /> : <Copy locale={locale}>Methodology unavailable</Copy>}{" "}
-                  <bdi className={styles.code} dir="ltr">{stripPublicReviewMarker(versionLabel ?? "")}</bdi>
-                  {version?.workflow_status && <> · <Label family="workflow" value={version.workflow_status} locale={locale} /></>}
+                  <span className={styles.versionLabel} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>{stripPublicReviewMarker(versionLabel ?? "")}</span>
+                  {version?.workflow_status && !isSuppliedDraft(storedVersionLabel) && <> · <Label family="workflow" value={version.workflow_status} locale={locale} /></>}
                 </p>
                 {methodology?.scope && (
                   <p className={styles.scope}><Bilingual locale={locale} arabic={null} english={methodology.scope} /></p>
                 )}
                 {methodology && version && (
                   <a href={`${locale === "en" ? "/en" : ""}/methodology/${encodeURIComponent(methodology.slug)}?version=${encodeURIComponent(version.version)}#methodology-${methodology.slug}-version-${encodeURIComponent(version.version)}`} className={styles.textLink}>
-                    <Copy locale={locale}>Open methodology and this version</Copy><span aria-hidden="true">↗</span>
+                    <Copy locale={locale}>Open methodology and this version</Copy>
                   </a>
                 )}
-              </section>
+              </StockRecordSection>
 
-              <section className={styles.section} data-section="criteria" aria-labelledby="stock-criteria-title">
-                <div className={styles.sectionHeading}>
-                  <h2 id="stock-criteria-title"><Copy locale={locale}>Criteria</Copy></h2>
-                </div>
+              <StockRecordSection sectionKey="criteria" id="stock-criteria-title" title={<Copy locale={locale}>Criteria</Copy>}>
                 <CriteriaTable criteria={data.criteria} sources={sourceIndex} locale={locale} />
-              </section>
+              </StockRecordSection>
               {data.explanation && <ExplanationSlot explanation={data.explanation} locale={locale} />}
             </>
           )}
           {data.publishedPick && <PublishedResearch pick={data.publishedPick} locale={locale} />}
 
-          {/* D-04 / D-153: retain stored monthly close only as historical context, never as a live quote. */}
-          <StoredMonthlyClose close={data.storedClose} locale={locale} />
-
           {run && <>
-          <section className={styles.section} data-section="fundamentals" aria-labelledby="stock-fundamentals-title">
-            <div className={styles.sectionHeading}>
-              <h2 id="stock-fundamentals-title"><Copy locale={locale}>Fundamentals</Copy></h2>
-            </div>
+          <StockRecordSection sectionKey="fundamentals" id="stock-fundamentals-title" title={<Copy locale={locale}>Fundamentals</Copy>}>
             {data.facts.length ? (
               <div className={styles.factsTableWrap}>
                 <table className={styles.factsTable}>
+                  <caption>{fundamentalsCaption[locale]}</caption>
                   <thead>
-                    <tr>{["Label", "Value", "Unit", "Period", "Input state", "Confidence tier", "Source"].map((head) => (
+                    <tr>{["Label", "Value", "Period", "Input state", "Confidence tier", "Source"].map((head) => (
                       <th key={head} scope="col"><Copy locale={locale}>{head}</Copy></th>
                     ))}</tr>
                   </thead>
@@ -264,29 +260,20 @@ export function StockVerdict({
                     {data.facts.map((fact) => (
                       <tr key={fact.id}>
                         <th scope="row"><Label family="lineItem" value={fact.line_item} locale={locale} /></th>
-                        <td>{fact.value !== null
-                          ? <Num>{formatNumber(fact.value, locale, { maximumFractionDigits: 2 })}</Num>
-                          : fact.value_text
-                            ? <Bilingual locale={locale} arabic={null} english={fact.value_text} />
-                            : "—"}
-                        </td>
-                        <td><bdi dir="ltr">{fact.currency}</bdi>{" "}<Label family="scale" value={fact.unit_scale} locale={locale} /></td>
-                        <td><bdi dir="ltr">{data.period?.fiscal_period_label || "—"}</bdi></td>
-                        <td><Label family="inputState" value={fact.input_state} locale={locale} /></td>
-                        <td><Label family="tier" value={fact.confidence_tier} locale={locale} /></td>
-                        <td><SourceRefs ids={fact.source_id ? [fact.source_id] : []} numbers={sourceIndex} locale={locale} /></td>
+                        <td className={styles.factValue}><FundamentalValue fact={fact} locale={locale} /></td>
+                        <td className={styles.factMeta}><span className={styles.factCellLabel}><Copy locale={locale}>Period</Copy></span><bdi dir="ltr">{data.period?.fiscal_period_label || "—"}</bdi></td>
+                        <td className={styles.factMeta}><span className={styles.factCellLabel}><Copy locale={locale}>Input state</Copy></span><Label family="inputState" value={fact.input_state} locale={locale} /></td>
+                        <td className={styles.factMeta}><span className={styles.factCellLabel}><Copy locale={locale}>Confidence tier</Copy></span><Label family="tier" value={fact.confidence_tier} locale={locale} /></td>
+                        <td className={styles.factMeta}><span className={styles.factCellLabel}><Copy locale={locale}>Source</Copy></span><SourceRefs ids={fact.source_id ? [fact.source_id] : []} numbers={sourceIndex} locale={locale} /></td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             ) : <p className={styles.muted}><Copy locale={locale}>No current-period facts were recorded.</Copy></p>}
-          </section>
+          </StockRecordSection>
 
-          <section className={styles.section} data-section="sources" aria-labelledby="stock-sources-title">
-            <div className={styles.sectionHeading}>
-              <h2 id="stock-sources-title"><Copy locale={locale}>Sources</Copy></h2>
-            </div>
+          <StockRecordSection sectionKey="sources" id="stock-sources-title" title={<Copy locale={locale}>Sources</Copy>}>
             {data.sources.length ? (
               <ol className={styles.sourceList}>
                 {data.sources.map((source, index) => {
@@ -298,7 +285,7 @@ export function StockVerdict({
                       <span className={styles.sourceNumber}>[<Num>{formatNumber(number, locale)}</Num>]</span>
                       <div>
                         <h3>{source.label === "API Ninjas"
-                          ? <ApiNinjasAttribution />
+                          ? <ApiNinjasAttribution locale={locale} />
                           : <Bilingual locale={locale} arabic={null} english={title} />}</h3>
                         <dl>
                           <Field label={<Copy locale={locale}>Type</Copy>}><Label family="sourceType" value={source.source_type} locale={locale} /></Field>
@@ -307,7 +294,9 @@ export function StockVerdict({
                               ? <bdi dir="ltr">{source.document_reference}</bdi>
                               : <bdi dir="ltr"><Copy locale={locale}>Unavailable</Copy></bdi>}
                           </Field>
-                          <Field label={<Copy locale={locale}>Filed date</Copy>}><time>{sourceFiledDate(source, data, locale)}</time></Field>
+                          <Field label={<Copy locale={locale}>Filed date</Copy>}>{data.period?.source_id === source.id && data.period.reported_date
+                            ? <StockDate value={data.period.reported_date} locale={locale} />
+                            : sourceFiledDate(source, data, locale)}</Field>
                         </dl>
                         {url && (
                           <a href={url} rel="noopener noreferrer" className={styles.textLink}>
@@ -320,22 +309,19 @@ export function StockVerdict({
                 })}
               </ol>
             ) : <p className={styles.muted}><Copy locale={locale}>No sources were stored for this page.</Copy></p>}
-          </section>
+          </StockRecordSection>
 
           </>}
           {run && (
             <>
-              <section className={styles.section} data-section="history" aria-labelledby="stock-history-title">
-                <div className={styles.sectionHeading}>
-                  <h2 id="stock-history-title"><Copy locale={locale}>Change history / prior runs</Copy></h2>
-                </div>
+              <StockRecordSection sectionKey="history" id="stock-history-title" title={<Copy locale={locale}>Change history / prior runs</Copy>}>
                 {history.length ? (
                   <ol className={styles.historyList}>
                     {history.map((item, index) => {
                       const older = history[index + 1];
                       return (
                         <li key={item.id}>
-                          <time>{formatTimestamp(item.generated_at, locale, { dateStyle: "medium" })}</time>
+                          <StockDate value={item.generated_at} locale={locale} />
                           {item.id === run.id && <span className={styles.currentRun}><Copy locale={locale}>Current</Copy></span>}
                           <StatusBadge status={item.status} className={styles.smallBadge} />
                           <Num>{item.immutable_hash.slice(0, 12)}</Num>
@@ -346,24 +332,21 @@ export function StockVerdict({
                   </ol>
                 ) : null}
                 {!data.priorRuns.length && <p className={styles.muted}><Copy locale={locale}>No earlier run for this methodology.</Copy></p>}
-              </section>
-              <section className={styles.section} data-section="metadata" aria-labelledby="stock-metadata-title">
-                <div className={styles.sectionHeading}>
-                  <h2 id="stock-metadata-title"><Copy locale={locale}>Run metadata</Copy></h2>
-                </div>
+              </StockRecordSection>
+              <StockRecordSection sectionKey="metadata" id="stock-metadata-title" title={<Copy locale={locale}>Run metadata</Copy>}>
                 <dl className={styles.summaryGrid}>
                   <Field label={<Copy locale={locale}>Run hash</Copy>}><Num>{run.immutable_hash}</Num></Field>
-                  <Field label={<Copy locale={locale}>Generated</Copy>}>{formatTimestamp(run.generated_at, locale)}</Field>
+                  <Field label={<Copy locale={locale}>Generated</Copy>}><StockDate value={run.generated_at} locale={locale} /></Field>
                   <Field label={<Copy locale={locale}>Calculation version</Copy>}><bdi className={styles.code} dir="ltr">{run.calculation_version}</bdi></Field>
                   <Field label={<Copy locale={locale}>Engine version</Copy>}><bdi className={styles.code} dir="ltr">{run.engine_version}</bdi></Field>
                 </dl>
                 <p className={styles.appendOnly}><Copy locale={locale}>Screening runs are append-only. This record is never edited.</Copy></p>
-              </section>
+              </StockRecordSection>
             </>
           )}
-          <section className={styles.disclaimerSection} data-section="disclaimer">
+          <StockRecordSection sectionKey="disclaimer" id="stock-full-disclaimer-title" title={locale === "ar" ? arMessages.controls.fullDisclaimer : enMessages.controls.fullDisclaimer} className={styles.disclaimerSection}>
             <Disclaimer variant="full" locale={locale} className={styles.disclaimer} />
-          </section>
+          </StockRecordSection>
         </div>
       </details>
 

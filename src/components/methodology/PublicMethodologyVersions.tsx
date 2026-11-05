@@ -1,9 +1,10 @@
 "use client";
 
 import { Children, useEffect, useMemo, useState, type ReactNode } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { PublicLocalizedText as LocalizedText } from "../foundation";
 import { stripPublicReviewMarker } from "../foundation/shared";
+import { uiOneDisplay } from "@/i18n/approved-arabic-ui-one";
 
 export type PublicVersionChoice = { value: string; label: string };
 
@@ -17,6 +18,7 @@ export function PublicMethodologyVersions({
   children: ReactNode;
 }) {
   const t = useTranslations("publicMethodology");
+  const locale = useLocale() === "ar" ? "ar" : "en";
   const [selected, setSelected] = useState(defaultVersion);
   const panels = Children.toArray(children);
   const validValues = useMemo(() => versions.map((version) => version.value), [versions]);
@@ -58,7 +60,7 @@ export function PublicMethodologyVersions({
             <select id="public-version-selector" value={selected} onChange={(event) => changeVersion(event.target.value)}
               className="min-h-11 w-full border border-border bg-background px-3 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--brass)]">
               {versions.map((version) => (
-                <option key={version.value} value={version.value}>{stripPublicReviewMarker(version.label)}</option>
+                <option key={version.value} value={version.value}>{stripPublicReviewMarker(uiOneDisplay(version.label, locale))}</option>
               ))}
             </select>
           </label>

@@ -8,7 +8,7 @@ import {
 import type { Locale } from "../../src/components/accounts/types";
 import { accountFixture } from "./actions";
 
-export function AdminFixture({ locale, mode }: { locale: Locale; mode: string }) {
+export function AdminFixture({ locale, mode, bare = false }: { locale: Locale; mode: string; bare?: boolean }) {
   const params = new URLSearchParams(window.location.search);
   const empty = params.has("empty");
   const role = params.get("role") === "editor" ? "editor" : "admin";
@@ -49,6 +49,7 @@ export function AdminFixture({ locale, mode }: { locale: Locale; mode: string })
     />
   ) : <DeferredAdminSection locale={locale} title="Methodologies" />;
 
+  if (bare) return content;
   return (
     <AdminShell locale={locale} role={role} currentPath={currentPath} userLabel="Fixture Admin">
       {content}

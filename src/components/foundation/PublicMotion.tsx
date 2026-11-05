@@ -22,6 +22,7 @@ export function installPublicMotion(root: HTMLElement, played: WeakSet<Element>)
   const setup = () => {
     stop();
     if (preference.matches || !window.IntersectionObserver || !root.animate) return;
+    const watched = new WeakSet<Element>();
     observer = new IntersectionObserver(entries => {
       let stagger = 0;
       for (const entry of entries) {
@@ -38,6 +39,20 @@ export function installPublicMotion(root: HTMLElement, played: WeakSet<Element>)
         animation.onfinish = () => active.delete(animation);
       }
     }, { threshold: 0.08 });
+    const watch = (element: HTMLElement) => {
+      if (played.has(element) || watched.has(element)) return;
+      watched.add(element);
+      const bounds = element.getBoundingClientRect();
+      // UI-7: never rewind already-painted content at hydration or a streamed
+      // refresh. Even a partial viewport overlap is visible, below the IO threshold.
+      if (bounds.top < window.innerHeight && bounds.bottom > 0 &&
+          bounds.left < window.innerWidth && bounds.right > 0) {
+        played.add(element);
+        observer?.unobserve(element);
+        return;
+      }
+      observer?.observe(element);
+    };
     const refresh = () => {
       const candidates = [...root.querySelectorAll<HTMLElement>(
         "main h1,main h2,main h3,main p,main article,[data-ux-card],main li > a,footer p",
@@ -47,10 +62,10 @@ export function installPublicMotion(root: HTMLElement, played: WeakSet<Element>)
         // A card's text enters with its parent, not with a second nested transform.
         let parent = element.parentElement;
         while (parent && parent !== root && !selected.has(parent)) parent = parent.parentElement;
-        if ((!parent || parent === root) && !played.has(element)) observer?.observe(element);
+        if (!parent || parent === root) watch(element);
       }
       root.querySelectorAll<HTMLElement>("[data-ux-ratio]").forEach(element => {
-        if (!played.has(element)) observer?.observe(element);
+        watch(element);
       });
     };
     refresh();

@@ -233,7 +233,7 @@ export const accountCopyDictionary = Object.fromEntries(
     english,
     {
       en: english,
-      ar: approvedArabicCopy[english] ?? `⟦AR-REVIEW⟧ ${english}`,
+      ar: approvedArabicCopy[english] ?? english,
     },
   ]),
 ) as Record<string, { ar: string; en: string }>;
@@ -242,7 +242,7 @@ export function reviewText(locale: Locale, source: string) {
   const entry = Object.hasOwn(accountCopyDictionary, source) ? accountCopyDictionary[source] : undefined;
   if (entry) return entry[locale];
   const approved = Object.hasOwn(approvedArabicCopy, source) ? approvedArabicCopy[source] : undefined;
-  return locale === "ar" ? approved ?? `⟦AR-REVIEW⟧ ${source}` : source;
+  return locale === "ar" ? approved ?? source : source;
 }
 
 export function initials(name: string | null): string {

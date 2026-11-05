@@ -41,7 +41,7 @@ describe("explicit public display contracts", () => {
         expect(displayLabel(family as keyof typeof presentationLabels | "structured", key, "en")).toBe("Unrecognized label");
       }
     }
-    expect(reviewText("ar", "Future unknown phrase")).toBe("⟦AR-REVIEW⟧ Future unknown phrase");
+    expect(reviewText("ar", "Future unknown phrase")).toBe("Future unknown phrase");
   });
   it("keeps the D-131 supplemental labels exhaustive, approved and distinguishable", () => {
     expect(Object.keys(presentationLabels.activity).sort()).toEqual([...categories].sort());

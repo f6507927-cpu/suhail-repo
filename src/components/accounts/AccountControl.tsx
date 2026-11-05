@@ -1,4 +1,5 @@
 "use client";
+import { LocalizedText } from "../foundation/shared";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -197,7 +198,7 @@ export function AccountControl({ locale }: Props) {
           <UserRound aria-hidden="true" size={17} strokeWidth={1.6} />
           {copy.signIn}
         </Link>
-        {error && <p className="mt-2 max-w-56 text-xs text-foreground" role="status">{error}</p>}
+        {error && <p className="mt-2 max-w-56 text-xs text-foreground" role="status"><LocalizedText>{error}</LocalizedText></p>}
       </div>
     );
   }
@@ -237,7 +238,7 @@ export function AccountControl({ locale }: Props) {
             <LogOut aria-hidden="true" size={16} strokeWidth={1.6} />
             {busy ? copy.signingOut : copy.signOut}
           </button>
-          {error && <p className="px-3 py-2 text-xs text-foreground" role="status">{error}</p>}
+          {error && <p className="px-3 py-2 text-xs text-foreground" role="status"><LocalizedText>{error}</LocalizedText></p>}
         </div>
       </details>
     </div>

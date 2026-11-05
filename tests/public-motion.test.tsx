@@ -9,33 +9,45 @@ import { syncThemeColor } from "../src/components/foundation/ThemeColor";
 
 beforeEach(()=>vi.stubGlobal("React",React));
 afterEach(()=>vi.unstubAllGlobals());
-function harness(reduce=false) {
+type MotionNode = "heading" | "card" | "nested" | "bar" | "incoming";
+type Bounds = Pick<DOMRect, "top" | "bottom" | "left" | "right">;
+function harness(reduce=false, bounds: Partial<Record<MotionNode, Partial<Bounds>>> = {}) {
   let emit:(entries:IntersectionObserverEntry[])=>void=()=>{};
   let change:()=>void=()=>{};
   let focus:()=>void=()=>{};
+  let refresh:()=>void=()=>{};
+  let streamed=false;
   const observed:unknown[]=[];
   const preference={matches:reduce,addEventListener:vi.fn((_name:string,cb:()=>void)=>{change=cb;}),removeEventListener:vi.fn()};
   const animations:{cancel:ReturnType<typeof vi.fn>;onfinish:unknown}[]=[];
   const animate=vi.fn(()=>{const animation={cancel:vi.fn(),onfinish:null};animations.push(animation);return animation;});
-  const root={animate,querySelectorAll:(selector:string)=>selector==="[data-ux-ratio]"?[bar]:[heading,card,nested],
+  const root={animate,querySelectorAll:(selector:string)=>selector==="[data-ux-ratio]"?[bar]:[heading,card,nested,...(streamed?[incoming]:[])],
     addEventListener:(_name:string,cb:()=>void)=>{focus=cb;},removeEventListener:vi.fn()};
-  const node=(parent:unknown,ratio=false)=>({parentElement:parent,matches:()=>false,querySelector:()=>null,
+  const node=(parent:unknown,name:MotionNode,ratio=false)=>({parentElement:parent,matches:()=>false,querySelector:()=>null,
+    getBoundingClientRect:vi.fn(()=>({top:900,bottom:1000,left:0,right:300,...bounds[name]})),
     hasAttribute:()=>ratio,contains:()=>false,animate});
-  const heading=node(root),card=node(root),nested=node(card),bar=node(root,true);
+  const heading=node(root,"heading"),card=node(root,"card"),nested=node(card,"nested"),bar=node(root,"bar",true);
+  const incoming=node(root,"incoming");
   class Observer {
     constructor(callback:(entries:IntersectionObserverEntry[])=>void){emit=callback;}
     observe(element:unknown){observed.push(element);}
     unobserve=vi.fn();
     disconnect=vi.fn();
   }
-  class Mutations {observe=vi.fn();disconnect=vi.fn();}
-  vi.stubGlobal("window",{matchMedia:()=>preference,IntersectionObserver:Observer});
+  class Mutations {
+    constructor(callback:()=>void){refresh=callback;}
+    observe=vi.fn();disconnect=vi.fn();
+  }
+  vi.stubGlobal("window",{innerHeight:800,innerWidth:375,matchMedia:()=>preference,IntersectionObserver:Observer});
   vi.stubGlobal("document",{activeElement:null,body:{}});
   vi.stubGlobal("IntersectionObserver",Observer);
   vi.stubGlobal("MutationObserver",Mutations);
   const dispose=installPublicMotion(root as unknown as HTMLElement,new WeakSet());
-  const enter=()=>emit(observed.map(target=>({target,isIntersecting:true}) as IntersectionObserverEntry));
-  return {observed,animate,animations,preference,enter,dispose,focus:()=>focus(),change:()=>change()};
+  const enter=(targets:unknown[]=observed,isIntersecting=true)=>emit(targets.map(target=>({target,isIntersecting}) as IntersectionObserverEntry));
+  return {observed,animate,animations,preference,enter,dispose,heading,card,bar,incoming,
+    setBounds:(name:MotionNode,value:Partial<Bounds>)=>{bounds[name]=value;},
+    stream:(value:Partial<Bounds>)=>{bounds.incoming=value;streamed=true;refresh();},
+    refresh:()=>refresh(),focus:()=>focus(),change:()=>change()};
 }
 describe("UX-7 progressively enhanced motion",()=>{
   it("server-renders all content without an opacity/visibility gate",()=>{
@@ -54,6 +66,71 @@ describe("UX-7 progressively enhanced motion",()=>{
     expect([...ENTRANCE_FRAMES,...RATIO_FRAMES].every(frame=>Object.keys(frame).every(key=>["opacity","transform"].includes(key)))).toBe(true);
     h.enter();
     expect(h.animate).toHaveBeenCalledTimes(3);
+    h.dispose();
+  });
+  it("never rewinds the headline, result card or ratio already visible at hydration",()=>{
+    const h=harness(false,{
+      heading:{top:20,bottom:80},card:{top:100,bottom:500},bar:{top:300,bottom:310},
+    });
+    expect(h.observed).toHaveLength(0);
+    // Stale observer delivery must not start an animation either.
+    h.enter([h.heading,h.card,h.bar]);
+    expect(h.animate).not.toHaveBeenCalled();
+    h.dispose();
+  });
+  it.each([
+    {top:799,bottom:899}, // Only one pixel visible: less than the IO threshold.
+    {top:-99,bottom:1},
+    {top:20,bottom:80,left:374,right:474},
+    {top:20,bottom:80,left:-99,right:1},
+  ])("treats any partial viewport overlap as already visible: %j",bounds=>{
+    const h=harness(false,{heading:bounds});
+    expect(h.observed).not.toContain(h.heading);
+    h.enter([h.heading]);
+    expect(h.animate).not.toHaveBeenCalled();
+    h.dispose();
+  });
+  it("keeps below-fold card reveals and ratio growth, without replaying visible text",()=>{
+    const h=harness(false,{heading:{top:20,bottom:80}});
+    expect(h.observed).toEqual([h.card,h.bar]);
+    h.enter([h.card,h.bar],false);
+    expect(h.animate).not.toHaveBeenCalled();
+    h.enter([h.card,h.bar]);
+    expect(h.animate).toHaveBeenNthCalledWith(1,ENTRANCE_FRAMES,expect.objectContaining({delay:0,duration:420}));
+    expect(h.animate).toHaveBeenNthCalledWith(2,RATIO_FRAMES,expect.objectContaining({delay:80,duration:420}));
+    h.enter([h.heading,h.card,h.bar]);
+    expect(h.animate).toHaveBeenCalledTimes(2);
+    h.dispose();
+  });
+  it("keeps registered below-fold content eligible when a refresh races with scrolling",()=>{
+    const h=harness();
+    h.setBounds("heading",{top:20,bottom:80});
+    h.setBounds("bar",{top:300,bottom:310});
+    h.refresh();
+    h.enter([h.heading,h.bar]);
+    expect(h.animate).toHaveBeenCalledTimes(2);
+    h.enter([h.card]);
+    expect(h.animate).toHaveBeenCalledTimes(3);
+    h.dispose();
+  });
+  it("does not rewind newly streamed content that is already visible",()=>{
+    const h=harness();
+    h.stream({top:20,bottom:80});
+    expect(h.observed).not.toContain(h.incoming);
+    h.enter([h.incoming]);
+    expect(h.animate).not.toHaveBeenCalled();
+    h.dispose();
+  });
+  it("does not rewind current viewport content when reduced motion is disabled",()=>{
+    const h=harness(true);
+    h.setBounds("heading",{top:20,bottom:80});
+    h.setBounds("card",{top:100,bottom:500});
+    h.setBounds("bar",{top:300,bottom:310});
+    h.preference.matches=false;
+    h.change();
+    h.enter([h.heading,h.card,h.bar]);
+    expect(h.observed).toHaveLength(0);
+    expect(h.animate).not.toHaveBeenCalled();
     h.dispose();
   });
   it("never starts motion for reduced-motion users, and cancels when preference changes",()=>{

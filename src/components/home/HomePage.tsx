@@ -1,5 +1,4 @@
 import { stockCriterionLabel } from "@/i18n/stock-labels";
-import { displayLabel } from "@/i18n/presentation";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { PublicHomeData } from "@/home/types";
@@ -8,7 +7,8 @@ import { CoverageSeal, Num, StatusBadge } from "@/components/foundation";
 import { StockSearchForm } from "@/components/foundation/StockSearchForm";
 import { englishCompanyName, formatDate, formatNumber } from "@/lib/format";
 import { RatioMeter } from "../stock/StockSummary";
-import { Bilingual, ReasonList } from "../stock/StockVerdictParts";
+import { Bilingual, ReasonList, Label, isBooleanCriterion, criterionExplanation } from "../stock/StockVerdictParts";
+import { uiOneDisplay } from "@/i18n/approved-arabic-ui-one";
 import { stripPublicReviewMarker } from "../foundation/shared";
 import styles from "./HomePage.module.css";
 
@@ -36,7 +36,7 @@ function ExampleOutcomes({ locale }: { locale: Locale }) {
         </p>
         <div className={styles.outcomeGrid}>
           {items.map(([title, description], index) => (
-            <article data-ux-card className={`${styles.outcome} ${index === 2 ? styles.covered : ""}`} key={title}>
+            <article className={`${styles.outcome} ${index === 2 ? styles.covered : ""}`} key={title}>
               <div className={styles.outcomeDemo}>
                 <bdi className={styles.exampleCompany} lang="en" dir="ltr">Example Co.</bdi>
                 <StatusBadge status={outcomeStatuses[index]} className={styles.outcomeBadge} />
@@ -103,20 +103,20 @@ function FeaturedCard({ data, locale }: { data: NonNullable<PublicHomeData["feat
               <div className={styles.ratio} key={criterion.id}>
                 <div className={styles.ratioHeading}>
                   <bdi dir="auto" className={styles.criterionLabel}>{stockCriterionLabel(criterion, locale)}</bdi>
-                  <span className={styles.ratioValues}>
-                    {criterion.criterion_type === "business_activity"
-                      ? <span>{displayLabel("result", criterion.result, locale)}</span>
-                      : <Num>{criterion.ratio === null ? "—" : `${formatNumber(criterion.ratio, locale,{minimumFractionDigits:percentage?2:0,maximumFractionDigits:2})}${percentage ? "%" : ""}`}</Num>}
-                    {criterion.criterion_type !== "business_activity" && criterion.threshold !== null && (
+                  {isBooleanCriterion(criterion) ? <Label family="result" value={criterion.result} locale={locale} /> : <span className={styles.ratioValues}>
+                    <Num>{criterion.ratio === null ? "—" : `${formatNumber(criterion.ratio, locale,{minimumFractionDigits:percentage?2:0,maximumFractionDigits:2})}${percentage ? "%" : ""}`}</Num>
+                    {criterion.threshold !== null && (
                       <span className={styles.limitText}>
                         <span aria-hidden="true"> · </span>
                         {reviewText(locale, "Limit")}{" "}
                         <Num>{`${formatNumber(criterion.threshold, locale,{minimumFractionDigits:percentage?2:0,maximumFractionDigits:2})}${percentage ? "%" : ""}`}</Num>
                       </span>
                     )}
-                  </span>
+                  </span>}
                 </div>
                 <RatioMeter criterion={criterion} locale={locale} />
+                {isBooleanCriterion(criterion) && criterionExplanation(criterion, locale) &&
+                  <p>{criterionExplanation(criterion, locale)}</p>}
               </div>
             );
           })}
@@ -139,7 +139,7 @@ export function HomePage({ data, locale }: { data: PublicHomeData; locale: Local
   const prefix = locale === "en" ? "/en" : "";
   const hasFeaturedRun = data.featured?.run ? data.featured : null;
   const methodologyLabel = data.methodology
-    ? `${data.methodology.name} · ${data.methodology.version}`
+    ? `${uiOneDisplay(data.methodology.name, locale)} · ${uiOneDisplay(data.methodology.version, locale)}`
     : reviewText(locale, "No default methodology has been set yet.");
 
   return (

@@ -24,6 +24,7 @@ export function SiteFooter({ locale }: { locale: "ar" | "en" }) {
             <a href={`${prefix}/privacy`}>{reviewText(locale, "Privacy Policy")}</a>
           </nav>
         </div>
+        <div className={styles.wordmark} lang="ar" dir="rtl" aria-label="سهيل">سهيل</div>
       </div>
     </footer>
   );

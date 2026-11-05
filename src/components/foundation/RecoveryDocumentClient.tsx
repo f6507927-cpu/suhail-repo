@@ -58,7 +58,13 @@ export function RecoveryDocumentClient({ kind }: { kind: "error" | "not-found" }
             </nav>
           </div>
         </header>
-        <RecoveryScreen locale={locale} kind={kind} showHome={false} />
+        <RecoveryScreen
+          locale={locale}
+          kind={kind}
+          showHome={kind === "not-found"}
+          publicNotFound={kind === "not-found"}
+          nativeSearch={kind === "not-found"}
+        />
         <footer className="mx-auto max-w-6xl border-t border-[var(--divider)] px-6 py-7 text-sm text-muted-foreground">
           {reviewText(locale, "Suhail · Public research")}
         </footer>

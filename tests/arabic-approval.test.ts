@@ -88,7 +88,9 @@ describe("D-101 row-level Arabic approval boundary", () => {
       expect(reviewText("ar", code), id).toBe(approvedDraft(id, draft));
       expect(reviewText("en", code), id).toBe(code);
     }
-    expect(reviewText("ar", "Unknown stored audit summary")).toBe("⟦AR-REVIEW⟧ Unknown stored audit summary");
+    expect(reviewText("ar", "Unknown stored audit summary")).toBe("Unknown stored audit summary");
+    expect(reviewText("ar", "Unknown stored audit summary")).not.toContain("⟦");
+    expect(reviewText("ar", "Unknown stored audit summary")).not.toMatch(/[\u0600-\u06ff]/);
     expect(approvedArabicCopy.Editions).toBe("الأعداد");
     expect(approvedArabicCopy["weekly edition"]).toBe("العدد الأسبوعي");
     expect(approvedArabicCopy["Default methodology version"]).toBe("إصدار المنهجية الافتراضي");

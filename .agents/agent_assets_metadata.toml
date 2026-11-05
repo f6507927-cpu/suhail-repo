@@ -224,3 +224,409 @@ mtime_ms = 1793749171146
 storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/d432c1fe-9721-4692-b662-be1ee10cf3a4/4cf01241-c1cd-4e14-a1cd-78100c1aa6d4"
 storage_version_token = "1793749238743462"
 content_type = "image/jpeg"
+
+[[outputs]]
+id = "gfsn5wgbAaQjXbCHzslZk"
+uri = "file://generated-artifacts/ui-two-phone.jpg"
+type = "image"
+title = "UI-2 — final Arabic phone screenshot"
+description = "Final combined-code check at 390px: RTL body-font dates, named ratio operands, four figures and the quiet stored-close line. Synthetic local fixture, not hosted JPM/Apple data."
+logical_id = "e783f59c-b4d0-4a30-9a3d-6f76b9c26b8b"
+content_hash = "sha256:b587e12e0437d1c5f41313e820c0e1fc8f6b0be7c0bf732c3b58cd1869b8a62f"
+size = 91308
+mtime_ms = 1793885135157
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/e783f59c-b4d0-4a30-9a3d-6f76b9c26b8b/410ff115-38d6-4e0d-8cd0-40060d331092"
+storage_version_token = "1793885160789568"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "MZLqkmEF6zOAmMXZPbZW7"
+uri = "file://generated-artifacts/ui-three/apple-1440.jpg"
+type = "image"
+title = "Apple — final 1440px"
+description = "Final combined-source screenshot of the actual public development page at 1440×1000, with reduced motion. Read-only; not a synthetic fixture or production deployment."
+logical_id = "de85175c-0b20-4092-b143-28ddffa17583"
+content_hash = "sha256:237f5b887eafae5940a9eea580e0f72e00763ebe9f0ef022306d294ba99109d7"
+size = 105292
+mtime_ms = 1793888096444
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/de85175c-0b20-4092-b143-28ddffa17583/c4d677a1-233a-486f-a5a7-45670b616284"
+storage_version_token = "1793888545592411"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "IrVZvb6I62XXOdiM2K6WK"
+uri = "file://generated-artifacts/ui-three/apple-375.jpg"
+type = "image"
+title = "Apple — final 375px"
+description = "Final combined-source screenshot of the actual public development page at 375×812, with reduced motion. Read-only; not a synthetic fixture or production deployment."
+logical_id = "39fa80a0-9a37-4e0b-b2c7-9a3871d83657"
+content_hash = "sha256:de5dcf3c6dce2868aad49f10a7c08f382d04b6932927a128f09f37d1fd33ca92"
+size = 52222
+mtime_ms = 1793888097976
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/39fa80a0-9a37-4e0b-b2c7-9a3871d83657/7f7708ee-a1fd-4717-b67f-3cfbcb430874"
+storage_version_token = "1793888546926162"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "5BdOtsSDevsANCkH2RrIE"
+uri = "file://generated-artifacts/ui-three/jpm-1440.jpg"
+type = "image"
+title = "JPM — final 1440px"
+description = "Final combined-source screenshot of the actual public development page at 1440×1000, with reduced motion. Read-only; not a synthetic fixture or production deployment."
+logical_id = "c9eee822-aae9-4e95-8f66-6a567e592ad2"
+content_hash = "sha256:14deeb45fe2046f8a907c5f84ac8f206fc38de508aa00512116c74e4155be711"
+size = 127270
+mtime_ms = 1793888099576
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/c9eee822-aae9-4e95-8f66-6a567e592ad2/71c19c71-721b-4b59-aadb-b7838dad2eb8"
+storage_version_token = "1793888548227925"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "28nX5ghv1IkiT-JX0P6Du"
+uri = "file://generated-artifacts/ui-three/jpm-375.jpg"
+type = "image"
+title = "JPM — final 375px"
+description = "Final combined-source screenshot of the actual public development page at 375×812, with reduced motion. Read-only; not a synthetic fixture or production deployment."
+logical_id = "ca7801df-695e-47cc-9315-ee337b301301"
+content_hash = "sha256:ad897fbe0d3994be42d977d500fab510729bf2449e613c4eba50c738cbf405da"
+size = 58382
+mtime_ms = 1793888101080
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/ca7801df-695e-47cc-9315-ee337b301301/3169bf3a-a8af-4cbd-95cc-732f3d0325d1"
+storage_version_token = "1793888549523717"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "ucuFavQo8W8LUld9VNbph"
+uri = "file://generated-artifacts/ui-three/ko-1440.jpg"
+type = "image"
+title = "KO — final 1440px"
+description = "Final combined-source screenshot of the actual public development page at 1440×1000, with reduced motion. Read-only; not a synthetic fixture or production deployment."
+logical_id = "932ea46a-b58c-49db-84d0-14deb9354c29"
+content_hash = "sha256:31f8a36df3009653f3e098e036f53b42ffc914574680632bcc72344c9e38f714"
+size = 115514
+mtime_ms = 1793888102616
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/932ea46a-b58c-49db-84d0-14deb9354c29/f2f99532-7048-4d24-b85d-c952e8a41fa1"
+storage_version_token = "1793888550840434"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "BNSuM21AevB3S2EKGoMQC"
+uri = "file://generated-artifacts/ui-three/ko-375.jpg"
+type = "image"
+title = "KO — final 375px"
+description = "Final combined-source screenshot of the actual public development page at 375×812, with reduced motion. Read-only; not a synthetic fixture or production deployment."
+logical_id = "ec246c31-d7f9-41d1-ac75-1ea5971e6b8f"
+content_hash = "sha256:99b142e1a990a2170dd363767338d628da355a4cc289531dfd7b195ed1201a3b"
+size = 48429
+mtime_ms = 1793888104240
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/ec246c31-d7f9-41d1-ac75-1ea5971e6b8f/02383fa7-166c-480b-862e-33920d931b61"
+storage_version_token = "1793888552148889"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "TYRKKAMhVaItF4-_biMPn"
+uri = "file://generated-artifacts/ui-one-b/review.html"
+type = "html"
+title = "UI-1B — 124 Arabic proposals and test-change inventory"
+description = "Self-contained review report listing every additional English/Arabic pair, each modified or new test and its reason, and protected boundaries. The exact 107-row approved table is separately pinned. Full results are in docs/UI_ONE_B_VALIDATION.md."
+logical_id = "fdcdf72e-912e-4b8a-9dca-3cf5c943e711"
+content_hash = "sha256:69afb1fa9f4991014aab8b2ecba98884fc65fba9d766cec3e058b3c991eae127"
+size = 33868
+mtime_ms = 1793894595776
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/fdcdf72e-912e-4b8a-9dca-3cf5c943e711/ee20107b-badf-4cef-9e36-e306b171ec5d"
+storage_version_token = "1793894755222086"
+content_type = "text/html"
+
+[[outputs]]
+id = "4FV7VT6LNx2zM4m347_DA"
+uri = "file://generated-artifacts/ui-four/search-375.jpg"
+type = "image"
+title = "UI-4 search — phone 375px"
+description = "Actual Arabic development results for search q=a; 10 returned rows, shared pill form and quiet result count. Not a synthetic screenshot."
+logical_id = "b8518780-5ee1-43f6-88bf-fa64770ad9a0"
+content_hash = "sha256:c2d47a91f8d06495100341944e220c083237477dcffa7f85ac605ca4be7e45a9"
+size = 39688
+mtime_ms = 1793895560291
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/b8518780-5ee1-43f6-88bf-fa64770ad9a0/1671c80b-e71d-45b6-a923-d7ec27126beb"
+storage_version_token = "1793896001362682"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "1RrHmTYGkPclaqXZjLFHA"
+uri = "file://generated-artifacts/ui-four/search-1440.jpg"
+type = "image"
+title = "UI-4 search — desktop 1440px"
+description = "Actual development search page with whole-row links, muted identity details and existing status badges."
+logical_id = "b030ea42-218a-4f16-a129-3d13cf775213"
+content_hash = "sha256:483a8695d3435b8535b91e2d0f75e919af64cc35561bcbd3088ed1517437f65d"
+size = 89027
+mtime_ms = 1793895561323
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/b030ea42-218a-4f16-a129-3d13cf775213/89150861-b703-4c52-aa86-48dfd0cdd884"
+storage_version_token = "1793896002639189"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "RTigC6ja5141CUwmMyWeZ"
+uri = "file://generated-artifacts/ui-four/stock-search-again-375.jpg"
+type = "image"
+title = "Stock search-again — shared phone pill"
+description = "Actual shared search form on the KO stock development page at 375px; same pill and Brass button styling."
+logical_id = "bb545b91-7a54-4774-b292-776715c11973"
+content_hash = "sha256:70541cf3d4866d55b3bba8c6f77b0e7d8f25f65ebd55bbb074aabdd0802fd78f"
+size = 5929
+mtime_ms = 1793895562883
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/bb545b91-7a54-4774-b292-776715c11973/cbd5f0b6-50b2-48d4-8687-eb82ad874fc8"
+storage_version_token = "1793896003925192"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "VMOzHyvbmhvUtzVyXuaiH"
+uri = "file://generated-artifacts/ui-five/methodology-375-full.jpg"
+type = "image"
+title = "UI-5 methodology — phone 375px"
+description = "Actual development page, default version 1.1, all disclosures closed. Full page height: 2,241px, down from 9,971px at the same viewport. Draft-review status and provisional disclosure remain visible."
+logical_id = "5b455635-965c-4ec4-ac1d-e5f42d8833dc"
+content_hash = "sha256:beb6571c0628f8d9bc5c845c2c71996c8bff24caa298c3ec29b01dff27003548"
+size = 106258
+mtime_ms = 1793897435743
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/5b455635-965c-4ec4-ac1d-e5f42d8833dc/bb02fb40-12ac-48f2-9dca-8b158a3fbe27"
+storage_version_token = "1793898695891791"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "rNcXD8XI2piwToTbjZEUe"
+uri = "file://generated-artifacts/ui-six/0-375.jpg"
+type = "image"
+title = "Homepage — phone"
+description = "375 × 812 screenshot of the running development preview."
+logical_id = "731b63f0-bd9f-4a60-acc6-ddd51e413409"
+content_hash = "sha256:f9db274ae2d7b6660d739d1e7cef87d4d71c9fe7d0eeed7773933910be87dd00"
+size = 36027
+mtime_ms = 1793900663915
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/731b63f0-bd9f-4a60-acc6-ddd51e413409/cadc83f7-6b4a-41e9-b5a2-e7d95b35f0be"
+storage_version_token = "1793900812392091"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "Zw1zsr5jHwSmBRZduniiF"
+uri = "file://generated-artifacts/ui-six/1-375.jpg"
+type = "image"
+title = "Search results — phone"
+description = "375 × 812 screenshot of the running development preview."
+logical_id = "5922866e-a280-41af-8b64-ca26d73fc7a5"
+content_hash = "sha256:613d3dd016c05bb0fc3c671e79731937d0ec8d82ef2d21c219d8d6aed7137052"
+size = 40452
+mtime_ms = 1793900667891
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/5922866e-a280-41af-8b64-ca26d73fc7a5/c70b82af-d86c-49ed-b472-ccaa6e629d91"
+storage_version_token = "1793900813654563"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "VQMbiVHPkiz6ywQoRqgVK"
+uri = "file://generated-artifacts/ui-six/2-375.jpg"
+type = "image"
+title = "KO stock page — phone"
+description = "375 × 812 screenshot of the running development preview."
+logical_id = "f6b74ae1-65f6-4959-89bc-c31c2007b2ea"
+content_hash = "sha256:b0a1a789afd3c52a13f0f11f87c432e1d04b453ffa5e5ead6befefaa16a28c11"
+size = 46744
+mtime_ms = 1793900670839
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/f6b74ae1-65f6-4959-89bc-c31c2007b2ea/3f3d8046-8eee-4aba-8d0d-e80de2f39c9a"
+storage_version_token = "1793900814913953"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "FyAkvYqDQXEXR0Zcpw02H"
+uri = "file://generated-artifacts/ui-six/3-375.jpg"
+type = "image"
+title = "Methodology directory — phone"
+description = "375 × 812 screenshot of the running development preview."
+logical_id = "2c39ef25-d9b3-48ba-8e77-8c6cf128a492"
+content_hash = "sha256:a1977742bed4c2e09d641e6060ee255c1f6e0a31c819da8081f664ac95465033"
+size = 29997
+mtime_ms = 1793900672975
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/2c39ef25-d9b3-48ba-8e77-8c6cf128a492/df24b098-8c2e-4107-a215-e5d7b4bb1568"
+storage_version_token = "1793900816228425"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "dAPFvMDLs1nL6NM0sBsBU"
+uri = "file://generated-artifacts/ui-six/4-375.jpg"
+type = "image"
+title = "Sign-in — phone"
+description = "375 × 812 screenshot of the running development preview."
+logical_id = "f6167714-70c7-41f2-a33e-143cfecb9294"
+content_hash = "sha256:a23bd3377e4c6baed6d30c1fc92c28cf40a0eb7a745098105b95f3a5decc7136"
+size = 22246
+mtime_ms = 1793900675991
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/f6167714-70c7-41f2-a33e-143cfecb9294/5d5d47ac-2964-4db4-b05a-f4cf525fa4e8"
+storage_version_token = "1793900817522529"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "ydjPpR8_R3E8d6ZW7Q2bM"
+uri = "file://generated-artifacts/ui-eight/ar-2-375.jpg"
+type = "image"
+title = "UI-8 · KO · 375×812"
+description = "Arabic stock page at the primary phone size."
+logical_id = "4a0ae486-bba8-4378-b211-df42f290a552"
+content_hash = "sha256:0203bdabbe45e5da2269a972f1f2d63fbafce487ce5d89fd7b3ff387256b6da4"
+size = 43957
+mtime_ms = 1793905054643
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/4a0ae486-bba8-4378-b211-df42f290a552/af84231e-4703-4e85-83e7-79bdbb44baae"
+storage_version_token = "1793905961974274"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "eHkZQ2-UKvc0nFOlylHMP"
+uri = "file://generated-artifacts/ui-eight/ar-record-open-375.jpg"
+type = "image"
+title = "Full record · 375×812"
+description = "Outer record open; individual sections closed; full 1.1 caveat visible."
+logical_id = "6db95c88-5d02-4b8c-bf1d-7d10095c5827"
+content_hash = "sha256:f385512f19d917fef26e9b9d57ee3ea706dbd53649ea419cbfe4985291c9924e"
+size = 42001
+mtime_ms = 1793905098579
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/6db95c88-5d02-4b8c-bf1d-7d10095c5827/e59ffd65-2ba1-4717-9d64-68e92fd178dd"
+storage_version_token = "1793905963282812"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "fIJEJvv4CD9Mrkh46W9K0"
+uri = "file://generated-artifacts/ui-eight/ar-0-375.jpg"
+type = "image"
+title = "Homepage · 375×812"
+description = "Arabic phone homepage."
+logical_id = "cfba06d5-9e14-48a6-9223-21eb7c724c7c"
+content_hash = "sha256:6f7afa78da7ba6bdc4e68edf20e7a5422a296c2774dc92610e439e0739410103"
+size = 49586
+mtime_ms = 1793905051983
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/cfba06d5-9e14-48a6-9223-21eb7c724c7c/939d58c9-2fa0-4580-8ae1-896e25de0e3f"
+storage_version_token = "1793905964585794"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "JHXqlnIqBz89Aba60_ARX"
+uri = "file://generated-artifacts/ui-eight/ar-1-375.jpg"
+type = "image"
+title = "Search · 375×812"
+description = "Arabic phone search results."
+logical_id = "b04bad4a-22e6-45d8-b6d6-b3659f7e3a83"
+content_hash = "sha256:5bda725b4c92608ef02af024595558f70bc9ff4adfbb7bf293d628d6d74d7c42"
+size = 42099
+mtime_ms = 1793905053047
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/b04bad4a-22e6-45d8-b6d6-b3659f7e3a83/2587344b-bf1a-4c35-a082-b8802e54efd6"
+storage_version_token = "1793905965953632"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "mkHVYyfjyHRuMnhVNwunS"
+uri = "file://generated-artifacts/ui-eight/ar-3-375.jpg"
+type = "image"
+title = "Apple · 375×812"
+description = "Arabic phone stock page."
+logical_id = "691c75a9-0dfe-40fd-863e-4aa21de1f35b"
+content_hash = "sha256:d5626bc9b25dca34dca84da7d08895c56e2a265021ce25e2e217a5dad18335e8"
+size = 48977
+mtime_ms = 1793905056327
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/691c75a9-0dfe-40fd-863e-4aa21de1f35b/7f4c6adb-7713-44f9-99c9-ebcc2433ec2f"
+storage_version_token = "1793905967284197"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "Bg8qviCWtsKwjyPrMXoax"
+uri = "file://generated-artifacts/ui-eight/ar-4-375.jpg"
+type = "image"
+title = "JPM · 375×812"
+description = "Arabic phone stock page."
+logical_id = "88e00cbe-50cd-4262-bc18-88e166cf2447"
+content_hash = "sha256:80bf6fb18ae37b5742302ccf5d558cd5f32840bd1aa4fadac7e81dbd66560cbf"
+size = 56182
+mtime_ms = 1793905057891
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/88e00cbe-50cd-4262-bc18-88e166cf2447/bc667a16-a472-4dce-828e-3c9e065fd606"
+storage_version_token = "1793905968554108"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "R1lUdUohp5_J5ytFEtD3Q"
+uri = "file://generated-artifacts/ui-eight/ar-5-375.jpg"
+type = "image"
+title = "Methodology · 375×812"
+description = "Arabic Al Rajhi methodology page."
+logical_id = "c2697d5a-e98f-4d26-a9e3-b687b9ea4210"
+content_hash = "sha256:67f3c582261b2936dc7098768751923afc417e0a788af6d1be09bb1e32bdcfd2"
+size = 48314
+mtime_ms = 1793905059175
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/c2697d5a-e98f-4d26-a9e3-b687b9ea4210/8155724a-9c30-4102-b402-60025b8f426d"
+storage_version_token = "1793905969822230"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "tD6RNl_nxFLatV7ynv3v4"
+uri = "file://generated-artifacts/ui-eight/en-2-375.jpg"
+type = "image"
+title = "English stock · 375×812"
+description = "English phone stock page."
+logical_id = "3c295f63-a328-44ab-86b8-c3fc12c6980e"
+content_hash = "sha256:fbd2ad4feb014b82f073e353ad43a08b94a376bcce04fbf75d944af77b7ac21a"
+size = 54535
+mtime_ms = 1793905079991
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/3c295f63-a328-44ab-86b8-c3fc12c6980e/9208c7b8-1f58-4d61-ae8e-57287206b864"
+storage_version_token = "1793905971042261"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "IOeOhKv8z-kwC1nUSAW01"
+uri = "file://generated-artifacts/ui-nine/securities-375x812.png"
+type = "image"
+title = "Securities — 375×812"
+description = "Local mocked admin fixture. The stock list opens without selecting a record."
+logical_id = "52a7551a-331e-4a6f-99fb-72a89a221fb7"
+content_hash = "sha256:cb6cc047ade3632f61d5a16a0ddad1ba2d48388516cd8996a4a2b81e3c515667"
+size = 37944
+mtime_ms = 1793909794356
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/52a7551a-331e-4a6f-99fb-72a89a221fb7/faf8fac8-6608-4e2e-9242-b26e46abc041"
+storage_version_token = "1793909947993002"
+content_type = "image/png"
+
+[[outputs]]
+id = "R_nueNWVo6sn61pkPjm01"
+uri = "file://generated-artifacts/ui-nine/ingestion-375x812.png"
+type = "image"
+title = "Ingestion — 375×812"
+description = "Local mocked admin fixture. Separate bulk actions with counts and version disclosure."
+logical_id = "25ce6771-a9f5-40e7-b1bc-c812a28592b2"
+content_hash = "sha256:fea465e28af7da0bc1cb85b4a6492d7d915a5997a7ab53a0975ba57fcc4146ef"
+size = 40082
+mtime_ms = 1793909794572
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/25ce6771-a9f5-40e7-b1bc-c812a28592b2/3a64a78c-44ed-4286-b626-8291d608578b"
+storage_version_token = "1793909949557643"
+content_type = "image/png"
+
+[[outputs]]
+id = "5YhvXBvjncWFJiSlN2Mdd"
+uri = "file://generated-artifacts/ui-nine/settings-375x812.png"
+type = "image"
+title = "Settings — 375×812"
+description = "Local mocked admin fixture. Default-version markers and searchable featured-stock picker."
+logical_id = "46a1fc74-84fc-4a8a-bfa9-5036d681e580"
+content_hash = "sha256:fb8eddc114a08f069153a782087efd4de2bcd2357c7f1e274713dce1623896cd"
+size = 41623
+mtime_ms = 1793909794672
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/46a1fc74-84fc-4a8a-bfa9-5036d681e580/546eff5f-1dfe-4d85-b06f-b12e55ab670b"
+storage_version_token = "1793909950848374"
+content_type = "image/png"
+
+[[outputs]]
+id = "swlWJMLRCE_FE3t-GhqNg"
+uri = "file://generated-artifacts/ui-nine/audit-375x812.png"
+type = "image"
+title = "Audit — 375×812"
+description = "Local mocked admin fixture. Results first, collapsed filters and named Arabic dates."
+logical_id = "b4a8ff62-093f-4a54-b9c7-d0c94df02ab0"
+content_hash = "sha256:0c7e46ffd9121607109da72fe248dcff4e7a11a687f5e3e1632307c475098884"
+size = 30083
+mtime_ms = 1793909794788
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/b4a8ff62-093f-4a54-b9c7-d0c94df02ab0/d3ecb143-8980-4f41-9bcd-0881c4e5dc56"
+storage_version_token = "1793909952168380"
+content_type = "image/png"

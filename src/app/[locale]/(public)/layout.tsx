@@ -34,7 +34,7 @@ export default async function PublicLayout({
       <PublicMotion>
       <a
         href="#content"
-        className="fixed start-4 top-2 z-50 -translate-y-24 bg-card px-4 py-2 text-card-foreground focus:translate-y-0"
+        className="fixed start-4 top-2 z-50 inline-flex min-h-11 -translate-y-24 items-center bg-card px-4 pt-2 pb-[calc(.5rem+env(safe-area-inset-bottom))] text-card-foreground focus:translate-y-0"
       >
         <LocalizedText>{t("controls.skip")}</LocalizedText>
       </a>

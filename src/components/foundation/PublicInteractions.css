@@ -1,26 +1,89 @@
 /*
- * UX-7 public interaction states. Imported by the public shell and scoped to
- * its content wrapper; no theme or document behavior is introduced here.
+ * Public-only shape and interaction language. The wrapper exists only in the
+ * public shell; sign-in opts in locally without affecting private account UI.
  */
-/* Passive cards get the same restrained feedback, without becoming fake
-   controls or adding tab stops. Existing controls within cards retain focus. */
-[data-public-ux] [data-ux-card] {
-  transition: background-color 140ms ease, border-color 140ms ease;
+[data-public-ux] {
+  --public-raised: var(--raise);
 }
+
+[data-public-ux] [data-ux-card],
+[data-public-ux] [class*="bg-card"][class*="border"] {
+  border-radius: var(--radius-card);
+}
+
 [data-public-ux] [data-ux-card]:focus-within {
   outline: 2px solid var(--brass-soft);
   outline-offset: 3px;
 }
-@media (hover: hover) {
-  [data-public-ux] [data-ux-card]:hover {
-    background-color: color-mix(in srgb, var(--brass-soft) 8%, transparent);
-    border-color: color-mix(in srgb, var(--brass-soft) 58%, currentColor);
-  }
+
+[data-public-ux] .bg-card {
+  background-color: var(--raise);
 }
-[data-public-ux] [data-ux-card]:active {
-  background-color: color-mix(in srgb, var(--brass-soft) 15%, transparent);
-  border-color: var(--brass-soft);
+
+[data-public-ux] .bg-card[class*="border"]:not([class*="status-"]) {
+  border-color: transparent;
 }
+
+[data-public-ux] input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
+  border-radius: var(--radius-pill);
+  min-height: 44px;
+  font-size: 16px;
+}
+
+[data-public-ux] :is(select, textarea) {
+  border-radius: var(--radius-control);
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  font-size: 16px;
+}
+
+[data-public-ux] .text-xs { font-size: 13px; }
+
+[data-public-ux] :is(button, input[type="submit"], input[type="button"]) {
+  border-radius: var(--radius-control);
+  min-height: 44px;
+}
+
+[data-public-ux] summary {
+  min-height: 44px;
+}
+
+[data-public-ux] a.apiNinjasAttribution {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+
+[data-public-ux] article[id^="methodology-"] nav a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+
+[data-public-ux] :is([data-section="share"] a, [data-section="share"] button) {
+  min-height: 44px;
+}
+
+[data-public-ux] :is(a, button):is([class*="border"], [class*="bg-"]) {
+  border-radius: var(--radius-control);
+}
+
+[data-public-ux] :is(
+  a[class*="bg-primary"],
+  a[class*="bg-"][class*="brass"],
+  button[type="submit"],
+  button[class*="bg-primary"],
+  button[class*="bg-"][class*="brass"],
+  input[type="submit"]
+) {
+  border-radius: var(--radius-pill);
+}
+
+[data-public-ux] :is(.status-pass, .status-fail, .status-review, .status-insufficient) {
+  border-radius: var(--radius-pill);
+}
+
 [data-public-ux] :is(
   a,
   button,
@@ -54,39 +117,6 @@
   --tw-ring-color: var(--brass-soft);
   outline: 2px solid var(--brass-soft);
   outline-offset: 3px;
-}
-
-@media (hover: hover) {
-  [data-public-ux] :is(
-    a,
-    button,
-    summary,
-    [role="button"],
-    [role="link"],
-    input[type="button"],
-    input[type="submit"],
-    input[type="reset"],
-    [data-clickable="true"]
-  ):hover:not(:disabled) {
-    border-color: color-mix(in srgb, var(--brass-soft) 58%, currentColor);
-    background-color: color-mix(in srgb, var(--brass-soft) 8%, transparent);
-    text-decoration-color: var(--brass-soft);
-  }
-}
-
-[data-public-ux] :is(
-  a,
-  button,
-  summary,
-  [role="button"],
-  [role="link"],
-  input[type="button"],
-  input[type="submit"],
-  input[type="reset"],
-  [data-clickable="true"]
-):active:not(:disabled) {
-  background-color: color-mix(in srgb, var(--brass-soft) 15%, transparent);
-  border-color: var(--brass-soft);
 }
 
 @media (prefers-reduced-motion: reduce) {

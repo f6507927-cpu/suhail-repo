@@ -10,7 +10,7 @@ describe("account UI copy locale parity", () => {
     for (const [key, translations] of Object.entries(accountCopyDictionary)) {
       expect(translations.en, `${key} English`).toBe(key);
       expect(translations.ar, `${key} Arabic`).toBe(
-        approvedArabicCopy[key] ?? `⟦AR-REVIEW⟧ ${key}`,
+        approvedArabicCopy[key] ?? key,
       );
     }
   });
@@ -19,7 +19,7 @@ describe("account UI copy locale parity", () => {
     expect(reviewText("ar", "Sign in")).toBe("تسجيل الدخول");
     expect(reviewText("en", "Sign in")).toBe("Sign in");
     expect(reviewText("ar", "Unapproved new phrase")).toBe(
-      "⟦AR-REVIEW⟧ Unapproved new phrase",
+      "Unapproved new phrase",
     );
     expect(reviewText("ar", 'Type "DELETE" to confirm')).toBe(
       'اكتب "\u2066DELETE\u2069" للتأكيد',

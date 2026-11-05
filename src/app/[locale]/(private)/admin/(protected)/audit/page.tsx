@@ -49,6 +49,8 @@ export default async function AdminAuditPage({ params, searchParams }: PageProps
         initialRows={result.rows}
         initialPage={result.page}
         initialTotal={result.total}
+        eventOptions={result.eventOptions}
+        entityOptions={result.entityOptions}
         initialFilters={{
           event: filters.event,
           entity: filters.entity,

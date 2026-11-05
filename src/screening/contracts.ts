@@ -17,7 +17,11 @@ export type RunDetail = {
   unknowns: (typeof screeningUnknown.$inferSelect)[];
 };
 export type ScreeningAdminData = {
-  versions: { id: string; label: string; methodologyName: string }[];
+  versions: { id: string; label: string; methodologyName: string; version?: string }[];
+  defaultVersionId?: string | null;
+  stockCount?: number;
+  bulkVersionIds?: string[];
+  jobs?: (typeof import("../db/schema/accounts").jobRun.$inferSelect)[];
   runs: (typeof screeningRun.$inferSelect)[];
   unchanged: { securityId: string; methodologyVersionId: string; runId: string; jobId: string }[];
 };

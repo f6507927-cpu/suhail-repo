@@ -11,7 +11,7 @@ export default defineConfig({
   timeout: 30000,
   workers: 1,
   grep: warmed ? /failed ISR revalidation/ : /database-free build|failed first read/,
-  use: { ...devices["Desktop Chrome"], baseURL: "http://127.0.0.1:3400", launchOptions:{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE} },
+  use: { ...devices["Desktop Chrome"], viewport: { width: 375, height: 812 }, baseURL: "http://127.0.0.1:3400", launchOptions:{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE} },
   webServer: {
     command: `${warmed ? "pnpm exec tsx tests/methodology-isr-age.ts && " : ""}env -u DATABASE_URL_PUBLIC -u DATABASE_URL_APP -u DATABASE_URL_MIGRATIONS -u DATABASE_URL_TEST -u DATABASE_URL -u PGHOST -u PGUSER -u PGDATABASE -u PGPORT -u PGPASSWORD -u SUPABASE_DB_CA_CERT pnpm start`,
     env: { PORT: "3400", SITE_MODE: "live" },

@@ -1,5 +1,79 @@
 # Suhail — Decision Log
 
+## 5 November 2026 — Admin phone usability
+
+| ID | Decision |
+| --- | --- |
+| D-167 | Founder approved UI-9 admin display/UX only, including every exact Arabic/English pair in `attached_assets/Pasted-Step-UI-9-Scope-admin-UX-only-Do-not-change-any-status-_1793900661946.txt`, recorded in `src/i18n/approved-arabic-ui-nine.ts` and pinned against the attachment. No role/AAL2 check, permission, audit write, action/job implementation, methodology content/version/gate, financial input, source, threshold, status, engine output, hash or stored run changes. This is not deployment, database-write, import, methodology, legal or public-copy approval. |
+
+Stock selection is explicit. The locally searched A–Z list changes to a record
+view on phones, with a back control; desktop selection retains both panes.
+Seven native disclosures retain record content, with Company details open first.
+Known financial keys override placeholder headings; unknown stored names remain
+plain text. Settings hide example versions unless saved as default, keep a saved
+featured slug absent from the in-universe picker, and retain existing save data.
+Version numbers come first with default/example annotations.
+
+Bulk confirmations show in-universe stock counts and the actual loaded version
+set. **Screen all still uses the editorial default plus eligible production
+versions**, not the single-stock dropdown. The server remains authoritative if
+configuration changes after loading. Cancel invokes no action. New starts disable
+while a stored job is running; existing resumes remain available when no request
+is pending, including resumable stored-running jobs. Plain job names and genuine
+failure messages remain visible; raw codes/counters move into Details.
+
+Audit event options use the existing enum. **Entity names are stored text, not an
+enum**: options use distinct existing audit values while retaining an incoming
+filter not currently listed; backend filtering is unchanged. Phone filters
+collapse, desktop filters open. Methodology UUIDs move into technical details,
+null limits display Not applicable, and criterion disclosures start closed
+without changing content/workflow gates. Users use labelled phone cards.
+Admin controls follow UI-8 minimum sizes without hiding body overflow.
+
+Editions/Analysts disappear from navigation only; protected routes remain.
+There is no current admin UI/action that creates analyst profiles; coverage
+selects existing records. The guarded preview-only demo seed can provision demo
+analysts, but refuses live mode; it is not a live analyst-creation workflow.
+This work does not run it, build a creation workflow or provision a profile.
+Verification uses an isolated local mock server, never a runtime auth bypass.
+No production job or write is authorized. O-7 remains open.
+
+## 5 November 2026 — Phone-first public site
+
+| ID | Decision |
+| --- | --- |
+| D-166 | **Founder rule for UI-8 and all future work:** the phone is the primary public device. Design at 375px first, then widen; check 360px and 390px too. Every summary leads with a 375×812 screenshot. In Arabic and English, the page must not scroll sideways at these widths even with every disclosure open. Tap targets have at least 44px height or padded hit area, except inline links in sentences. Inputs are at least 16px, reading text at least 14px and quiet metadata at least 13px. No hover-only access; hover styles stay inside `@media (hover: hover)`. Wide public tables become stacked label/value rows on phones, not sideways-scrolling required content. Important content comes first in DOM order. Respect bottom safe-area insets. Admin screens only need to remain phone-usable, not redesigned. UI-8 is layout/display only, with no status, number, source, engine decision or stored-data edit. The exact approved 1.1 display is `الإصدار 1.1 · مسودة` in the compact stock summary, and `الإصدار 1.1 · مسودة، ويعتمد على افتراض الحد الأعلى لدى سهيل` on methodology and in full record; apply it at display time, retain raw labels and expose the full caveat outside inner technical disclosures. |
+
+## 5 November 2026 — UI-6 public shape consistency
+
+| ID | Decision |
+| --- | --- |
+| D-165 | **Founder-requested public display only.** Public cards use 20px radius and raised backgrounds instead of outline frames; inputs and primary buttons use pills, small controls 12px and badges pills. Scope public overrides to the public shell and sign-in opt-in; preserve legacy radius and admin/private account styling. Sign-in becomes one centred card with title, existing value sentence, Google button and unchanged consent line, removing serial/corner/double-frame decoration. The requested placement of consent below the button supersedes D-49's display-order instruction only; legal text, versions, acceptance before OAuth and all auth behavior remain intact. Public 404 adds existing explanatory copy, GET stock search and home navigation; standalone recovery remains provider-independent with both home locales. English header link has at least a 44px tap target. Restore the mockup's Arabic footer wordmark: commit 0884385 removed its JSX/CSS and added two UX-only absence assertions, but no recorded decision prohibits it; this request supersedes that cosmetic removal only, preserving footer legal/disclosure behavior. Remove passive homepage outcome hover-card markers, and require all remaining public hover-card markers to own radius and padding or be removed. No admin, data, engine, methodology record, legal-body, auth-policy, migration, hosted-setting or deployment change. |
+
+## 5 November 2026 — UI-5 public methodology presentation
+
+| ID | Decision |
+| --- | --- |
+| D-164 | **Founder-requested display only; D-11 remains intact.** Use UI-1's approved name/description/change-note/verifier mappings. Public methodology documents show a short summary and honest provisional/analyst-review disclosure, followed by one criterion card with its existing limit and localized explanation when present. Definition/formula/input/treatment/source evidence remains in initially closed native technical details in server HTML; long governance/purification information is also collapsible. Strip internal decision IDs only on public display, retaining private audit text and all stored evidence. A draft-labelled version displays “مسودة · قيد المراجعة” / “Draft · Under review” instead of the enabled-for-production label without changing either production flag or workflow. Null limits display “لا ينطبق” / “Not applicable”. Exclude example/demo methodology directory entries only in live site mode; retain preview visibility and existing records/versions. Remove external-link arrows from internal methodology navigation. Existing public explanation-column grants are reused, with no schema or grant changes. No methodology record/version, rule, source, threshold, status decision, legal text, engine, database write, setting or deployment change; provisional review and O-7 remain open. |
+
+## 5 November 2026 — UI-4 search presentation
+
+| ID | Decision |
+| --- | --- |
+| D-163 | **Founder-requested display only.** Every listed search result, screened or not, is one whole-row native stock link with a minimum 56px target and row hover/keyboard-focus states. Show the Arabic/curated display name first, actual English name/ticker/exchange muted below and existing status at the inline end; use no multi-column phone grid or input-like unscreened box. Reuse the homepage pill/Brass search treatment through the shared GET form, including stock search-again, while preserving navigation, constraints, submit protection and existing statuses. Quiet the search heading; show the returned-list count with Western digits and locale ICU plurals. Hide the complete Try prompt/list when there are no screened suggestions, using a separate localized coverage summary and retaining existing approved coverage wording when suggestions exist. No query, database, screening, source, status, financial, engine, record, hash, legal or deployment change. |
+
+## 5 November 2026 — UI-1B interface labels and unmarked fallbacks
+
+| ID | Decision |
+| --- | --- |
+| D-162 | **Founder-approved display labels only, across public/account/sign-in/MFA/admin interfaces.** Apply the exact 107 supplied UI-1B pairs through a separate approval file; earlier approved Arabic for an identical English source wins. Supersede earlier runtime `⟦AR-REVIEW⟧` behavior: missing translations retain the nonblank, unmarked English source with English language/LTR isolation at rendering boundaries. No marker construction or marker-based language detection remains in the named copy/bidi/theme/locale/shared helpers. Legacy annotation cleanup is confined to presentation copies; immutable inputs remain unchanged. Additional finite interface translations requested by the sweep are separately identified as proposals for founder review, not claimed as individually pre-approved. The founder expressly authorized changing the marker-fallback assertion in the audit-baseline test and equivalent unapproved-marker assertions, retaining every baseline/audit-code comparison; arbitrary summaries must remain unapproved English, with no annotation or Arabic. Legal launch-gate file markers remain intact and are not rendered; O-7 remains open. No status, financial value, source, threshold, stored run, hash, engine/reason template, methodology record, legal body, database migration or deployment change is authorized. |
+
+## 5 November 2026 — UI-3 public stock hierarchy
+
+| ID | Decision |
+| --- | --- |
+| D-160 | **Founder-requested layout only.** Use one quiet ticker/exchange/sector line, with the existing SEC label as a title, and one short unboxed intro link. Put the status and reasons before follow-up share actions; keep reasons/meaning free of side-border accents. Present methodology, version and date/confidence as three compact rows; shorten only known methodology display names using existing approved wording while retaining the complete title and full record. Omit the summary's empty passing-reason fallback and empty unknown panel; show the confidence explanation with confidence. A not-screened page shows its message and search-again without empty criteria, figure cards or share actions. Preserve §4.2a pass words/bars and limit markers, every applicable §5.3 full-record section, UI-1/2 wording/formatting, sources, numerical evidence, stored statuses and workflow state. No engine, database, financial derivation, legal, migration or deployment change is authorized. |
+
 ## Public stock localization and methodology display
 
 | ID | Decision |
@@ -17,6 +91,18 @@
 | ID | Decision |
 | --- | --- |
 | D-157 | **Founder-approved local fixes and fixture tests; no hosted writes.** Public locales use the same configured editorial default and featured security; invalidate external and locale-rewritten ISR paths after committed changes, never substitute examples. Hide the whole Editor's Pick section until eligible published research exists. Activity evidence order: current-period analyst classification (including explicit unknown overrides), then immediately previous annual-period analyst classification only if that period ended within the last 18 calendar months, then the founder's explicit SIC table, then unknown. Carry-forward is Estimated, retains historical shares solely to identify the previous primary activity, discards historical revenue amounts, and publicly identifies the original source period; it is not a new-period disclosure and cannot supply segment-revenue numerators. No older-period search past an empty immediately preceding period. New current-period classifications automatically replace fallback selection. Store official SEC SIC codes as sourced evidence during future SEC refresh outside network-held transactions, never infer a code from a sector description. Label fallback “Suhail SIC mapping v1 — pending analyst review”, source “SEC SIC code”. `conventional_finance`: 6020,6021,6022,6029,6035,6036,6099,6199,6200,6211,6221; `interest_based_lending`: 6111,6141,6153,6159,6162,6163,6172; `insurance_conventional`: 6311,6321,6324,6331,6351,6361,6399,6411; `alcohol`: 2082,2084,2085,5180,5813; `tobacco`: 2100,2111,2121,2131,5194. These are prohibited activity categories. Ambiguous (unknown/review): 7011,7990,7993,2011,7812,7819,7822,7829,7830,7841,4832,4833,4841,2711,6282,6798,6770. Other valid SIC codes pass activity only as Estimated; financial criteria still apply. Existing analyst evidence always wins. Fill absent new-period market capitalization from that period's usable sourced shares and an eligible stored close, keeping source identities; never overwrite an existing/manual/protected capitalization. Keep the quarterly market-value denominator, methodology rules, engine/replay versions and historical runs unchanged. Public Arabic labels/reason fields reuse approved wording without changing stored reasons or §7.3 templates; new copy remains in the Arabic review inventory. Business activity displays a result, not its internal numeric sentinel. No migration, live import, screening execution, Supabase write or deployment is authorized by this decision. |
+
+## UI-2 stock date and number presentation (5 November 2026)
+
+| ID | Decision |
+| --- | --- |
+| D-161 | **Founder-requested UI-2, display only.** Extend D-21's Gregorian/Western-digit rule: Arabic stock dates use RTL Arabic body text in day–month-name–year order, isolating only digit runs; use the same format for prior runs. Fundamentals monetary values display as full US dollars with one table caption rather than repeated USD/absolute-unit cells; declared multipliers affect presentation only. Move the existing stored close under the four figures as a quiet fifth line, formatted `$344.63` with its localized date and available source link; D-04's prohibition on live quotes remains. Ratio notes name both stored operands; missing operands display the approved missing-figure wording. Do not change the market-value card's `market_cap` fact selection or substitute `market_value_basis`; report their distinct provenance for a later founder decision. No financial evidence, engine output, status, source, threshold, stored record, migration, data repair, Supabase write, live import or deployment is authorized. |
+
+## UI-1 display labels (5 November 2026)
+
+| ID | Decision |
+| --- | --- |
+| D-157 | **Founder-approved bilingual display-only wording.** Apply the exact supplied UI-1 pairs recorded separately in `src/i18n/approved-arabic-ui-one.ts` at render time across public stock records, reasons, metadata and the home card. Structured `numerator_unavailable` selects `الرقم غير متاح، ولم نفترض أي قيمة.` by code; this display approval takes precedence over D-101's numerator wording and the earlier engine statement, without editing historical engine templates or approval baseline pins. Preserve stored runs, reason objects, arrays, hashes, numbers, sources, thresholds, decisions and methodology/workflow records. Hide counts only when both are zero; deduplicate equivalent criterion/unknown reasons without merging distinct inputs. Business activity displays result/explanation, not numeric boolean internals. Only the supplied draft label displays Version 1.0 · Draft / الإصدار 1.0 · مسودة without an adjacent approved label. Stock titles omit version. The English-only notice concerns rendered whole English sentences/paragraphs, excluding company/ticker/exchange/source identities; search has no notice. Explicitly supersede UX-5 item 4: stock short context uses the already-approved localized `disclaimer.short`; neither key nor legal bodies change. Conflicting UX-only assertions may change; protected engine/history/immutable/legal assertions may not. No new company-name pairs were supplied. O-7 remains open. No methodology, legal, migration, Supabase, import or deployment approval. |
 
 ## FSN normalization and local methodology v1.1 draft
 

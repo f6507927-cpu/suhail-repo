@@ -10,6 +10,8 @@ import { formatMethodologyDate, MethodologyCopy } from "./MethodologyCopy";
 import { lineItemFamily, lineItemLabel, structuredKeyLabel, structuredValueLabel } from "./structured-labels";
 import { stripPublicReviewMarker } from "../foundation/shared";
 import { publicMethodologyVersionLabel } from "@/i18n/methodology-labels";
+import { uiOneDisplay } from "@/i18n/approved-arabic-ui-one";
+import { isDraftMethodologyLabel, methodologyDisplay } from "@/i18n/methodology-display";
 
 function Field({
   label,
@@ -29,10 +31,20 @@ function Field({
 }
 
 function StoredValue({ value, locale, family }: { value: JsonValue; locale: "ar" | "en"; family?: LabelFamily }) {
-  if (value === null) return <span lang="en" dir="ltr">null</span>;
-  if (typeof value === "string") return <span className="whitespace-pre-wrap">{stripPublicReviewMarker(family ? displayLabel(family, value, locale) : value)}</span>;
+  if (value === null) return <span>{methodologyDisplay("null", locale)}</span>;
+  if (typeof value === "string") {
+    const mapped = uiOneDisplay(value, locale) !== value
+      ? uiOneDisplay(value, locale)
+      : family
+        ? displayLabel(family, value, locale)
+        : structuredValueLabel("", value, locale) ?? value;
+    return <span className="whitespace-pre-wrap">{stripPublicReviewMarker(methodologyDisplay(mapped, locale))}</span>;
+  }
   if (typeof value === "number") return <Num>{formatNumber(value, "en", { maximumFractionDigits: 8 })}</Num>;
-  if (typeof value === "boolean") return <span>{structuredValueLabel("", value, locale)}</span>;
+  if (typeof value === "boolean") {
+    const mapped = structuredValueLabel("", value, locale) ?? String(value);
+    return <span>{methodologyDisplay(mapped, locale)}</span>;
+  }
   if (Array.isArray(value)) {
     return value.length === 0 ? <span>—</span> : (
       <ul className="space-y-1">
@@ -51,8 +63,15 @@ function StoredValue({ value, locale, family }: { value: JsonValue; locale: "ar"
     <dl className="space-y-3">
       {entries.map(([key, entry]) => (
         <div key={key} className="grid gap-1 sm:grid-cols-[minmax(8rem,0.35fr)_minmax(0,1fr)] sm:gap-4">
-          <dt className="break-words text-xs text-muted-foreground">{structuredKeyLabel(key, locale)}</dt>
-          <dd className="min-w-0">{typeof entry === "string" ? <span className="whitespace-pre-wrap">{stripPublicReviewMarker(structuredValueLabel(key, entry, locale) ?? "")}</span> : <StoredValue value={entry} locale={locale} family={lineItemFamily(key)} />}</dd>
+          <dt className="break-words text-xs text-muted-foreground">{methodologyDisplay(structuredKeyLabel(key, locale), locale)}</dt>
+          <dd className="min-w-0">
+            {typeof entry === "string"
+              ? <span className="whitespace-pre-wrap">{stripPublicReviewMarker(methodologyDisplay(
+                uiOneDisplay(entry, locale) !== entry ? uiOneDisplay(entry, locale) : structuredValueLabel(key, entry, locale) ?? entry,
+                locale,
+              ))}</span>
+              : <StoredValue value={entry} locale={locale} family={lineItemFamily(key)} />}
+          </dd>
         </div>
       ))}
     </dl>
@@ -66,11 +85,29 @@ function StringList({ values, locale }: { values: string[]; locale: "ar" | "en" 
       {values.map((value, index) => (
         <li key={`${value}-${index}`} className="flex gap-2">
           <span aria-hidden="true" className="text-[var(--byline)]">—</span>
-          <span className="break-words text-sm">{lineItemLabel(value, locale)}</span>
+          <span className="break-words text-sm">{methodologyDisplay(uiOneDisplay(value, locale) !== value ? uiOneDisplay(value, locale) : lineItemLabel(value, locale), locale)}</span>
         </li>
       ))}
     </ul>
   );
+}
+
+function hasEnglishProse(value: string | null | undefined) {
+  const text = stripPublicReviewMarker(value?.trim() ?? "");
+  if (!text || /[\p{Script=Arabic}]/u.test(text) || !/[A-Za-z]/.test(text)) return false;
+  if (/^[A-Z0-9]+(?:[._:/+-][A-Z0-9]+)*$/.test(text)) return false;
+  if (/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(text)) return false;
+  if (/^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$/.test(text)) return false;
+  return (text.split(/\s+/).length >= 3 && /[.!?](?:\s|$)/.test(text)) || text.split(/\s+/).length >= 8;
+}
+
+function hasEnglishEvidence(value: JsonValue, locale: "ar" | "en"): boolean {
+  if (typeof value === "string") return hasEnglishProse(methodologyDisplay(value, locale));
+  if (Array.isArray(value)) return value.some(entry => hasEnglishEvidence(entry, locale));
+  if (value && typeof value === "object") return Object.entries(value)
+    .filter(([key]) => !/^(?:label|name|title|source_title|source_reference)$/i.test(key))
+    .some(([, entry]) => hasEnglishEvidence(entry, locale));
+  return false;
 }
 
 function safeSourceUrl(value: string | null) {
@@ -84,9 +121,9 @@ function safeSourceUrl(value: string | null) {
 }
 
 export function MethodologyDetail({
-  methodology: method,
-  version,
-  criteria,
+  methodology: storedMethod,
+  version: storedVersion,
+  criteria: storedCriteria,
   locale,
 }: {
   methodology: PublicMethodologyPageData["methodology"];
@@ -99,9 +136,43 @@ export function MethodologyDetail({
   const appT = useTranslations("methodology");
   const publicText = useTranslations("publicMethodology");
   const labelLocale = locale === "ar" ? "ar" : "en";
+  const display = (value: string | null) => value === null ? null : methodologyDisplay(value, labelLocale);
+  const method = { ...storedMethod, name: display(storedMethod.name)!, short_label: display(storedMethod.short_label),
+    publisher: display(storedMethod.publisher), scope: display(storedMethod.scope),
+    verified_by: display(storedMethod.verified_by) };
+  const version = { ...storedVersion, version_label: display(storedVersion.version_label),
+    changelog: display(storedVersion.changelog) };
+  const criteria = storedCriteria.map(criterion => {
+    const explanations = criterion as typeof criterion & { explanation_ar?: string | null; explanation_en?: string | null };
+    return { ...criterion, label: display(criterion.label)!,
+      definition: display(criterion.definition), formula_text: display(criterion.formula_text),
+      numerator_definition: display(criterion.numerator_definition), denominator_definition: display(criterion.denominator_definition),
+      treatment_rules: display(criterion.treatment_rules), edge_cases: display(criterion.edge_cases),
+      source_reference: display(criterion.source_reference),
+      explanation: display(labelLocale === "ar" ? explanations.explanation_ar ?? null : explanations.explanation_en ?? explanations.explanation_ar ?? null) };
+  });
   const sourceUrl = safeSourceUrl(method.source_url);
   const example = method.official_or_inspired === "internal_example" || method.is_demo || version.is_demo;
+  const isDraft = isDraftMethodologyLabel(storedVersion.version_label);
+  const englishOnlyRemains = labelLocale === "ar" && (
+    hasEnglishProse(method.scope) ||
+    hasEnglishProse(version.changelog) ||
+    hasEnglishEvidence((storedVersion.purification_treatment ?? null) as unknown as JsonValue, labelLocale) ||
+    criteria.some(criterion => {
+      return [criterion.definition, criterion.formula_text, criterion.numerator_definition,
+        criterion.denominator_definition, criterion.treatment_rules, criterion.edge_cases,
+        criterion.source_reference, criterion.explanation,
+        ...criterion.numerator_line_items.map(value => methodologyDisplay(value, labelLocale)),
+        ...criterion.denominator_line_items.map(value => methodologyDisplay(value, labelLocale)),
+        ...criterion.required_inputs.map(value => methodologyDisplay(value, labelLocale))].some(hasEnglishProse) ||
+        (criterion.treatment_rule_data != null &&
+          hasEnglishEvidence(criterion.treatment_rule_data as unknown as JsonValue, labelLocale));
+    })
+  );
   const headingId = `methodology-${method.slug}-version-${encodeURIComponent(version.version)}`;
+  const versionLabel = storedVersion.version_label
+    ? methodologyDisplay(publicMethodologyVersionLabel(uiOneDisplay(storedVersion.version_label, labelLocale)), labelLocale)
+    : null;
 
   return (
     <article id={headingId} aria-labelledby={`${headingId}-title`} className="mx-auto min-h-[55vh] max-w-6xl px-5 pb-20 pt-8 sm:px-8 lg:pt-12">
@@ -122,47 +193,53 @@ export function MethodologyDetail({
       <header className="border-b border-[var(--divider)] pb-9">
         <div>
           <p className="mb-4 text-sm text-[var(--byline)]">
-            {displayLabel("methodType", method.type, labelLocale)}
+            {methodologyDisplay(displayLabel("methodType", method.type, labelLocale), labelLocale)}
           </p>
-          <h1 id={`${headingId}-title`} className="max-w-4xl text-4xl leading-tight sm:text-5xl">{stripPublicReviewMarker(method.name)}</h1>
+          <h1 id={`${headingId}-title`} className="max-w-4xl text-2xl leading-snug sm:text-5xl">{stripPublicReviewMarker(method.name)}</h1>
           {method.short_label && <p className="mt-2 text-[var(--brass-soft)]">{stripPublicReviewMarker(method.short_label)}</p>}
           {method.scope && <p className="mt-5 max-w-3xl text-base text-muted-foreground">{stripPublicReviewMarker(method.scope)}</p>}
-          <p className="mt-5 max-w-3xl border-s-2 border-[var(--brass)] ps-4 text-sm leading-6">
+          {isDraft && (
+            <p className="mt-5 max-w-3xl border-s-2 border-[var(--brass)] ps-4 text-sm leading-6">
+              <LocalizedText>{publicText("provisionalNotice")}</LocalizedText>
+            </p>
+          )}
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-muted-foreground">
             <LocalizedText>{appT("pageNote")}</LocalizedText>
           </p>
-          <p className="mt-5 inline-flex items-center gap-3 border border-[var(--divider)] px-3 py-2">
+          <p className="mt-5 flex max-w-3xl flex-wrap items-center gap-3 border border-[var(--divider)] px-3 py-2">
             <span className="text-xs text-muted-foreground"><LocalizedText>{t("version")}</LocalizedText></span>
-             {version.version_label
-               ? <span className="text-sm text-[var(--brass-soft)]">{stripPublicReviewMarker(publicMethodologyVersionLabel(version.version_label))}</span>
+             {versionLabel
+               ? <span className="text-sm text-[var(--brass-soft)]">{stripPublicReviewMarker(versionLabel)}</span>
                : <Num className="text-sm text-[var(--brass-soft)]">{version.version}</Num>}
+             {isDraft && (
+               <span className="basis-full border-t border-[var(--divider)] pt-2 text-sm text-[var(--brass-soft)]">
+                 <LocalizedText>{publicText("draftReview")}</LocalizedText>
+               </span>
+             )}
           </p>
         </div>
       </header>
 
-      <section aria-labelledby={`method-meta-${version.id}`} className="py-9">
-        <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3">
-          <h2 id={`method-meta-${version.id}`} className="text-2xl">
-            <LocalizedText>{t("sourceDocument")}</LocalizedText>
-          </h2>
-          {version.version_label
-            ? <span className="text-sm text-[var(--brass-soft)]">{stripPublicReviewMarker(publicMethodologyVersionLabel(version.version_label))}</span>
-            : <span className="font-mono text-sm text-[var(--brass-soft)]" dir="ltr">{version.version}</span>}
-        </div>
-        <dl className="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+      <details className="group border-b border-[var(--divider)] py-5">
+        <summary id={`method-meta-${version.id}`} className="flex cursor-pointer items-center justify-between gap-4 text-lg">
+          <span><LocalizedText>{t("sourceDocument")}</LocalizedText></span>
+          <span aria-hidden="true" className="ms-2 text-muted-foreground">+</span>
+        </summary>
+        <dl className="mt-5 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
           <Field label={<LocalizedText>{t("publisher")}</LocalizedText>}>{stripPublicReviewMarker(method.publisher ?? "—")}</Field>
           <Field label={<LocalizedText>{t("officialOrAdapted")}</LocalizedText>}>
-            {displayLabel("methodSource", method.official_or_inspired, labelLocale)}
+            {methodologyDisplay(displayLabel("methodSource", method.official_or_inspired, labelLocale), labelLocale)}
           </Field>
           <Field label={<LocalizedText>{t("licensing")}</LocalizedText>}>
-            {displayLabel("licence", method.licensing_status, labelLocale)}
+            {methodologyDisplay(displayLabel("licence", method.licensing_status, labelLocale), labelLocale)}
           </Field>
           <Field label={<LocalizedText>{t("sourceDocument")}</LocalizedText>}>
             {method.source_title ? (
               sourceUrl ? (
-                <a href={sourceUrl} target="_blank" rel="noreferrer" className="underline decoration-[var(--brass)] underline-offset-4 hover:text-[var(--brass-soft)]">
-                  {stripPublicReviewMarker(method.source_title)}
+                <a href={sourceUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center underline decoration-[var(--brass)] underline-offset-4 hover:text-[var(--brass-soft)]">
+                  {stripPublicReviewMarker(methodologyDisplay(method.source_title, labelLocale))}
                 </a>
-              ) : stripPublicReviewMarker(method.source_title)
+              ) : stripPublicReviewMarker(methodologyDisplay(method.source_title, labelLocale))
             ) : "—"}
           </Field>
           <Field label={<LocalizedText>{t("verifiedBy")}</LocalizedText>}>{stripPublicReviewMarker(method.verified_by ?? "—")}</Field>
@@ -170,40 +247,51 @@ export function MethodologyDetail({
             <bdi>{formatMethodologyDate(method.verification_date, locale)}</bdi>
           </Field>
           <Field label={<LocalizedText>{t("productionStatus")}</LocalizedText>}>
-            <LocalizedText>{method.production_enabled && version.production_enabled ? t("inProduction") : t("notInProduction")}</LocalizedText>
+            <LocalizedText>{isDraft && method.production_enabled && version.production_enabled
+              ? publicText("draftReview")
+              : method.production_enabled && version.production_enabled
+                ? t("inProduction")
+                : t("notInProduction")}</LocalizedText>
           </Field>
           <Field label={<LocalizedText>{t("version")}</LocalizedText>}>
-            {version.version_label ? stripPublicReviewMarker(publicMethodologyVersionLabel(version.version_label)) : <Num>{version.version}</Num>}
+            {versionLabel ? stripPublicReviewMarker(versionLabel) : <Num>{version.version}</Num>}
           </Field>
           <Field label={<LocalizedText>{t("effectiveDate")}</LocalizedText>}>
             <bdi>{formatMethodologyDate(version.effective_date, locale)}</bdi>
           </Field>
           <Field label={<MethodologyCopy id="workflowStatus" />}>
-            {displayLabel("workflow", version.workflow_status, labelLocale)}
+            {methodologyDisplay(displayLabel("workflow", version.workflow_status, labelLocale), labelLocale)}
           </Field>
           <Field label={<LocalizedText>{t("changeHistory")}</LocalizedText>} className="sm:col-span-2 lg:col-span-3">
             {version.changelog ? <p className="whitespace-pre-wrap"><LocalizedText>{version.changelog}</LocalizedText></p> : <LocalizedText>{t("noChangeHistory")}</LocalizedText>}
           </Field>
         </dl>
-      </section>
+      </details>
 
       {version.purification_treatment != null && (
-        <section aria-labelledby={`purification-${version.id}`} className="border-y border-[var(--divider)] py-8">
-          <h2 id={`purification-${version.id}`} className="mt-2 text-2xl">
+        <details className="border-b border-[var(--divider)] py-5">
+          <summary id={`purification-${version.id}`} className="flex cursor-pointer items-center justify-between gap-4 text-lg">
             {typeof version.purification_treatment.label === "string"
-              ? <LocalizedText>{version.purification_treatment.label}</LocalizedText>
+              ? methodologyDisplay(version.purification_treatment.label, labelLocale)
               : <MethodologyCopy id="purificationTreatment" />}
-          </h2>
+            <span aria-hidden="true" className="ms-2 text-muted-foreground">+</span>
+          </summary>
           <div className="mt-5 max-w-4xl">
             <StoredValue value={version.purification_treatment as unknown as JsonValue} locale={labelLocale} />
           </div>
-        </section>
+        </details>
+      )}
+
+      {englishOnlyRemains && (
+        <p data-language-notice className="mt-5 max-w-4xl text-xs text-muted-foreground">
+          <LocalizedText>{publicText("englishOnlyNote")}</LocalizedText>
+        </p>
       )}
 
       <section aria-labelledby={`criteria-${version.id}`} className="pt-10">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-[var(--divider)] pb-5">
           <div>
-            <h2 id={`criteria-${version.id}`} className="mt-2 text-3xl">
+            <h2 id={`criteria-${version.id}`} className="mt-2 text-xl sm:text-3xl">
               <LocalizedText>{t("ruleGroups")}</LocalizedText>
             </h2>
           </div>
@@ -215,44 +303,6 @@ export function MethodologyDetail({
           </span>
         </div>
 
-        {criteria.length > 0 && (
-          <div className="mb-8 overflow-x-auto border border-[var(--divider)] bg-card">
-            <table className="w-full min-w-[760px] border-collapse text-start text-sm">
-              <caption className="border-b border-[var(--divider)] px-4 py-3 text-start text-xs text-muted-foreground">
-                <MethodologyCopy id="criteriaSummaryTable" />
-              </caption>
-              <thead className="bg-background text-xs text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-4 py-3 text-start font-medium"><LocalizedText>{stock("criterion")}</LocalizedText></th>
-                  <th scope="col" className="px-4 py-3 text-start font-medium"><MethodologyCopy id="criterionType" /></th>
-                  <th scope="col" className="px-4 py-3 text-start font-medium"><LocalizedText>{stock("threshold")}</LocalizedText></th>
-                  <th scope="col" className="px-4 py-3 text-start font-medium"><MethodologyCopy id="thresholdUnit" /></th>
-                  <th scope="col" className="px-4 py-3 text-start font-medium"><MethodologyCopy id="thresholdDirection" /></th>
-                  <th scope="col" className="px-4 py-3 text-start font-medium"><LocalizedText>{t("borderline")}</LocalizedText></th>
-                </tr>
-              </thead>
-              <tbody>
-                {criteria.map((criterion) => (
-                  <tr key={criterion.id} className="border-t border-[var(--divider)]">
-                    <th scope="row" className="px-4 py-3 text-start font-medium">{stripPublicReviewMarker(criterion.label)}</th>
-                    <td className="px-4 py-3 text-xs">{displayLabel("criterionType", criterion.criterion_type, labelLocale)}</td>
-                    <td className="px-4 py-3 font-mono" dir="ltr">
-                      {criterion.threshold === null ? <span>null</span> : <Num>{criterion.threshold}</Num>}
-                    </td>
-                    <td className="px-4 py-3 text-xs">{displayLabel("thresholdUnit", criterion.threshold_unit, labelLocale)}</td>
-                    <td className="px-4 py-3 text-xs">{displayLabel("direction", criterion.threshold_direction, labelLocale)}</td>
-                    <td className="px-4 py-3 text-sm">
-                      {criterion.borderline_margin === null ? (
-                        <LocalizedText>{stock("noMarginDefined")}</LocalizedText>
-                      ) : <Num>{criterion.borderline_margin}</Num>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
         {criteria.length === 0 ? (
           <div className="border border-dashed border-[var(--divider)] px-5 py-8 text-sm text-muted-foreground">
             <MethodologyCopy id="noPublicCriteria" />
@@ -261,74 +311,91 @@ export function MethodologyDetail({
           <ol className="space-y-5">
             {criteria.map((criterion, index) => (
               <li key={criterion.id} className="border border-[var(--divider)] bg-card">
-                <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--divider)] px-5 py-4 sm:px-7">
-                  <div className="flex gap-4">
+                <div className="px-5 py-5 sm:px-7">
+                  <div className="flex items-start gap-4">
                     <Num className="pt-1 text-sm text-[var(--byline)]">{String(index + 1).padStart(2, "0")}</Num>
-                    <div>
-                      <h3 className="text-lg leading-snug">{stripPublicReviewMarker(criterion.label)}</h3>
-                      <span className="mt-1 inline-block text-xs text-muted-foreground">
-                        {displayLabel("criterionType", criterion.criterion_type, labelLocale)}
-                      </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-lg leading-snug">{stripPublicReviewMarker(methodologyDisplay(uiOneDisplay(criterion.label, labelLocale), labelLocale))}</h3>
+                        </div>
+                      </div>
+                      {criterion.explanation && (
+                        <p className="mt-4 max-w-3xl whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+                          {stripPublicReviewMarker(criterion.explanation)}
+                        </p>
+                      )}
                     </div>
                   </div>
-                  {criterion.effective_date && (
-                    <div className="text-xs text-muted-foreground">
-                      <span><LocalizedText>{t("effectiveDate")}</LocalizedText>: </span>
-                      <bdi>{formatMethodologyDate(criterion.effective_date, locale)}</bdi>
-                    </div>
-                  )}
+                  <p className="mt-4 flex flex-wrap items-baseline gap-x-2 gap-y-1 border-t border-[var(--divider)] pt-4 text-sm">
+                    <span className="text-xs text-muted-foreground"><LocalizedText>{stock("threshold")}</LocalizedText></span>
+                    <span className="font-medium">
+                      {criterion.threshold === null ? methodologyDisplay("null", labelLocale) : <Num>{criterion.threshold}</Num>}
+                    </span>
+                    {criterion.threshold !== null && <>
+                      <span className="text-muted-foreground">{methodologyDisplay(displayLabel("thresholdUnit", criterion.threshold_unit, labelLocale), labelLocale)}</span>
+                      <span className="text-muted-foreground">{methodologyDisplay(displayLabel("direction", criterion.threshold_direction, labelLocale), labelLocale)}</span>
+                    </>}
+                  </p>
+                  <details className="mt-5 border-t border-[var(--divider)] pt-4">
+                    <summary className="flex cursor-pointer items-center justify-between gap-4 text-sm">
+                      <span><LocalizedText>{publicText("technicalDetails")}</LocalizedText></span>
+                      <span aria-hidden="true" className="ms-2 text-muted-foreground">+</span>
+                    </summary>
+                    <dl className="mt-3 grid gap-x-8 gap-y-5 px-1 sm:grid-cols-2 lg:grid-cols-3">
+                      <Field label={<MethodologyCopy id="criterionType" />}>
+                        {methodologyDisplay(displayLabel("criterionType", criterion.criterion_type, labelLocale), labelLocale)}
+                      </Field>
+                      <Field label={<LocalizedText>{t("effectiveDate")}</LocalizedText>}>
+                        <bdi>{formatMethodologyDate(criterion.effective_date, locale)}</bdi>
+                      </Field>
+                      <Field label={<MethodologyCopy id="thresholdUnit" />}>
+                        {methodologyDisplay(displayLabel("thresholdUnit", criterion.threshold_unit, labelLocale), labelLocale)}
+                      </Field>
+                      <Field label={<MethodologyCopy id="thresholdDirection" />}>
+                        {methodologyDisplay(displayLabel("direction", criterion.threshold_direction, labelLocale), labelLocale)}
+                      </Field>
+                      <Field label={<LocalizedText>{t("definition")}</LocalizedText>} className="lg:col-span-3">
+                        {criterion.definition ? <span className="whitespace-pre-wrap">{stripPublicReviewMarker(criterion.definition)}</span> : "—"}
+                      </Field>
+                      <Field label={<LocalizedText>{t("formula")}</LocalizedText>}>
+                        {criterion.formula_text ? <span className="whitespace-pre-wrap">{stripPublicReviewMarker(criterion.formula_text)}</span> : "—"}
+                      </Field>
+                      <Field label={<LocalizedText>{stock("numerator")}</LocalizedText>}>
+                        {criterion.numerator_definition ? <span className="whitespace-pre-wrap">{stripPublicReviewMarker(criterion.numerator_definition)}</span> : "—"}
+                      </Field>
+                      <Field label={<LocalizedText>{stock("denominator")}</LocalizedText>}>
+                        {criterion.denominator_definition ? <span className="whitespace-pre-wrap">{stripPublicReviewMarker(criterion.denominator_definition)}</span> : "—"}
+                      </Field>
+                      <Field label={<MethodologyCopy id="numeratorLineItems" />}>
+                        <StringList values={criterion.numerator_line_items} locale={labelLocale} />
+                      </Field>
+                      <Field label={<MethodologyCopy id="denominatorLineItems" />}>
+                        <StringList values={criterion.denominator_line_items} locale={labelLocale} />
+                      </Field>
+                      <Field label={<LocalizedText>{t("treatment")}</LocalizedText>}>
+                        {criterion.treatment_rules ? <span className="whitespace-pre-wrap">{stripPublicReviewMarker(criterion.treatment_rules)}</span> : "—"}
+                      </Field>
+                      <Field label={<MethodologyCopy id="treatmentRuleData" />}>
+                        {criterion.treatment_rule_data != null
+                          ? <StoredValue value={criterion.treatment_rule_data as unknown as JsonValue} locale={labelLocale} />
+                          : "—"}
+                      </Field>
+                      <Field label={<LocalizedText>{t("edgeCases")}</LocalizedText>}>
+                        {criterion.edge_cases ? <span className="whitespace-pre-wrap">{stripPublicReviewMarker(criterion.edge_cases)}</span> : "—"}
+                      </Field>
+                      <Field label={<LocalizedText>{t("borderline")}</LocalizedText>}>
+                        {criterion.borderline_margin === null ? <LocalizedText>{stock("noMarginDefined")}</LocalizedText> : <Num>{criterion.borderline_margin}</Num>}
+                      </Field>
+                      <Field label={<LocalizedText>{t("requiredInputs")}</LocalizedText>}>
+                        <StringList values={criterion.required_inputs} locale={labelLocale} />
+                      </Field>
+                      <Field label={<LocalizedText>{t("sourceRef")}</LocalizedText>}>
+                        {criterion.source_reference ? <span className="whitespace-pre-wrap">{stripPublicReviewMarker(criterion.source_reference)}</span> : "—"}
+                      </Field>
+                    </dl>
+                  </details>
                 </div>
-                <dl className="grid gap-x-8 gap-y-5 px-5 py-5 sm:grid-cols-2 sm:px-7 lg:grid-cols-3">
-                  <Field label={<LocalizedText>{t("definition")}</LocalizedText>} className="lg:col-span-3">
-                    <LocalizedText>{criterion.definition ?? "—"}</LocalizedText>
-                  </Field>
-                  <Field label={<LocalizedText>{t("formula")}</LocalizedText>}>
-                    <LocalizedText>{criterion.formula_text ?? "—"}</LocalizedText>
-                  </Field>
-                  <Field label={<LocalizedText>{stock("numerator")}</LocalizedText>}>
-                    <LocalizedText>{criterion.numerator_definition ?? "—"}</LocalizedText>
-                  </Field>
-                  <Field label={<LocalizedText>{stock("denominator")}</LocalizedText>}>
-                    <LocalizedText>{criterion.denominator_definition ?? "—"}</LocalizedText>
-                  </Field>
-                  <Field label={<MethodologyCopy id="numeratorLineItems" />}>
-                    <StringList values={criterion.numerator_line_items} locale={labelLocale} />
-                  </Field>
-                  <Field label={<MethodologyCopy id="denominatorLineItems" />}>
-                    <StringList values={criterion.denominator_line_items} locale={labelLocale} />
-                  </Field>
-                  <Field label={<LocalizedText>{stock("threshold")}</LocalizedText>}>
-                    {criterion.threshold === null ? "—" : <Num>{criterion.threshold}</Num>}
-                  </Field>
-                  <Field label={<MethodologyCopy id="thresholdUnit" />}>
-                    {displayLabel("thresholdUnit", criterion.threshold_unit, labelLocale)}
-                  </Field>
-                  <Field label={<MethodologyCopy id="thresholdDirection" />}>
-                    {displayLabel("direction", criterion.threshold_direction, labelLocale)}
-                  </Field>
-                  <Field label={<LocalizedText>{t("borderline")}</LocalizedText>}>
-                    {criterion.borderline_margin === null ? (
-                      <LocalizedText>{stock("noMarginDefined")}</LocalizedText>
-                    ) : <Num>{criterion.borderline_margin}</Num>}
-                  </Field>
-                  <Field label={<LocalizedText>{t("treatment")}</LocalizedText>}>
-                    <LocalizedText>{criterion.treatment_rules ?? "—"}</LocalizedText>
-                  </Field>
-                  <Field label={<MethodologyCopy id="treatmentRuleData" />}>
-                    {criterion.treatment_rule_data ? (
-                      <StoredValue value={criterion.treatment_rule_data as unknown as JsonValue} locale={labelLocale} />
-                    ) : "—"}
-                  </Field>
-                  <Field label={<LocalizedText>{t("edgeCases")}</LocalizedText>}>
-                    <LocalizedText>{criterion.edge_cases ?? "—"}</LocalizedText>
-                  </Field>
-                  <Field label={<LocalizedText>{t("requiredInputs")}</LocalizedText>}>
-                    <StringList values={criterion.required_inputs} locale={labelLocale} />
-                  </Field>
-                  <Field label={<LocalizedText>{t("sourceRef")}</LocalizedText>}>
-                    <LocalizedText>{criterion.source_reference ?? "—"}</LocalizedText>
-                  </Field>
-                </dl>
               </li>
             ))}
           </ol>

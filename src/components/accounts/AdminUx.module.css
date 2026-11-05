@@ -1,0 +1,243 @@
+.root {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.root button,
+.root [role="button"],
+.root summary {
+  min-height: 44px;
+}
+
+.root input:not([type="checkbox"]):not([type="radio"]),
+.root select,
+.root textarea {
+  min-height: 44px;
+  font-size: 16px;
+}
+
+.root :where(.text-xs, [class*="text-[10px]"], [class*="text-[9px]"]) {
+  font-size: 13px !important;
+  line-height: 1.45;
+}
+
+.root button,
+.root [role="button"],
+.root a[class*="border"] {
+  font-size: 14px !important;
+}
+
+.root a[class*="border"] {
+  min-height: 44px;
+}
+
+.root :where(p, dd, dt, th, td, label, button, a, span) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.root :where(div, section, article, form, fieldset, main, aside, nav) {
+  min-width: 0;
+}
+
+.root .grid > * {
+  min-width: 0;
+}
+
+.root pre {
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.root :where(nav a, header > a) {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+}
+
+.root :where(details > summary) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.root :where(details > summary)::after {
+  content: "＋";
+  flex: 0 0 auto;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.root :where(details > summary svg) {
+  display: none;
+}
+
+.root :where(details[open] > summary)::after {
+  content: "−";
+}
+
+.navigation .mobileNavigation {
+  display: block;
+}
+
+.navigation .desktopNavigation,
+.navigation > p,
+.navigation > div {
+  display: none;
+}
+
+.auditFilters > summary {
+  justify-content: flex-start !important;
+}
+
+.checkboxHitArea {
+  display: flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.root table {
+  width: 100%;
+  min-width: 0 !important;
+  table-layout: fixed;
+}
+
+.root th,
+.root td {
+  min-width: 0;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+  .root table,
+  .root table thead,
+  .root table tbody,
+  .root table tr,
+  .root table th,
+  .root table td {
+    display: block;
+    width: 100%;
+  }
+
+  .root table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .root table tbody {
+    padding: 0.75rem;
+  }
+
+  .root table tbody tr:not(:last-child) {
+    margin-bottom: 0.75rem;
+  }
+
+  .root table tbody tr {
+    border: 1px solid var(--border);
+    background: var(--card);
+  }
+
+  .root table tbody td {
+    display: grid;
+    grid-template-columns: minmax(6.25rem, 0.7fr) minmax(0, 1.3fr);
+    align-items: start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    text-align: start;
+  }
+
+  .root table tbody td[data-label]::before {
+    content: attr(data-label);
+    color: var(--muted-foreground);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .root table tbody td[colspan] {
+    display: block;
+  }
+
+  .root table tbody td[colspan]::before {
+    content: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .navigation .mobileNavigation {
+    display: none;
+  }
+
+  .navigation .desktopNavigation {
+    display: flex;
+  }
+
+  .navigation > p,
+  .navigation > div {
+    display: block;
+  }
+
+  .auditFilters > summary {
+    display: none !important;
+  }
+
+}
+
+@media (min-width: 768px) {
+  .root table {
+    display: table;
+  }
+
+  .root table thead {
+    display: table-header-group;
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .root table tbody {
+    display: table-row-group;
+    padding: 0;
+  }
+
+  .root table tbody tr {
+    display: table-row;
+    margin: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .root table tbody td,
+  .root table thead th {
+    display: table-cell;
+  }
+
+  .root table thead tr {
+    display: table-row;
+  }
+
+  .root table tbody td::before {
+    content: none !important;
+  }
+
+  .auditFilters[open] > form { border-top: 0; }
+}
+
+@media (hover: hover) {
+  .root :where(button:not(:disabled), a) {
+    transition: background-color 140ms ease, color 140ms ease;
+  }
+}

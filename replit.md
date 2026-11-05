@@ -34,6 +34,7 @@ If the reference and the decision log are both silent on behaviour, **stop and a
 - Never edit an applied migration. Generate a new one.
 
 ## Always
+- Public design is phone-first (D-166): start at 375×812, also check 360px/390px in both locales with every disclosure open; follow D-166's sizing, touch, table and DOM-order rules, and lead every summary with a 375×812 screenshot. Admin screens only need to remain usable on a phone.
 - Every server action and route handler that writes or reads internal data starts with `await requireRole(...)` (auth + role + AAL2), even when the layout already checks.
 - Every admin write records an `AuditEvent` in the same transaction.
 - Public pages never read cookies or request headers, so they stay ISR-cacheable (D-20, D-22).

@@ -163,11 +163,7 @@ describe("dictionary extraction and explicitly unapproved Arabic", () => {
         !(key.startsWith("status.") && labels.includes(key.slice(7)))
       )
         expect(value, key).toBe(
-          (["controls.", "styleguide.", "disclaimer.", "banner.", "methodology.", "publicSearch."].some(
-            (namespace) => key.startsWith(namespace),
-          )
-            ? approvedArabicCopy[english[key]!]
-            : undefined) ?? `⟦AR-REVIEW⟧ ${english[key]}`,
+          approvedArabicCopy[english[key]!] ?? english[key],
         );
     }
   });
@@ -254,7 +250,8 @@ describe("bilingual status and coverage", () => {
       createElement(LocalizedText, null, "⟦AR-REVIEW⟧ Unknown future heading"),
     );
     expect(html).toContain('lang="en" dir="ltr"');
-    expect(html).toContain("⟦AR-REVIEW⟧ ");
+    expect(html).not.toContain("⟦");
+    expect(html).toContain("Unknown future heading");
   });
 });
 describe("formatting and contrast", () => {

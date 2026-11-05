@@ -1,3 +1,4 @@
+import "@/components/foundation/PublicInteractions.css";
 import { getTranslations } from "next-intl/server";
 import { SignInScreen } from "@/components/accounts";
 import { privatePageMetadata } from "@/components/accounts/private-page-metadata";

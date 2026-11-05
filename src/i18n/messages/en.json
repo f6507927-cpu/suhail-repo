@@ -14,6 +14,8 @@
     "searchUnavailable": "Search is unavailable right now. Try again.",
     "retry": "Try again",
     "coverageCount": "We currently cover <number>{total}</number> {count, plural, one {US stock} other {US stocks}}, and are adding more. Try:",
+    "coverageSummary": "We currently cover <number>{total}</number> {count, plural, one {US stock} other {US stocks}}, and are adding more.",
+    "resultCount": "{count, plural, one {<number>{total}</number> result} other {<number>{total}</number> results}}",
     "title": "Stock search",
     "label": "Ticker or company name",
     "submit": "Search",
@@ -249,7 +251,14 @@
     "name": "Name",
     "slug": "Slug"
   },
+  "publicRecovery": {
+    "backHome": "Back to the homepage"
+  },
   "publicMethodology": {
+    "technicalDetails": "Technical details",
+    "englishOnlyNote": "Some technical details are available in English only.",
+    "draftReview": "Draft · Under review",
+    "provisionalNotice": "This version is provisional. Its decisions are still pending Shariah analyst review.",
     "publicResearchDocumentation": "PUBLIC RESEARCH / DOCUMENTATION",
     "documentedMethods": "DOCUMENTED METHODS",
     "researchRegister": "RESEARCH REGISTER",

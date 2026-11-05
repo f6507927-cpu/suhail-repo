@@ -81,7 +81,8 @@ describe("stock rendering preserves missing-input identities", () => {
     }
     expect([...section.matchAll(/data-language-notice=/g)]).toHaveLength(0);
     const header = html.match(/<header\b[^>]*data-section="header"[\s\S]*?<\/header>/)?.[0] ?? "";
-    expect([...html.matchAll(/data-language-notice=/g)]).toHaveLength(locale === "ar" ? 1 : 0);
-    if (locale === "ar") expect(header).toContain("data-language-notice");
+    // UI-1: these preserved short evidence names are not whole English narrative.
+    expect([...html.matchAll(/data-language-notice=/g)]).toHaveLength(0);
+    expect(header).not.toContain("data-language-notice");
   });
 });

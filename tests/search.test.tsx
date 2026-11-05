@@ -104,7 +104,8 @@ describe("bounded public search", () => {
       const results = render(<SearchResults locale={locale} valid results={[
         { slug: "sample", ticker: "ABC", name: "Fixture Company", name_ar: null, display_name_en: null, exchange: "NASDAQ", status: null },
       ]} />);
-      expect(results).not.toContain("<a");
+      expect(results).toContain(`href="${locale === "en" ? "/en" : ""}/stock/sample"`);
+      expect(results.match(/<a\b/g)).toHaveLength(1);
       expect(results).toContain(`${messages.publicSearch.listedPrefix} · ${messages.publicSearch.notScreened}`);
       expect(results).toContain(messages.publicSearch.notScreened);
       expect(results).toContain("Fixture Company");

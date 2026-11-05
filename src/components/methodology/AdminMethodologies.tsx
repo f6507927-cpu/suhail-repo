@@ -17,6 +17,8 @@ import { reviewText } from "@/components/accounts/types";
 import { formatNumber, formatTimestamp } from "@/lib/format";
 import { displayLabel } from "@/i18n/presentation";
 import { enumDisplayLabel } from "./structured-labels";
+import styles from "../accounts/AdminUx.module.css";
+import { adminFactLabel, uiNineText } from "@/i18n/admin-presentation";
 
 type Props = {
   data: MethodologyAdminData;
@@ -142,7 +144,7 @@ export function AdminMethodologies({ data, locale, role, action, selection = {} 
   };
 
   return (
-    <section className="mx-auto max-w-[1280px]">
+    <section className={`${styles.root} mx-auto max-w-[1280px]`}>
       <AdminBreadcrumbs locale={locale} items={crumbs.map((item, index) => index === crumbs.length - 1 ? { label: item.label } : item)} />
       <div className="relative overflow-hidden border border-border bg-card">
         <div className="flex flex-col gap-7 p-5 sm:p-8 lg:flex-row lg:items-end lg:justify-between">
@@ -211,7 +213,7 @@ export function AdminMethodologies({ data, locale, role, action, selection = {} 
               <div className="border-b border-border px-4 py-3">
                 <p className="text-xs text-muted-foreground"><GovernedCopy id="methodologyIndex" /></p>
               </div>
-              <nav aria-label={locale === "en" ? "Methodology records" : "⟦AR-REVIEW⟧ Methodology records"} className="max-h-[70vh] overflow-y-auto">
+              <nav aria-label={reviewText(locale, "Methodology records")} className="max-h-[70vh] overflow-y-auto">
                 {data.methodologies.map((method) => {
                   const active = method.id === methodologyId;
                   const versionCount = data.versions.filter((version) => version.methodology_id === method.id).length;
@@ -427,15 +429,21 @@ export function AdminMethodologies({ data, locale, role, action, selection = {} 
                                     <span className="pt-1 font-mono text-xs text-[var(--byline)]" dir="ltr">{String(index + 1).padStart(2, "0")}</span>
                                     <div className="min-w-0">
                                       <h5 className="break-words font-medium">{criterion.label}</h5>
-                              <p className="mt-1 text-xs text-muted-foreground"><span>{displayLabel("criterionType", criterion.criterion_type, locale)}</span> · <bdi dir="ltr" className="font-mono">{criterion.id}</bdi></p>
-                                      {criterion.definition && <p className="mt-2 max-w-3xl text-sm text-muted-foreground">{criterion.definition}</p>}
-                                      <div className="mt-2 flex flex-wrap gap-2">
-                                        <span className="border border-border px-2 py-1 text-xs">
-                                          <bdi dir="ltr" className="font-mono tabular-nums">{criterion.threshold === null ? "null" : criterion.threshold}</bdi>
-                                          <span className="ms-2">{displayLabel("thresholdUnit", criterion.threshold_unit, locale)} · {displayLabel("direction", criterion.threshold_direction, locale)}</span>
-                                        </span>
-                                        <span className="border border-border px-2 py-1 text-xs text-muted-foreground"><GovernedCopy id="requiredInputsDerived" />: {criterion.required_inputs.map((input) => enumDisplayLabel("lineItem", input, locale)).join(", ") || "—"}</span>
-                                      </div>
+                                      <details className="mt-2 border border-border">
+                                        <summary className="min-h-11 cursor-pointer list-none gap-3 px-3 py-2 text-sm">
+                                          <span className="min-w-0 break-words">{criterion.label}</span>
+                                          <span className="shrink-0 font-mono tabular-nums" dir="ltr">{criterion.threshold === null ? uiNineText(locale, "Not applicable") : criterion.threshold} {displayLabel("thresholdUnit", criterion.threshold_unit, locale)}</span>
+                                        </summary>
+                                        <div className="space-y-3 border-t border-border p-3">
+                                          <p className="text-xs text-muted-foreground">{displayLabel("criterionType", criterion.criterion_type, locale)} · {displayLabel("direction", criterion.threshold_direction, locale)}</p>
+                                          {criterion.definition && <p className="max-w-3xl text-sm text-muted-foreground">{criterion.definition}</p>}
+                                          <p className="text-sm text-muted-foreground"><GovernedCopy id="requiredInputsDerived" />: {criterion.required_inputs.map((input) => adminFactLabel(input, enumDisplayLabel("lineItem", input, locale), locale)).join(", ") || "—"}</p>
+                                          <details className="border-t border-border pt-2">
+                                            <summary className="min-h-11 cursor-pointer list-none text-sm">{uiNineText(locale, "Technical details")}</summary>
+                                            <p className="break-all pt-2 font-mono text-xs" dir="ltr">{criterion.id}</p>
+                                          </details>
+                                        </div>
+                                      </details>
                                     </div>
                                   </div>
                                   {canEditDraft && <button type="button" onClick={() => { setEditingCriterion(criterion); setShowNewCriterion(false); }}
@@ -493,11 +501,16 @@ export function AdminMethodologies({ data, locale, role, action, selection = {} 
                               <li key={`${event.at}-${index}`} className="grid gap-2 px-3 py-3 text-xs sm:grid-cols-[minmax(8rem,0.6fr)_minmax(8rem,0.6fr)_1fr]">
                                 <span>{displayLabel("workflow", event.from ?? event.status, locale)} → {displayLabel("workflow", event.to ?? event.status, locale)}</span>
                                 <bdi className="text-muted-foreground">{formatDate(locale, event.at)}</bdi>
-                                <span className="min-w-0 break-all text-muted-foreground">
-                                  {event.operation && <code className="me-2 font-mono text-[10px]" dir="ltr">{event.operation}</code>}
+                                <div className="min-w-0 break-words text-muted-foreground">
                                   {event.note}
-                                  {event.actor && <code className="ms-2 font-mono text-[10px]" dir="ltr">{event.actor}</code>}
-                                </span>
+                                  {(event.operation || event.actor) && <details className="mt-1 border border-border">
+                                    <summary className="min-h-11 cursor-pointer list-none px-3 py-2 text-sm">{uiNineText(locale, "Technical details")}</summary>
+                                    <div className="break-all border-t border-border p-3 font-mono text-xs" dir="ltr">
+                                      {event.operation && <span className="me-2">{event.operation}</span>}
+                                      {event.actor && <span>{event.actor}</span>}
+                                    </div>
+                                  </details>}
+                                </div>
                               </li>
                             ))}
                           </ol>

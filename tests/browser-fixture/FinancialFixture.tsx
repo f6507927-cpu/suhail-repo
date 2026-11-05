@@ -19,7 +19,7 @@ const analystId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const jobId = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
 
 const stamp = "2026-01-20T10:00:00.000Z";
-const fixtureData = {
+export const fixtureData = {
   guidanceAsOf: "2026-10-16",
   securities: [{
     id: securityId, company_id: issuerId, exchange_id: null, exchange_code: "NASDAQ", ticker: "FIX",
@@ -70,7 +70,7 @@ const fixtureData = {
 } as unknown as FinancialAdminData;
 
 const runId = "33333333-3333-4333-8333-333333333333";
-const screeningData = {
+export const screeningData = {
   versions: [{ id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", label: "v1.2", methodologyName: "Fixture methodology" }],
   runs: [{
     id: runId, security_id: securityId, company_id: issuerId, ticker: "FIX", company_name: "Fixture Research Systems",
@@ -86,7 +86,7 @@ const screeningData = {
   unchanged: [{ securityId, methodologyVersionId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", runId, jobId }],
 } as unknown as ScreeningAdminData;
 
-const runDetail = {
+export const runDetail = {
   run: screeningData.runs[0],
   criteria: [{
     id: "dddddddd-dddd-4ddd-8ddd-dddddddddddd", screening_run_id: runId, criterion_id: null,

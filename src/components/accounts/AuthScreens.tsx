@@ -1,6 +1,6 @@
 "use client";
 
-import { LockKeyhole, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { localePath, safeNext } from "@/lib/auth/paths";
 import { googleOAuthUrl } from "@/lib/auth/oauth-url";
@@ -49,7 +49,6 @@ export function SignInScreen({ locale, next, valueStatement, providerError }: Si
     }
   }
   const copy = {
-    eyebrow: reviewText(locale, "RESEARCH, WITH ITS REASONS"),
     title: reviewText(locale, "Sign in"),
     consent: reviewText(locale, "By continuing, you agree to the"),
     terms: reviewText(locale, "Terms of Use"),
@@ -61,79 +60,46 @@ export function SignInScreen({ locale, next, valueStatement, providerError }: Si
 
   return (
     <main className="min-h-[100dvh] bg-background px-5 py-10 text-foreground sm:px-8">
-      <div className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-6xl flex-col">
-        <header className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">{reviewText(locale, "ACCOUNT ACCESS")}</span>
-        </header>
-        <section className="my-auto grid items-center gap-12 py-16 lg:grid-cols-[1fr_0.84fr] lg:gap-24">
-          <div className="max-w-2xl">
-            <p className="mb-5 flex items-center gap-2 text-xs text-accent">
-              <span className="h-px w-9 bg-primary" />
-              {copy.eyebrow}
+      <div data-public-ux className="mx-auto flex min-h-[calc(100dvh-5rem)] w-full max-w-xl items-center justify-center">
+        <section className="w-full rounded-[var(--radius-card)] border border-border bg-card p-6 sm:p-10 dark:bg-[#10393f]">
+          <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">{copy.title}</h1>
+          <p className="mt-4 text-base leading-7 text-muted-foreground">{valueStatement}</p>
+          <form action={localePath(locale, "/auth/start")} method="post" onSubmit={startGoogle} aria-busy={connecting}>
+            <input type="hidden" name="next" value={next ?? ""} />
+            <button
+              type="submit"
+              disabled={connecting}
+              className="mt-8 flex min-h-12 w-full items-center justify-between gap-4 rounded-full bg-primary px-5 font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              <span className="flex items-center gap-3">
+                <GoogleMark />
+                {connecting ? copy.connecting : copy.continue}
+              </span>
+              <ArrowUpRight aria-hidden="true" size={17} strokeWidth={1.6} />
+            </button>
+          </form>
+          <p className="mt-5 text-sm leading-7 text-muted-foreground">
+            {copy.consent}{" "}
+            <a className="text-foreground underline underline-offset-4" href={localePath(locale, "/terms")}>
+              {copy.terms}
+            </a>{" "}
+            {copy.and}{" "}
+            <a className="text-foreground underline underline-offset-4" href={localePath(locale, "/privacy")}>
+              {copy.privacy}
+            </a>
+            .
+          </p>
+          <noscript>{reviewText(locale, "Enable JavaScript to continue with Google.")}</noscript>
+          {connecting && <p className="mt-4 text-sm" role="status">{copy.connecting}</p>}
+          {providerMessage && (
+            <p className="mt-4 border-s-2 border-foreground ps-3 text-sm text-foreground" role="alert">
+              {providerMessage}
+              <a className="mt-2 block underline underline-offset-4" href={signInPath} target="_blank" rel="noopener noreferrer">
+                {reviewText(locale, "Open sign-in in a new tab")}
+              </a>
             </p>
-            <h1 className="max-w-xl text-4xl font-semibold leading-tight sm:text-6xl">
-              {copy.title}
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground">{valueStatement}</p>
-            <div className="mt-10 flex items-center gap-3 text-sm text-muted-foreground">
-              <LockKeyhole aria-hidden="true" size={17} strokeWidth={1.6} />
-              <span>{reviewText(locale, "One Google account. No password to manage.")}</span>
-            </div>
-          </div>
-          <div className="relative">
-            <div aria-hidden="true" className="absolute -inset-5 border border-border/50" />
-            <div className="relative border border-border bg-card p-7 sm:p-10">
-              <div className="mb-8 flex items-start justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground">{reviewText(locale, "SUHAIL ACCOUNT")}</p>
-                  <div className="mt-3 h-1 w-12 bg-primary" />
-                </div>
-                <span className="font-mono text-xs text-muted-foreground" dir="ltr">01 / 01</span>
-              </div>
-              <p className="max-w-sm text-sm leading-7 text-muted-foreground">
-                {copy.consent}{" "}
-                <a className="text-foreground underline underline-offset-4" href={localePath(locale, "/terms")}>
-                  {copy.terms}
-                </a>{" "}
-                {copy.and}{" "}
-                <a className="text-foreground underline underline-offset-4" href={localePath(locale, "/privacy")}>
-                  {copy.privacy}
-                </a>
-                .
-              </p>
-              <form action={localePath(locale, "/auth/start")} method="post" onSubmit={startGoogle} aria-busy={connecting}>
-                <input type="hidden" name="next" value={next ?? ""} />
-                <button
-                  type="submit"
-                  disabled={connecting}
-                  className="mt-7 flex min-h-12 w-full items-center justify-between gap-4 bg-primary px-5 font-medium text-primary-foreground transition-opacity hover:opacity-90"
-                >
-                  <span className="flex items-center gap-3">
-                    <GoogleMark />
-                    {connecting ? copy.connecting : copy.continue}
-                  </span>
-                  <ArrowUpRight aria-hidden="true" size={17} strokeWidth={1.6} />
-                </button>
-              </form>
-              <noscript>{reviewText(locale, "Enable JavaScript to continue with Google.")}</noscript>
-              {connecting && <p className="mt-4 text-sm" role="status">{copy.connecting}</p>}
-              {providerMessage && (
-                <p className="mt-4 border-s-2 border-foreground ps-3 text-sm text-foreground" role="alert">
-                  {providerMessage}
-                  <a className="mt-2 block underline underline-offset-4" href={signInPath} target="_blank" rel="noopener noreferrer">
-                    {reviewText(locale, "Open sign-in in a new tab")}
-                  </a>
-                </p>
-              )}
-              <p className="mt-6 text-xs leading-6 text-muted-foreground">
-                {reviewText(locale, "Your public research remains open to everyone.")}
-              </p>
-            </div>
-          </div>
+          )}
         </section>
-        <footer className="flex items-center border-t border-border pt-5 text-xs text-muted-foreground">
-          <span>{reviewText(locale, "Suhail · Public research")}</span>
-        </footer>
       </div>
     </main>
   );

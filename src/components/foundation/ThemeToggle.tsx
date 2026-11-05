@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
+import { isEnglishText } from "@/i18n/display-text";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "../ui/button";
 import { LocalizedText } from "./shared";
@@ -60,7 +61,8 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       aria-label={t("theme")}
-      lang={t("theme").startsWith("⟦AR-REVIEW⟧ ") ? "en" : undefined}
+      lang={isEnglishText(t("theme")) ? "en" : undefined}
+      dir={isEnglishText(t("theme")) ? "ltr" : undefined}
       aria-pressed={theme === "dark"}
       title={t("theme")}
       disabled={!hydrated}

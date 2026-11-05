@@ -6,6 +6,7 @@ import {
 import { MethodologyDetail } from "../../../../../components/methodology/MethodologyDetail";
 import { PublicMethodologyVersions } from "../../../../../components/methodology/PublicMethodologyVersions";
 import { publicMethodologyVersionLabel } from "../../../../../i18n/methodology-labels";
+import { uiOneDisplay } from "../../../../../i18n/approved-arabic-ui-one";
 
 // D-20: documentation is ISR-cacheable; no request headers or cookies are read.
 export const revalidate = 900;
@@ -31,7 +32,7 @@ export default async function MethodologyVersionPage({
       defaultVersion={data.defaultVersion}
       versions={data.documents.map(({ version }) => ({
         value: version.version,
-        label: publicMethodologyVersionLabel(version.version_label, version.version),
+        label: publicMethodologyVersionLabel(uiOneDisplay(version.version_label || version.version, locale === "ar" ? "ar" : "en")),
       }))}
     >
       {data.documents.map(({ version, criteria }) => (

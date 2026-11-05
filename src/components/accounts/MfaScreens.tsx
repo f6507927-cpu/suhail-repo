@@ -1,4 +1,5 @@
 "use client";
+import { LocalizedText } from "../foundation/shared";
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Check, Copy, KeyRound, LoaderCircle, ShieldCheck } from "lucide-react";
@@ -241,7 +242,7 @@ export function MfaEnrollScreen({
           </form>
         </div>
       )}
-      {message && <p role="alert" className="mt-4 text-sm text-foreground">{message}</p>}
+      {message && <p role="alert" className="mt-4 text-sm text-foreground"><LocalizedText>{message}</LocalizedText></p>}
       {verified && <p role="status" className="mt-4 flex items-center gap-2 text-sm"><Check aria-hidden="true" size={16} />{reviewText(locale, "Authenticator verified.")}</p>}
     </MfaFrame>
   );
@@ -317,7 +318,7 @@ export function MfaVerifyScreen({
           {pending ? reviewText(locale, "Verifying") : reviewText(locale, "Verify and continue")}
         </button>
       </form>
-      {message && <p role="alert" className="mt-4 text-sm text-foreground">{message}</p>}
+      {message && <p role="alert" className="mt-4 text-sm text-foreground"><LocalizedText>{message}</LocalizedText></p>}
       <p className="mt-6 text-xs leading-6 text-muted-foreground">{reviewText(locale, "Lost your authenticator? Contact another administrator for a reset.")}</p>
     </MfaFrame>
   );

@@ -110,12 +110,12 @@ export const presentationLabels = {
 
 export type LabelFamily = keyof typeof presentationLabels | "structured";
 
-/** Approved phrase reuse only: marked JSON entries never become approvals. */
+/** Reuse the localized interface dictionary without manufacturing review tokens. */
 function messagePairs(english: object, arabic: object): Pair[] {
   return Object.entries(english).flatMap(([key, source]) => {
     const translated = (arabic as Record<string, unknown>)[key];
     if (typeof source === "string" && typeof translated === "string")
-      return translated.includes("⟦AR-REVIEW⟧") ? [] : [[source, translated] as Pair];
+      return [[source, translated] as Pair];
     return source && translated && typeof source === "object" && typeof translated === "object"
       ? messagePairs(source, translated) : [];
   });
@@ -125,7 +125,7 @@ export const publicUiCopy: Readonly<Record<string, string>> = Object.fromEntries
   // D-144: shared phrase + structured-label consumers; D-130/D-131/D-138 win below.
   ...Object.entries(publicUxOne),
   ...messagePairs(en, ar),
-  ...Object.values(presentationLabels).flatMap(family => Object.values(family)).filter(([, text]) => !text.includes("⟦AR-REVIEW⟧")),
+  ...Object.values(presentationLabels).flatMap(family => Object.values(family)),
   ["English only", "متاح بالإنجليزية فقط"], ["Arabic only", "متاح بالعربية فقط"],
   ["All recorded criteria passed. No additional status reasons were recorded.", "اجتاز السهم جميع المعايير المسجلة. لم تُسجّل أسباب إضافية."],
   ["No specific status reasons were recorded.", "لم تُسجّل أسباب محددة للنتيجة."],
@@ -162,7 +162,7 @@ export function displayLabel(family: LabelFamily, value: string | null | undefin
   if (!value) return "—";
   if (family === "structured") {
     const source = Object.hasOwn(structuredLabels, value) ? structuredLabels[value as keyof typeof structuredLabels] : undefined;
-    if (source) return locale === "ar" ? publicUiCopy[source] ?? `⟦AR-REVIEW⟧ ${source}` : source;
+    if (source) return locale === "ar" ? publicUiCopy[source] ?? source : source;
   } else {
     const labels: Readonly<Record<string, Pair>> = presentationLabels[family];
     if (Object.hasOwn(labels, value)) return labels[value][locale === "ar" ? 1 : 0];

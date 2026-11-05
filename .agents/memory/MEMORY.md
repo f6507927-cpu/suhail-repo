@@ -38,3 +38,7 @@
 - [Public column grants](public-column-grants.md) — adding a public projection column also needs an explicit column-level grant; mocked SQL tests cannot prove access.
 - [Theme-color hydration](theme-color-hydration.md) — mutating hoisted meta content before hydration creates duplicate tags; restore the class early, chrome colour afterwards.
 - [pnpm audit remediation](pnpm-audit-remediation.md) — audit fix can create workspace overrides despite reporting package.json changes; nested audits may reuse the ancestor lockfile.
+- [Browser test executables](browser-test-executables.md) — check existing Nix Chromium before installing a browser when Playwright's default cache is missing.
+- [Post-sync dependencies](post-sync-dependencies.md) — task sync can update lockfiles without refreshing installed modules; verify runtime dependencies separately.
+- [RTL overflow evidence](rtl-overflow-evidence.md) — inspect the left edge too; intrinsic descendant widths are not proof of document overflow.
+- [Browser fixture fidelity](browser-fixture-fidelity.md) — serve module CSS as well as global styles; Intl medium does not guarantee named Arabic months.

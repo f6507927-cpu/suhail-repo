@@ -20,11 +20,16 @@ const business = {
   confidence_tier: "Estimated", source_ids: [], calculation_trace: "Primary activity: Fixture (from FY2025 filing) (technology); pass.",
 } as unknown as StockCriterion;
 describe("public Arabic criterion and reason presentation", () => {
-  it.each(["Prohibited primary business activity", "Interest-bearing debt / market value basis", "Prohibited income / total revenue"])(
-    "localizes the exact governed label %s without changing the stored label", label => {
+  it.each([
+    ["Prohibited primary business activity", "Primary business activity"],
+    ["Interest-bearing debt / market value basis", "Interest-bearing debt to market value"],
+    ["Prohibited income / total revenue", "Non-permissible income to total revenue"],
+  ])(
+    "localizes the exact governed label %s without changing the stored label", (label, english) => {
       expect(stockCriterionLabel({ criterion_label: label }, "ar")).toMatch(/[\u0600-\u06ff]/);
       expect(stockCriterionLabel({ criterion_label: label }, "ar")).not.toMatch(/[A-Za-z]/);
-      expect(stockCriterionLabel({ criterion_label: label }, "en")).toBe(label);
+      // D-157 approves both display locales; the stored string remains the key.
+      expect(stockCriterionLabel({ criterion_label: label }, "en")).toBe(english);
     });
   it("preserves arbitrary analyst labels rather than collapsing distinct definitions", () => {
     expect(stockCriterionLabel({ criterion_label: "Specific analyst evidence" }, "ar")).toBe("Specific analyst evidence");

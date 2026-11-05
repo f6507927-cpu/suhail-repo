@@ -112,8 +112,8 @@ describe("UX-6 homepage rendering",()=>{
     const html=render(<SiteFooter locale={locale}/>,locale);
     expect(html).toContain(dictionary.disclaimer.short);
     expect(html).toContain(dictionary.disclaimer.full);
-    expect(html).not.toMatch(/<div[^>]*>سهيل<\/div>/);
-    expect(readFileSync("src/components/foundation/SiteFooter.module.css","utf8")).not.toContain(".wordmark");
+    expect(html).toMatch(/<div[^>]*>سهيل<\/div>/);
+    expect(readFileSync("src/components/foundation/SiteFooter.module.css","utf8")).toContain(".wordmark");
     expect(html).not.toContain("<details");
     expect(readFileSync("src/components/foundation/SiteFooter.module.css","utf8")).toContain(".fullDisclosure:target");
     expect(html).toContain('href="#full-disclaimer"');
@@ -122,11 +122,12 @@ describe("UX-6 homepage rendering",()=>{
     expect(html).toContain(`href="${locale==="en"?"/en":""}/privacy"`);
     expect(html).not.toContain("⟦AR-REVIEW⟧");
   });
-  it("exposes an empty slug input to admins, not a code-selected AAPL value",()=>{
+  it("offers no featured stock in the UI-9 picker, not a code-selected AAPL value",()=>{
     const html=render(<SettingsAdminScreen locale="ar" settings={null} versions={[]} saveSettings={vi.fn()}/>);
     expect(html).toContain("السهم المميّز في الصفحة الرئيسية");
-    expect(html).toMatch(/id="settings-featured-security"[^>]*value=""/);
-    expect(html).toContain('placeholder="nasdaq-aapl"');
+    expect(html).toMatch(/<select[^>]*id="settings-featured-security"/);
+    expect(html).toMatch(/<option value="" selected="">لا يوجد سهم مميّز<\/option>/);
+    expect(html).not.toContain("nasdaq-aapl");
     expect(readFileSync("drizzle/0018_home_featured_security.sql","utf8")).not.toMatch(/^\s*(UPDATE|INSERT INTO)\b/im);
   });
   it("preserves cookie/header-free ISR and uses only the public loader",()=>{

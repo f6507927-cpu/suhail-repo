@@ -3,9 +3,9 @@ import { PublicLocalizedText as LocalizedText, stripPublicReviewMarker } from ".
 import { Num } from "../foundation/Num";
 import { reviewText, type Locale } from "../accounts/types";
 import { formatCalendarDate, formatCompactMoney, formatNumber, formatPercent } from "@/lib/format";
-import { renderArabicDraft } from "@/engine/reasons/ar";
-import { renderEnglish } from "@/engine/reasons/en";
 import { stockCriterionLabel, stockReasonField, stockUnknownEffect, arabicKnownReason } from "@/i18n/stock-labels";
+import { displayReason, visibleReasons } from "@/stock/presentation";
+import { uiOneDisplay, uiOneProse } from "@/i18n/approved-arabic-ui-one";
 import type { StatusReason } from "@/engine/types";
 import type { PublicStockData, StockCriterion, StockSource } from "@/stock/types";
 import styles from "./StockVerdict.module.css";
@@ -49,7 +49,8 @@ const reviewedStockCopy = Object.fromEntries(stockReviewPhrases.map((phrase) => 
 
 export function Copy({ locale, children }: { locale: Locale; children: string }) {
   const reviewed = reviewedStockCopy[children as StockReviewPhrase];
-  return <LocalizedText>{reviewed ? reviewed(locale) : reviewText(locale, children)}</LocalizedText>;
+  const mapped = uiOneDisplay(children, locale);
+  return <LocalizedText>{mapped !== children ? mapped : reviewed ? reviewed(locale) : reviewText(locale, children)}</LocalizedText>;
 }
 
 export function Bilingual({
@@ -61,11 +62,13 @@ export function Bilingual({
   arabic: string | null | undefined;
   english: string | null | undefined;
 }) {
-  const primary = locale === "ar" ? arabic : english;
-  const fallback = locale === "ar" ? english : arabic;
+  const map = (value: string | null | undefined) => value ? uiOneProse(value.trim(), locale) : value;
+  const primary = map(locale === "ar" ? arabic : english);
+  const fallback = map(locale === "ar" ? english : arabic);
   if (typeof primary === "string" && primary.trim()) return <bdi lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>{stripPublicReviewMarker(primary.trim())}</bdi>;
   if (typeof fallback === "string" && fallback.trim()) {
-    return <span className={styles.fallback}><bdi lang={locale === "ar" ? "en" : "ar"} dir={locale === "ar" ? "ltr" : "rtl"}>{stripPublicReviewMarker(fallback.trim())}</bdi></span>;
+    const fallbackLocale = /[\p{Script=Arabic}]/u.test(fallback) ? "ar" : "en";
+    return <span className={styles.fallback}><bdi lang={fallbackLocale} dir={fallbackLocale === "ar" ? "rtl" : "ltr"}>{stripPublicReviewMarker(fallback.trim())}</bdi></span>;
   }
   return <span className={styles.missing}><Copy locale={locale}>Not recorded</Copy></span>;
 }
@@ -78,7 +81,8 @@ export function hasEnglishOnlyNarrative(value: string | null | undefined) {
   if (/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(text)) return false;
   if (/^(?:v|engine-|calc-)\d+(?:[.-]\d+)*$/i.test(text)) return false;
   if (/^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$/.test(text)) return false;
-  return true;
+  // D-157: names and short labels are not whole English narrative.
+  return (text.split(/\s+/).length >= 3 && /[.!?](?:\s|$)/.test(text)) || text.split(/\s+/).length >= 8;
 }
 
 export function Field({ label, children }: { label: ReactNode; children: ReactNode }) {
@@ -86,17 +90,20 @@ export function Field({ label, children }: { label: ReactNode; children: ReactNo
 }
 
 export function Label({ family, value, locale }: { family: LabelFamily; value: string | null | undefined; locale: Locale }) {
-  return <bdi>{stripPublicReviewMarker(displayLabel(family, value, locale))}</bdi>;
+  const mapped = value ? uiOneDisplay(value, locale) : value;
+  return <bdi>{stripPublicReviewMarker(mapped && mapped !== value ? mapped : displayLabel(family, value, locale))}</bdi>;
 }
 
 // Missing-input names are stored evidence, not an enum: the engine can use a
 // configured denominator definition or a narrative name such as Data freshness.
 export function unknownFieldNeedsFallback(value: string, locale: Locale) {
   return locale === "ar" && !Object.hasOwn(presentationLabels.lineItem, value)
-    && hasEnglishOnlyNarrative(reviewText(locale, value));
+    && /[A-Za-z]/.test(reviewText(locale, value)) && !/[\p{Script=Arabic}]/u.test(uiOneDisplay(value, locale));
 }
 
 export function UnknownFieldLabel({ value, locale }: { value: string; locale: Locale }) {
+  const mapped = uiOneDisplay(value, locale);
+  if (mapped !== value) return <bdi>{mapped}</bdi>;
   const localized = stockReasonField(value, locale);
   if (localized !== value) return <bdi>{localized}</bdi>;
   if (Object.hasOwn(presentationLabels.lineItem, value)) {
@@ -130,7 +137,7 @@ export function ActivityEvidenceNote({ criterion, locale }: { criterion: StockCr
     {sourcePeriods.map(period => <p key={period}>{stripPublicReviewMarker(reviewText(locale, "Source period"))}: <bdi>{period}</bdi>{" "}
       (<Label family="tier" value="Estimated" locale={locale} />)</p>)}
     {sic && <p>{stripPublicReviewMarker(reviewText(locale, "Suhail SIC mapping v1 — pending analyst review"))}{" · "}
-      <bdi dir="ltr">SEC SIC code {sic[1]}</bdi></p>}
+      <Copy locale={locale}>SEC SIC code</Copy>{" "}<bdi dir="ltr">{sic[1]}</bdi></p>}
   </>;
 }
 
@@ -179,8 +186,8 @@ export function CriterionValue({ value, locale, compactMoney = false }: { value:
   return <Num>{compactMoney ? formatCompactMoney(value) : value === null ? "—" : amount(value, locale)}</Num>;
 }
 
-function ThresholdValue({ criterion, value, locale }: { criterion: StockCriterion; value: number | null; locale: Locale }) {
-  if (value === null) return <>—</>;
+function ThresholdValue({ criterion, value, locale, limit = false }: { criterion: StockCriterion; value: number | null; locale: Locale; limit?: boolean }) {
+  if (value === null) return <>{limit ? uiOneDisplay("null", locale) : "—"}</>;
   const isPercent = criterion.threshold_unit?.startsWith("percent_");
   return <Num>{isPercent ? formatPercent(value / 100, locale) : formatNumber(value, locale, { maximumFractionDigits: 2 })}</Num>;
 }
@@ -241,34 +248,42 @@ function storedReasonToEngine(value: unknown): StatusReason | null {
   };
 }
 
+/** D-157: reuse the deterministic explanation if no activity UI explanation exists. */
+export function criterionExplanation(criterion: StockCriterion, locale: Locale) {
+  const configured = locale === "ar" ? criterion.explanation_ar : criterion.explanation_en;
+  if (configured?.trim()) return uiOneProse(configured.trim(), locale);
+  if (!isBooleanCriterion(criterion)) return null;
+  const reason = storedReasonToEngine({
+    kind: "criterion_unknown", label: criterion.criterion_label || "",
+    criterionId: criterion.criterion_id, reasonCode: criterion.result_reason,
+  });
+  return reason ? displayReason(reason, locale).split(" — ").slice(1).join(" — ") : null;
+}
+
 export function statusReasonsNeedFallback(reasons: unknown[]) {
   return reasons.some(stored => {
     const reason = storedReasonToEngine(stored);
-    if (!reason) return hasEnglishOnlyNarrative(reviewText("ar", "No reason template available."));
-    if (["failure", "borderline", "criterion_unknown"].includes(reason.kind)) {
-      return hasEnglishOnlyNarrative(stockCriterionLabel({ criterion_label: reason.label }, "ar"));
-    }
-    if (reason.kind === "blocking_unknown" || reason.kind === "review_unknown") {
-      return hasEnglishOnlyNarrative(reason.field ? stockReasonField(reason.field, "ar") : reason.field);
-    }
-    return false;
+    return reason ? [stockCriterionLabel({ criterion_label: reason.label }, "ar"),
+      reason.field && stockReasonField(reason.field, "ar")].some(value => hasEnglishOnlyNarrative(uiOneProse(value || "", "ar")))
+      : hasEnglishOnlyNarrative(reviewText("ar", "No reason template available."));
   });
 }
 
 export function ReasonList({ reasons, locale, passing = false }: { reasons: unknown[]; locale: Locale; passing?: boolean }) {
   if (!reasons.length) return <p className={styles.muted}><Copy locale={locale}>{passing ? "All recorded criteria passed. No additional status reasons were recorded." : "No specific status reasons were recorded."}</Copy></p>;
-  const render = locale === "ar" ? renderArabicDraft : renderEnglish;
+  const parsed = reasons.map(storedReasonToEngine);
+  const visible = visibleReasons(parsed.filter((r): r is StatusReason => r !== null));
+  if (!visible.length && parsed.every(Boolean)) return null;
   return (
     <ul className={styles.reasonList}>
-      {reasons.map((stored, index) => {
-        const original = storedReasonToEngine(stored);
+      {[...visible, ...parsed.filter(r => r === null)].map((original, index) => {
         const reason = original && locale === "ar" ? { ...original,
           label: stockCriterionLabel({ criterion_label: original.label }, locale),
           field: original.field ? stockReasonField(original.field, locale) : original.field,
         } : original;
         return <li key={`${reason?.kind ?? "unknown"}-${reason?.criterionId ?? reason?.field ?? index}`} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
           {/* D-150: strip only the rendered token, never edit/approve §7.3 templates or stored reasons. */}
-          {reason ? stripPublicReviewMarker(render(reason)) : <Copy locale={locale}>No reason template available.</Copy>}
+          {reason ? stripPublicReviewMarker(displayReason(reason, locale)) : <Copy locale={locale}>No reason template available.</Copy>}
         </li>;
       })}
     </ul>
@@ -285,10 +300,11 @@ const valueFamilies: Record<string, LabelFamily> = {
 export function criteriaNeedFallback(criteria: StockCriterion[]) {
   return criteria.some(criterion =>
     hasEnglishOnlyNarrative(stockCriterionLabel(criterion, "ar") || reviewText("ar", "Unlabelled criterion")) ||
+    hasEnglishOnlyNarrative(criterionExplanation(criterion, "ar")) ||
     (!isBooleanCriterion(criterion) && (
-      hasEnglishOnlyNarrative(criterion.numerator_definition) ||
-      hasEnglishOnlyNarrative(criterion.denominator_definition) ||
-      hasEnglishOnlyNarrative(criterion.calculation_trace || reviewText("ar", "No calculation trace was stored."))
+      hasEnglishOnlyNarrative(uiOneDisplay(criterion.numerator_definition || "", "ar")) ||
+      hasEnglishOnlyNarrative(uiOneDisplay(criterion.denominator_definition || "", "ar")) ||
+      hasEnglishOnlyNarrative(uiOneProse(criterion.calculation_trace || reviewText("ar", "No calculation trace was stored."), "ar"))
     )),
   );
 }
@@ -300,8 +316,8 @@ export function unknownsNeedFallback(unknowns: PublicStockData["unknowns"]) {
         ? displayLabel("lineItem", item.field_or_input, "ar")
         : reviewText("ar", item.field_or_input),
     ) ||
-    hasEnglishOnlyNarrative(arabicKnownReason(item.why_missing) ?? item.why_missing) ||
-    hasEnglishOnlyNarrative(item.effect ? stockUnknownEffect(item.effect, "ar") : null),
+    hasEnglishOnlyNarrative(uiOneDisplay(arabicKnownReason(item.why_missing) ?? item.why_missing ?? "", "ar")) ||
+    hasEnglishOnlyNarrative(uiOneDisplay(item.effect ? stockUnknownEffect(item.effect, "ar") : "", "ar")),
   );
 }
 
@@ -309,12 +325,13 @@ function structuredValueNeedsFallback(value: unknown, field?: string): boolean {
   if (value === null || value === undefined || typeof value === "number") return false;
   if (typeof value === "boolean") return hasEnglishOnlyNarrative(reviewText("ar", value ? "Yes" : "No"));
   if (typeof value === "string") {
+    if (field === "source_title" || field === "document_title") return false;
     const family = field ? valueFamilies[field] : undefined;
     const shown = family
       ? displayLabel(family, value, "ar")
       : /^[a-z]+(?:_[a-z]+)+$/.test(value)
         ? displayLabel("structured", value, "ar")
-        : value;
+        : uiOneDisplay(value, "ar");
     return hasEnglishOnlyNarrative(shown);
   }
   if (Array.isArray(value)) return value.some(item => structuredValueNeedsFallback(item, field));
@@ -330,7 +347,6 @@ export function structuredEvidenceNeedsFallback(value: unknown) {
 
 export function sourcesNeedFallback(sources: StockSource[], data: PublicStockData) {
   return sources.some(source =>
-    hasEnglishOnlyNarrative(source.label === "API Ninjas" ? "Prices: API Ninjas" : source.document_title || source.label) ||
     hasEnglishOnlyNarrative(sourceFiledDate(source, data, "ar")),
   );
 }
@@ -341,6 +357,7 @@ function StructuredValue({ value, locale, field }: { value: unknown; locale: Loc
     const text = value === null || value === undefined ? "—" : typeof value === "boolean"
        ? stripPublicReviewMarker(reviewText(locale, value ? "Yes" : "No"))
        : family ? stripPublicReviewMarker(displayLabel(family, String(value), locale))
+      : uiOneDisplay(String(value), locale) !== String(value) ? uiOneDisplay(String(value), locale)
       : /^[a-z]+(?:_[a-z]+)+$/.test(String(value)) ? stripPublicReviewMarker(displayLabel("structured", String(value), locale)) : String(value);
     return <bdi dir="auto">{stripPublicReviewMarker(text)}</bdi>;
   }
@@ -377,10 +394,8 @@ export function CriteriaTable({ criteria, sources, locale }: { criteria: StockCr
         <h3><Bilingual locale={locale} arabic={null} english={label(criterion)} /></h3>
         <dl className={styles.cardFields}>
           <Field label={<Copy locale={locale}>Result</Copy>}><Label family="result" value={criterion.result} locale={locale} /></Field>
-          {criterion.criterion_type !== "business_activity" && criterion.result === "fail" && typeof criterion.ratio === "number" && Number.isFinite(criterion.ratio) && criterion.ratio !== 0 && <Field label={<Copy locale={locale}>Ratio</Copy>}><RatioValue criterion={criterion} value={criterion.ratio} locale={locale} /></Field>}
-          <Field label={<Copy locale={locale}>Input state</Copy>}>{criterion.input_states.map(state => <Label key={state} family="inputState" value={state} locale={locale} />)}</Field>
-          <Field label={<Copy locale={locale}>Confidence tier</Copy>}><Label family="tier" value={criterion.confidence_tier} locale={locale} /></Field>
         </dl>
+        {criterionExplanation(criterion, locale) && <p>{criterionExplanation(criterion, locale)}</p>}
         <ActivityEvidenceNote criterion={criterion} locale={locale} />
         <SourceRefs ids={criterion.source_ids} numbers={sources} locale={locale} />
       </article>)}
@@ -393,7 +408,7 @@ export function CriteriaTable({ criteria, sources, locale }: { criteria: StockCr
               <Bilingual key="criterion" locale={locale} arabic={null} english={label(criterion)} />,
               <span key="result" className={styles.result}><Label family="result" value={criterion.result} locale={locale} /></span>,
               <RatioValue key="ratio" criterion={criterion} value={criterion.ratio} locale={locale} />,
-              <ThresholdValue key="threshold" criterion={criterion} value={criterion.threshold} locale={locale} />,
+              <ThresholdValue key="threshold" criterion={criterion} value={criterion.threshold} locale={locale} limit />,
               <EvidenceValue key="numerator" definition={criterion.numerator_definition} value={criterion.numerator_value} locale={locale} />,
               <EvidenceValue key="denominator" definition={criterion.denominator_definition} value={criterion.denominator_value} locale={locale} />,
                <span key="state">{criterion.input_states.map(state => <span className={styles.valueStack} key={state}><Label family="inputState" value={state} locale={locale} /></span>)}</span>,
@@ -413,7 +428,7 @@ export function CriteriaTable({ criteria, sources, locale }: { criteria: StockCr
               {headers.filter((head) => !["Criterion", "Calculation"].includes(head)).map((head) => {
                 const values: Record<string, ReactNode> = {
                   Ratio: <RatioValue criterion={criterion} value={criterion.ratio} locale={locale} />,
-                  Threshold: <ThresholdValue criterion={criterion} value={criterion.threshold} locale={locale} />,
+                  Threshold: <ThresholdValue criterion={criterion} value={criterion.threshold} locale={locale} limit />,
                   Numerator: <EvidenceValue definition={criterion.numerator_definition} value={criterion.numerator_value} locale={locale} />,
                   Denominator: <EvidenceValue definition={criterion.denominator_definition} value={criterion.denominator_value} locale={locale} />,
                   "Input state": criterion.input_states.map(state => <Label key={state} family="inputState" value={state} locale={locale} />),

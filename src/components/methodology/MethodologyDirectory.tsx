@@ -5,11 +5,13 @@ import type { PublicMethodologyGroup } from "../../db/methodology-public";
 import { MethodologyCopy } from "./MethodologyCopy";
 import { formatNumber } from "@/lib/format";
 import { displayLabel } from "@/i18n/presentation";
-import { stripPublicReviewMarker } from "../foundation/shared";
 import { publicMethodologyVersionLabel } from "@/i18n/methodology-labels";
+import { uiOneDisplay } from "@/i18n/approved-arabic-ui-one";
+import { isPreview } from "../../security/preview";
+import { methodologyDisplay } from "@/i18n/methodology-display";
 
 export function MethodologyDirectory({
-  groups,
+  groups: storedGroups,
   locale,
 }: {
   groups: PublicMethodologyGroup[];
@@ -18,6 +20,13 @@ export function MethodologyDirectory({
   const t = useTranslations("methodologies");
   const controls = useTranslations("controls");
   const publicText = useTranslations("publicMethodology");
+  const display = (value: string) => methodologyDisplay(value, locale === "ar" ? "ar" : "en");
+  // Directory presentation only. Do not change public flags, records or versions.
+  const groups = isPreview() ? storedGroups : storedGroups.flatMap(group => {
+    if (group.is_demo || group.official_or_inspired === "internal_example" || group.slug === "example-methodology") return [];
+    const versions = group.versions.filter(version => !version.is_demo);
+    return versions.length ? [{ ...group, versions }] : [];
+  });
   return (
     <main id="content" className="mx-auto min-h-[55vh] max-w-6xl px-5 pb-20 pt-10 sm:px-8 lg:pt-16">
       <div className="grid gap-10 border-b border-[var(--divider)] pb-12 md:grid-cols-[minmax(0,1fr)_15rem] md:items-end">
@@ -49,14 +58,14 @@ export function MethodologyDirectory({
           </p>
         </section>
       ) : (
-        <section aria-label={publicText("methodologyRecords")} className="divide-y divide-[var(--divider)]">
+        <section aria-label={publicText("methodologyRecords")} className="space-y-4">
           {groups.map((group, index) => {
             const current = group.versions[0];
-            const latest = publicMethodologyVersionLabel(current?.version_label, current?.version);
+            const latest = publicMethodologyVersionLabel(uiOneDisplay(current?.version_label || current?.version || "", locale === "ar" ? "ar" : "en"));
             return (
               <article
                 key={group.id}
-                className="grid gap-6 py-8 first:pt-9 sm:grid-cols-[3.5rem_minmax(0,1fr)_auto] sm:gap-8 sm:py-10"
+                className="grid gap-6 rounded-[var(--radius-card)] bg-card p-5 sm:grid-cols-[3.5rem_minmax(0,1fr)_auto] sm:gap-8 sm:p-8"
               >
                 <span className="font-mono text-sm tabular-nums text-[var(--byline)]" dir="ltr">
                   {String(index + 1).padStart(2, "0")}
@@ -64,26 +73,26 @@ export function MethodologyDirectory({
                 <div className="min-w-0">
                   <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                     <span>{displayLabel("methodType", group.type, locale === "ar" ? "ar" : "en")}</span>
-                    {group.publisher && <span className="border-s border-[var(--divider)] ps-3">{stripPublicReviewMarker(group.publisher)}</span>}
+                    {group.publisher && <span className="border-s border-[var(--divider)] ps-3">{display(group.publisher)}</span>}
                   </div>
                   <h2 className="text-2xl leading-snug sm:text-3xl">
                     <Link
                       href={`/methodology/${group.slug}`}
                       className="decoration-[var(--brass)] decoration-1 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--brass)]"
                     >
-                      {stripPublicReviewMarker(group.name)}
+                      {display(group.name)}
                     </Link>
                   </h2>
                   {group.short_label && (
-                    <p className="mt-2 text-sm text-[var(--brass-soft)]">{stripPublicReviewMarker(group.short_label)}</p>
+                    <p className="mt-2 text-sm text-[var(--brass-soft)]">{display(group.short_label)}</p>
                   )}
-                  {group.scope && <p className="mt-3 max-w-3xl text-muted-foreground">{stripPublicReviewMarker(group.scope)}</p>}
+                  {group.scope && <p className="mt-3 max-w-3xl text-muted-foreground">{display(group.scope)}</p>}
                   <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
                     <span>
                       <span className="text-muted-foreground"><LocalizedText>{t("version")}</LocalizedText>: </span>
                       {current?.version_label
-                        ? <span>{stripPublicReviewMarker(latest ?? "—")}</span>
-                        : <bdi dir="ltr" className="font-mono">{stripPublicReviewMarker(latest ?? "—")}</bdi>}
+                        ? <span>{display(latest ?? "—")}</span>
+                        : <bdi dir="ltr" className="font-mono">{display(latest ?? "—")}</bdi>}
                     </span>
                     <span>
                       <span className="text-muted-foreground"><MethodologyCopy id="publicVersions" />: </span>
@@ -97,7 +106,6 @@ export function MethodologyDirectory({
                     className="inline-flex min-h-11 items-center gap-3 border border-[var(--divider)] px-4 text-sm transition-colors hover:border-[var(--brass)] hover:text-[var(--brass-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--brass)]"
                   >
                     <MethodologyCopy id="openDocumentation" />
-                    <span aria-hidden="true">↗</span>
                   </Link>
                 </div>
               </article>

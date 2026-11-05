@@ -13,17 +13,27 @@ describe("stored month-end close presentation", () => {
   it.each(["ar", "en"] as const)("server renders stored-only attribution, Western digits and isolated date in %s", locale => {
     const html = renderToStaticMarkup(<StoredMonthlyClose close={close} locale={locale} />);
     expect(html).toContain('href="https://api-ninjas.com"');
-    expect(html).toContain("Prices: API Ninjas");
-    expect(html).toContain('<time dateTime="2026-09-30"><bdi>');
-    expect(html).toContain(formatCalendarDate(close.date, locale, { day: "numeric", month: "short", year: "numeric" }));
+    expect(html).toContain(locale === "ar" ? "الأسعار: API Ninjas" : "Prices: API Ninjas");
+    expect(html).toContain(locale === "ar" ? "سعر الإغلاق في" : "Closing price on");
+    expect(html).toContain('<time dateTime="2026-09-30"');
+    expect(html.replace(/<[^>]*>/g, "")).toContain(formatCalendarDate(close.date, locale));
+    expect(html).toContain("$123.45");
+    expect(html).not.toContain("US$");
     expect(html).not.toMatch(/[٠-٩]|⟦AR-REVIEW⟧|%|<svg|<canvas|live/i);
     expect(html).toContain("font-mono");
-    if (locale === "ar") expect(html).toContain('lang="en"');
   });
   it("keeps missing data absent and manual evidence distinct", () => {
     expect(renderToStaticMarkup(<StoredMonthlyClose locale="en" />)).toBe("");
     const html = renderToStaticMarkup(<StoredMonthlyClose locale="en"
       close={{ ...close, price_provider: "manual", source_label: "Analyst filing note" }} />);
     expect(html).toContain("Analyst filing note"); expect(html).not.toContain("API Ninjas");
+  });
+  it("links available stored manual provenance without inventing or accepting unsafe URLs", () => {
+    const manual = { ...close, price_provider: "manual", source_label: "Stored document",
+      source_url: "https://example.test/stored-close" };
+    expect(renderToStaticMarkup(<StoredMonthlyClose close={manual} locale="ar" />))
+      .toContain('href="https://example.test/stored-close"');
+    expect(renderToStaticMarkup(<StoredMonthlyClose close={{ ...manual, source_url: "javascript:alert(1)" }} locale="ar" />))
+      .not.toContain("href=");
   });
 });

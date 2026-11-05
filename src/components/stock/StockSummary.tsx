@@ -6,7 +6,7 @@ import {
   Num,
   StatusBadge,
 } from "../foundation";
-import { formatCalendarDate, formatCompactMoney, formatMoney, formatNumber } from "@/lib/format";
+import { formatCompactMoney, formatMoney, formatNumber, scaleMultiplier } from "@/lib/format";
 import { displayLabel } from "@/i18n/presentation";
 import { stockCriterionLabel, stockUnknownEffect } from "@/i18n/stock-labels";
 import { publicMethodologyVersionLabel } from "@/i18n/methodology-labels";
@@ -22,9 +22,14 @@ import {
   ReasonList,
   isBooleanCriterion,
   ActivityEvidenceNote,
+  criterionExplanation,
 } from "./StockVerdictParts";
 import { ratioDisplay } from "./ratio-display";
+import { StockDate } from "./StockDate";
+import { StoredMonthlyClose } from "./StoredMonthlyClose";
 import styles from "./StockVerdict.module.css";
+
+import { isSuppliedDraft, missingFigure, uiOneDisplay, stockShortVersionLabel } from "@/i18n/approved-arabic-ui-one";
 
 type Locale = "ar" | "en";
 const fixedMeaning: Record<string, string> = {
@@ -46,16 +51,6 @@ const factFields = [
   ["net_income", "Net income"],
   ["cash_and_equivalents", "Cash and equivalents"],
 ] as const;
-
-function scaleMultiplier(scale: string | null | undefined) {
-  const values: Record<string, number> = {
-    absolute: 1,
-    thousands: 1_000,
-    millions: 1_000_000,
-    billions: 1_000_000_000,
-  };
-  return scale ? values[scale] ?? null : null;
-}
 
 function FactFigure({
   data,
@@ -86,8 +81,8 @@ function FactFigure({
       <span className={styles.factValue}><Num>{value}</Num></span>
       <span className={styles.factLabel}><Copy locale={locale}>{label}</Copy></span>
       <span className={styles.factPeriod}>
-        <bdi dir="ltr">{data.period?.fiscal_period_label || "—"}
-        {data.period?.period_end ? ` · ${formatCalendarDate(data.period.period_end, locale)}` : ""}</bdi>
+        <bdi dir="ltr">{data.period?.fiscal_period_label || "—"}</bdi>
+        {data.period?.period_end && <> · <StockDate value={data.period.period_end} locale={locale} /></>}
       </span>
     </div>
   );
@@ -102,6 +97,7 @@ function percent(value: number | null, locale: Locale, failed = false, threshold
 }
 
 export function RatioMeter({ criterion, locale }: { criterion: StockCriterion; locale: Locale }) {
+  if (isBooleanCriterion(criterion)) return null;
   const ratio = criterion.ratio;
   const threshold = criterion.threshold;
   const direction = criterion.threshold_direction;
@@ -175,7 +171,7 @@ export function RatioMeter({ criterion, locale }: { criterion: StockCriterion; l
 }
 
 function CriterionRow({ criterion, locale }: { criterion: StockCriterion; locale: Locale }) {
-  const explanation = locale === "ar" ? criterion.explanation_ar : criterion.explanation_en;
+  const explanation = criterionExplanation(criterion, locale);
   const label = stockCriterionLabel(criterion, locale) || reviewText(locale, "Unlabelled criterion");
   const isPercent = ratioUnit(criterion) === "%";
   const ratioText = criterion.ratio === null
@@ -189,7 +185,7 @@ function CriterionRow({ criterion, locale }: { criterion: StockCriterion; locale
     <article className={styles.ratioItem}>
       <div className={styles.ratioHeader}>
         <strong className={styles.ratioName}><Bilingual locale={locale} arabic={null} english={label} /></strong>
-        <span className={styles.ratioResult}><Label family="result" value={criterion.result} locale={locale} /></span>
+        <span className={styles.ratioResult} data-result={criterion.result}><Label family="result" value={criterion.result} locale={locale} /></span>
       </div>
       {!isBooleanCriterion(criterion) && <div className={styles.ratioNumbers}>
         {criterion.ratio === null && !isBooleanCriterion(criterion)
@@ -201,16 +197,19 @@ function CriterionRow({ criterion, locale }: { criterion: StockCriterion; locale
       <ActivityEvidenceNote criterion={criterion} locale={locale} />
       {!isBooleanCriterion(criterion) && (
         <p className={styles.ratioNote}>
-          {criterion.threshold_unit?.startsWith("percent_") &&
+          <RatioNote criterion={criterion} locale={locale} />
+          {criterion.numerator_value !== null && criterion.denominator_value !== null &&
+          criterion.threshold_unit?.startsWith("percent_") &&
           criterion.threshold_direction !== "min" &&
           criterion.ratio !== null &&
           criterion.threshold !== null &&
           criterion.ratio > criterion.threshold
-             ? <><Copy locale={locale}>Exceeded by</Copy>{" "}<Num>{ratioDisplay(Math.abs(criterion.ratio - criterion.threshold), 0, true, locale)}</Num>{" "}<Copy locale={locale}>percentage points</Copy></>
-             : <><CriterionValue value={criterion.numerator_value} locale={locale} compactMoney={isPercent} />{" "}÷{" "}<CriterionValue value={criterion.denominator_value} locale={locale} compactMoney={isPercent} /></>}
+             ? <> · <Copy locale={locale}>Exceeded by</Copy>{" "}<Num>{ratioDisplay(Math.abs(criterion.ratio - criterion.threshold), 0, true, locale)}</Num>{" "}<Copy locale={locale}>percentage points</Copy></>
+             : null}
         </p>
       )}
-      {explanation?.trim() && (
+      {isBooleanCriterion(criterion) && explanation?.trim() && <p>{uiOneDisplay(explanation.trim(), locale)}</p>}
+      {!isBooleanCriterion(criterion) && explanation?.trim() && (
         <details className={styles.criterionExplain}>
           <summary><Copy locale={locale}>What is this criterion?</Copy></summary>
           <p lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>{stripPublicReviewMarker(explanation.trim())}</p>
@@ -220,6 +219,27 @@ function CriterionRow({ criterion, locale }: { criterion: StockCriterion; locale
   );
 }
 
+/** Labels identify the stored operands, never substitute the headline market cap. */
+export function RatioNote({ criterion, locale }: { criterion: StockCriterion; locale: Locale }) {
+  if (isBooleanCriterion(criterion)) return null;
+  if (criterion.numerator_value === null || criterion.denominator_value === null)
+    return <>{missingFigure[locale === "ar" ? 0 : 1]}</>;
+  const numerator = criterion.numerator_definition || ({
+    interest_bearing_debt: "interest_bearing_debt", non_permissible_revenue: "prohibited_income",
+  } as Record<string, string>)[criterion.criterion_type] || criterion.criterion_label || criterion.criterion_type;
+  const denominator = criterion.denominator_definition || ({
+    percent_of_market_cap: "market_value_basis", percent_of_total_revenue: "total_revenue",
+    percent_of_total_assets: "total_assets",
+  } as Record<string, string>)[criterion.threshold_unit || ""] || "Denominator";
+  const money = ratioUnit(criterion) === "%";
+  return <>
+    <UnknownFieldLabel value={numerator} locale={locale} />{" "}
+    <CriterionValue value={criterion.numerator_value} locale={locale} compactMoney={money} />{" "}÷{" "}
+    <UnknownFieldLabel value={denominator} locale={locale} />{" "}
+    <CriterionValue value={criterion.denominator_value} locale={locale} compactMoney={money} />
+  </>;
+}
+
 export function StockSummary({ data, locale }: { data: PublicStockData; locale: Locale }) {
   const { run, methodology, version, security } = data;
   const criteria = [...data.criteria].sort((a, b) => a.sort_order - b.sort_order);
@@ -227,7 +247,7 @@ export function StockSummary({ data, locale }: { data: PublicStockData; locale: 
     security.coverage_analyst_id && run?.status === "passes_selected_methodology",
   );
   const methodologyTitle = methodology?.name || run?.methodology_name;
-  const versionLabel = publicMethodologyVersionLabel(version?.version_label || version?.version || run?.methodology_version_label);
+  const versionLabel = version?.version_label || version?.version || run?.methodology_version_label;
   const methodologyHref = methodology && version
     ? `${locale === "en" ? "/en" : ""}/methodology/${encodeURIComponent(methodology.slug)}?version=${encodeURIComponent(version.version)}#methodology-${methodology.slug}-version-${encodeURIComponent(version.version)}`
     : null;
@@ -235,10 +255,16 @@ export function StockSummary({ data, locale }: { data: PublicStockData; locale: 
   const reasonStatus = run?.status ?? "";
   const meaning = fixedMeaning[reasonStatus];
   const publishedHref = eligibleSeal ? data.publishedPick?.href : null;
-  const versionLabelText = versionLabel || "";
+  const versionLabelText = publicMethodologyVersionLabel(stockShortVersionLabel(versionLabel || "", locale));
+  // D-160: shorten only this known display name, never the stored/full-record identity.
+  const shortMethodologyTitle = methodologyTitle === "Research implementation based on publicly documented criteria from Al Rajhi Capital"
+    ? uiOneDisplay(methodologyTitle, locale).split(/\s+/).slice(0, locale === "ar" ? 3 : 2).join(" ")
+    : methodologyTitle === "Suhail independent research"
+      ? uiOneDisplay(methodologyTitle, locale)
+      : methodologyTitle;
 
   return (
-    <section className={styles.verdictPanel} data-section="why" aria-labelledby={run ? "stock-why-title" : "stock-summary-criteria-title"}>
+    <section className={styles.verdictPanel} data-section="why" aria-labelledby={run ? "stock-why-title" : "stock-no-run-title"}>
       <div className={styles.verdictStart}>
         {run ? (
           <>
@@ -262,7 +288,9 @@ export function StockSummary({ data, locale }: { data: PublicStockData; locale: 
             </div>
             <div className={styles.reasonBlock}>
               <h2 id="stock-why-title" className={styles.srOnly}><Copy locale={locale}>Why this assessment</Copy></h2>
-              <ReasonList reasons={run.status_reasons} locale={locale} passing={run.status === "passes_selected_methodology"} />
+              {!(run.status === "passes_selected_methodology" && run.status_reasons.length === 0) && (
+                <ReasonList reasons={run.status_reasons} locale={locale} passing={run.status === "passes_selected_methodology"} />
+              )}
             </div>
             {meaning && (
               <div className={styles.meaningBlock}>
@@ -273,28 +301,42 @@ export function StockSummary({ data, locale }: { data: PublicStockData; locale: 
               </div>
             )}
             <EngineStatement className={styles.engineNote} />
-            <div className={styles.metaQuiet}>
-              {methodologyTitle ? (
-                <span>
-                  <Copy locale={locale}>Methodology</Copy>:{" "}
+            <dl className={styles.metaQuiet} data-section="summary-metadata">
+              <div className={styles.metaRow} data-meta="methodology">
+                <dt><Copy locale={locale}>Methodology</Copy></dt>
+                <dd>
                   {methodologyHref ? (
-                    <a className={styles.textLink} href={methodologyHref}>
-                      <Bilingual locale={locale} arabic={null} english={methodologyTitle} />{" "}
-                      <bdi className={styles.code} dir="ltr">{versionLabelText}</bdi>
+                    <a className={styles.metaLink} href={methodologyHref}>
+                      <span title={methodologyTitle ? uiOneDisplay(methodologyTitle, locale) : undefined}>
+                        <Bilingual locale={locale} arabic={null} english={shortMethodologyTitle || ""} />
+                      </span>
                     </a>
-                  ) : (
-                    <><Bilingual locale={locale} arabic={null} english={methodologyTitle} />{" "}
-                      <bdi className={styles.code} dir="ltr">{versionLabelText}</bdi></>
-                  )}
-                  {workflow && <span className={styles.versionWorkflow}> · <Label family="workflow" value={workflow} locale={locale} /></span>}
-                </span>
-              ) : <span><Copy locale={locale}>Methodology unavailable</Copy></span>}
-              <span><Copy locale={locale}>Data date</Copy>: <Num>{formatCalendarDate(run.data_as_of, locale)}</Num></span>
-              <span><Copy locale={locale}>Confidence</Copy>: <Label family="confidence" value={run.confidence} locale={locale} /></span>
-            </div>
-            <div className={styles.unknownBox}>
-              <h3><Copy locale={locale}>What we don&apos;t know</Copy></h3>
-              {data.unknowns.length ? (
+                  ) : methodologyTitle ? (
+                    <span title={uiOneDisplay(methodologyTitle, locale)}>
+                      <Bilingual locale={locale} arabic={null} english={shortMethodologyTitle} />
+                    </span>
+                  ) : <Copy locale={locale}>Methodology unavailable</Copy>}
+                </dd>
+              </div>
+              <div className={styles.metaRow} data-meta="version">
+                <dt><Copy locale={locale}>Version</Copy></dt>
+                <dd>
+                  <span className={styles.versionLabel} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>{versionLabelText || "—"}</span>
+                  {workflow && !isSuppliedDraft(versionLabel) && <span> · <Label family="workflow" value={workflow} locale={locale} /></span>}
+                </dd>
+              </div>
+              <div className={styles.metaRow} data-meta="date-confidence">
+                <dt><Copy locale={locale}>Data date</Copy></dt>
+                <dd>
+                  <StockDate value={run.data_as_of} locale={locale} />
+                  <span className={styles.confidenceValue}><Copy locale={locale}>Confidence</Copy>: <Label family="confidence" value={run.confidence} locale={locale} /></span>
+                  <ConfidenceNote className={styles.confidenceNote} />
+                </dd>
+              </div>
+            </dl>
+            {data.unknowns.length > 0 && (
+              <div className={styles.unknownBox}>
+                <h3><Copy locale={locale}>What we don&apos;t know</Copy></h3>
                 <ul className={styles.unknownItems}>
                   {data.unknowns.map((unknown) => (
                     <li key={unknown.id}>
@@ -308,9 +350,8 @@ export function StockSummary({ data, locale }: { data: PublicStockData; locale: 
                     </li>
                   ))}
                 </ul>
-              ) : <p className={styles.unknownEmpty}><Copy locale={locale}>No unknown inputs were recorded for this run.</Copy></p>}
-              <ConfidenceNote className={styles.note} />
-            </div>
+              </div>
+            )}
             {publishedHref && (
               <a className={styles.researchLink} href={publishedHref}>
                 <Copy locale={locale}>Read the research</Copy>
@@ -319,29 +360,34 @@ export function StockSummary({ data, locale }: { data: PublicStockData; locale: 
           </>
         ) : (
           <div className={styles.noRun}>
-            <h3><Copy locale={locale}>No screening run recorded for this methodology yet.</Copy></h3>
+            <h3 id="stock-no-run-title"><Copy locale={locale}>No screening run recorded for this methodology yet.</Copy></h3>
             <p><Copy locale={locale}>No result is shown because no stored run is available.</Copy></p>
           </div>
         )}
       </div>
-      <div className={styles.criteriaColumn}>
-        <h2 id="stock-summary-criteria-title"><Copy locale={locale}>Criteria</Copy></h2>
-        {run && criteria.length ? (
-          <div className={styles.ratioList}>
-            {criteria.map((criterion) => <CriterionRow key={criterion.id} criterion={criterion} locale={locale} />)}
-          </div>
-        ) : <p className={styles.muted}><Copy locale={locale}>No criterion evidence was stored for this run.</Copy></p>}
-      </div>
+      {run && (
+        <div className={styles.criteriaColumn}>
+          <h2 id="stock-summary-criteria-title"><Copy locale={locale}>Criteria</Copy></h2>
+          {criteria.length ? (
+            <div className={styles.ratioList}>
+              {criteria.map((criterion) => <CriterionRow key={criterion.id} criterion={criterion} locale={locale} />)}
+            </div>
+          ) : <p className={styles.muted}><Copy locale={locale}>No criterion evidence was stored for this run.</Copy></p>}
+        </div>
+      )}
     </section>
   );
 }
 
 export function StockFigures({ data, locale }: { data: PublicStockData; locale: Locale }) {
   return (
-    <section className={styles.factsSummary} aria-label={displayLabel("structured", "Fundamentals", locale)}>
+    <section className={styles.factsSummary} data-section="figures" aria-label={displayLabel("structured", "Fundamentals", locale)}>
       {factFields.map(([lineItem, label]) => (
         <FactFigure key={lineItem} data={data} lineItem={lineItem} label={label} locale={locale} />
       ))}
+      {/* D-04: a fifth quiet evidence line, never a live quote or price direction. */}
+      <StoredMonthlyClose close={data.storedClose} locale={locale} className={styles.storedClose}
+        sourceUrl={data.sources.find(source => source.id === data.storedClose?.source_id)?.source_url} />
     </section>
   );
 }

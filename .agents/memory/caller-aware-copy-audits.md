@@ -33,3 +33,15 @@ overbroad forwarding audit then misidentified locale arguments as visible copy.
 
 **How to apply:** Establish which argument is actually forwarded as display text
 and distinguish a helper's return contract before collecting its finite values.
+
+Completeness tests must inspect the complete finite caller/context corpus, not
+just pending review rows. Include JSX copy-helper children and private page
+metadata callers, not only string-returning wrappers.
+
+**Why:** Applying translations legitimately removes their pending rows. Tests
+using only that shrinking inventory lose caller coverage, while metadata and JSX
+children can conceal missing interface labels.
+
+**How to apply:** Keep pending-review generation separate from caller-completeness
+assertions; retain contexts for already translated sources and explicitly exempt
+established technical/brand identifiers, not arbitrary English interface prose.

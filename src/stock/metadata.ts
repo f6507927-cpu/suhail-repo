@@ -5,6 +5,7 @@ import type { PublicStockData } from "./types";
 import { stripPublicReviewMarker } from "../components/foundation/shared";
 import { englishCompanyName } from "../lib/format";
 import { publicMethodologyVersionLabel } from "../i18n/methodology-labels";
+import { uiOneDisplay } from "../i18n/approved-arabic-ui-one";
 
 export function stockMetadata(data: PublicStockData, locale: "ar" | "en", siteUrl: string): Metadata {
   const origin = new URL(siteUrl);
@@ -14,11 +15,12 @@ export function stockMetadata(data: PublicStockData, locale: "ar" | "en", siteUr
   const messages = locale === "ar" ? ar : en;
   const englishName = englishCompanyName(data.company);
   const company = locale === "ar" ? data.company.name_ar?.trim() || englishName : englishName;
-  const status = data.run ? messages.status[data.run.status] : locale === "ar" ? "⟦AR-REVIEW⟧ No run yet" : "No run yet";
-  const version = publicMethodologyVersionLabel(data.version?.version_label || data.version?.version || data.run?.methodology_version_label);
+  const status = data.run ? messages.status[data.run.status] : uiOneDisplay("No screening run recorded for this methodology yet.", locale);
+  const version = publicMethodologyVersionLabel(uiOneDisplay(
+    data.version?.version_label || data.version?.version || data.run?.methodology_version_label || "", locale));
   // D-150 applies to public document/social text too, including the no-run title.
-  const title = stripPublicReviewMarker(`${company} (${data.security.ticker}) — ${status}${version ? ` · ${version}` : ""} | ${locale === "ar" ? "سهيل" : "Suhail"}`);
-  const description = stripPublicReviewMarker([status, data.methodology?.name, version, data.run?.data_as_of].filter(Boolean).join(" · "));
+  const title = stripPublicReviewMarker(`${company} (${data.security.ticker}) — ${status} | ${locale === "ar" ? "سهيل" : "Suhail"}`);
+  const description = stripPublicReviewMarker([status, uiOneDisplay(data.methodology?.name || "", locale), version, data.run?.data_as_of].filter(Boolean).join(" · "));
   const canonical = url(locale === "ar" ? path : `/en${path}`);
   return {
     title: { absolute: title }, description,

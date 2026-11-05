@@ -34,8 +34,8 @@ describe("D-138 bounded, independently pinned founder wording", () => {
       expect(reviewText("en", english), english).toBe(english);
     }
     expect(reviewText("ar", "inactive")).toBe("غير نشط");
-    expect(reviewText("ar", "Manual close saved.")).toBe("⟦AR-REVIEW⟧ Manual close saved.");
-    expect(reviewText("ar", "Unlisted English phrase")).toContain("⟦AR-REVIEW⟧");
+    expect(reviewText("ar", "Manual close saved.")).toBe("حُفظ سعر الإغلاق المدخل يدوياً.");
+    expect(reviewText("ar", "Unlisted English phrase")).toBe("Unlisted English phrase");
   });
   for (const locale of ["ar", "en"] as const) {
     it(`${locale}: all 19 categories render exact labels, without changing enum values`, () => {

@@ -44,7 +44,8 @@ describe("unmet query privacy and failure isolation", () => {
     expect(normalizeSearch(" أإآةىـ مُدرَسة ")).toBe("اااهي مدرسه");
     expect(normalizeSearch(" AAPL ")).toBe("aapl");
     const html = renderToStaticMarkup(<UnmetSearchPanel locale="ar" rows={[{ query: "apple", count: 123 }]} />);
-    expect(html).toContain("⟦AR-REVIEW⟧");
+    expect(html).not.toContain("⟦");
+    expect(html).toContain("عمليات بحث دون نتيجة");
     expect(html).toContain("font-mono tabular-nums");
     expect(html).toContain('dir="ltr"');
   });

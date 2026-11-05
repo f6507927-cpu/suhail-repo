@@ -32,7 +32,7 @@ export default async function SearchPage({ params, searchParams }: {
   }
   return (
     <main id="content" className="mx-auto min-h-[45vh] max-w-6xl px-6 py-14">
-      <h1 className="mb-6 text-3xl"><LocalizedText>{t("title")}</LocalizedText></h1>
+      <h1 className="mb-5 text-xl font-medium tracking-tight text-muted-foreground"><LocalizedText>{t("title")}</LocalizedText></h1>
       <StockSearchForm locale={locale} query={query ?? ""} />
       <SearchResults results={results} locale={locale} valid={query !== null} coverage={coverage} error={error} query={query ?? ""} />
     </main>

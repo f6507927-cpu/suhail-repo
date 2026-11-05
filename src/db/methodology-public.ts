@@ -49,6 +49,9 @@ const publicCriterionFields = {
   criterion_type: methodologyCriterion.criterion_type,
   label: methodologyCriterion.label,
   definition: methodologyCriterion.definition,
+  // Already publicly granted by 0017; render the existing analyst explanation.
+  explanation_ar: methodologyCriterion.explanation_ar,
+  explanation_en: methodologyCriterion.explanation_en,
   formula_text: methodologyCriterion.formula_text,
   numerator_definition: methodologyCriterion.numerator_definition,
   denominator_definition: methodologyCriterion.denominator_definition,

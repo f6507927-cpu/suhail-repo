@@ -6,6 +6,7 @@ import ar from "../src/i18n/messages/ar.json";
 import removed from "../docs/arabic-dead-keys.json";
 import drafts from "../docs/arabic-drafts.json";
 import batchTwo from "./fixtures/arabic-batch-two-approval.json";
+import { approvedArabicCopy } from "../src/i18n/approved-arabic";
 
 let audit: ReturnType<typeof discover>;
 beforeAll(() => { audit = discover(); }, 60_000);
@@ -45,7 +46,8 @@ describe("live-only pending Arabic inventory with pinned founder approvals", () 
       expect(audit.entries.some((entry) => entry.source === source)).toBe(false);
     }
     for (const source of ["Edit segment", "New segment", "Filing confirmation", "New fact override"]) {
-      expect(audit.entries.find(entry => entry.source === source)?.contexts.join()).toContain("FinancialAdmin.tsx");
+      expect([...audit.copyUsage.get(source) ?? []].join()).toContain("FinancialAdmin.tsx");
+      expect(approvedArabicCopy[source]).toMatch(/[\u0600-\u06ff]/);
     }
   });
   it("retains retired decorative approvals without inventing runtime callers or hiding pending keys", () => {
@@ -54,7 +56,7 @@ describe("live-only pending Arabic inventory with pinned founder approvals", () 
       expect(audit.usage.has(key), key).toBe(false);
       if (key.startsWith("publicMethodology.")) expect(audit.en[key], key).toMatch(/^[A-Z /]+$/);
       else expect(["Weekly picks", "Methodologies", "Search", "No listed stocks in the screening universe match this search."]).toContain(audit.en[key]);
-      if (key === "publicSearch.noResultsBody") expect(audit.ar[key], key).toBe(`${marker}${audit.en[key]}`);
+      if (key === "publicSearch.noResultsBody") expect(audit.ar[key], key).toBe("لا يوجد سهم مدرج في قائمة الفحص يطابق هذا البحث.");
       else {
         expect(audit.ar[key], key).toMatch(/[\u0600-\u06ff]/);
         expect(audit.ar[key], key).not.toContain(marker);

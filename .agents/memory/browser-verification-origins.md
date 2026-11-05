@@ -34,3 +34,15 @@ configuration through automatic port exposure.
 **How to apply:** stop the temporary server, remove only its automatically
 added mapping through the schema-validated configuration replacement tool, and
 check the final diff before reporting a documentation-only change.
+
+For RTL screenshots, a correctly sized main bounding box does not establish
+that the document fits the viewport. Also compare document `scrollWidth` with
+`innerWidth`, using long governed titles as well as short mapped fixture labels.
+
+**Why:** A left-overflowing, non-wrapping version title widened the RTL document
+and shifted screenshot framing even though the main element's dimensions were
+correct; a short isolated fixture did not expose it.
+
+**How to apply:** Verify long fallback text and the actual public page shell in
+both directions. Fix text wrapping rather than clipping away evidence, and
+capture settled/reduced-motion output when entrance animations obscure text.

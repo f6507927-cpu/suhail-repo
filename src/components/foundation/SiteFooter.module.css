@@ -2,7 +2,7 @@
   overflow: hidden;
   background: var(--deep-night);
   color: var(--canopus);
-  padding-block: clamp(3rem, 7vw, 5rem) 1.75rem;
+  padding-block: clamp(3rem, 7vw, 5rem) calc(1.75rem + env(safe-area-inset-bottom, 0px));
 }
 
 .wrap {
@@ -65,8 +65,15 @@
   transition: color 160ms ease;
 }
 
-.legalLinks a:hover {
+.wordmark {
+  overflow: hidden;
+  margin-block-start: clamp(2.5rem, 7vw, 4.5rem);
   color: var(--brass-soft);
+  font-size: clamp(5.5rem, 22vw, 18.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  white-space: nowrap;
 }
 
 @media (max-width: 700px) {
@@ -85,4 +92,8 @@
   .legalLinks a {
     transition: none;
   }
+}
+
+@media (hover: hover) {
+  .legalLinks a:hover { color: var(--brass-soft); }
 }

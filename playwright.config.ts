@@ -21,6 +21,7 @@ export default defineConfig({
     baseURL: previewOrigin ?? "http://127.0.0.1:3100",
     trace: "retain-on-failure",
     ...devices["Desktop Chrome"],
+    viewport: { width: 375, height: 812 },
     launchOptions: {
       // Workspace can use its managed Chromium; CI uses the versioned download.
       executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,
@@ -29,7 +30,7 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: { ...devices["Desktop Chrome"], viewport: { width: 375, height: 812 } },
     },
   ],
   webServer: previewOrigin ? undefined : {
