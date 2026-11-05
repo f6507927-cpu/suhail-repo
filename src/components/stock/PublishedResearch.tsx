@@ -2,6 +2,8 @@ import type { PublicStockData } from "@/stock/types";
 import { Bilingual, Copy } from "./StockVerdictParts";
 import styles from "./StockVerdict.module.css";
 import { stripPublicReviewMarker } from "../foundation/shared";
+import arabicMessages from "@/i18n/messages/ar.json";
+import englishMessages from "@/i18n/messages/en.json";
 
 /** Only the public-role, published-edition projection can reach this component. */
 export function PublishedResearch({ pick, locale }: { pick: NonNullable<PublicStockData["publishedPick"]>; locale: "ar" | "en" }) {
@@ -18,6 +20,9 @@ export function PublishedResearch({ pick, locale }: { pick: NonNullable<PublicSt
     {paragraphs.map(([ar, en], index) => ar?.trim() || en?.trim()
       ? <p key={index}><Bilingual locale={locale} arabic={ar} english={en} /></p> : null)}
     {risks?.length ? <ul>{risks.map((risk, index) => <li key={index}><bdi dir="auto">{stripPublicReviewMarker(risk)}</bdi></li>)}</ul> : null}
-    {pick.disclaimer && <p><Bilingual locale={locale} arabic={null} english={pick.disclaimer} /></p>}
+    {pick.disclaimer && <p><Bilingual locale={locale}
+      arabic={pick.disclaimer === englishMessages.disclaimer.full ? arabicMessages.disclaimer.full :
+        pick.disclaimer === englishMessages.disclaimer.short ? arabicMessages.disclaimer.short : null}
+      english={pick.disclaimer} /></p>}
   </section>;
 }

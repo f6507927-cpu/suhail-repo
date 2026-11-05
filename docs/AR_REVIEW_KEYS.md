@@ -1,6 +1,6 @@
 # Live Arabic review keys
 
-Generated deterministically by `pnpm ar-review:list`. Live pending rows: **171**.
+Generated deterministically by `pnpm ar-review:list`. Live pending rows: **173**.
 
 ## Boundaries and coverage
 
@@ -82,7 +82,7 @@ origins; unknown future navigation copy is not approved or invented.
 | Key/source | Page/component rendering context | Current English source | Arabic draft — UNAPPROVED, documentation only | Approved Arabic (leave empty until approved) |
 | --- | --- | --- | --- | --- |
 | runtime phrase | Conditionally rendered: methodology review-error via action result: src/lib/methodology/contracts.ts:59 | Upper-bound fallback requires a maximum custom ratio against total revenue | يتطلب البديل القائم على الحد الأعلى نسبة مخصّصة بحد أقصى إلى إجمالي الإيرادات. |  |
-| runtime phrase | Conditionally rendered: methodology review-error via action result: src/lib/methodology/service.ts:128 | Missing analyst cases can only be added before tests_passed; no changes made | لا يمكن إضافة حالات المحلّل الناقصة إلا قبل مرحلة ⁦tests_passed⁩؛ لم تُجرَ أي تغييرات. |  |
+| runtime phrase | Conditionally rendered: methodology review-error via action result: src/lib/methodology/service.ts:129 | Missing analyst cases can only be added before tests_passed; no changes made | لا يمكن إضافة حالات المحلّل الناقصة إلا قبل مرحلة ⁦tests_passed⁩؛ لم تُجرَ أي تغييرات. |  |
 
 ## Legal pages — /terms and /privacy
 
@@ -101,19 +101,19 @@ origins; unknown future navigation copy is not approved or invented.
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Current facts | البيانات الحالية |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:162; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:165; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Failed | تعذّر التنفيذ |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:290; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Mapping note | ملاحظة ربط البيانات |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:79; Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:226; Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:46 | No reason template available. | لا يتوفر قالب لشرح السبب. |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:79; Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:242; Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | No reason template available. | لا يتوفر قالب لشرح السبب. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Universe job started. | بدأت مهمة معالجة نطاق التغطية. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:219; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Outside universe | خارج نطاق التغطية |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:136; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Ingest now | استيراد البيانات الآن |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:418 | Edit segment | تعديل قطاع الأعمال |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:46 | No result is shown because no stored run is available. | لا تُعرض نتيجة لعدم توفر فحص محفوظ. |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | No result is shown because no stored run is available. | لا تُعرض نتيجة لعدم توفر فحص محفوظ. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Override saved. | حُفظ التصحيح. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Manual price history | سجل الأسعار المُدخلة يدويًا |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:476; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Month-end representation must be the calendar month-end in the same month as the close date. | يجب أن تكون نهاية الشهر الممثَّلة هي نهاية الشهر التقويمي نفسه الذي يقع فيه تاريخ الإغلاق. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:200; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Add a security | إضافة ورقة مالية |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:221; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Security details | تفاصيل الورقة المالية |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:343; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:375; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:429; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:488; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Source URL | رابط المصدر |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:46 | No sources were stored for this page. | لم تُحفظ مصادر لهذه الصفحة. |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | No sources were stored for this page. | لم تُحفظ مصادر لهذه الصفحة. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Ingestion controls | التحكم في استيراد البيانات |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:205; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Verification passed. | نجح التحقق. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:137; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:154; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Run screening now | تشغيل الفحص الآن |  |
@@ -127,7 +127,7 @@ origins; unknown future navigation copy is not approved or invented.
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Universe membership | الإدراج في نطاق التغطية |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:205; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Hash verified. | تم التحقق من البصمة. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:291; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Differences | الاختلافات |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:46 | No current-period facts were recorded. | لم تُسجّل بيانات للفترة الحالية. |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | No current-period facts were recorded. | لم تُسجّل بيانات للفترة الحالية. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:455; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Missing attested observation | لا تتوفر ملاحظة موثّقة |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Sector | القطاع |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:203; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Preview | معاينة |  |
@@ -141,7 +141,7 @@ origins; unknown future navigation copy is not approved or invented.
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:207; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Confirm and ingest | تأكيد واستيراد البيانات |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:136; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | SUHAIL / SCREENING | سهيل / الفحص |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:486; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Currency | العملة |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:46 | The generated text did not pass validation against the engine's evidence, so it was discarded. Every figure below comes straight from the engine. | لم يجتز النص المُنشأ التحقق بمقارنته بأدلة المحرك، لذا استُبعد. كل رقم أدناه مأخوذ مباشرةً من المحرك. |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | The generated text did not pass validation against the engine's evidence, so it was discarded. Every figure below comes straight from the engine. | لم يجتز النص المُنشأ التحقق بمقارنته بأدلة المحرك، لذا استُبعد. كل رقم أدناه مأخوذ مباشرةً من المحرك. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:246; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Select a security to inspect its records. | اختر ورقة مالية للاطّلاع على سجلاتها. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:419; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Segment name | اسم قطاع الأعمال |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:302; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Override | تصحيح |  |
@@ -157,7 +157,7 @@ origins; unknown future navigation copy is not approved or invented.
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:227; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Hash matches | تطابق البصمة |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Job started. | بدأت المهمة. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:223; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Coverage | التغطية |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:46 | Analyst profile unavailable | الملف التعريفي للمحلّل غير متاح |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | Analyst profile unavailable | الملف التعريفي للمحلّل غير متاح |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:421; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Description | الوصف |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:161; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Job summary | ملخص المهمة |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:239; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Data as of | البيانات كما في |  |
@@ -176,15 +176,16 @@ origins; unknown future navigation copy is not approved or invented.
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:292; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Path | المسار |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:173; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | No screening runs recorded. | لم تُسجّل فحوص. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Hash payload | محتوى البصمة |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:46 | No screening run recorded for this methodology yet. | لم يُسجّل فحص بهذه المنهجية بعد. |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | No screening run recorded for this methodology yet. | لم يُسجّل فحص بهذه المنهجية بعد. |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:125 | Source period | فترة المصدر |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:217; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Security record | سجل الورقة المالية |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:508; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Save coverage | حفظ التغطية |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:461; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Mapped equity | حقوق الملكية المربوطة بالبيانات |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:218; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | No latest period | لا تتوفر فترة حديثة |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Month-end source confirmation | تأكيد المصدر لنهاية الشهر |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Reasons | الأسباب |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:46 | Arabic narrative is not available; structured evidence only. | الشرح النصي بالعربية غير متاح؛ تُعرض الأدلة المنظّمة فقط. |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:266; Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:375; Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:401; Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:46 | No calculation trace was stored. | لم تُحفظ تفاصيل للحساب. |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | Arabic narrative is not available; structured evidence only. | الشرح النصي بالعربية غير متاح؛ تُعرض الأدلة المنظّمة فقط. |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:286; Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:396; Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:422; Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | No calculation trace was stored. | لم تُحفظ تفاصيل للحساب. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:290; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | No differences recorded. | لم تُسجّل اختلافات. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:165; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Unchanged records | السجلات التي لم تتغير |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Finished | انتهى |  |
@@ -192,7 +193,7 @@ origins; unknown future navigation copy is not approved or invented.
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:148; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Methodology version | إصدار المنهجية |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Inspect sourced financial records across the curated universe. | راجع السجلات المالية الموثّقة بمصادرها ضمن نطاق التغطية المختار. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:418 | New segment | قطاع أعمال جديد |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:46 | No criteria were recorded for this run. | لم تُسجّل معايير لهذا الفحص. |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | No criteria were recorded for this run. | لم تُسجّل معايير لهذا الفحص. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:159; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:183; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:216; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Run details | تفاصيل الفحص |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/UnmetSearchPanel.tsx:21 | Top 20 normalized queries · anonymous daily counts only | أكثر 20 عبارة بحث بعد توحيد صيغتها · أعداد يومية مجهولة الهوية فقط |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:137; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:142; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Screen all | فحص الجميع |  |
@@ -205,7 +206,7 @@ origins; unknown future navigation copy is not approved or invented.
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Job history | سجل المهام |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:137; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:209; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:236; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:307; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:401; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:498; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:508; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:157; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:222; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Editors have read-only access. | يمكن للمحرّرين الاطّلاع فقط. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:141; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Ingest all | استيراد بيانات الجميع |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:182; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42; Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:46 | Unchanged | دون تغيير |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:182; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42; Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | Unchanged | دون تغيير |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Criterion ID | معرّف المعيار |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:235; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Save company fields | حفظ حقول الشركة |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Security | الورقة المالية |  |
@@ -227,7 +228,7 @@ origins; unknown future navigation copy is not approved or invented.
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Segment deleted. | حُذف قطاع الأعمال. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:289; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:391; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | State | حالة المدخل |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:386; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Add segment | إضافة قطاع أعمال |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:46 | AI explanation | شرح بالذكاء الاصطناعي |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | AI explanation | شرح بالذكاء الاصطناعي |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Resume requested. | طُلب الاستئناف. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:175; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Hash | البصمة |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:164; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | records | سجلات |  |
@@ -242,20 +243,21 @@ origins; unknown future navigation copy is not approved or invented.
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:167; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | No securities in the curated universe. | لا توجد أوراق مالية ضمن نطاق التغطية المختار. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:368 | Filing confirmation | التأكيد من الإفصاح |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:234; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | English description | الوصف بالإنجليزية |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:46 | AI text discarded — showing structured evidence only | استُبعد النص المُنشأ بالذكاء الاصطناعي — تُعرض الأدلة المنظّمة فقط |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | AI text discarded — showing structured evidence only | استُبعد النص المُنشأ بالذكاء الاصطناعي — تُعرض الأدلة المنظّمة فقط |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:239; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Financial period | الفترة المالية |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | No unknowns recorded. | لم تُسجّل قيم غير معروفة. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:454; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Required month-end observation | الملاحظة المطلوبة لنهاية الشهر |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:241; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:242; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Confirm removal | تأكيد الإزالة |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:127 | Suhail SIC mapping v1 — pending analyst review | تصنيف سهيل وفق رموز ⁦SIC⁩، الإصدار الأول — بانتظار مراجعة المحلّل |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:202; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Ticker | رمز السهم |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Coverage assignment saved. | حُفظ إسناد التغطية. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Borderline count | عدد النتائج الحدية |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | No structured reasons recorded. | لم تُسجّل أسباب منظّمة. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Counts | الأعداد |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:368 | New fact override | تصحيح جديد للبيان |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:46 | Structured evidence | الأدلة المنظّمة |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | Structured evidence | الأدلة المنظّمة |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Retry queued. | أُدرجت إعادة المحاولة في قائمة الانتظار. |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:46 | Every figure in this text was checked against the engine's evidence. | تم التحقق من كل رقم في هذا النص بمقارنته بأدلة المحرك. |  |
+| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | Every figure in this text was checked against the engine's evidence. | تم التحقق من كل رقم في هذا النص بمقارنته بأدلة المحرك. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:393; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:423; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Category basis | أساس التصنيف |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Filing confirmation saved. | حُفظ التأكيد من الإفصاح. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:289; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:391; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Tier | فئة جودة البيانات |  |

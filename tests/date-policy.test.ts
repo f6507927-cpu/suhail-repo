@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { ESLint } from "eslint";
 import { formatCalendarDate, formatDate, formatTimestamp, DISPLAY_TIME_ZONE } from "../src/lib/format";
 
@@ -41,6 +41,10 @@ describe("D-121 date display policy", () => {
 
 describe("formatting architecture lint is part of normal pnpm lint", () => {
   const eslint = new ESLint();
+  beforeAll(async () => {
+    // Load the TypeScript/Next lint configuration outside behavioral budgets.
+    await eslint.lintText("export const fixture = 1;", { filePath: "src/format-policy-fixture.ts" });
+  }, 30000);
   it.each([
     "new Intl.DateTimeFormat('en')",
     "Intl['DateTimeFormat']('en')",

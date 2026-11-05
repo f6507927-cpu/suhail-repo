@@ -59,7 +59,7 @@ export interface MappedFact {
   line_item: string;
   value: number | null;
   currency: string | null;
-  unit: "USD" | "shares";
+  unit: "USD" | "shares" | "code";
   unit_scale: "absolute";
   input_state: "reported" | "derived" | "estimated" | "unknown";
   confidence_tier: "Verified" | "Calculated" | "Estimated";

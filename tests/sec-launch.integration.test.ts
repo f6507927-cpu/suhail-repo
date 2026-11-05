@@ -44,6 +44,10 @@ describe("captured launch issuers through actual ingestion/persistence", () => {
     const transport = vi.fn(async (url: string | URL | Request) => {
       if (String(url).endsWith(".zip")) return fsnResponse();
       if (String(url).includes("financial-statement-notes-data-sets")) return new Response(fsnFixture("catalog.html"));
+      // Synthetic SIC metadata, not a claim about these issuers' actual codes.
+      if (String(url).includes("/submissions/")) return new Response(JSON.stringify({
+        cik: String(fixture.companyfacts.cik), sic: "3571",
+      }), { status: 200 });
       return new Response(JSON.stringify(fixture.companyfacts), { status: 200 });
     });
     const client = new SecClient({ fetcher: transport });
@@ -67,6 +71,13 @@ describe("captured launch issuers through actual ingestion/persistence", () => {
         } });
         const first = await ingestSecurity(id, mutate, client);
         expect(first.inserted).toBeGreaterThan(0);
+        const [sic] = await tx.select().from(financialFact).where(and(
+          eq(financialFact.company_id, s.company_id!), eq(financialFact.line_item, "sec_sic_code"),
+          eq(financialFact.is_current, true)));
+        expect(sic).toMatchObject({ value: 3571, input_state: "reported", confidence_tier: "Verified",
+          mapping_note: expect.stringContaining("SEC SIC code") });
+        const [sicSource] = await tx.select().from(schema.source).where(eq(schema.source.id, sic.source_id!));
+        expect(sicSource).toMatchObject({ label: "SEC SIC code", source_url: expect.stringContaining("/submissions/") });
         expect(first.retained).toBe(1);
         const allBeforeRepeat = await tx.select().from(financialFact);
         expect(await ingestSecurity(id, mutate, client)).toMatchObject({ inserted: 0, promoted: 0 });

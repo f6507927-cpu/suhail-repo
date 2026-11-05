@@ -1,7 +1,8 @@
 import "server-only";
+import { activityEvidence } from "../lib/financial/activity-evidence";
 import { and, eq, asc, desc, sql } from "drizzle-orm";
 import { methodology, methodologyVersion, methodologyCriterion } from "../db/schema/methodology";
-import { financialFact, businessSegment, exchange } from "../db/schema/market";
+import { financialFact, exchange } from "../db/schema/market";
 import { screeningRun, screeningCriterionResult, screeningUnknown } from "../db/schema/screening";
 import type { HashPayload } from "../db/schema/types";
 import { screen } from "../engine/screen";
@@ -60,8 +61,7 @@ export async function screenSecurity(
     await refreshMarketValue(tx, actor, c.id, s.id, options.asOf);
     const facts = await tx.select().from(financialFact).where(and(eq(financialFact.company_id, c.id),
       eq(financialFact.period_id, period.id), eq(financialFact.is_current, true), securityFacts(s.id)));
-    const segments = await tx.select().from(businessSegment).where(and(eq(businessSegment.company_id, c.id),
-      eq(businessSegment.period_id, period.id)));
+    const segments = await activityEvidence(tx, c.id, period, options.asOf);
     requireFinancial(!facts.some(f => f.input_state === "missing" && f.value !== null), "Missing fact cannot contain a value");
     const input: EngineInput = {
       securityId: s.id, asOf: options.asOf, engineVersion: ENGINE_VERSION, calculationVersion: SEC_CALCULATION_VERSION,

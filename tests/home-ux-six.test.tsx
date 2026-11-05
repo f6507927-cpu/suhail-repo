@@ -44,7 +44,7 @@ describe("UX-6 homepage rendering",()=>{
     expect(html).toContain('id="content"');
     expect(html).toContain(locale==="ar"?"دليلك في السوق.":"Your bearing in the market.");
     expect(html.indexOf('id="home-outcomes-title"')).toBeLessThan(html.indexOf('id="home-how-title"'));
-    expect(html.indexOf('id="home-how-title"')).toBeLessThan(html.indexOf('id="home-editorial-title"'));
+    expect(html).not.toContain('id="home-editorial-title"');
     expect(html.match(/Example Co\./g)).toHaveLength(3);
     expect(html).not.toContain("/stock/");
     expect(html).not.toContain("authorPortrait");
@@ -82,6 +82,20 @@ describe("UX-6 homepage rendering",()=>{
     expect(html).toContain("Public fixture methodology");
     expect(html).toContain("9.2");
     expect(html).not.toContain("Al Rajhi");
+  });
+  it("both locales use the same configured methodology and featured stock",()=>{
+    const data = { ...empty, featured: featured(),
+      methodology: { name: "Configured fixture methodology", version: "1.1", slug: "configured" } };
+    for (const locale of ["ar", "en"] as const) {
+      const html = render(<HomePage data={data} locale={locale}/>, locale);
+      expect(html).toContain("Configured fixture methodology");
+      expect(html).toContain("1.1");
+      expect(html).toContain(`${locale === "en" ? "/en" : ""}/stock/demo-fixa`);
+      expect(html).not.toContain("Example Methodology");
+    }
+  });
+  it.each(["ar", "en"] as const)("hides the entire unpublished editorial section in %s",locale=>{
+    expect(render(<HomePage data={empty} locale={locale}/>,locale)).not.toContain('id="weekly-edition"');
   });
   it.each([false,true])("published research does not acquire an invented author; active=%s",active=>{
     const data:PublicHomeData={...empty,editorPick:{slug:"demo-fixa",ticker:"FIXA",company_name:"Curated issuer",company_name_ar:null,

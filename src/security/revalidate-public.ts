@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache";
  * No layout-wide invalidation: only surfaces consuming the changed evidence.
  */
 export function revalidatePublic(surface: "financial" | "screening" | "methodology" | "settings") {
-  for (const prefix of ["", "/en"]) {
+  // Invalidate both Arabic's external alias and its locale-rewritten ISR key.
+  for (const prefix of ["", "/ar", "/en"]) {
     // D-145/D-146: featured evidence and default metadata also appear on home.
     revalidatePath(prefix || "/", "page");
     revalidatePath(`${prefix}/stock/[slug]`, "page");

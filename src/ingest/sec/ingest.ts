@@ -53,6 +53,20 @@ export function ingestSecurity(id: string, mutate: Mutation = jobMutation, clien
       const downloaded = await client.companyfacts(c.cik);
       requireFinancial(Number(downloaded.data.cik) === Number(c.cik), "SEC companyfacts identity does not match covered issuer");
       let mapped = mapAnnual(downloaded.data, downloaded.retrieval);
+      const submissions = await client.submissions(c.cik);
+      requireFinancial(Number(submissions.data.cik) === Number(c.cik), "SEC issuer identity is invalid");
+      const sic = submissions.data.sic;
+      if (typeof sic === "string" && /^\d{3,4}$/.test(sic)) mapped = { ...mapped, facts: [...mapped.facts, {
+        line_item: "sec_sic_code", value: Number(sic), currency: null, unit: "code", unit_scale: "absolute",
+        input_state: "reported", confidence_tier: "Verified", as_of_date: mapped.period.period_end,
+        mapping_note: "SEC SIC code; classification uses Suhail SIC mapping v1 — pending analyst review",
+        unknown_note: null, calculation_version: "sic-2026.11.1",
+        source: { ...mapped.period.source, label: "SEC SIC code", document_title: "SEC SIC code",
+          document_reference: `SEC SIC ${c.cik} ${sic}`, source_url: submissions.retrieval.url,
+          retrieved_at: submissions.retrieval.retrieved_at,
+          is_synthetic: submissions.retrieval.is_synthetic, is_demo: submissions.retrieval.is_demo,
+          production_blocked: submissions.retrieval.is_synthetic || submissions.retrieval.is_demo },
+      }] };
       const target = { ticker: s.ticker, cik: c.cik, mapped };
       let sheet = unavailableBalanceSheet(target, "Existing income takes precedence; balance sheet not requested");
       // Only covered-universe securities with a genuinely absent companyfacts

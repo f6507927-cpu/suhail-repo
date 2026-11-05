@@ -429,6 +429,11 @@
     "draft": "لم يُسجّل فحص بهذه المنهجية بعد.",
     "category": "help/error"
   },
+  "U-6d53be32fca391544bb15373448c1aef687c0778683747a0160c2552cfe6f5a0": {
+    "source": "Source period",
+    "draft": "فترة المصدر",
+    "category": "UI label"
+  },
   "U-6ebe42f5ba36b0d428f2ee65e0e6f21d807bc4c180096be563e7991348c8cce7": {
     "source": "Security record",
     "draft": "سجل الورقة المالية",
@@ -777,6 +782,11 @@
   "U-bb0f9ad6dc335c9a511426682bc10069ef7456504c2fd8687df1cc429b6b0302": {
     "source": "Confirm removal",
     "draft": "تأكيد الإزالة",
+    "category": "help/error"
+  },
+  "U-bdf8f7cd913cc600c1e91167f61e7a209b3113f39a2b733fe27ba8864c6a258b": {
+    "source": "Suhail SIC mapping v1 — pending analyst review",
+    "draft": "تصنيف سهيل وفق رموز ⁦SIC⁩، الإصدار الأول — بانتظار مراجعة المحلّل",
     "category": "help/error"
   },
   "U-c19fd9536866ef86c9b3382c195dd6ab984de936ec8d61b7a0376bf5e1ac6606": {

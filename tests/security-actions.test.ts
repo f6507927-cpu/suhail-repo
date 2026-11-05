@@ -28,7 +28,7 @@ beforeEach(()=>{
 function publicPaths() {return mocks.revalidate.mock.calls.map(([path])=>path).filter(path=>!path.includes("/admin/"));}
 it("invalidates the public stock/search surfaces in both locales only after changed runs", async()=>{
   await runScreenAction({securityId:"fixture",methodologyVersionId:"fixture"});
-  expect(publicPaths()).toEqual(["/","/stock/[slug]","/search","/en","/en/stock/[slug]","/en/search"]);
+  expect(publicPaths()).toEqual(["/","/stock/[slug]","/search","/ar","/ar/stock/[slug]","/ar/search","/en","/en/stock/[slug]","/en/search"]);
   mocks.revalidate.mockClear();
   mocks.screen.mockResolvedValue({unchanged:true,runId:"fixture"});
   await runScreenAction({securityId:"fixture",methodologyVersionId:"fixture"});

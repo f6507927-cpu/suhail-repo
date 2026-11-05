@@ -1,3 +1,4 @@
+import { stockCriterionLabel, arabicKnownReason } from "@/i18n/stock-labels";
 import {
   ConfidenceNote,
   DemoBanner,
@@ -165,7 +166,7 @@ export function StockVerdict({
                   <ul className={styles.evidenceList}>
                     {data.criteria.map((criterion) => (
                       <li key={criterion.id}>
-                        <strong><Bilingual locale={locale} arabic={null} english={criterion.criterion_label || reviewText(locale, "Unlabelled criterion")} /></strong>
+                        <strong><Bilingual locale={locale} arabic={null} english={stockCriterionLabel(criterion, locale) || reviewText(locale, "Unlabelled criterion")} /></strong>
                         <dl className={styles.evidenceFields}>
                           <Field label={<Copy locale={locale}>Result</Copy>}><Label family="result" value={criterion.result} locale={locale} /></Field>
                           {!isBooleanCriterion(criterion) && <>
@@ -193,7 +194,7 @@ export function StockVerdict({
                         <dl className={styles.unknownFields}>
                           <Field label={<Copy locale={locale}>Why missing</Copy>}>
                             {unknown.why_missing
-                              ? <Bilingual locale={locale} arabic={null} english={unknown.why_missing} />
+                              ? <Bilingual locale={locale} arabic={arabicKnownReason(unknown.why_missing)} english={unknown.why_missing} />
                               : <Copy locale={locale}>Not recorded</Copy>}
                           </Field>
                           <Field label={<Copy locale={locale}>Effect</Copy>}>
@@ -359,7 +360,7 @@ export function StockVerdict({
             </>
           )}
           <section className={styles.disclaimerSection} data-section="disclaimer">
-            <Disclaimer variant="full" className={styles.disclaimer} />
+            <Disclaimer variant="full" locale={locale} className={styles.disclaimer} />
           </section>
         </div>
       </details>

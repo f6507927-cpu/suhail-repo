@@ -37,6 +37,7 @@ export interface Submissions {
   cik: string;
   name: string;
   sicDescription: string;
+  sic?: string;
   fiscalYearEnd: string;
   filings: { recent: Record<string, (string | number)[]>; files: unknown[] };
 }

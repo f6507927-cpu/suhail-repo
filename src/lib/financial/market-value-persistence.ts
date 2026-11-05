@@ -6,6 +6,7 @@ import { runtimePriceBar as priceBar } from "../../db/price-runtime";
 import type { Tx } from "../auth/audit";
 import { audit } from "../auth/audit";
 import { deriveMarketValue } from "./market-value";
+import { fillCapitalization } from "./capitalization";
 import type { Actor } from "./persistence";
 // Denominator derivation changed, not SEC annual mapping or engine evaluation.
 export const MARKET_VALUE_CALCULATION_VERSION = "market-value-2026.11.1";
@@ -30,6 +31,9 @@ export async function refreshMarketValue(tx: Tx, actor: Actor, companyId: string
     eq(financialFact.line_item, "shares_outstanding"), eq(financialFact.origin, "sec")))
     .orderBy(desc(financialFact.as_of_date), desc(financialFact.created_at), desc(financialFact.id)).limit(1);
   const shares = facts.find(f => f.line_item === "shares_outstanding");
+  await fillCapitalization(tx, actor, companyId, securityId, period.id,
+    shares ? { ...shares, shares_class_concern: secShares?.shares_class_concern ?? shares.shares_class_concern } : undefined,
+    evidence, asOf);
   const result = deriveMarketValue(asOf, evidence, shares ? {
     ...shares, shares_class_concern: secShares ? secShares.shares_class_concern : shares.shares_class_concern,
   } : shares, facts.find(f => f.line_item === "total_equity"));

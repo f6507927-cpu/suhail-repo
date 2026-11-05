@@ -1,9 +1,10 @@
 import "server-only";
+import { activityEvidence } from "../financial/activity-evidence";
 import { isBound, storedBoundInputs } from "../financial/screening-facts";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { methodology, methodologyVersion, methodologyCriterion, methodologyVersionReport } from "../../db/schema/methodology";
-import { source, security, company, financialPeriod, financialFact, businessSegment } from "../../db/schema/market";
+import { source, security, company, financialPeriod, financialFact } from "../../db/schema/market";
 import { editorialSetting } from "../../db/schema/editorial";
 import { audit, type Tx, type AppUser } from "../auth/audit";
 import { criterionSchema, engineCriterion, requiredInputs, metadataSchema, versionSchema, analystCasesSchema, type AnalystCase } from "./contracts";
@@ -181,7 +182,7 @@ async function impact(tx:Tx,v:typeof methodologyVersion.$inferSelect) {
     await tx.select().from(company).where(eq(company.id,s.company_id)).for("update");
     await refreshMarketValue(tx,null,s.company_id,s.id,asOf);
     const facts=await tx.select().from(financialFact).where(and(eq(financialFact.company_id,s.company_id),eq(financialFact.period_id,period.id),eq(financialFact.is_current,true),securityFacts(s.id)));
-    const segments=await tx.select().from(businessSegment).where(and(eq(businessSegment.company_id,s.company_id),eq(businessSegment.period_id,period.id)));
+    const segments=await activityEvidence(tx,s.company_id,period,asOf);
     // D-99: same evidence object for both versions; missing states remain unavailable.
     evidence.push({securityId:s.id,ticker:s.ticker,error:null,inputs:{
       securityId:s.id,asOf,period:{id:period.id,label:period.fiscal_period_label,periodEnd:period.period_end},

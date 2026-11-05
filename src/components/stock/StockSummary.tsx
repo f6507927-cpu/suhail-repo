@@ -8,6 +8,7 @@ import {
 } from "../foundation";
 import { formatCalendarDate, formatCompactMoney, formatMoney, formatNumber } from "@/lib/format";
 import { displayLabel } from "@/i18n/presentation";
+import { stockCriterionLabel } from "@/i18n/stock-labels";
 import { reviewText } from "../accounts/types";
 import { stripPublicReviewMarker } from "../foundation/shared";
 import type { PublicStockData, StockCriterion } from "@/stock/types";
@@ -19,6 +20,7 @@ import {
   Label,
   ReasonList,
   isBooleanCriterion,
+  ActivityEvidenceNote,
 } from "./StockVerdictParts";
 import { ratioDisplay } from "./ratio-display";
 import styles from "./StockVerdict.module.css";
@@ -173,7 +175,7 @@ export function RatioMeter({ criterion, locale }: { criterion: StockCriterion; l
 
 function CriterionRow({ criterion, locale }: { criterion: StockCriterion; locale: Locale }) {
   const explanation = locale === "ar" ? criterion.explanation_ar : criterion.explanation_en;
-  const label = criterion.criterion_label || reviewText(locale, "Unlabelled criterion");
+  const label = stockCriterionLabel(criterion, locale) || reviewText(locale, "Unlabelled criterion");
   const isPercent = ratioUnit(criterion) === "%";
   const ratioText = criterion.ratio === null
     ? null
@@ -188,13 +190,14 @@ function CriterionRow({ criterion, locale }: { criterion: StockCriterion; locale
         <strong className={styles.ratioName}><Bilingual locale={locale} arabic={null} english={label} /></strong>
         <span className={styles.ratioResult}><Label family="result" value={criterion.result} locale={locale} /></span>
       </div>
-      <div className={styles.ratioNumbers}>
+      {!isBooleanCriterion(criterion) && <div className={styles.ratioNumbers}>
         {criterion.ratio === null && !isBooleanCriterion(criterion)
           ? <span><Label family="inputState" value="unknown" locale={locale} /></span>
           : criterion.ratio !== null && <span><Num>{ratioText}</Num></span>}
         {criterion.threshold !== null && <span><Copy locale={locale}>Limit</Copy>{" "}<Num>{thresholdText}</Num></span>}
-      </div>
+      </div>}
       <RatioMeter criterion={criterion} locale={locale} />
+      <ActivityEvidenceNote criterion={criterion} locale={locale} />
       {!isBooleanCriterion(criterion) && (
         <p className={styles.ratioNote}>
           {criterion.threshold_unit?.startsWith("percent_") &&

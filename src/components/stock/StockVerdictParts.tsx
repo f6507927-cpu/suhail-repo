@@ -5,6 +5,7 @@ import { reviewText, type Locale } from "../accounts/types";
 import { formatCalendarDate, formatCompactMoney, formatNumber, formatPercent } from "@/lib/format";
 import { renderArabicDraft } from "@/engine/reasons/ar";
 import { renderEnglish } from "@/engine/reasons/en";
+import { stockCriterionLabel, stockReasonField } from "@/i18n/stock-labels";
 import type { StatusReason } from "@/engine/types";
 import type { PublicStockData, StockCriterion, StockSource } from "@/stock/types";
 import styles from "./StockVerdict.module.css";
@@ -96,6 +97,8 @@ export function unknownFieldNeedsFallback(value: string, locale: Locale) {
 }
 
 export function UnknownFieldLabel({ value, locale }: { value: string; locale: Locale }) {
+  const localized = stockReasonField(value, locale);
+  if (localized !== value) return <bdi>{localized}</bdi>;
   if (Object.hasOwn(presentationLabels.lineItem, value)) {
     return <Label family="lineItem" value={value} locale={locale} />;
   }
@@ -110,7 +113,20 @@ export function LanguageNotice({ locale, needed, reverse = false }: { locale: Lo
 }
 
 export function isBooleanCriterion(criterion: StockCriterion) {
-  return criterion.threshold_unit === "boolean";
+  return criterion.criterion_type === "business_activity" || criterion.threshold_unit === "boolean";
+}
+
+export function ActivityEvidenceNote({ criterion, locale }: { criterion: StockCriterion; locale: Locale }) {
+  if (criterion.criterion_type !== "business_activity") return null;
+  const trace = criterion.calculation_trace ?? "";
+  const sourcePeriods = [...new Set([...trace.matchAll(/\(from ([^)]+) filing\)/g)].map(match => match[1]))];
+  const sic = trace.match(/SEC SIC code (\d{3,4})/);
+  return <>
+    {sourcePeriods.map(period => <p key={period}>{stripPublicReviewMarker(reviewText(locale, "Source period"))}: <bdi>{period}</bdi>{" "}
+      (<Label family="tier" value="Estimated" locale={locale} />)</p>)}
+    {sic && <p>{stripPublicReviewMarker(reviewText(locale, "Suhail SIC mapping v1 — pending analyst review"))}{" · "}
+      <bdi dir="ltr">SEC SIC code {sic[1]}</bdi></p>}
+  </>;
 }
 
 export function safeUrl(value: string | null | undefined) {
@@ -225,10 +241,10 @@ export function statusReasonsNeedFallback(reasons: unknown[]) {
     const reason = storedReasonToEngine(stored);
     if (!reason) return hasEnglishOnlyNarrative(reviewText("ar", "No reason template available."));
     if (["failure", "borderline", "criterion_unknown"].includes(reason.kind)) {
-      return hasEnglishOnlyNarrative(reason.label);
+      return hasEnglishOnlyNarrative(stockCriterionLabel({ criterion_label: reason.label }, "ar"));
     }
     if (reason.kind === "blocking_unknown" || reason.kind === "review_unknown") {
-      return hasEnglishOnlyNarrative(reason.field);
+      return hasEnglishOnlyNarrative(reason.field ? stockReasonField(reason.field, "ar") : reason.field);
     }
     return false;
   });
@@ -240,7 +256,11 @@ export function ReasonList({ reasons, locale, passing = false }: { reasons: unkn
   return (
     <ul className={styles.reasonList}>
       {reasons.map((stored, index) => {
-        const reason = storedReasonToEngine(stored);
+        const original = storedReasonToEngine(stored);
+        const reason = original && locale === "ar" ? { ...original,
+          label: stockCriterionLabel({ criterion_label: original.label }, locale),
+          field: original.field ? stockReasonField(original.field, locale) : original.field,
+        } : original;
         return <li key={`${reason?.kind ?? "unknown"}-${reason?.criterionId ?? reason?.field ?? index}`} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
           {/* D-150: strip only the rendered token, never edit/approve §7.3 templates or stored reasons. */}
           {reason ? stripPublicReviewMarker(render(reason)) : <Copy locale={locale}>No reason template available.</Copy>}
@@ -259,7 +279,7 @@ const valueFamilies: Record<string, LabelFamily> = {
 
 export function criteriaNeedFallback(criteria: StockCriterion[]) {
   return criteria.some(criterion =>
-    hasEnglishOnlyNarrative(criterion.criterion_label || reviewText("ar", "Unlabelled criterion")) ||
+    hasEnglishOnlyNarrative(stockCriterionLabel(criterion, "ar") || reviewText("ar", "Unlabelled criterion")) ||
     (!isBooleanCriterion(criterion) && (
       hasEnglishOnlyNarrative(criterion.numerator_definition) ||
       hasEnglishOnlyNarrative(criterion.denominator_definition) ||
@@ -344,7 +364,7 @@ export function CriteriaTable({ criteria, sources, locale }: { criteria: StockCr
   const booleanCriteria = criteria.filter(isBooleanCriterion);
   const ratioCriteria = criteria.filter(criterion => !isBooleanCriterion(criterion));
   const headers = ["Criterion", "Result", "Ratio", "Threshold", "Numerator", "Denominator", "Input state", "Confidence tier", "Calculation", "Borderline margin"];
-  const label = (criterion: StockCriterion) => criterion.criterion_label || reviewText(locale, "Unlabelled criterion");
+  const label = (criterion: StockCriterion) => stockCriterionLabel(criterion, locale) || reviewText(locale, "Unlabelled criterion");
   if (!criteria.length) return <p className={styles.muted}><Copy locale={locale}>No criteria were recorded for this run.</Copy></p>;
   return (
     <>
@@ -352,10 +372,11 @@ export function CriteriaTable({ criteria, sources, locale }: { criteria: StockCr
         <h3><Bilingual locale={locale} arabic={null} english={label(criterion)} /></h3>
         <dl className={styles.cardFields}>
           <Field label={<Copy locale={locale}>Result</Copy>}><Label family="result" value={criterion.result} locale={locale} /></Field>
-          {criterion.result === "fail" && typeof criterion.ratio === "number" && Number.isFinite(criterion.ratio) && criterion.ratio !== 0 && <Field label={<Copy locale={locale}>Ratio</Copy>}><RatioValue criterion={criterion} value={criterion.ratio} locale={locale} /></Field>}
+          {criterion.criterion_type !== "business_activity" && criterion.result === "fail" && typeof criterion.ratio === "number" && Number.isFinite(criterion.ratio) && criterion.ratio !== 0 && <Field label={<Copy locale={locale}>Ratio</Copy>}><RatioValue criterion={criterion} value={criterion.ratio} locale={locale} /></Field>}
           <Field label={<Copy locale={locale}>Input state</Copy>}>{criterion.input_states.map(state => <Label key={state} family="inputState" value={state} locale={locale} />)}</Field>
           <Field label={<Copy locale={locale}>Confidence tier</Copy>}><Label family="tier" value={criterion.confidence_tier} locale={locale} /></Field>
         </dl>
+        <ActivityEvidenceNote criterion={criterion} locale={locale} />
         <SourceRefs ids={criterion.source_ids} numbers={sources} locale={locale} />
       </article>)}
     {ratioCriteria.length > 0 && <div className={styles.criteriaWrap} role="region" aria-label={stripPublicReviewMarker(reviewText(locale, "Criteria"))} tabIndex={0}>

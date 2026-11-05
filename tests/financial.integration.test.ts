@@ -1,4 +1,5 @@
 import { beforeAll, afterAll, describe, it, expect, vi } from "vitest";
+import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { and, eq, sql as query } from "drizzle-orm";
@@ -17,6 +18,7 @@ import { persistAnnual, type Actor } from "../src/lib/financial/persistence";
 import { addSecurity, mutateFinancial } from "../src/lib/financial/service";
 import { refreshMarketValue } from "../src/lib/financial/market-value-persistence";
 import { completedQuarter } from "../src/lib/financial/market-value";
+import { activityEvidence } from "../src/lib/financial/activity-evidence";
 import type { Tx } from "../src/lib/auth/audit";
 // eslint-disable-next-line no-restricted-imports -- Isolated job test injects its local transaction and fake SEC transport.
 import { runIngestBatch } from "../src/jobs/ingest-sec";
@@ -70,6 +72,60 @@ function changed(value: number, yearShift = false) {
   }
   return m;
 }
+
+describe("annual-period rollover evidence", () => {
+  it("reuses stored prices for new-period market cap without copying old shares or replacing manual cap", () => isolated(async tx => {
+    const ctx = await setup(tx);
+    await mutateFinancial(tx, actor, { operation: "price", securityId: ctx.id, data: {
+      date: "2026-09-30", month_end_for: "2026-09-30", close: "10", currency: "USD",
+      source_label: "Synthetic fixture close", source_url: "https://example.invalid/fixture-price",
+    } });
+    const previous = await current(tx, ctx.periodId, "market_cap");
+    const mapped = changed(999, true);
+    const result = await persistAnnual(tx, actor, ctx.companyId, mapped);
+    const shares = await current(tx, result.periodId, "shares_outstanding");
+    expect((await current(tx, result.periodId, "market_cap")).value).toBe(shares.value! * 10);
+    expect((await current(tx, ctx.periodId, "market_cap")).id).toBe(previous.id);
+    await tx.update(financialFact).set({ value: 123, protected_current: true })
+      .where(eq(financialFact.id, (await current(tx, result.periodId, "market_cap")).id));
+    await refreshMarketValue(tx, actor, ctx.companyId, ctx.id, "2026-11-05");
+    expect((await current(tx, result.periodId, "market_cap")).value).toBe(123);
+  }));
+  it("uses the immediately preceding annual classification, then current analyst evidence, then SIC", () => isolated(async tx => {
+    const ctx = await setup(tx);
+    const [user] = await tx.insert(schema.users).values({
+      id: randomUUID(), email: "synthetic-activity@example.invalid", role: "admin", full_name: "Fixture analyst",
+    }).returning();
+    const [priorPeriod] = await tx.select().from(financialPeriod).where(eq(financialPeriod.id, ctx.periodId));
+    const evidence = { id: priorPeriod.source_id! };
+    await tx.insert(businessSegment).values({
+      company_id: ctx.companyId, period_id: ctx.periodId, segment_name: "Fixture activity", created_by: user.id,
+      source_id: evidence.id, category_basis: "Fixture analyst review", activity_category: "technology",
+      revenue_amount: 100, revenue_share: 1, input_state: "reported", confidence_tier: "Verified",
+    });
+    const next = await persistAnnual(tx, actor, ctx.companyId, changed(999, true));
+    const [period] = await tx.select().from(financialPeriod).where(eq(financialPeriod.id, next.periodId));
+    expect(await activityEvidence(tx, ctx.companyId, period, "2026-11-05")).toMatchObject([{
+      segment_name: expect.stringContaining("from FY2025 filing"),
+      input_state: "estimated", confidence_tier: "Estimated", revenue_amount: null,
+    }]);
+    await tx.insert(financialFact).values({ company_id: ctx.companyId, period_id: period.id,
+      line_item: "sec_sic_code", value: 6020, source_id: evidence.id, input_state: "reported" });
+    // Carry-forward wins over even a prohibited SIC classification.
+    expect((await activityEvidence(tx, ctx.companyId, period, "2026-11-05"))[0].activity_category).toBe("technology");
+    // Once too old, do not search deeper into history.
+    expect((await activityEvidence(tx, ctx.companyId, period, "2027-11-05"))[0]).toMatchObject({
+      activity_category: "conventional_finance", input_state: "estimated", source_id: evidence.id,
+    });
+    await tx.insert(businessSegment).values({
+      company_id: ctx.companyId, period_id: period.id, segment_name: "New analyst decision", created_by: user.id,
+      source_id: evidence.id, category_basis: "Fixture review", activity_category: "healthcare",
+      revenue_share: 1, input_state: "reported",
+    });
+    expect((await activityEvidence(tx, ctx.companyId, period, "2026-11-05"))[0].activity_category).toBe("healthcare");
+    expect((await activityEvidence(tx, ctx.companyId, period, "2027-11-05"))[0].activity_category).toBe("healthcare");
+  }));
+});
 describe("Step 7 financial persistence and analyst actions", () => {
   it("persists sec_fsn filing provenance idempotently and never lets it replace companyfacts or analyst overrides", () => isolated(async tx => {
     const target = fsnTargets[0];

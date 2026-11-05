@@ -1,3 +1,5 @@
+import { stockCriterionLabel } from "@/i18n/stock-labels";
+import { displayLabel } from "@/i18n/presentation";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { PublicHomeData } from "@/home/types";
@@ -100,10 +102,12 @@ function FeaturedCard({ data, locale }: { data: NonNullable<PublicHomeData["feat
             return (
               <div className={styles.ratio} key={criterion.id}>
                 <div className={styles.ratioHeading}>
-                  <bdi dir="auto" className={styles.criterionLabel}>{stripPublicReviewMarker(criterion.criterion_label || "")}</bdi>
+                  <bdi dir="auto" className={styles.criterionLabel}>{stockCriterionLabel(criterion, locale)}</bdi>
                   <span className={styles.ratioValues}>
-                    <Num>{criterion.ratio === null ? "—" : `${formatNumber(criterion.ratio, locale,{minimumFractionDigits:percentage?2:0,maximumFractionDigits:2})}${percentage ? "%" : ""}`}</Num>
-                    {criterion.threshold !== null && (
+                    {criterion.criterion_type === "business_activity"
+                      ? <span>{displayLabel("result", criterion.result, locale)}</span>
+                      : <Num>{criterion.ratio === null ? "—" : `${formatNumber(criterion.ratio, locale,{minimumFractionDigits:percentage?2:0,maximumFractionDigits:2})}${percentage ? "%" : ""}`}</Num>}
+                    {criterion.criterion_type !== "business_activity" && criterion.threshold !== null && (
                       <span className={styles.limitText}>
                         <span aria-hidden="true"> · </span>
                         {reviewText(locale, "Limit")}{" "}
@@ -205,7 +209,7 @@ export function HomePage({ data, locale }: { data: PublicHomeData; locale: Local
         </div>
       </section>
 
-      <section className={styles.editorial} id="weekly-edition" aria-labelledby="home-editorial-title">
+      {data.editorPick && <section className={styles.editorial} id="weekly-edition" aria-labelledby="home-editorial-title">
         <div className={`${styles.wrap} ${styles.editorialGrid}`}>
           <div className={styles.editorialCopy}>
             <h2 id="home-editorial-title">{reviewText(locale, "Screening is not an investment decision.")}</h2>
@@ -263,7 +267,7 @@ export function HomePage({ data, locale }: { data: PublicHomeData; locale: Local
             </article>
           )}
         </div>
-      </section>
+      </section>}
     </main>
   );
 }
