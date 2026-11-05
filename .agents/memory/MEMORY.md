@@ -37,3 +37,4 @@
 - [SEC Notes fiscal context](fsn-period-context.md) — preserve raw offset contexts; do not guess a date conversion from decimal appearance.
 - [Public column grants](public-column-grants.md) — adding a public projection column also needs an explicit column-level grant; mocked SQL tests cannot prove access.
 - [Theme-color hydration](theme-color-hydration.md) — mutating hoisted meta content before hydration creates duplicate tags; restore the class early, chrome colour afterwards.
+- [pnpm audit remediation](pnpm-audit-remediation.md) — audit fix can create workspace overrides despite reporting package.json changes; nested audits may reuse the ancestor lockfile.

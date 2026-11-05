@@ -14,5 +14,8 @@ attached_assets
 !.env.example
 Dockerfile
 README.md
-docs
+docs/*
+# Next's TypeScript build also checks tests importing these review fixtures.
+!docs/arabic-dead-keys.json
+!docs/arabic-drafts.json
 *.log

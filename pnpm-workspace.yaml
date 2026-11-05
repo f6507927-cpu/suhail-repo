@@ -1,0 +1,9 @@
+overrides:
+  # drizzle-kit's legacy loader still requests esbuild 0.18; retain its
+  # existing 0.25 toolchain rather than introducing another newer minor.
+  esbuild@<=0.24.2: 0.25.12
+  # v5 preserves the callable CommonJS API used by ESLint's v3 consumers.
+  # The amplification advisory affects v7–v11.0.0, not v3 or v5.
+  minimatch@>=3.0.0 <4.0.0: 5.1.9
+  minimatch@>=7.0.0 <11.0.1: 11.0.4
+  zod@<4.6.6: 4.6.7
