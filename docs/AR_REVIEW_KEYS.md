@@ -1,6 +1,6 @@
 # Live Arabic review keys
 
-Generated deterministically by `pnpm ar-review:list`. Live pending rows: **173**.
+Generated deterministically by `pnpm ar-review:list`. Live pending rows: **171**.
 
 ## Boundaries and coverage
 
@@ -177,7 +177,6 @@ origins; unknown future navigation copy is not approved or invented.
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:173; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | No screening runs recorded. | لم تُسجّل فحوص. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Hash payload | محتوى البصمة |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | No screening run recorded for this methodology yet. | لم يُسجّل فحص بهذه المنهجية بعد. |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:125 | Source period | فترة المصدر |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:217; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Security record | سجل الورقة المالية |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:508; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Save coverage | حفظ التغطية |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:461; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Mapped equity | حقوق الملكية المربوطة بالبيانات |  |
@@ -248,7 +247,6 @@ origins; unknown future navigation copy is not approved or invented.
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | No unknowns recorded. | لم تُسجّل قيم غير معروفة. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:454; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Required month-end observation | الملاحظة المطلوبة لنهاية الشهر |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:241; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:242; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Confirm removal | تأكيد الإزالة |  |
-| runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:127 | Suhail SIC mapping v1 — pending analyst review | تصنيف سهيل وفق رموز ⁦SIC⁩، الإصدار الأول — بانتظار مراجعة المحلّل |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:202; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Ticker | رمز السهم |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Coverage assignment saved. | حُفظ إسناد التغطية. |  |
 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Borderline count | عدد النتائج الحدية |  |

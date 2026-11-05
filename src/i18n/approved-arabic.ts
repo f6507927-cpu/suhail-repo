@@ -7,6 +7,9 @@ import { publicUiCopy } from "./presentation";
 
 // Founder-approved UI wording (D-96/D-101/D-107). Unknown copy stays marked.
 const approvedCopy: Readonly<Record<string, string>> = {
+  // D-158: founder-approved activity-evidence notices; no classification approval.
+  "Source period": "فترة المصدر",
+  "Suhail SIC mapping v1 — pending analyst review": "تصنيف سهيل وفق رمز SIC، الإصدار 1 — بانتظار مراجعة المحلل",
   // UX-4: founder-supplied UI wording / D-144 mockup. Existing approved
   // Search and Not screened yet keys retain their previous translations.
   "For example, AAPL or Apple": "مثلاً AAPL أو Apple",

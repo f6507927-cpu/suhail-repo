@@ -1,5 +1,11 @@
 # Suhail — Decision Log
 
+## Activity-evidence Arabic copy approval
+
+| ID | Decision |
+| --- | --- |
+| D-158 | **Founder-approved wording only.** Approve “Source period” → «فترة المصدر» and “Suhail SIC mapping v1 — pending analyst review” → «تصنيف سهيل وفق رمز SIC، الإصدار 1 — بانتظار مراجعة المحلل». Apply through the existing approved-Arabic mechanism and remove these two entries from the pending review inventory. This approves the UI wording, not the SIC classifications or any other pending Arabic copy. |
+
 ## Annual rollover evidence and public locale parity
 
 | ID | Decision |

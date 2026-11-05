@@ -1,6 +1,6 @@
 # Live Arabic review — unapproved documentation-only drafts
 
-Generated deterministically by `pnpm ar-review:list`. Live pending rows: **173**.
+Generated deterministically by `pnpm ar-review:list`. Live pending rows: **171**.
 
 ## Boundaries and coverage
 
@@ -177,7 +177,6 @@ origins; unknown future navigation copy is not approved or invented.
 | U-6509e88fa0550134faeea334174e3b202aeeb4a257c2c23c08a5f38664b97bde | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:173; Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | No screening runs recorded. | لم تُسجّل فحوص. | help/error |
 | U-6b169a4b78e1f0ae986d61315861bf442cb7c3faedc47285e070328ef426fa2b | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Hash payload | محتوى البصمة | help/error |
 | U-6d0423b468b5b8edc6ca28322226db0d31291dd267e478e4a12330d617d475f7 | runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:47 | No screening run recorded for this methodology yet. | لم يُسجّل فحص بهذه المنهجية بعد. | help/error |
-| U-6d53be32fca391544bb15373448c1aef687c0778683747a0160c2552cfe6f5a0 | runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:125 | Source period | فترة المصدر | UI label |
 | U-6ebe42f5ba36b0d428f2ee65e0e6f21d807bc4c180096be563e7991348c8cce7 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:217; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Security record | سجل الورقة المالية | help/error |
 | U-6f43db5c3a93c8596d1df06377040dbc3476baef4879f143ffa866fc1a729ef6 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:508; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Save coverage | حفظ التغطية | help/error |
 | U-6f865f4f1b2710247553a21421d2b4db8fbefb223a413b32bc1c2e08102a3880 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:461; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Mapped equity | حقوق الملكية المربوطة بالبيانات | help/error |
@@ -248,7 +247,6 @@ origins; unknown future navigation copy is not approved or invented.
 | U-ba8418ed4512fd9a2ceae87a2c13deedd68b4a90447b8198f02ebfd28a7ad2a2 | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | No unknowns recorded. | لم تُسجّل قيم غير معروفة. | help/error |
 | U-ba9682cb65c865df529e7e528567151de2a4a0274f422454a537a27b566f48ed | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:454; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Required month-end observation | الملاحظة المطلوبة لنهاية الشهر | help/error |
 | U-bb0f9ad6dc335c9a511426682bc10069ef7456504c2fd8687df1cc429b6b0302 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:241; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:242; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Confirm removal | تأكيد الإزالة | help/error |
-| U-bdf8f7cd913cc600c1e91167f61e7a209b3113f39a2b733fe27ba8864c6a258b | runtime phrase | Rendered/conditionally rendered: src/components/stock/StockVerdictParts.tsx:127 | Suhail SIC mapping v1 — pending analyst review | تصنيف سهيل وفق رموز ⁦SIC⁩، الإصدار الأول — بانتظار مراجعة المحلّل | help/error |
 | U-c19fd9536866ef86c9b3382c195dd6ab984de936ec8d61b7a0376bf5e1ac6606 | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:202; Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Ticker | رمز السهم | help/error |
 | U-c2246db26eabc00adcea44dc61ca19016e1388fc145d3c18aa64c3742ff370dd | runtime phrase | Rendered/conditionally rendered: src/components/financial/FinancialAdmin.tsx:63 | Coverage assignment saved. | حُفظ إسناد التغطية. | help/error |
 | U-c2700233fbb48005291296b4768c0f9607cce08c11d4327d1cfa86d0efad7acb | runtime phrase | Rendered/conditionally rendered: src/components/financial/ScreeningControls.tsx:42 | Borderline count | عدد النتائج الحدية | help/error |

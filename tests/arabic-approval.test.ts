@@ -17,6 +17,17 @@ import { publicUiAmendments } from "./fixtures/public-ui-approval";
 
 // Immutable historical evidence, independent of the regenerated pending sheet.
 const rows = baseline.rows;
+describe("D-158 activity-evidence Arabic approval", () => {
+  it.each([
+    ["Source period", "فترة المصدر"],
+    ["Suhail SIC mapping v1 — pending analyst review", "تصنيف سهيل وفق رمز SIC، الإصدار 1 — بانتظار مراجعة المحلل"],
+  ])("uses the exact approved wording for %s", (source, approved) => {
+    expect(approvedArabicCopy[source]).toBe(approved);
+    expect(reviewText("ar", source)).toBe(approved);
+    expect(reviewText("en", source)).toBe(source);
+    expect(readFileSync("docs/ARABIC_REVIEW.md", "utf8")).not.toContain(`| ${source} |`);
+  });
+});
 const edits: Record<string, string> = {
   "J-disclaimer-short": "نتائج الفحص لأغراض المعلومات فقط — وليست فتوى. تختلف المنهجيات واجتهادات العلماء. التحليل المالي ليس نصيحة استثمارية شخصية.",
   "J-banner-demo": "بيانات افتراضية / عرض تجريبي. كل الأرقام والإفصاحات والأسعار والمنهجيات في هذه الشاشة افتراضية أُعدّت لأغراض العرض فقط، ولا تصف أي مُصدِر أو سوق أو حكم حقيقي.",
