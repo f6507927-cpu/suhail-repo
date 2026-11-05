@@ -65,17 +65,6 @@
   transition: color 160ms ease;
 }
 
-.wordmark {
-  overflow: hidden;
-  margin-block-start: clamp(2.5rem, 7vw, 4.5rem);
-  color: var(--brass-soft);
-  font-size: clamp(5.5rem, 22vw, 18.75rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 0.9;
-  white-space: nowrap;
-}
-
 @media (max-width: 700px) {
   .legalRow {
     flex-direction: column;

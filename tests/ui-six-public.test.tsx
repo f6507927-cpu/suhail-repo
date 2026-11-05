@@ -27,9 +27,9 @@ describe("UI-6 public presentation", () => {
         expect(match[1]).not.toMatch(/tabindex|role="(?:button|link)"/i);
       }
     });
-    it(`${locale}: footer restores decorative wordmark without changing legal disclosure`, () => {
+    it(`${locale}: footer omits decorative wordmark without changing legal disclosure`, () => {
       const html = render(locale, <SiteFooter locale={locale} />);
-      expect(html).toMatch(/<div[^>]*lang="ar"[^>]*>سهيل<\/div>/);
+      expect(html).not.toMatch(/<div[^>]*lang="ar"[^>]*>سهيل<\/div>/);
       expect(html).toContain((locale === "ar" ? ar : en).disclaimer.short);
       expect(html).toContain((locale === "ar" ? ar : en).disclaimer.full);
       expect(html).toContain('href="#full-disclaimer"');

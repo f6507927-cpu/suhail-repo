@@ -1,5 +1,13 @@
 # Suhail — Decision Log
 
+## 6 November 2026 — Remove decorative footer wordmark
+
+The founder explicitly reverses D-165's footer-wordmark restoration: remove the
+large decorative «سهيل» below the legal links from the shared public footer in
+both locales, including its styles. Do not restore it in later UI work without
+explicit founder approval. D-165's other decisions remain unchanged; preserve
+the header branding, Terms/Privacy links and all disclaimer text and behavior.
+
 ## 5 November 2026 — Admin phone usability
 
 | ID | Decision |
