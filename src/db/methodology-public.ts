@@ -6,6 +6,7 @@ import {
   methodologyCriterion,
   methodologyVersion,
 } from "./schema";
+import { genuineMethodology, genuineMethodologyVersion } from "./public-visibility";
 
 // Public queries deliberately enumerate only columns granted to suhail_public
 // in drizzle/0001_security.sql. Never use SELECT * here.
@@ -74,7 +75,7 @@ export async function getPublicMethodologies() {
   const parents = await dbPublic
     .select(publicMethodologyFields)
     .from(methodology)
-    .where(
+    .where(and(
       exists(
         dbPublic
           .select({ id: methodologyVersion.id })
@@ -83,10 +84,12 @@ export async function getPublicMethodologies() {
             and(
               eq(methodologyVersion.methodology_id, methodology.id),
               eq(methodologyVersion.is_public, true),
+              genuineMethodologyVersion(),
             ),
           ),
       ),
-    )
+      genuineMethodology(),
+    ))
     .orderBy(methodology.name);
 
   if (parents.length === 0) return [];
@@ -106,6 +109,7 @@ export async function getPublicMethodologies() {
       and(
         inArray(methodologyVersion.methodology_id, ids),
         eq(methodologyVersion.is_public, true),
+        genuineMethodologyVersion(),
       ),
     )
     .orderBy(sql`${methodologyVersion.effective_date} desc nulls last`, desc(methodologyVersion.created_at));
@@ -122,7 +126,8 @@ export async function getPublicMethodology(
   const [parent] = await dbPublic
     .select(publicMethodologyFields)
     .from(methodology)
-    .where(eq(methodology.slug, slug))
+    // A demo/example slug is a 404 exactly like an unknown slug.
+    .where(and(eq(methodology.slug, slug), genuineMethodology()))
     .limit(1);
   if (!parent) return null;
 
@@ -133,6 +138,7 @@ export async function getPublicMethodology(
       and(
         eq(methodologyVersion.methodology_id, parent.id),
         eq(methodologyVersion.is_public, true),
+        genuineMethodologyVersion(),
       ),
     )
     .orderBy(sql`${methodologyVersion.effective_date} desc nulls last`, desc(methodologyVersion.created_at));

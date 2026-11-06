@@ -67,19 +67,24 @@ describe("UI-5 methodology presentation only", () => {
       expect(html).toContain((locale === "ar" ? ar : en).methodologies.inProduction);
       expect(html).not.toContain((locale === "ar" ? ar : en).publicMethodology.draftReview);
     });
-    it(`${locale}: hides examples in live directory only without changing records`, () => {
+    it(`${locale}: hides examples on every deployment unless local fixtures opt in, without changing records`, () => {
       const groups = uiOneMethodologyGroups();
       groups.push({ ...structuredClone(groups[0]!), id: "example", slug: "example-methodology",
         name: "Example Methodology", is_demo: true, official_or_inspired: "internal_example" });
       const before = structuredClone(groups);
+      // Production runs preview mode, so preview alone must hide examples too.
+      for (const mode of ["preview", "live"]) {
+        vi.stubEnv("SITE_MODE", mode);
+        vi.stubEnv("SITE_URL", "https://suhail.replit.app");
+        const deployed = render(locale, <MethodologyDirectory groups={groups} locale={locale} />);
+        expect(deployed).not.toContain("Example Methodology");
+        expect(deployed).toContain("/methodology/fixture");
+        expect(text(deployed)).not.toContain("↗");
+      }
       vi.stubEnv("SITE_MODE", "preview");
-      const preview = render(locale, <MethodologyDirectory groups={groups} locale={locale} />);
-      expect(preview).toContain("Example Methodology");
-      vi.stubEnv("SITE_MODE", "live");
-      const live = render(locale, <MethodologyDirectory groups={groups} locale={locale} />);
-      expect(live).not.toContain("Example Methodology");
-      expect(live).toContain("/methodology/fixture");
-      expect(text(live)).not.toContain("↗");
+      vi.stubEnv("SITE_URL", "https://fixture.test");
+      vi.stubEnv("PUBLIC_DEMO_FIXTURES", "1");
+      expect(render(locale, <MethodologyDirectory groups={groups} locale={locale} />)).toContain("Example Methodology");
       expect(groups).toEqual(before);
     });
   }

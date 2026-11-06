@@ -5,6 +5,7 @@ import { dbPublic } from "./public";
 import { security, company, exchange, financialPeriod, financialFact, source, methodology, methodologyVersion, methodologyCriterion, screeningRun, screeningCriterionResult, screeningUnknown, explanationObject, analystProfile, pick as editorialPick, edition } from "./schema";
 import type { PublicStockData } from "../stock/types";
 import { priceBar } from "./schema/market";
+import { genuineMethodology, genuineMethodologyVersion, genuineSource, hidePublicDemo } from "./public-visibility";
 import { latestStoredClose } from "../ingest/prices/selection";
 import { apiNinjasStorageReady } from "../ingest/prices/storage-ready";
 
@@ -25,23 +26,26 @@ const analysts = pick(getTableColumns(analystProfile), "name_ar", "name_en", "ti
 
 // Injectable database is for actual loopback-role integration, never auth bypass.
 export async function loadPublicStock(slug: string, db: Pick<typeof dbPublic, "select" | "execute"> = dbPublic): Promise<PublicStockData | null> {
-  const [s] = await db.select(securities).from(security).where(and(eq(security.slug, slug), eq(security.in_universe, true), eq(security.listing_status, "listed"))).limit(1);
+  // Outside explicit local fixtures, demo issuers, demo/example methodologies,
+  // demo runs/editions and synthetic closes/sources are never public.
+  const hideDemo = hidePublicDemo();
+  const [s] = await db.select(securities).from(security).where(and(eq(security.slug, slug), eq(security.in_universe, true), eq(security.listing_status, "listed"), hideDemo ? eq(security.is_demo, false) : undefined)).limit(1);
   if (!s) return null;
-  const [c] = await db.select(companies).from(company).where(eq(company.id, s.company_id!)).limit(1);
+  const [c] = await db.select(companies).from(company).where(and(eq(company.id, s.company_id!), hideDemo ? eq(company.is_demo, false) : undefined)).limit(1);
   if (!c) return null;
   const closeRows = apiNinjasStorageReady() ? await db.select(pick(getTableColumns(priceBar), "id", "created_at", "date",
     "month_end_for", "close", "currency", "source_id", "price_provider", "source_label", "source_url"))
-    .from(priceBar).where(eq(priceBar.security_id, s.id)) : [];
+    .from(priceBar).where(and(eq(priceBar.security_id, s.id), hideDemo ? and(eq(priceBar.is_synthetic, false), eq(priceBar.is_demo, false)) : undefined)) : [];
   const storedClose = latestStoredClose(closeRows);
   const [e] = s.exchange_id ? await db.select({ code: exchange.code, name: exchange.name }).from(exchange).where(eq(exchange.id, s.exchange_id)).limit(1) : [];
   const [analyst] = s.coverage_analyst_id ? await db.select(analysts).from(analystProfile).where(and(eq(analystProfile.id, s.coverage_analyst_id), eq(analystProfile.active, true))).limit(1) : [];
   const setting = await db.execute<{ default_shariah_methodology_version_id: string | null }>(sql`select default_shariah_methodology_version_id from app.public_settings limit 1`);
   const versionId = setting[0]?.default_shariah_methodology_version_id;
-  const [definition] = versionId ? await db.select({ version: versions, methodology: methods }).from(methodologyVersion).innerJoin(methodology, eq(methodology.id, methodologyVersion.methodology_id)).where(and(eq(methodologyVersion.id, versionId), eq(methodologyVersion.is_public, true))).limit(1) : [];
+  const [definition] = versionId ? await db.select({ version: versions, methodology: methods }).from(methodologyVersion).innerJoin(methodology, eq(methodology.id, methodologyVersion.methodology_id)).where(and(eq(methodologyVersion.id, versionId), eq(methodologyVersion.is_public, true), genuineMethodologyVersion(), genuineMethodology())).limit(1) : [];
   const base: PublicStockData = { security: s, company: c, exchange: e ?? null, analyst: analyst ?? null, version: definition?.version ?? null, methodology: definition?.methodology ?? null, run: null, priorRuns: [], criteria: [], unknowns: [], explanation: null, period: null, facts: [], sources: [] };
   base.storedClose = storedClose;
   if (!definition) return base;
-  const history = await db.select(runs).from(screeningRun).where(and(eq(screeningRun.security_id, s.id), eq(screeningRun.methodology_version_id, definition.version.id))).orderBy(desc(screeningRun.generated_at), desc(screeningRun.created_at), desc(screeningRun.id));
+  const history = await db.select(runs).from(screeningRun).where(and(eq(screeningRun.security_id, s.id), eq(screeningRun.methodology_version_id, definition.version.id), hideDemo ? eq(screeningRun.is_demo, false) : undefined)).orderBy(desc(screeningRun.generated_at), desc(screeningRun.created_at), desc(screeningRun.id));
   const [run, ...priorRuns] = history;
   if (!run) return base;
   const [period] = run.financial_period_id ? await db.select({ id: financialPeriod.id, fiscal_period_label: financialPeriod.fiscal_period_label, period_end: financialPeriod.period_end, reported_date: financialPeriod.reported_date, source_id: financialPeriod.source_id }).from(financialPeriod).where(eq(financialPeriod.id, run.financial_period_id)).limit(1) : [];
@@ -59,7 +63,7 @@ export async function loadPublicStock(slug: string, db: Pick<typeof dbPublic, "s
     period ? db.select(facts).from(financialFact).where(and(eq(financialFact.company_id, c.id), eq(financialFact.period_id, period.id), eq(financialFact.is_current, true), notInArray(financialFact.line_item, ["sec_sic_code", "suhail_bound_cash", "suhail_bound_short_term_securities", "suhail_bound_long_term_securities", "suhail_bound_context", "suhail_bound_eligible"]), or(isNull(financialFact.security_id), eq(financialFact.security_id, s.id)))).orderBy(financialFact.line_item) : Promise.resolve([]),
   ]);
   const ids = [...new Set([...criterionRows.flatMap((row) => row.source_ids), ...factRows.flatMap((row) => row.source_id ? [row.source_id] : []), ...(period?.source_id ? [period.source_id] : [])])];
-  const sourceRows = ids.length ? await db.select(sources).from(source).where(inArray(source.id, ids)).orderBy(source.id) : [];
+  const sourceRows = ids.length ? await db.select(sources).from(source).where(and(inArray(source.id, ids), genuineSource())).orderBy(source.id) : [];
   // No edition route exists yet: link to the actual published research in this
   // page's full record, rather than inventing an unreachable edition URL.
   const [publishedPick] = s.coverage_analyst_id && run.status === "passes_selected_methodology"
@@ -72,7 +76,8 @@ export async function loadPublicStock(slug: string, db: Pick<typeof dbPublic, "s
       disclosure_ar: editorialPick.editor_conflict_disclosure_ar, disclosure_en: editorialPick.editor_conflict_disclosure_en,
       disclaimer: editorialPick.disclaimer, edition_label: edition.edition_id,
     }).from(editorialPick).innerJoin(edition, eq(edition.id, editorialPick.edition_id))
-      .where(and(eq(editorialPick.security_id, s.id), inArray(edition.status, ["published_demo", "published_live"])))
+      .where(and(eq(editorialPick.security_id, s.id), inArray(edition.status, hideDemo ? ["published_live"] : ["published_demo", "published_live"]),
+        hideDemo ? and(eq(edition.is_demo, false), eq(editorialPick.is_demo, false)) : undefined))
       .orderBy(desc(edition.published_at), desc(editorialPick.id)).limit(1) : [];
   // Never catch a failed read into a successful cached page (D-102 classic ISR).
   return { ...base, publishedPick: publishedPick ?? null, run, priorRuns, period: period ?? null, criteria: criterionRows, unknowns: unknownRows, explanation: explanationRows[0] ?? null, facts: factRows, sources: sourceRows };
