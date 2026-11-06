@@ -60,6 +60,17 @@ The term titles reuse the approved line-item labels («الديون بفوائد
 | market_value_basis | The company's market value used as the base of this ratio, calculated as the selected methodology defines it. The full record shows the figure and its source. | القيمة السوقية للشركة المستخدمة أساسًا لهذه النسبة، محسوبةً كما تحددها المنهجية المختارة. يعرض السجل الكامل الرقم ومصدره. |
 | prohibited_income | Revenue from activities the methodology does not permit, such as interest income. The methodology compares it with total revenue. | إيرادات من أنشطة لا تجيزها المنهجية، مثل إيرادات الفوائد. تقارن المنهجية هذا الرقم بإجمالي الإيرادات. |
 
+## 4. Privacy Policy §4 line (separate commit, for approval)
+
+Added under §4 (cookies) in `content/legal/privacy.{ar,en}.md`. The policy
+version stays `draft-2026-11-04`; the founder will bump it together with the
+methodology session's Terms change, so users accept once. The SHA-256 pins in
+`tests/legal-drafts.test.tsx` were updated to the new wording, in the same commit.
+
+| Where | English | Arabic (proposed) |
+| --- | --- | --- |
+| Privacy §4 | Your recently viewed stocks are stored only in your browser and never sent to us; you can clear them at any time. | تُحفظ الأسهم التي شاهدتها مؤخرًا في متصفحك فقط ولا تُرسل إلينا أبدًا، ويمكنك مسحها في أي وقت. |
+
 ## Notes for review
 
 - None of these strings uses "recommend", "advice", "buy" or "sell", or a
