@@ -1,0 +1,18 @@
+{
+  "_status": "pending_founder_approval",
+  "_note": "Tap-to-explain definitions for public stock pages. Display only; definitions describe terms and never state a ruling. Every entry is listed in docs/UX_POLISH_ARABIC_APPROVAL.md and needs founder approval before release.",
+  "terms": {
+    "interest_bearing_debt": {
+      "en": "Money the company has borrowed and pays interest on, such as loans and bonds. The methodology compares it with the market value basis.",
+      "ar": "أموال اقترضتها الشركة وتدفع عليها فوائد، مثل القروض والسندات. تقارن المنهجية هذا الرقم بأساس القيمة السوقية."
+    },
+    "market_value_basis": {
+      "en": "The company's market value used as the base of this ratio, calculated as the selected methodology defines it. The full record shows the figure and its source.",
+      "ar": "القيمة السوقية للشركة المستخدمة أساسًا لهذه النسبة، محسوبةً كما تحددها المنهجية المختارة. يعرض السجل الكامل الرقم ومصدره."
+    },
+    "prohibited_income": {
+      "en": "Revenue from activities the methodology does not permit, such as interest income. The methodology compares it with total revenue.",
+      "ar": "إيرادات من أنشطة لا تجيزها المنهجية، مثل إيرادات الفوائد. تقارن المنهجية هذا الرقم بإجمالي الإيرادات."
+    }
+  }
+}
