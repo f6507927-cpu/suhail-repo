@@ -46,6 +46,8 @@ We use essential cookies only:
 
 We do not use analytics, tracking or advertising cookies.
 
+Your recently viewed stocks are stored only in your browser and never sent to us; you can clear them at any time.
+
 ## 5. Who we share your data with
 
 We share your data only with service providers that process it on our behalf and under our instructions:
