@@ -25,7 +25,7 @@ type SiteHeaderProps = {
 
 export const STOCK_QUERY_ID = "stock-query";
 
-/** D-160: bring the homepage stock search into view and focus it. */
+/** D-168: bring the homepage stock search into view and focus it. */
 export function focusStockQuery(doc: Document = document): boolean {
   const input = doc.getElementById(STOCK_QUERY_ID);
   if (!(input instanceof HTMLElement)) return false;
@@ -77,7 +77,7 @@ export function SiteHeader({ locale, labels, accountControl }: SiteHeaderProps) 
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, [menuOpen]);
 
-  // D-160: warm the two destinations as soon as the phone menu opens, so a
+  // D-168: warm the two destinations as soon as the phone menu opens, so a
   // cold instance starts work before the tap rather than after it.
   useEffect(() => {
     if (!menuOpen) return;

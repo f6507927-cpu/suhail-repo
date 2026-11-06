@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import ar from "../src/i18n/messages/ar.json";
 import en from "../src/i18n/messages/en.json";
 
-// D-160: the phone menu gives immediate feedback, ignores a second tap and
+// D-168: the phone menu gives immediate feedback, ignores a second tap and
 // reaches the homepage stock search with a client-side navigation.
 // Runs in the isolated hydration production build (playwright.hydration.config.ts).
 
@@ -43,7 +43,7 @@ for (const locale of ["ar", "en"] as const) {
   const prefix = locale === "en" ? "/en" : "";
   const home = prefix || "/";
 
-  test(`D-160 ${locale}: menu "screen a stock" from methodology is one client navigation with feedback`, async ({ page }) => {
+  test(`D-168 ${locale}: menu "screen a stock" from methodology is one client navigation with feedback`, async ({ page }) => {
     const documents: string[] = [];
     page.on("request", request => {
       if (request.resourceType() === "document") documents.push(request.url());
@@ -88,7 +88,7 @@ for (const locale of ["ar", "en"] as const) {
     expect(documents).toEqual([]);
   });
 
-  test(`D-160 ${locale}: on the homepage the menu link only scrolls and focuses`, async ({ page }) => {
+  test(`D-168 ${locale}: on the homepage the menu link only scrolls and focuses`, async ({ page }) => {
     await page.goto(home);
     await page.waitForLoadState("load");
     await page.evaluate(() => { (window as unknown as { __sameDocument: boolean }).__sameDocument = true; });
@@ -104,7 +104,7 @@ for (const locale of ["ar", "en"] as const) {
     expect(await page.evaluate(() => (window as unknown as { __sameDocument?: boolean }).__sameDocument)).toBe(true);
   });
 
-  test(`D-160 ${locale}: reduced motion keeps the indicator but drops its animation`, async ({ page }) => {
+  test(`D-168 ${locale}: reduced motion keeps the indicator but drops its animation`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     const { release } = await holdHomeRsc(page, home);
     await page.goto(`${prefix}/methodology`);

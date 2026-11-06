@@ -6,7 +6,7 @@ import { spawn } from "node:child_process";
 // Copy the CURRENT application so all real root layouts, proxy, next/script,
 // navigation and hydration code run unchanged. Replace only module-boundary IO.
 const root = process.cwd();
-// D-160: the menu-navigation suite needs a rendered homepage (#stock-query).
+// D-168: the menu-navigation suite needs a rendered homepage (#stock-query).
 // It uses its own build directory and port and stubs only the homepage read.
 const menuHome = process.env.MENU_HOME_FIXTURE === "1";
 const relativeOut = menuHome ? "generated-artifacts/next-menu" : "generated-artifacts/next-hydration";

@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-// D-160: phone menu navigation against the isolated hydration production build
+// D-168: phone menu navigation against the isolated hydration production build
 // (tests/next-hydration/server.ts), with only the homepage read stubbed so the
 // real homepage search renders. No database, Supabase or provider IO.
 export default defineConfig({

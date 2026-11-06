@@ -53,7 +53,7 @@ describe("D-149 single-row header and search placement", () => {
   });
 });
 
-describe("D-160 header navigation feedback", () => {
+describe("D-168 header navigation feedback", () => {
   it.each(["ar", "en"] as const)("%s renders client links, an idle hidden progress bar and no pending state", locale => {
     const messages = locale === "ar" ? ar : en;
     const header = createElement(SiteHeader, {
@@ -62,7 +62,8 @@ describe("D-160 header navigation feedback", () => {
         screenStock: reviewText(locale, "Screen a stock"), methodologies: reviewText(locale, "Methodology") },
       accountControl: null,
     });
-    const html = renderToStaticMarkup(createElement(NextIntlClientProvider, { locale, messages, timeZone: "Asia/Riyadh" }, header));
+    const props = { locale, messages, timeZone: "Asia/Riyadh", children: header };
+    const html = renderToStaticMarkup(createElement(NextIntlClientProvider, props));
     expect(html.match(/data-header-nav=""/g)).toHaveLength(3);
     expect(html).toMatch(/<span class="[^"]*progress[^"]*" data-active="false" aria-hidden="true"><\/span>/);
     expect(html).not.toMatch(/data-pending=|aria-disabled=|data-navigating=/);

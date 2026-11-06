@@ -252,7 +252,7 @@ Sources: [configuration](https://docs.replit.com/features/project-setup/configur
 [machine configuration](https://docs.replit.com/features/publishing/machine-configuration),
 [publishing troubleshooting](https://docs.replit.com/build/troubleshooting).
 
-## Cold starts and always-on options (D-160) — founder decision pending
+## Cold starts and always-on options (D-168) — founder decision pending
 
 **Nothing here was changed.** Deployment settings remain exactly as above.
 
@@ -291,7 +291,7 @@ Session-pooler TLS connections to Supabase.
 regenerations.
 (c) The header link was a plain `<a>`, so each tap was a full document load with no
 feedback, and a second tap started another one.
-D-160 fixes (c) and the missing feedback. It cannot remove (a) or (b), which need a
+D-168 fixes (c) and the missing feedback. It cannot remove (a) or (b), which need a
 hosting decision.
 
 Options, priced from Replit's published pages (docs.replit.com/billing/deployment-pricing,

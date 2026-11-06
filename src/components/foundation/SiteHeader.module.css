@@ -4,7 +4,7 @@
   border-block-end: 1px solid var(--divider);
 }
 
-/* D-160: navigation feedback. A thin bar on the header's lower edge appears
+/* D-168: navigation feedback. A thin bar on the header's lower edge appears
    after a short delay (no flash on fast navigations) and grows slowly until
    the new page commits. Reduced motion shows a static full bar instead. */
 .progress {
