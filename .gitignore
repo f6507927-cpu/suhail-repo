@@ -15,3 +15,9 @@ attached_assets/
 /generated-artifacts/
 
 suhail-backup.tar.gz
+
+# Local command/run output captured in the repo root (D-160); never commit.
+/bound*.txt
+/*dry-run*.txt
+/ingest*.txt
+/*.log

@@ -4,6 +4,38 @@
   border-block-end: 1px solid var(--divider);
 }
 
+/* D-160: navigation feedback. A thin bar on the header's lower edge appears
+   after a short delay (no flash on fast navigations) and grows slowly until
+   the new page commits. Reduced motion shows a static full bar instead. */
+.progress {
+  position: absolute;
+  inset-block-end: -1px;
+  inset-inline-start: 0;
+  z-index: 2;
+  block-size: 2px;
+  inline-size: 0;
+  background: var(--brass-soft);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.progress[data-active="true"] {
+  opacity: 1;
+  transition: opacity 120ms ease 120ms;
+  animation: header-progress 8s cubic-bezier(0.1, 0.7, 0.2, 1) forwards;
+}
+
+.navigation a[data-pending="true"] {
+  color: var(--brass-soft);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: progress;
+}
+
+.row a[aria-disabled="true"] {
+  cursor: progress;
+}
+
 :global([data-public-ux]) .lockup,
 :global(body:has(main[data-public-ux])) .lockup {
   display: inline-flex;
@@ -218,6 +250,10 @@
     border-block-end: 1px solid var(--divider);
   }
 
+  .navigation a[data-pending="true"] {
+    background: color-mix(in srgb, var(--brass) 14%, transparent);
+  }
+
   .accountAndTheme {
     display: flex;
     justify-content: space-between;
@@ -248,6 +284,15 @@
   border-radius: var(--radius-control);
 }
 
+@keyframes header-progress {
+  from {
+    inline-size: 0;
+  }
+  to {
+    inline-size: 85%;
+  }
+}
+
 @keyframes panel-reveal {
   from {
     opacity: 0;
@@ -275,6 +320,12 @@
 @media (prefers-reduced-motion: reduce) {
   .panel[data-open="true"] {
     animation: none;
+  }
+
+  .progress[data-active="true"] {
+    inline-size: 100%;
+    animation: none;
+    transition: none;
   }
 
   .navigation a,

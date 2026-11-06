@@ -3,13 +3,16 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { NextIntlClientProvider } from "next-intl";
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
-import { SiteHeader } from "./SiteHeader";
+import { SiteHeader, focusStockQuery } from "./SiteHeader";
 import { AccountIdentityControl } from "../accounts/AccountIdentityControl";
 import { reviewText } from "../accounts/types";
 import ar from "../../i18n/messages/ar.json";
 import en from "../../i18n/messages/en.json";
 
 vi.stubGlobal("React", React);
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), prefetch: vi.fn() }),
+}));
 vi.mock("../../i18n/navigation", () => ({
   usePathname: () => "/",
   getPathname: ({ locale }: { locale: string }) => locale === "en" ? "/en" : "/",
@@ -49,3 +52,45 @@ describe("D-149 single-row header and search placement", () => {
     expect(readFileSync("src/components/stock/StockVerdict.tsx", "utf8")).toContain('data-section="search-again"');
   });
 });
+
+describe("D-160 header navigation feedback", () => {
+  it.each(["ar", "en"] as const)("%s renders client links, an idle hidden progress bar and no pending state", locale => {
+    const messages = locale === "ar" ? ar : en;
+    const header = createElement(SiteHeader, {
+      locale,
+      labels: { appName: messages.app.name, menu: messages.nav.menu,
+        screenStock: reviewText(locale, "Screen a stock"), methodologies: reviewText(locale, "Methodology") },
+      accountControl: null,
+    });
+    const html = renderToStaticMarkup(createElement(NextIntlClientProvider, { locale, messages, timeZone: "Asia/Riyadh" }, header));
+    expect(html.match(/data-header-nav=""/g)).toHaveLength(3);
+    expect(html).toMatch(/<span class="[^"]*progress[^"]*" data-active="false" aria-hidden="true"><\/span>/);
+    expect(html).not.toMatch(/data-pending=|aria-disabled=|data-navigating=/);
+  });
+  it("respects reduced motion and never uses physical directions for the bar", () => {
+    const css = readFileSync("src/components/foundation/SiteHeader.module.css", "utf8");
+    const reduced = css.slice(css.indexOf("@media (prefers-reduced-motion: reduce)"));
+    expect(reduced).toMatch(/\.progress\[data-active="true"\][^}]*animation: none/);
+    expect(css).toMatch(/\.progress \{[^}]*inset-inline-start: 0/);
+  });
+  it("focusStockQuery scrolls the search form into view and focuses the input without a second scroll", () => {
+    const calls: string[] = [];
+    const form = { scrollIntoView: (options: ScrollIntoViewOptions) => calls.push(`scroll:${options.behavior}`) };
+    const input = Object.assign(Object.create(FakeElement.prototype), {
+      closest: () => form,
+      focus: (options: FocusOptions) => calls.push(`focus:${options.preventScroll}`),
+    });
+    const doc = {
+      getElementById: (id: string) => id === "stock-query" ? input : null,
+      defaultView: { matchMedia: () => ({ matches: true }) },
+    } as unknown as Document;
+    vi.stubGlobal("HTMLElement", FakeElement);
+    try {
+      expect(focusStockQuery(doc)).toBe(true);
+      expect(calls).toEqual(["scroll:auto", "focus:true"]);
+      expect(focusStockQuery({ ...doc, getElementById: () => null } as unknown as Document)).toBe(false);
+    } finally { vi.unstubAllGlobals(); vi.stubGlobal("React", React); }
+  });
+});
+
+class FakeElement {}

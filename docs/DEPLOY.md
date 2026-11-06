@@ -252,6 +252,44 @@ Sources: [configuration](https://docs.replit.com/features/project-setup/configur
 [machine configuration](https://docs.replit.com/features/publishing/machine-configuration),
 [publishing troubleshooting](https://docs.replit.com/build/troubleshooting).
 
+## Cold starts and always-on options (D-160) — founder decision pending
+
+**Nothing here was changed.** Deployment settings remain exactly as above.
+
+Measured read-only from outside Replit with single `curl` requests on
+6 November 2026 (UTC). These are not load tests. TTFB is time to first byte, including
+DNS, TLS and the round trip from the measuring machine. About 0.2 s of each figure is
+connection setup.
+
+<!-- D160-MEASUREMENTS -->
+
+The reported 7–8 s wait (iPhone Safari, about 02:37 Riyadh) is consistent with an
+**Autoscale cold start**. Replit documents that Autoscale "goes idle after 15 minutes of
+inactivity" and that the app "starts up when the first request arrives". At that
+hour there is no other traffic. A fresh instance must boot the container and `next start`. It then
+has an empty per-instance ISR cache (D-20, D-102: no build-time pages), so the first
+request to each public page also renders it, opening new Session-pooler TLS
+connections to Supabase. ISR regeneration after the 900 s window adds latency up
+to about 2 s on a warm instance, as the second measurement shows. It does not explain 7–8 s.
+The header link was also a plain `<a>`, so every tap was a full document load with
+no feedback, and a second tap started a second load. D-160 fixes the feedback and the
+double tap. It cannot remove the server wait.
+
+Options, priced from Replit's published pages (docs.replit.com/billing/deployment-pricing,
+features/publishing/machine-configuration, read 6 November 2026. Recheck before deciding):
+
+| Option | What it changes | Cost (published) | Trade-offs |
+| --- | --- | --- | --- |
+| **Keep Autoscale, scale to zero (current)** | Nothing | $2/month base + $0.60 per million compute units (1 CPU-second = 18 units, 1 GB-RAM-second = 2) + $0.40 per million requests, after plan credits | Cheapest at low traffic. First visitor after 15 idle minutes waits for a cold start. Up to 3 instances under load. |
+| **Autoscale with a minimum of 1 instance** | One instance always warm, others still scale | Not offered in current docs: only "Max machines" is documented. If Replit enables it, an always-running instance bills compute continuously. For example, 1 vCPU + 2 GB running ~2.59 M s/month is about 57 M units, about **$34/month** plus base and requests. | Keeps autoscaling and the 1–3 rollout limits above. Availability must be confirmed with Replit first (see "Commands and platform controls"). |
+| **Reserved VM** | One dedicated, never-sleeping server | Fixed monthly: shared 0.5 vCPU / 2 GB **$15**; dedicated 1 vCPU / 4 GB **$35**, 2 vCPU / 8 GB **$50**, 4 vCPU / 16 GB **$130** | No cold starts. ISR cache persists across requests until the process restarts. No horizontal scaling: one instance takes all traffic, and a restart or deploy is a short gap. Connection budget is 1 × 3 per role (simpler than the 1–3 table). Needs a `.replit` `deploymentTarget` change and rebuild. That is a deployment change requiring founder approval. |
+| Outside keep-warm ping | A monitor requests `/api/health` every <15 min | Instance never idles, so compute bills like always-on, plus a third-party monitor | Not recommended. It adds an external service, does not warm page ISR caches, and costs about as much as the options above. |
+
+Recommendation for the founder's decision, not an action: if the 7–8 s first-visit
+wait matters during Phase 0, a **shared Reserved VM ($15/month)** is the cheapest
+documented way to remove cold starts. Keep Autoscale if the max-3 scaling is
+more important than the first visit after idle. No setting was changed for this task.
+
 ## Deployment variable inventory
 
 Names only; no real values or credential-bearing URLs belong in this guide.
