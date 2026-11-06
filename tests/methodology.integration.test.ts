@@ -1,4 +1,4 @@
-import { beforeAll, afterAll, describe, it, expect, vi } from "vitest";
+import { beforeAll, afterAll, afterEach, describe, it, expect, vi } from "vitest";
 import { randomUUID } from "node:crypto";
 import postgres, { type Sql } from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -22,7 +22,10 @@ vi.mock("next/cache",()=>({revalidatePath:vi.fn()}));
 import * as service from "../src/lib/methodology/service";
 import { methodologyAction } from "../src/app/[locale]/(private)/admin/(protected)/methodology-actions";
 import { readMethodologies } from "../src/lib/methodology/admin-data";
-import { getPublicMethodology } from "../src/db/methodology-public";
+import { getPublicMethodologies, getPublicMethodology } from "../src/db/methodology-public";
+afterEach(()=>{vi.unstubAllEnvs();});
+// Local fixtures must opt in explicitly to see the synthetic EX-A methodology.
+const showDemoFixtures=()=>{vi.stubEnv("SITE_MODE","preview");vi.stubEnv("SITE_URL","https://fixture.test");vi.stubEnv("PUBLIC_DEMO_FIXTURES","1");};
 let owner:Sql,app:Sql,pub:Sql,control:Sql;
 const database=`methodology_${randomUUID().replaceAll("-","")}`;
 const rollback=new Error("rollback only");
@@ -400,6 +403,7 @@ describe("evidence selection and permissions",()=>{
     expect((await owner`select threshold from app.methodology_criterion where id=${criterionId}`)[0].threshold).toBe("33.000000");
   });
   it("public detail query uses RLS/allowlists and never exposes private identifiers",async()=>{
+    showDemoFixtures();
     const [parent]=await owner`select id from app.methodology where slug='example-a'`;
     await owner`insert into app.methodology_version(methodology_id,version,version_label,is_public) values(${parent.id},'private-secret-version','Internal private label',false)`;
     const page=await getPublicMethodology("example-a");
@@ -408,6 +412,19 @@ describe("evidence selection and permissions",()=>{
     expect(page?.documents[0].version).not.toHaveProperty("analyst_test_cases");
     expect(page?.documents[0].version).not.toHaveProperty("workflow_history");
     expect(page?.documents[0].criteria.find(c=>c.criterion_type==="receivables")?.borderline_margin).toBeNull();
+  });
+  it("hides demo/example methodologies from the public list and detail on preview deployments",async()=>{
+    // Production runs SITE_MODE=preview (D-24); without the fixture opt-in, EX-A is a 404.
+    vi.stubEnv("SITE_MODE","preview");vi.stubEnv("SITE_URL","https://suhail.replit.app");
+    expect(await getPublicMethodology("example-a")).toBeNull();
+    expect((await getPublicMethodologies()).map(m=>m.slug)).not.toContain("example-a");
+    // 0021 lets suhail_public filter on the D-93 latch; without the grant this read is refused.
+    const [latched]=await owner`select id from app.methodology where slug='example-a' and production_blocked`;
+    expect(latched).toBeDefined();
+    expect((await pub`select production_blocked from app.methodology where id=${latched.id}`)[0].production_blocked).toBe(true);
+    showDemoFixtures();
+    expect(await getPublicMethodology("example-a")).not.toBeNull();
+    expect((await getPublicMethodologies()).map(m=>m.slug)).toContain("example-a");
   });
   it("public documentation prefers production over newer public drafts without changing the site default",async()=>{
     let slug="";
