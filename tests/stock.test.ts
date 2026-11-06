@@ -38,8 +38,10 @@ describe("public stock boundary and metadata", () => {
       expect(meta.robots).toMatchObject({ index: false });
       expect(JSON.stringify(meta.openGraph)).toContain("FIXA");
       expect(JSON.stringify(meta.twitter)).toContain("FIXA");
-      expect(meta.openGraph?.images).toEqual([{ url: "https://public.example/icons/icon-512.png", alt: expect.any(String) }]);
-      expect(meta.twitter?.images).toEqual(["https://public.example/icons/icon-512.png"]);
+      // UX polish: per-stock preview cards come from the route's opengraph-image/twitter-image files.
+      expect(meta.openGraph?.images).toBeUndefined();
+      expect(meta.twitter).toMatchObject({ card: "summary_large_image" });
+      expect(meta.twitter && "images" in meta.twitter ? meta.twitter.images : undefined).toBeUndefined();
     });
   }
   it("production versions are indexable; no-run metadata invents no status", () => {
