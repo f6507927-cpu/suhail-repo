@@ -261,19 +261,38 @@ Measured read-only from outside Replit with single `curl` requests on
 DNS, TLS and the round trip from the measuring machine. About 0.2 s of each figure is
 connection setup.
 
-<!-- D160-MEASUREMENTS -->
+| When (UTC) | Request | TTFB | `x-nextjs-cache` |
+| --- | --- | --- | --- |
+| 11:13, first request of the session | `/` · `/methodology` · `/methodology` | 0.84 · 0.77 · 0.78 s | HIT |
+| 11:13 | `/?_rsc` (client navigation payload, 46 KB) ×3 | 0.72–0.75 s | HIT |
+| 11:13 | `/en` · `/en/methodology` | 0.70 · 0.71 s | HIT |
+| 11:39, after 25 min with no requests from me | `/methodology` → `/` → `/?_rsc` | 0.75 → **2.20** → 0.85 s | HIT, then stale `/` |
+| 12:39, after 60 min with no requests from me | `/methodology` ×2 · `/` · `/en` | **2.24 · 2.12** · 0.74 · 0.77 s | — |
+| 12:40, single requests 3 s apart | `/methodology` ×3 | 0.74 · **5.61** · 1.25 s | HIT ×3 |
+| 12:41 | `/` → `/methodology` | **2.31** (STALE) → **5.63** s (HIT) | — |
 
-The reported 7–8 s wait (iPhone Safari, about 02:37 Riyadh) is consistent with an
-**Autoscale cold start**. Replit documents that Autoscale "goes idle after 15 minutes of
-inactivity" and that the app "starts up when the first request arrives". At that
-hour there is no other traffic. A fresh instance must boot the container and `next start`. It then
-has an empty per-instance ISR cache (D-20, D-102: no build-time pages), so the first
-request to each public page also renders it, opening new Session-pooler TLS
-connections to Supabase. ISR regeneration after the 900 s window adds latency up
-to about 2 s on a warm instance, as the second measurement shows. It does not explain 7–8 s.
-The header link was also a plain `<a>`, so every tap was a full document load with
-no feedback, and a second tap started a second load. D-160 fixes the feedback and the
-double tap. It cannot remove the server wait.
+A true scale-to-zero boot was **not observed**: the instance stayed warm for
+the whole hour, possibly because of other traffic. Warm cache hits normally take
+about 0.65–0.8 s. However, **HIT responses intermittently took 5.6 s**, right after a STALE
+response had started background ISR regeneration. That points at regeneration
+(server render plus Supabase reads) monopolising a small instance's CPU or event
+loop, so unrelated cached requests queue behind it. The full homepage document
+is 68 KB of HTML plus scripts. The client-navigation payload is 46 KB.
+
+The reported 7–8 s wait (iPhone Safari, about 02:37 Riyadh) has two likely
+server-side contributors, and both are worst after a quiet period:
+(a) an **Autoscale cold start**. Replit documents that Autoscale "goes idle after 15
+minutes of inactivity" and that the app "starts up when the first request arrives".
+A fresh instance boots, runs `next start`, and has an empty per-instance ISR cache
+(D-20, D-102: no build-time pages), so its first page render also opens new
+Session-pooler TLS connections to Supabase.
+(b) **ISR regeneration blocking other requests** on the same small instance. This is the
+5.6 s HIT above: after 900 s every page is stale, so the first visits trigger
+regenerations.
+(c) The header link was a plain `<a>`, so each tap was a full document load with no
+feedback, and a second tap started another one.
+D-160 fixes (c) and the missing feedback. It cannot remove (a) or (b), which need a
+hosting decision.
 
 Options, priced from Replit's published pages (docs.replit.com/billing/deployment-pricing,
 features/publishing/machine-configuration, read 6 November 2026. Recheck before deciding):
@@ -286,8 +305,9 @@ features/publishing/machine-configuration, read 6 November 2026. Recheck before 
 | Outside keep-warm ping | A monitor requests `/api/health` every <15 min | Instance never idles, so compute bills like always-on, plus a third-party monitor | Not recommended. It adds an external service, does not warm page ISR caches, and costs about as much as the options above. |
 
 Recommendation for the founder's decision, not an action: if the 7–8 s first-visit
-wait matters during Phase 0, a **shared Reserved VM ($15/month)** is the cheapest
-documented way to remove cold starts. Keep Autoscale if the max-3 scaling is
+wait matters during Phase 0, a **Reserved VM** is the documented way to remove cold
+starts. Because (b) is CPU contention, prefer a dedicated 1 vCPU / 4 GB ($35/month)
+over the shared 0.5 vCPU size ($15/month). Keep Autoscale if the max-3 scaling is
 more important than the first visit after idle. No setting was changed for this task.
 
 ## Deployment variable inventory
