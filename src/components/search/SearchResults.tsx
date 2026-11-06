@@ -4,6 +4,7 @@ import { Bilingual } from "../stock/StockVerdictParts";
 import { englishCompanyName, formatNumber } from "../../lib/format";
 import type { SearchCoverage, SearchResult } from "../../db/search-public";
 import { StockRequestAction } from "./StockRequestAction";
+import { TickerMonogram } from "../foundation/TickerMonogram";
 
 export function SearchResults({ results, locale, valid, coverage, error = false, query = "" }: {
   results: SearchResult[]; locale: "ar" | "en"; valid: boolean;
@@ -75,17 +76,24 @@ export function SearchResults({ results, locale, valid, coverage, error = false,
               href={`${prefix}/stock/${result.slug}`}
               className="group flex min-h-14 w-full items-center justify-between gap-4 py-3 text-inherit no-underline transition-colors hover:bg-[color-mix(in_srgb,var(--brass)_7%,transparent)] focus-visible:bg-[color-mix(in_srgb,var(--brass)_8%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
             >
+              <span className="flex min-w-0 items-center gap-3">
               <span className="grid min-w-0 gap-1">
                 <span className="break-words font-medium leading-snug">
                   <Bilingual locale={locale} arabic={result.name_ar} english={englishCompanyName(result)} />
                 </span>
                 <span className="flex min-w-0 flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
-                  <bdi dir="ltr" lang="en" className="break-words">{englishCompanyName(result)}</bdi>
-                  <span aria-hidden="true">·</span>
+                  {/* Repeat the English name only when the line above shows an Arabic name. */}
+                  {locale === "ar" && result.name_ar?.trim() && <>
+                    <bdi dir="ltr" lang="en" className="break-words">{englishCompanyName(result)}</bdi>
+                    <span aria-hidden="true">·</span>
+                  </>}
                   <bdi className="font-mono tabular-nums text-sm" dir="ltr">{result.ticker}</bdi>
                   <span aria-hidden="true">·</span>
                   <bdi dir="ltr" className="break-words">{result.exchange ?? "—"}</bdi>
                 </span>
+              </span>
+              {/* Decorative; after the name in DOM order (D-166), shown first visually. */}
+              <TickerMonogram ticker={result.ticker} size="sm" className="order-first" />
               </span>
               <span className="shrink-0">
                 {result.status
