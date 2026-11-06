@@ -4,7 +4,6 @@ import {
   CoverageSeal,
   EngineStatement,
   Num,
-  StatusBadge,
 } from "../foundation";
 import { formatCompactMoney, formatMoney, formatNumber, scaleMultiplier } from "@/lib/format";
 import { displayLabel } from "@/i18n/presentation";
@@ -27,6 +26,7 @@ import {
 import { ratioDisplay } from "./ratio-display";
 import { StockDate } from "./StockDate";
 import { StoredMonthlyClose } from "./StoredMonthlyClose";
+import { TermExplain, TermSheet } from "../foundation/TermExplain";
 import styles from "./StockVerdict.module.css";
 
 import { isSuppliedDraft, missingFigure, uiOneDisplay, stockShortVersionLabel } from "@/i18n/approved-arabic-ui-one";
@@ -208,6 +208,9 @@ function CriterionRow({ criterion, locale }: { criterion: StockCriterion; locale
              : null}
         </p>
       )}
+      {/* Glossary sheets sit outside the sentence so its text holds only the labels. */}
+      {!isBooleanCriterion(criterion) && criterion.numerator_value !== null && criterion.denominator_value !== null &&
+        <RatioTermSheets criterion={criterion} locale={locale} />}
       {isBooleanCriterion(criterion) && explanation?.trim() && <p>{uiOneDisplay(explanation.trim(), locale)}</p>}
       {!isBooleanCriterion(criterion) && explanation?.trim() && (
         <details className={styles.criterionExplain}>
@@ -219,11 +222,7 @@ function CriterionRow({ criterion, locale }: { criterion: StockCriterion; locale
   );
 }
 
-/** Labels identify the stored operands, never substitute the headline market cap. */
-export function RatioNote({ criterion, locale }: { criterion: StockCriterion; locale: Locale }) {
-  if (isBooleanCriterion(criterion)) return null;
-  if (criterion.numerator_value === null || criterion.denominator_value === null)
-    return <>{missingFigure[locale === "ar" ? 0 : 1]}</>;
+function ratioOperands(criterion: StockCriterion) {
   const numerator = criterion.numerator_definition || ({
     interest_bearing_debt: "interest_bearing_debt", non_permissible_revenue: "prohibited_income",
   } as Record<string, string>)[criterion.criterion_type] || criterion.criterion_label || criterion.criterion_type;
@@ -231,11 +230,29 @@ export function RatioNote({ criterion, locale }: { criterion: StockCriterion; lo
     percent_of_market_cap: "market_value_basis", percent_of_total_revenue: "total_revenue",
     percent_of_total_assets: "total_assets",
   } as Record<string, string>)[criterion.threshold_unit || ""] || "Denominator";
-  const money = ratioUnit(criterion) === "%";
+  return { numerator, denominator };
+}
+
+function RatioTermSheets({ criterion, locale }: { criterion: StockCriterion; locale: Locale }) {
+  const { numerator, denominator } = ratioOperands(criterion);
   return <>
-    <UnknownFieldLabel value={numerator} locale={locale} />{" "}
+    <TermSheet term={numerator} idSuffix={`${criterion.id}-n`} locale={locale} title={<UnknownFieldLabel value={numerator} locale={locale} />} />
+    <TermSheet term={denominator} idSuffix={`${criterion.id}-d`} locale={locale} title={<UnknownFieldLabel value={denominator} locale={locale} />} />
+  </>;
+}
+
+/** Labels identify the stored operands, never substitute the headline market cap. */
+export function RatioNote({ criterion, locale }: { criterion: StockCriterion; locale: Locale }) {
+  if (isBooleanCriterion(criterion)) return null;
+  if (criterion.numerator_value === null || criterion.denominator_value === null)
+    return <>{missingFigure[locale === "ar" ? 0 : 1]}</>;
+  const { numerator, denominator } = ratioOperands(criterion);
+  const money = ratioUnit(criterion) === "%";
+  // Tap-to-explain wraps only glossary terms; labels and values are unchanged.
+  return <>
+    <TermExplain term={numerator} idSuffix={`${criterion.id}-n`}><UnknownFieldLabel value={numerator} locale={locale} /></TermExplain>{" "}
     <CriterionValue value={criterion.numerator_value} locale={locale} compactMoney={money} />{" "}÷{" "}
-    <UnknownFieldLabel value={denominator} locale={locale} />{" "}
+    <TermExplain term={denominator} idSuffix={`${criterion.id}-d`}><UnknownFieldLabel value={denominator} locale={locale} /></TermExplain>{" "}
     <CriterionValue value={criterion.denominator_value} locale={locale} compactMoney={money} />
   </>;
 }
@@ -268,8 +285,8 @@ export function StockSummary({ data, locale }: { data: PublicStockData; locale: 
       <div className={styles.verdictStart}>
         {run ? (
           <>
-            <div className={styles.badgeWithSeal}>
-              <StatusBadge status={run.status} className={styles.largeBadge} />
+            {/* The large status badge now leads the page hero; the seal stays with the reasons. */}
+            {eligibleSeal && <div className={styles.badgeWithSeal}>
               {eligibleSeal && (
                 <div className={styles.sealByline} data-coverage-seal>
                   <CoverageSeal covered status={run.status} surface="dark" className={styles.sealDark} />
@@ -285,7 +302,7 @@ export function StockSummary({ data, locale }: { data: PublicStockData; locale: 
                   )}
                 </div>
               )}
-            </div>
+            </div>}
             <div className={styles.reasonBlock}>
               <h2 id="stock-why-title" className={styles.srOnly}><Copy locale={locale}>Why this assessment</Copy></h2>
               {!(run.status === "passes_selected_methodology" && run.status_reasons.length === 0) && (
