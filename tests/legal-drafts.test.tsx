@@ -34,8 +34,7 @@ describe("supplied, unapproved bilingual legal drafts", () => {
   it("D-175: accounts that accepted the previous Terms must re-accept",()=>{
     expect(currentConsent({terms_version:"draft-2026-10-11",privacy_version:CURRENT_PRIVACY_VERSION,accepted_at:new Date("2026-11-01T00:00:00Z")})).toBe(false);
     for (const locale of ["ar","en"] as const) {
-      const section=readFileSync(`content/legal/terms.${locale}.md`,"utf8").split("## 4.")[1].split("
-## ")[0];
+      const section=readFileSync(`content/legal/terms.${locale}.md`,"utf8").replace(/\r\n/g, "\n").split("## 4.")[1].split("\n## ")[0];
       for (const name of locale==="ar"?["الراجحي","أيوفي","MSCI"]:["Al Rajhi Capital","AAOIFI","MSCI"]) expect(section).toContain(name);
       expect(section).toContain(locale==="ar"?"غير مرتبط بأي من هذه الجهات، ولا تعتمده، ولا يحمل ترخيصًا منها":"not affiliated with, endorsed by or licensed by any of them");
     }
