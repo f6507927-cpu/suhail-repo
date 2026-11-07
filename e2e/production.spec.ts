@@ -106,26 +106,22 @@ for (const locale of ["ar", "en"] as const) {
     await expect(page).toHaveURL(locale === "ar" ? "/en/methodology" : "/methodology");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(locale === "ar" ? enMessages.methodologies.title : arMessages.methodologies.title);
   });
-  test(`${locale} example-a public documentation renders literal criteria and no-margin evidence`,async({page,request})=>{
+  test(`${locale} demo example-a documentation is a 404 on deployments`,async({request})=>{
     test.skip(Boolean(process.env.CI), "D-78: database-available checks run in a configured runtime; database-free CI runs the cold ISR suite.");
-    const response = await page.goto(`${prefix}/methodology/example-a`);
-    expect(response?.status()).toBe(200);
-    await expect(page.getByText(messages.banner.exampleMethodology,{exact:true})).toBeVisible();
-    await expect(page.getByRole("table")).toBeVisible();
-    const row=page.getByRole("row").filter({hasText:"Accounts receivable"});
-    await expect(row).toContainText(messages.stock.noMarginDefined);
-    await expect(page.getByText(messages.methodology.pageNote,{exact:true})).toBeVisible();
-    await expect(page.locator("html")).toHaveAttribute("dir",locale==="ar"?"rtl":"ltr");
-    const html=await request.get(`${prefix}/methodology/example-a?version=private-version`);
-    expect(html.headers()["set-cookie"]).toBeUndefined();
-    expect(html.headers()["cache-control"]).toContain("s-maxage=900");
-    const body=await html.text();
-    expect(body).not.toContain("analyst_test_cases");
-    expect(body).not.toContain("workflow_history");
+    // Demo/example methodologies never reach a public page outside explicit local fixtures.
+    // Literal-criteria rendering is covered by the methodology fixture suite.
+    for(const path of [`${prefix}/methodology/example-a`,`${prefix}/methodology/example-a?version=private-version`]) {
+      const response=await request.get(path);
+      expect(response.status()).toBe(404);
+      expect(response.headers()["set-cookie"]).toBeUndefined();
+      const body=await response.text();
+      expect(body).not.toContain("analyst_test_cases");
+      expect(body).not.toContain("workflow_history");
+    }
   });
   test(`@security ${locale} public methodology HTML and ISR headers are independent of cookies`,async({request})=>{
     test.skip(Boolean(process.env.CI), "D-78: cached data checks run in a configured runtime; database-free CI runs the cold ISR suite.");
-    for(const path of [prefix||"/",`${prefix}/methodology`,`${prefix}/methodology/example-a`]) {
+    for(const path of [prefix||"/",`${prefix}/methodology`]) {
       const anonymous=await request.get(path);
       const cookieRequest=await request.get(path,{headers:{Cookie:"public-cache-probe=synthetic; theme=light"}});
       expect(anonymous.status()).toBe(200);

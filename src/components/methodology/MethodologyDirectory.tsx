@@ -7,7 +7,7 @@ import { formatNumber } from "@/lib/format";
 import { displayLabel } from "@/i18n/presentation";
 import { publicMethodologyVersionLabel } from "@/i18n/methodology-labels";
 import { uiOneDisplay } from "@/i18n/approved-arabic-ui-one";
-import { isPreview } from "../../security/preview";
+import { publicDemoContentVisible } from "../../lib/public-demo";
 import { methodologyDisplay } from "@/i18n/methodology-display";
 
 export function MethodologyDirectory({
@@ -21,8 +21,9 @@ export function MethodologyDirectory({
   const controls = useTranslations("controls");
   const publicText = useTranslations("publicMethodology");
   const display = (value: string) => methodologyDisplay(value, locale === "ar" ? "ar" : "en");
-  // Directory presentation only. Do not change public flags, records or versions.
-  const groups = isPreview() ? storedGroups : storedGroups.flatMap(group => {
+  // Defence in depth behind the query filter: demo/example methodologies are
+  // hidden on every deployment, preview included; only local fixtures opt in.
+  const groups = publicDemoContentVisible() ? storedGroups : storedGroups.flatMap(group => {
     if (group.is_demo || group.official_or_inspired === "internal_example" || group.slug === "example-methodology") return [];
     const versions = group.versions.filter(version => !version.is_demo);
     return versions.length ? [{ ...group, versions }] : [];

@@ -14,6 +14,8 @@ const client=cliConnection("DATABASE_URL_TEST");
 const database=drizzle(client,{schema});
 beforeAll(async()=>{
   vi.stubEnv("SITE_URL","https://fixture.invalid");vi.stubEnv("SITE_MODE","preview");
+  // Synthetic EX-A fixtures must opt in; demo content is hidden on every deployment.
+  vi.stubEnv("PUBLIC_DEMO_FIXTURES","1");
   await applyMigrations(client);await seedDemoData(client);
 },30_000);
 afterAll(async()=>{vi.unstubAllEnvs();await client.end({timeout:1});});
@@ -47,6 +49,16 @@ describe("UX-6 public homepage and audited selection",()=>{
     expect(home.featured?.run?.status).toBe("passes_selected_methodology");
     expect(home.methodology?.name).toBe(home.featured?.methodology?.name);
     expect(JSON.stringify(home)).not.toMatch(/hash_payload|editor_author_email/);
+  }));
+  it("shows no demo methodology, card or editor pick on preview deployments without the fixture opt-in",()=>isolated(async tx=>{
+    const {security,setting}=await fixture(tx);
+    await tx.update(schema.editorialSetting).set({featured_security_id:security.id}).where(eq(schema.editorialSetting.id,setting.id));
+    await tx.execute(sql`set local role suhail_public`);
+    try {
+      vi.stubEnv("PUBLIC_DEMO_FIXTURES","");
+      const home=await loadPublicHome(publicDb(tx));
+      expect(home).toEqual({featured:null,methodology:null,editorPick:null});
+    } finally { vi.stubEnv("PUBLIC_DEMO_FIXTURES","1"); }
   }));
   it.each(["no-default","no-run","hidden"] as const)("hides invalid feature state: %s",state=>isolated(async tx=>{
     const {security,setting}=await fixture(tx);

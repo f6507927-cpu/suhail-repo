@@ -7,6 +7,8 @@ for (const key of Object.keys(env)) {
 }
 Object.assign(env,{
   PORT:"3600", SITE_MODE:"preview", SITE_URL:"https://security.fixture.test",
+  // Explicit local-fixture opt-in; demo content is hidden on every deployment.
+  PUBLIC_DEMO_FIXTURES:"1",
 });
 const child = spawn(process.execPath, ["node_modules/next/dist/bin/next","start","-H","0.0.0.0","-p","3600"],{env,stdio:"inherit"});
 for (const signal of ["SIGINT","SIGTERM"] as const) process.once(signal,()=>child.kill(signal));

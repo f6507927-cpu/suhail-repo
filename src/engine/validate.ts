@@ -13,6 +13,8 @@ const categories = [
   "conventional_media", "weapons_conventional", "generic_permissible",
   "real_estate_permissible", "technology", "healthcare", "retail_permissible",
   "industrials", "energy", "telecom", "unclassified",
+  // D-172: MSCI §2.1 exclusions; mirrors app.activity_category (migration 0022).
+  "music", "hotels", "cinema",
 ] as const;
 export const ratioTypes = ["interest_bearing_debt", "cash_and_investments", "receivables", "custom_ratio"];
 
@@ -87,6 +89,11 @@ export function validate(input: EngineInput): void {
         c.criterionType !== "custom_ratio" || c.thresholdDirection !== "max" ||
         c.thresholdUnit !== "percent_of_total_revenue" || c.threshold === null || c.threshold <= 0))
       throw new EngineInputError("criterion.suhail_upper_bound", "invalid opt-in upper-bound rule configuration");
+    // D-172: opt-in only; the interest proxy is the one permitted addition.
+    if (c.treatmentRuleData.additional_numerator_line_items !== undefined &&
+      (c.criterionType !== "non_permissible_revenue" || input.engineVersion === "engine-1.0.1" ||
+        JSON.stringify(c.treatmentRuleData.additional_numerator_line_items) !== JSON.stringify(["prohibited_income"])))
+      throw new EngineInputError("criterion.additional_numerator_line_items", "invalid opt-in revenue addition");
     dateMillis(c.effectiveDate, "criterion.effectiveDate");
     const categoryKey = c.criterionType === "business_activity" ? "prohibited_categories"
       : c.criterionType === "non_permissible_revenue" ? "non_permissible_categories" : null;

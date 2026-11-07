@@ -13,6 +13,8 @@ export function stockTestEnvironment(target = process.env.DATABASE_URL_TEST) {
   return {
     NODE_ENV: "test" as const,
     SITE_MODE: "preview",
+    // Explicit local-fixture opt-in for synthetic EX-A data (hidden on every deployment).
+    PUBLIC_DEMO_FIXTURES: "1", SITE_URL: "http://127.0.0.1:3400",
     DATABASE_URL_TEST: test,
     DATABASE_URL_MIGRATIONS: test,
     DATABASE_URL_APP: "",
