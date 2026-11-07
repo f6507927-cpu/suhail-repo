@@ -861,7 +861,8 @@
     white-space: nowrap;
     clip-path: inset(50%);
   }
-  .factsTable thead th { font-size: 13px; }
+  /* Screen-reader-only header: let its cells wrap so the clipped row stays inside the page. */
+  .factsTable thead th { font-size: 13px; padding: 0; white-space: normal; word-break: break-all; }
   .cardFields .field dd { font-size: 14px; }
   .unknownItems li { font-size: 14px; }
   .effect { font-size: 13px; }
@@ -1005,4 +1006,15 @@
 :global(html:not(.dark)) .page .ratioTrack { background: var(--line); }
 :global(html:not(.dark)) .page .ratioTrack[data-unknown="true"] {
   background: repeating-linear-gradient(135deg, var(--line) 0 5px, transparent 5px 10px);
+}
+
+/* Dark theme, stock page only: the global tokens fall just short of AA 4.5:1 on
+   the raised panel (#10393f). Each is lifted the least that clears it; globals stay. */
+:global(html.dark) .page {
+  --muted-foreground: #969fa2; /* 4.63:1, was #919a9d 4.35 */
+  --insufficient: #969fa2;
+  --brass: #c6954f; /* 4.65:1, was #c08b3e 4.17 */
+  --byline: #c6954f;
+  --pass: #49af83; /* 4.61:1, was #3fab7c */
+  --fail: #db8775; /* 4.61:1, was #d9816e */
 }
