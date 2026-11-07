@@ -61,7 +61,8 @@ describe("other methodologies section (D-174)", () => {
       expect(html).toContain("Accounts receivable and cash / total assets");
       expect(html).toContain("72.5%");
       expect(html).toContain(`${locale === "en" ? "/en" : ""}/methodology/msci-islamic-adapted`);
-      expect(html).toContain("Not yet screened under this methodology.");
+      // D-175: Arabic pages show the registered proposal, English pages the source.
+      expect(html).toContain(locale === "ar" ? "لم يُفحص السهم بعد وفق هذه المنهجية." : "Not yet screened under this methodology.");
       expect(html).not.toMatch(/combined score|overall score|average/i);
     }
   });
