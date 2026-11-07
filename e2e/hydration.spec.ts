@@ -119,6 +119,17 @@ for (const locale of ["ar", "en"] as const) {
   });
 }
 
+/** D-149: phone header destinations live in the menu panel; open it only when needed. */
+async function headerClick(page: Page, selector: string) {
+  const target = page.locator(selector).first();
+  const menu = page.locator("header").getByRole("button", { name: new RegExp(`^(${en.nav.menu}|${ar.nav.menu})$`) });
+  if (!(await target.isVisible()) && await menu.isVisible() && (await menu.getAttribute("aria-expanded")) !== "true") {
+    await menu.click();
+    await expect(menu).toHaveAttribute("aria-expanded", "true");
+  }
+  await target.click();
+}
+
 async function checkTheme(page: Page, theme: string) {
   // toHaveURL can resolve at document commit, before delayed async chunks load.
   // Direct goto defaults to load; use that same boundary for link navigation.
@@ -133,7 +144,19 @@ async function checkTheme(page: Page, theme: string) {
     await create.click();
     await expect(page.locator("form")).toHaveCount(1);
   } else {
-    await expect(page.getByRole("button", { name: /Change theme|تغيير المظهر/, exact: true })).toBeEnabled();
+    // D-149: on phones the theme toggle lives in the header menu. Opening the
+    // menu is itself a hydrated client state change; then assert the toggle.
+    const toggle = page.getByRole("button", { name: /Change theme|تغيير المظهر/, exact: true });
+    const menu = page.locator("header").getByRole("button", { name: new RegExp(`^(${en.nav.menu}|${ar.nav.menu})$`) });
+    if (!(await toggle.isVisible()) && await menu.isVisible()) {
+      await menu.click();
+      await expect(menu).toHaveAttribute("aria-expanded", "true");
+    }
+    await expect(toggle).toBeEnabled();
+    if (await menu.isVisible() && (await menu.getAttribute("aria-expanded")) === "true") {
+      await page.keyboard.press("Escape");
+      await expect(menu).toHaveAttribute("aria-expanded", "false");
+    }
   }
   expect(await page.locator("html").evaluate((node) => node.classList.contains("dark"))).toBe(theme === "dark");
   // This is browser paint timing, not a post-hydration theme assertion.
@@ -228,17 +251,17 @@ for (const locale of ["ar", "en"] as const) {
       const navigationClient=createHash("sha256").update(`${locale}:${theme}:navigation`).digest();
       await page.context().setExtraHTTPHeaders({"x-forwarded-for":`198.19.${navigationClient[0]}.${navigationClient[1]}`});
       await page.goto(prefix || "/");
-      await page.locator(`header a[href="${prefix}/methodology"]`).first().click();
+      await headerClick(page, `header a[href="${prefix}/methodology"]`);
       await expect(page).toHaveURL(`${prefix}/methodology`);
       await checkTheme(page, theme);
-      await page.locator(`header a[href="${prefix}/auth/sign-in"]`).first().click();
+      await headerClick(page, `header a[href="${prefix}/auth/sign-in"]`);
       await expect(page).toHaveURL((url) => url.pathname === `${prefix}/auth/sign-in` && url.searchParams.get("next") === `${prefix}/methodology`);
       await checkTheme(page, theme);
-      await page.locator("header summary").click();
+      await headerClick(page, "header summary");
       await page.locator(`header a[href="${prefix}/account"]`).click();
       await expect(page).toHaveURL(`${prefix}/account`);
       await checkTheme(page, theme);
-      await page.locator("header summary").click();
+      await headerClick(page, "header summary");
       await page.locator(`header a[href="${prefix}/admin"]`).click();
       await expect(page).toHaveURL(`${prefix}/admin/methodologies`);
       await checkTheme(page, theme);
