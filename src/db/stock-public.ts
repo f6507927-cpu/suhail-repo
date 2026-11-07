@@ -1,9 +1,9 @@
 import "server-only";
 import { cache } from "react";
-import { and, desc, eq, getTableColumns, inArray, notInArray, sql, or, isNull } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, inArray, ne, notInArray, sql, or, isNull } from "drizzle-orm";
 import { dbPublic } from "./public";
 import { security, company, exchange, financialPeriod, financialFact, source, methodology, methodologyVersion, methodologyCriterion, screeningRun, screeningCriterionResult, screeningUnknown, explanationObject, analystProfile, pick as editorialPick, edition } from "./schema";
-import type { PublicStockData } from "../stock/types";
+import type { OtherMethodologyResult, PublicStockData } from "../stock/types";
 import { priceBar } from "./schema/market";
 import { genuineMethodology, genuineMethodologyVersion, genuineSource, hidePublicDemo } from "./public-visibility";
 import { latestStoredClose } from "../ingest/prices/selection";
@@ -45,6 +45,8 @@ export async function loadPublicStock(slug: string, db: Pick<typeof dbPublic, "s
   const base: PublicStockData = { security: s, company: c, exchange: e ?? null, analyst: analyst ?? null, version: definition?.version ?? null, methodology: definition?.methodology ?? null, run: null, priorRuns: [], criteria: [], unknowns: [], explanation: null, period: null, facts: [], sources: [] };
   base.storedClose = storedClose;
   if (!definition) return base;
+  // Shown even when the default methodology has no run for this stock yet.
+  base.otherMethodologies = await loadOtherMethodologies(db, s.id, definition.version.id, hideDemo);
   const history = await db.select(runs).from(screeningRun).where(and(eq(screeningRun.security_id, s.id), eq(screeningRun.methodology_version_id, definition.version.id), hideDemo ? eq(screeningRun.is_demo, false) : undefined)).orderBy(desc(screeningRun.generated_at), desc(screeningRun.created_at), desc(screeningRun.id));
   const [run, ...priorRuns] = history;
   if (!run) return base;
@@ -81,5 +83,29 @@ export async function loadPublicStock(slug: string, db: Pick<typeof dbPublic, "s
       .orderBy(desc(edition.published_at), desc(editorialPick.id)).limit(1) : [];
   // Never catch a failed read into a successful cached page (D-102 classic ISR).
   return { ...base, publishedPick: publishedPick ?? null, run, priorRuns, period: period ?? null, criteria: criterionRows, unknowns: unknownRows, explanation: explanationRows[0] ?? null, facts: factRows, sources: sourceRows };
+}
+/** D-174: each other production-enabled, public, genuine methodology's latest
+ * run for this security, side by side and never combined into one score. */
+export async function loadOtherMethodologies(db: Pick<typeof dbPublic, "select">, securityId: string, defaultVersionId: string, hideDemo: boolean): Promise<OtherMethodologyResult[]> {
+  const definitions = await db.select({
+    methodology: { name: methodology.name, slug: methodology.slug, short_label: methodology.short_label },
+    version: { id: methodologyVersion.id, version: methodologyVersion.version, version_label: methodologyVersion.version_label },
+  }).from(methodologyVersion).innerJoin(methodology, eq(methodology.id, methodologyVersion.methodology_id))
+    .where(and(eq(methodologyVersion.is_public, true), eq(methodologyVersion.production_enabled, true),
+      ne(methodologyVersion.id, defaultVersionId), genuineMethodologyVersion(), genuineMethodology()))
+    .orderBy(methodology.name, methodologyVersion.id);
+  const results: OtherMethodologyResult[] = [];
+  for (const definition of definitions) {
+    const [latest] = await db.select(pick(getTableColumns(screeningRun), "id", "status", "status_reasons", "generated_at", "data_as_of", "financial_period_label"))
+      .from(screeningRun).where(and(eq(screeningRun.security_id, securityId), eq(screeningRun.methodology_version_id, definition.version.id),
+        hideDemo ? eq(screeningRun.is_demo, false) : undefined))
+      .orderBy(desc(screeningRun.generated_at), desc(screeningRun.created_at), desc(screeningRun.id)).limit(1);
+    const criteria = latest ? await db.select(pick(getTableColumns(screeningCriterionResult), "criterion_id", "criterion_label", "criterion_type", "result",
+      "ratio", "threshold", "threshold_unit", "threshold_direction", "numerator_value", "denominator_value", "numerator_definition", "sort_order"))
+      .from(screeningCriterionResult).where(eq(screeningCriterionResult.screening_run_id, latest.id))
+      .orderBy(screeningCriterionResult.sort_order, screeningCriterionResult.id) : [];
+    results.push({ ...definition, run: latest ?? null, criteria });
+  }
+  return results;
 }
 export const getPublicStockData = cache((slug: string) => loadPublicStock(slug));

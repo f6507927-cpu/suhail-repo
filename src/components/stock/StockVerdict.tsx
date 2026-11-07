@@ -41,6 +41,7 @@ import { StockShare } from "./StockShare";
 import { StockFigures, StockSummary } from "./StockSummary";
 import { PublishedResearch } from "./PublishedResearch";
 import { StockRecordSection } from "./StockRecordSection";
+import { OtherMethodologies } from "./OtherMethodologies";
 import arMessages from "@/i18n/messages/ar.json";
 import enMessages from "@/i18n/messages/en.json";
 
@@ -122,6 +123,8 @@ export function StockVerdict({
       <StockSummary data={data} locale={locale} />
       {run && canonicalUrl !== undefined && <StockShare canonicalUrl={canonicalUrl} locale={locale} />}
       {run && <StockFigures data={data} locale={locale} />}
+      {/* D-174: other methodologies' own results; never combined with the default. */}
+      <OtherMethodologies data={data} locale={locale} />
 
       <div className={styles.shortContext} data-section="short-context">
         <Disclaimer variant="short" locale={locale} />
