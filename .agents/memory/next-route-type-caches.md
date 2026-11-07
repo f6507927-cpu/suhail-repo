@@ -18,3 +18,15 @@ while the files are being removed and regenerated.
 **How to apply:** Wait for the development server to finish startup before
 checking types. Serialize development startup, production builds and browser
 test servers rather than changing source types to mask a generated-file race.
+
+## Recurring development font-resolution failures
+
+Do not treat a one-time development-cache reset as a durable resolution for the
+Turbopack `next/font/google queries have exactly one entry` failure here.
+
+**Why:** The same font resolver failure returned after a successful cache reset
+and preview restart with unchanged font declarations.
+
+**How to apply:** Keep persistent development compiler caching disabled unless
+a future Next upgrade is verified to resolve the recurrence. Preserve fonts,
+TLS validation and production build behavior.
