@@ -47,9 +47,12 @@ const server = createServer(async (request, response) => {
     const meta = page.metadata;
     const title = typeof meta.title === "object" && meta.title && "absolute" in meta.title ? meta.title.absolute : "";
     const description = meta.description ?? "";
+    // D-169: per-stock preview images come from the opengraph-image / twitter-image file
+    // routes, which Next adds to <head> itself; mirror that here when metadata names none.
+    const route = (file: string) => `http://127.0.0.1:3400${locale === "en" ? "/en" : ""}/stock/${match[2]}/${file}`;
     const socialImages = [
-      ...imageUrls(meta.openGraph?.images).map(image => `<meta property="og:image" content="${escape(image)}">`),
-      ...imageUrls(meta.twitter?.images).map(image => `<meta name="twitter:image" content="${escape(image)}">`),
+      ...(meta.openGraph?.images ? imageUrls(meta.openGraph.images) : [route("opengraph-image")]).map(image => `<meta property="og:image" content="${escape(image)}">`),
+      ...(meta.twitter?.images ? imageUrls(meta.twitter.images) : [route("twitter-image")]).map(image => `<meta name="twitter:image" content="${escape(image)}">`),
     ].join("");
     const twitterCard = meta.twitter && "card" in meta.twitter ? meta.twitter.card : "";
     const html = `<!doctype html><html lang="${locale}" dir="${locale === "ar" ? "rtl" : "ltr"}" class="${url.searchParams.get("theme") === "light" ? "" : "dark"}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escape(title ?? "")}</title><meta name="description" content="${escape(description)}"><meta property="og:title" content="${escape(String(meta.openGraph?.title ?? ""))}"><meta property="og:description" content="${escape(meta.openGraph?.description ?? "")}">${socialImages}<meta name="twitter:card" content="${escape(twitterCard ?? "")}"><link rel="canonical" href="${escape(String(meta.alternates?.canonical))}"><link rel="stylesheet" href="/style.css"></head><body>${page.html}</body></html>`;
