@@ -24,7 +24,8 @@ export async function renderStock(slug: string, locale: "ar" | "en", variant?: s
   if (variant === "precision" && data.criteria[0]) {
     const base = data.criteria[0];
     data.criteria = [
-      { ...base, id: "near-threshold", criterion_label: "Near threshold fixture", threshold_unit: "percent_of_total_assets", result: "fail", ratio: 30.004, threshold: 30, numerator_definition: null, numerator_value: 123, denominator_definition: null, denominator_value: 100 },
+      // The seeded first criterion is now business activity (boolean); force a ratio type here.
+      { ...base, id: "near-threshold", criterion_label: "Near threshold fixture", criterion_type: "interest_bearing_debt", threshold_direction: "max", threshold_unit: "percent_of_total_assets", result: "fail", ratio: 30.004, threshold: 30, numerator_definition: null, numerator_value: 123, denominator_definition: null, denominator_value: 100 },
       { ...base, id: "tiny-boolean", criterion_label: "Tiny boolean fixture", threshold_unit: "boolean", result: "fail", ratio: 1e-9, threshold: 0 },
     ];
   }
