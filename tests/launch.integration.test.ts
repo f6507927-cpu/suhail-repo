@@ -10,6 +10,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { eq, sql as query } from "drizzle-orm";
 import type { Sql } from "postgres";
 import { cliConnection } from "../scripts/db/connection";
+import { testDatabaseUrl } from "../scripts/db/test-target";
 import { applyMigrations } from "../scripts/db/migrate";
 import { seedDatabase } from "../scripts/db/seed";
 import * as schema from "../src/db/schema";
@@ -126,7 +127,14 @@ describe("launch workspace services on disposable PostgreSQL only", () => {
       await writeFile(join(dir, "package.json"), JSON.stringify({ scripts: { "setup:launch": "node scripts/run-launch.mjs" } }));
       const env = { ...process.env };
       for (const key of Object.keys(env)) if (/DATABASE_URL|^PG|SUPABASE|SESSION_SECRET/.test(key)) delete env[key];
-      env.DATABASE_URL_APP = "postgresql://suhail_app@127.0.0.1:55432/suhail_test";
+      // Same disposable target as this suite's own client (DATABASE_URL_TEST:
+      // local db:test:up on 55432, CI service on 5432), connected directly as
+      // suhail_app. A hardcoded 55432 left the CLI unable to connect in CI (D-180).
+      const appUrl = new URL(testDatabaseUrl());
+      if (!appUrl.pathname || appUrl.pathname === "/") appUrl.pathname = `/${appUrl.username}`;
+      appUrl.username = "suhail_app";
+      appUrl.password = "";
+      env.DATABASE_URL_APP = appUrl.href;
       const db = drizzle(client, { schema });
       const before = await counts(db as unknown as Tx);
       // Snapshot fixture-owned files, not the entire repository through symlinks.
