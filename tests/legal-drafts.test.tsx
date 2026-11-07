@@ -8,9 +8,10 @@ import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION, currentConsent } from "
 
 // SHA-256 of the founder-completed drafts (D-140), normalized for whitespace only.
 const hashes = {
-  "terms.ar": "3ad668cc22b108f5bf611eed33440dfaafbbbd5477e8a7f467939b7dc37c95d9",
+  // D-175: multi-methodology §4 draft, pending founder approval.
+  "terms.ar": "3ffb7f3296cb1ee1f5c63f4af92b7d6c0aef0a71a3387a4a0d579e350367ed28",
   "privacy.ar": "4ddd48b027de63ce91c18eecad9691f150d475b0c9d0fdfcd17221c64cb4ea84",
-  "terms.en": "8109161444e13af2165515b97d9d48e99db05a120150eccf8d836298414a6754",
+  "terms.en": "adf0edefc409ac1bbe8df37ab227525fb79c14b6309ffa1bc5277a17af5d8ea2",
   "privacy.en": "e5def5ff883c12b3588888401324d1bb08566836f62a7e70d0a7cde7569581e2",
 } as const;
 function digest(text: string) {
@@ -27,8 +28,16 @@ function sourceWording(markdown: string) {
 }
 describe("supplied, unapproved bilingual legal drafts", () => {
   it("retains both real draft acceptance versions", () => {
-    expect(CURRENT_TERMS_VERSION).toBe("draft-2026-10-11");
+    expect(CURRENT_TERMS_VERSION).toBe("draft-2026-11-07"); // D-175 re-acceptance
     expect(CURRENT_PRIVACY_VERSION).toBe("draft-2026-11-04");
+  });
+  it("D-175: accounts that accepted the previous Terms must re-accept",()=>{
+    expect(currentConsent({terms_version:"draft-2026-10-11",privacy_version:CURRENT_PRIVACY_VERSION,accepted_at:new Date("2026-11-01T00:00:00Z")})).toBe(false);
+    for (const locale of ["ar","en"] as const) {
+      const section=readFileSync(`content/legal/terms.${locale}.md`,"utf8").replace(/\r\n/g, "\n").split("## 4.")[1].split("\n## ")[0];
+      for (const name of locale==="ar"?["الراجحي","أيوفي","MSCI"]:["Al Rajhi Capital","AAOIFI","MSCI"]) expect(section).toContain(name);
+      expect(section).toContain(locale==="ar"?"غير مرتبط بأي من هذه الجهات، ولا تعتمده، ولا يحمل ترخيصًا منها":"not affiliated with, endorsed by or licensed by any of them");
+    }
   });
   it("requires existing accounts to re-accept the new privacy version without changing Terms",()=>{
     const accepted={terms_version:CURRENT_TERMS_VERSION,privacy_version:"draft-2026-10-11",accepted_at:new Date("2026-10-23T12:00:00Z")};

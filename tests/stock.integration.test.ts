@@ -13,7 +13,11 @@ import type { Tx } from "../src/lib/auth/audit";
 vi.mock("server-only", () => ({}));
 let client: Sql;
 const rollback = new Error("rollback isolated public stock fixture");
-beforeEach(() => { vi.stubEnv("SITE_MODE", "preview"); });
+beforeEach(() => {
+  vi.stubEnv("SITE_MODE", "preview");
+  // Synthetic EX-A fixtures must opt in; demo content is hidden on every deployment.
+  vi.stubEnv("SITE_URL", "https://fixture.test"); vi.stubEnv("PUBLIC_DEMO_FIXTURES", "1");
+});
 afterEach(() => { vi.unstubAllEnvs(); });
 beforeAll(async () => {
   client = cliConnection("DATABASE_URL_TEST");
@@ -79,6 +83,11 @@ describe("public stock role and synthetic-only development seed", () => {
     const after = await loadPublicStock("demo-fixa", tx);
     expect(after?.criteria).toEqual(before?.criteria);
     expect(after?.facts.find(f => f.line_item === "total_assets")?.value).toBe(999);
+  }));
+  it("a demo issuer is a 404 on preview deployments without the fixture opt-in", async () => isolated(async tx => {
+    expect(await loadPublicStock("demo-fixa", tx)).not.toBeNull();
+    vi.stubEnv("PUBLIC_DEMO_FIXTURES", undefined);
+    expect(await loadPublicStock("demo-fixa", tx)).toBeNull();
   }));
   it("repeated demo seed does not duplicate runs or securities", async () => isolated(async tx => {
     const again = await createDemoFixtures(tx);

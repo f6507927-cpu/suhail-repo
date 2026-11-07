@@ -263,6 +263,7 @@ freezes them at build time, so changing them requires a rebuild.
 | --- | --- | --- | --- |
 | `SITE_MODE` | public configuration | Required operational value: `preview` | runtime; keep consistent at build |
 | `SITE_URL` | public configuration | Required assigned HTTPS origin | server runtime / metadata |
+| `PUBLIC_DEMO_FIXTURES` | test-only | **Never set on any deployment.** Local fixture servers/tests only; ignored in live mode and unless `SITE_URL` is loopback or a reserved `.test`/`.localhost`/`.invalid` host. Without it, demo/example/synthetic content is hidden on preview and live alike. | server runtime |
 | `DATABASE_URL_APP` | secret | Required restricted app role | runtime only, lazy |
 | `DATABASE_URL_PUBLIC` | secret | Required restricted public role | runtime only, lazy |
 | `SUPABASE_DB_CA_CERT` | public PEM CA configuration | Required verified TLS | runtime only, lazy |

@@ -18,7 +18,11 @@ beforeAll(async () => {
   await seedDatabase(client);
 });
 afterAll(async () => { await client?.end(); });
-beforeEach(() => { vi.stubEnv("SITE_MODE", "preview"); });
+beforeEach(() => {
+  vi.stubEnv("SITE_MODE", "preview");
+  // Synthetic EX-A fixtures must opt in; demo content is hidden on every deployment.
+  vi.stubEnv("SITE_URL", "https://fixture.test"); vi.stubEnv("PUBLIC_DEMO_FIXTURES", "1");
+});
 afterEach(() => { vi.unstubAllEnvs(); });
 
 async function isolated(work: (tx: Tx) => Promise<void>) {
@@ -107,6 +111,14 @@ describe("search through real PostgreSQL public role", () => {
     vi.stubEnv("SITE_MODE", "live");
     expect((await searchPublicStocks("sfx", tx)).map(r => r.ticker)).toEqual(["SFXREAL"]);
     expect(await searchPublicStocks("FIXA", tx)).toEqual([]);
+  }));
+  it("hides demo issuers and demo-methodology statuses on preview deployments without the fixture opt-in", () => isolated(async tx => {
+    await asPublic(tx);
+    const withDemo = await countPublicListedSecurities(tx);
+    vi.stubEnv("PUBLIC_DEMO_FIXTURES", undefined);
+    expect(await searchPublicStocks("FIXA", tx)).toEqual([]);
+    expect(await countPublicListedSecurities(tx)).toBeLessThan(withDemo);
+    expect((await getPublicScreenedTickers(tx)).filter(t => t.slug.startsWith("demo-"))).toEqual([]);
   }));
   it("uses only the visible editorial default and deterministic latest run, never evidence or another version", () => isolated(async tx => {
     const [s] = await tx.select().from(schema.security).where(eq(schema.security.slug, "demo-fixa"));

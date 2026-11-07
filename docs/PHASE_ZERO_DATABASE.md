@@ -70,6 +70,11 @@ An application's auth layer must still authorize individual requests (not built 
 
 `app.public_settings` is an owner-executed `security_barrier` view exposing
 only the editorial row's default methodology-version ID; direct setting access is denied.
+Migration 0021 additionally grants `suhail_public` the boolean D-93
+`production_blocked` latch on `methodology`, `methodology_version` and `source`,
+so public reads can exclude demo/example/synthetic records on every deployment
+(including `SITE_MODE=preview`); only local fixtures opt in via
+`PUBLIC_DEMO_FIXTURES=1` on a loopback or reserved-TLD `SITE_URL`.
 Public roles cannot write, read any email/notes/internal creator IDs, or execute
 account deletion. Selecting `*` deliberately fails on column-granted tables:
 public queries must explicitly select approved columns.

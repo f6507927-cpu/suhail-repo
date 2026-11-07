@@ -4,7 +4,7 @@ import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { dbPublic } from "./public";
 import { security, company, methodology, methodologyVersion, pick, edition, analystProfile } from "./schema";
 import { loadPublicStock } from "./stock-public";
-import { getSiteEnv } from "../env/site";
+import { genuineMethodology, genuineMethodologyVersion, hidePublicDemo } from "./public-visibility";
 import { publicPortraitUrl } from "../lib/public-media";
 import type { PublicHomeData } from "../home/types";
 
@@ -16,7 +16,9 @@ export async function loadPublicHome(db:typeof dbPublic=dbPublic):Promise<Public
   const [definition]=versionId ? await db.select({
     name:methodology.name,slug:methodology.slug,version:methodologyVersion.version,
   }).from(methodologyVersion).innerJoin(methodology,eq(methodology.id,methodologyVersion.methodology_id))
-    .where(and(eq(methodologyVersion.id,versionId),eq(methodologyVersion.is_public,true))).limit(1) : [];
+    .where(and(eq(methodologyVersion.id,versionId),eq(methodologyVersion.is_public,true),
+      // A demo/example editorial default shows no methodology or card.
+      genuineMethodologyVersion(),genuineMethodology())).limit(1) : [];
   let featured:PublicHomeData["featured"]=null;
   if(definition && setting.featured_security_id) {
     const [selected]=await db.select({slug:security.slug}).from(security)
@@ -25,7 +27,8 @@ export async function loadPublicHome(db:typeof dbPublic=dbPublic):Promise<Public
     // A concurrent default change must never display a card for another version.
     if(stock?.run && stock.version?.id===versionId) featured=stock;
   }
-  const live=getSiteEnv().SITE_MODE==="live";
+  // Demo editions/picks/issuers appear only for explicit local fixtures, on preview too.
+  const live=hidePublicDemo();
   // D-02: latest published *editor* slot only. Neither draft nor AI is a fallback.
   const [research]=await db.select({
     slug:security.slug,ticker:security.ticker,company_name:company.name,display_name_en:company.display_name_en,company_name_ar:company.name_ar,

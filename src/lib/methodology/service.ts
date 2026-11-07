@@ -1,6 +1,6 @@
 import "server-only";
 import { activityEvidence } from "../financial/activity-evidence";
-import { isBound, storedBoundInputs } from "../financial/screening-facts";
+import { isBound, storedAssetInputs, storedBoundInputs, usesAssetKeys } from "../financial/screening-facts";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { methodology, methodologyVersion, methodologyCriterion, methodologyVersionReport } from "../../db/schema/methodology";
@@ -187,7 +187,8 @@ async function impact(tx:Tx,v:typeof methodologyVersion.$inferSelect) {
     evidence.push({securityId:s.id,ticker:s.ticker,error:null,inputs:{
       securityId:s.id,asOf,period:{id:period.id,label:period.fiscal_period_label,periodEnd:period.period_end},
       facts:[...facts.filter(f=>!isBound(f.line_item)).map(f=>({lineItem:f.line_item,value:f.input_state==="missing"?null:f.value,inputState:f.input_state==="missing"?"unknown":f.input_state,confidenceTier:f.confidence_tier,sourceId:f.source_id??""})),
-        ...await storedBoundInputs(tx,facts,[...definition.criteria,...baseline?.criteria??[]].some(c=>!!c.treatmentRuleData.suhail_upper_bound))],
+        ...await storedBoundInputs(tx,facts,[...definition.criteria,...baseline?.criteria??[]].some(c=>!!c.treatmentRuleData.suhail_upper_bound)),
+        ...await storedAssetInputs(tx,facts,usesAssetKeys([...definition.criteria,...baseline?.criteria??[]]))],
       segments:segments.map(b=>({segmentName:b.segment_name,activityCategory:b.activity_category,revenueAmount:b.revenue_amount,revenueShare:b.revenue_share,inputState:b.input_state==="missing"?"unknown":b.input_state,confidenceTier:b.confidence_tier,sourceId:b.source_id??""})),
     }});
   }

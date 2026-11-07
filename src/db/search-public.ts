@@ -2,6 +2,7 @@ import "server-only";
 import { sql, type SQL } from "drizzle-orm";
 import { dbPublic } from "./public";
 import type { StatusCode } from "../components/foundation/StatusBadge";
+import { demoVisibleSql } from "./public-visibility";
 import { normalizeSearch } from "../lib/search-normalization";
 
 export type SearchResult = {
@@ -24,7 +25,7 @@ export async function countPublicListedSecurities(db: Pick<typeof dbPublic, "exe
     select count(*)::int as count
     from app.security s join app.company c on c.id = s.company_id
     where s.in_universe = true and s.listing_status = 'listed'
-      and (${process.env.SITE_MODE === "live"} = false or (s.is_demo = false and c.is_demo = false))
+      and (${demoVisibleSql()} = true or (s.is_demo = false and c.is_demo = false))
   `);
   const count = rows[0]?.count;
   if (!Number.isSafeInteger(count) || count < 0) throw new Error("Invalid public coverage count");
@@ -37,11 +38,13 @@ export async function getPublicScreenedTickers(db: Pick<typeof dbPublic, "execut
     select s.slug, s.ticker
     from app.security s join app.company c on c.id = s.company_id
     where s.in_universe = true and s.listing_status = 'listed'
-      and (${process.env.SITE_MODE === "live"} = false or (s.is_demo = false and c.is_demo = false))
+      and (${demoVisibleSql()} = true or (s.is_demo = false and c.is_demo = false))
       and exists (
         select 1 from app.screening_run r
         join app.methodology_version v on v.id = r.methodology_version_id and v.is_public = true
         join app.methodology m on m.id = v.methodology_id
+          and (${demoVisibleSql()} = true or (r.is_demo = false and v.is_demo = false and v.production_blocked = false
+            and m.is_demo = false and m.production_blocked = false and m.official_or_inspired <> 'internal_example'))
         where r.security_id = s.id
           and v.id = (select default_shariah_methodology_version_id from app.public_settings limit 1)
       )
@@ -73,7 +76,7 @@ export async function searchPublicStocks(input: unknown, db: Pick<typeof dbPubli
       join app.company c on c.id = s.company_id
       left join app.exchange e on e.id = s.exchange_id
       where s.in_universe = true and s.listing_status = 'listed'
-        and (${process.env.SITE_MODE === "live"} = false or (s.is_demo = false and c.is_demo = false))
+        and (${demoVisibleSql()} = true or (s.is_demo = false and c.is_demo = false))
         and (
           s.ticker ilike ${pattern + "%"} escape '\\'
           or (${nonempty} <> '' and (
@@ -92,6 +95,8 @@ export async function searchPublicStocks(input: unknown, db: Pick<typeof dbPubli
       from app.screening_run r
       join app.methodology_version v on v.id = r.methodology_version_id and v.is_public = true
       join app.methodology m on m.id = v.methodology_id
+        and (${demoVisibleSql()} = true or (r.is_demo = false and v.is_demo = false and v.production_blocked = false
+          and m.is_demo = false and m.production_blocked = false and m.official_or_inspired <> 'internal_example'))
       where r.security_id = c.id
         and v.id = (select default_shariah_methodology_version_id from app.public_settings limit 1)
       order by r.generated_at desc, r.created_at desc, r.id desc
