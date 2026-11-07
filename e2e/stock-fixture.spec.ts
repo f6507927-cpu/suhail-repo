@@ -3,6 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdir } from "node:fs/promises";
 import { checkRegister } from "../src/lib/copy-register";
 import { formatCalendarDate } from "../src/lib/format";
+import { uiOneDisplay } from "../src/i18n/approved-arabic-ui-one";
 import ar from "../src/i18n/messages/ar.json";
 import en from "../src/i18n/messages/en.json";
 import { checkCriteriaReachability, checkPublicUi } from "./public-ui-checks";
@@ -21,7 +22,8 @@ for (const locale of ["ar", "en"] as const) {
       const html = await response.text();
       expect(html).toContain(company);
       expect(html).toContain((locale === "ar" ? ar : en).status[status]);
-      expect(html).toContain(formatCalendarDate("2025-12-31", locale));
+      // D-161/UI-2: digit runs are isolated in their own <bdi>, so compare the SSR text.
+      expect(html.replace(/<[^>]+>/g, "")).toContain(formatCalendarDate("2025-12-31", locale));
       expect(html).not.toContain("<script");
       const errors: string[] = [];
       page.on("pageerror", error => errors.push(error.message));
@@ -43,7 +45,7 @@ for (const locale of ["ar", "en"] as const) {
       expect(png.readUInt32BE(16)).toBe(512);
       expect(png.readUInt32BE(20)).toBe(512);
       await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary");
-      expect(await page.locator("[data-section]").evaluateAll(nodes => nodes.map(node => node.getAttribute("data-section")))).toEqual(["intro", "header", "why", "short-context", "full-record", "screening", "known", "unknown", "methodology", "criteria", "fundamentals", "sources", "history", "metadata", "disclaimer", "search-again"]);
+      expect(await page.locator("[data-section]").evaluateAll(nodes => nodes.map(node => node.getAttribute("data-section")))).toEqual(["intro", "header", "why", "summary-metadata", "share", "figures", "short-context", "full-record", "screening", "known", "unknown", "methodology", "criteria", "fundamentals", "sources", "history", "metadata", "disclaimer", "search-again"]);
       expect(checkRegister(await page.locator("body").innerText(), locale).hardBans).toEqual([]);
       await expect(page.locator("[data-coverage-seal]")).toHaveCount(slug === "demo-fixa" ? 1 : 0);
       for (const theme of ["dark", "light"]) {
@@ -62,7 +64,8 @@ for (const locale of ["ar", "en"] as const) {
     await page.goto(`${prefix}/stock/demo-new`);
     expect(await page.title()).not.toContain("⟦AR-REVIEW⟧");
     await expect(page.locator("[data-section=header]")).toContainText("Fixture New Co");
-    await expect(page.locator("[data-section=why]")).toContainText("No screening run recorded");
+    // UI-1 approved wording replaces the stored source sentence in both locales.
+    await expect(page.locator("[data-section=why]")).toContainText(uiOneDisplay("No screening run recorded for this methodology yet.", locale));
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${prefix}/stock/demo-fixu`);
     await expect(page.locator("[data-coverage-seal]")).toHaveCount(0);
@@ -77,6 +80,8 @@ for (const locale of ["ar", "en"] as const) for (const width of [390, 1366]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto(`${locale === "en" ? "/en" : ""}/stock/demo-fixa?variant=precision`);
     await page.locator('details[data-section="full-record"] > summary').click();
+    // UI-8: each record section opens separately inside the full record.
+    await page.locator('details[data-record-section="criteria"] > summary').click();
     const criteria = page.locator('[data-section="criteria"]');
     await expect(criteria.locator("article:visible").filter({ hasText: "Near threshold fixture" })).toContainText("> 30.00");
     const boolean = criteria.locator("article:visible").filter({ hasText: "Tiny boolean fixture" });
@@ -90,6 +95,7 @@ for (const locale of ["ar", "en"] as const) for (const width of [390, 1366]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto(`${locale === "en" ? "/en" : ""}/stock/demo-fixa`);
     await page.locator('details[data-section="full-record"] > summary').click();
+    await page.locator('details[data-record-section="criteria"] > summary').click();
     await checkCriteriaReachability(page);
     const table = page.locator('[data-section="criteria"] table');
     if (width === 1366) expect(await table.isVisible()).toBe(false);
