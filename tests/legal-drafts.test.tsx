@@ -7,13 +7,13 @@ import { LegalDocument } from "../src/components/accounts/LegalDocument";
 import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION, currentConsent } from "../src/lib/auth/policies";
 
 // SHA-256 of the founder-completed drafts (D-140), normalized for whitespace only.
-// privacy.* include the D-169 §4 recently-viewed line, pending founder approval; version unchanged.
+// privacy.* include the D-169 §4 recently-viewed line and the D-175 §4 methodology line (draft-2026-11-08).
 const hashes = {
-  // D-175: multi-methodology §4 draft, pending founder approval.
+  // D-175: terms §4 multi-methodology wording, founder-approved 8 November 2026.
   "terms.ar": "3ffb7f3296cb1ee1f5c63f4af92b7d6c0aef0a71a3387a4a0d579e350367ed28",
-  "privacy.ar": "cde090b3bd101a99e8393056bbf57e3097f0d091b3aa3d687ed5c561afc48539",
+  "privacy.ar": "6221c0e2cf2455543aec63d043f53abeaebf57e2a796f8863ac2f47e18323ceb",
   "terms.en": "adf0edefc409ac1bbe8df37ab227525fb79c14b6309ffa1bc5277a17af5d8ea2",
-  "privacy.en": "04b184de3eb9fd7fdf8f945c8773b6584c5a5d40470d64763a4c62c579b1cdce",
+  "privacy.en": "c40f45dcea38475a48200200832cbb0452cf9a826ebc9e37c3110b56596d20a7",
 } as const;
 function digest(text: string) {
   return createHash("sha256").update(text.replace(/\s+/g, " ").trim()).digest("hex");
@@ -30,7 +30,7 @@ function sourceWording(markdown: string) {
 describe("supplied, unapproved bilingual legal drafts", () => {
   it("retains both real draft acceptance versions", () => {
     expect(CURRENT_TERMS_VERSION).toBe("draft-2026-11-07"); // D-175 re-acceptance
-    expect(CURRENT_PRIVACY_VERSION).toBe("draft-2026-11-04");
+    expect(CURRENT_PRIVACY_VERSION).toBe("draft-2026-11-08"); // D-175 legal batch re-acceptance
   });
   it("D-175: accounts that accepted the previous Terms must re-accept",()=>{
     expect(currentConsent({terms_version:"draft-2026-10-11",privacy_version:CURRENT_PRIVACY_VERSION,accepted_at:new Date("2026-11-01T00:00:00Z")})).toBe(false);
@@ -71,6 +71,14 @@ describe("supplied, unapproved bilingual legal drafts", () => {
     expect(section).toContain(locale === "ar"
       ? "تُحفظ الأسهم التي شاهدتها مؤخرًا في متصفحك فقط ولا تُرسل إلينا أبدًا، ويمكنك مسحها في أي وقت."
       : "Your recently viewed stocks are stored only in your browser and never sent to us; you can clear them at any time.");
+    expect(file).toContain(`version: ${CURRENT_PRIVACY_VERSION}`);
+  });
+  it.each(["ar", "en"] as const)("discloses the browser-only chosen methodology in privacy %s section 4 (D-175)", locale => {
+    const file = readFileSync(`content/legal/privacy.${locale}.md`, "utf8").replace(/\r\n/g, "\n");
+    const section = file.split("## 4.")[1].split("\n## ")[0];
+    expect(section).toContain(locale === "ar"
+      ? "تُحفظ المنهجية التي تختارها في متصفحك فقط، ولا تُرسل إلينا."
+      : "Your chosen screening methodology is stored only in your browser and never sent to us.");
     expect(file).toContain(`version: ${CURRENT_PRIVACY_VERSION}`);
   });
   for (const locale of ["ar", "en"] as const) for (const kind of ["terms", "privacy"] as const) {

@@ -161,7 +161,7 @@
     "Total debt: Suhail includes finance leases and excludes operating leases; the dry run reports how many covered stocks would change if operating leases were included.",
     "MSCI counts non-medical cannabis under tobacco; Suhail's tobacco category does not define cannabis.",
     "Defense/weapons mapped to the existing conventional-weapons category.",
-    "conventional_media left off the list (assumed default, not yet confirmed by the founder).",
+    "conventional_media left off the list (confirmed by the founder on 8 November 2026, D-175).",
     "Total assets from the latest annual 10-K (D-126), whereas MSCI uses the latest available report.",
     "Receivables: only AccountsReceivableNetCurrent is mapped; other receivable tags are unknown."
   ]
