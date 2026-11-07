@@ -10,9 +10,9 @@ const out = path.join(root, "generated-artifacts/next-hydration");
 await mkdir(out, { recursive: true });
 // Remove copied sources so deleted/renamed application modules cannot survive
 // from an earlier run. Keep only Next's build cache, never stale source files.
-for (const name of ["src", "public", "content"])
+for (const name of ["src", "public", "content", "data"])
   await rm(path.join(out, name), { recursive: true, force: true });
-for (const name of ["src", "public", "content", "package.json", "tsconfig.json", "next.config.ts", "postcss.config.mjs"])
+for (const name of ["src", "public", "content", "data", "package.json", "tsconfig.json", "next.config.ts", "postcss.config.mjs"])
   await cp(path.join(root, name), path.join(out, name), { recursive: true });
 const guards = await readFile("tests/next-hydration/guards.ts", "utf8");
 await cp(path.join(out, "src/lib/auth/guards.ts"), path.join(out, "src/lib/auth/guards-contract.ts"));
@@ -26,6 +26,31 @@ export const getPublicMethodology: typeof import("./methodology-public-contract"
 export type {PublicMethodologyGroup, PublicMethodologyPageData} from "./methodology-public-contract";
 `);
 await cp("src/db/methodology-public.ts", path.join(out, "src/db/methodology-public-contract.ts"));
+// The homepage reads public_settings; with no database it threw (React #441 /
+// 404) and hid the real homepage. Nothing featured or published, real UI.
+await cp("src/db/home-public.ts", path.join(out, "src/db/home-public-contract.ts"));
+await writeFile(path.join(out, "src/db/home-public.ts"), `
+import type { PublicHomeData } from "../home/types";
+export const loadPublicHome: typeof import("./home-public-contract").loadPublicHome = async (): Promise<PublicHomeData> =>
+  ({ featured: null, methodology: null, editorPick: null });
+export const getPublicHome = loadPublicHome;
+`);
+// The account page lists the user's stock requests through dbApp. Keep the
+// real role check; this isolated project has no database, so the list is empty.
+await cp("src/lib/stock-requests.ts", path.join(out, "src/lib/stock-requests-contract.ts"));
+await writeFile(path.join(out, "src/lib/stock-requests.ts"), `
+import "server-only";
+import { requireRole } from "./auth/guards";
+import type { StockRequestRow } from "./stock-request-input";
+export type { StockRequestStatus } from "./stock-requests-contract";
+type Contract = typeof import("./stock-requests-contract");
+export const getOwnStockRequests: Contract["getOwnStockRequests"] = async (): Promise<StockRequestRow[]> => {
+  await requireRole(["user", "editor", "admin"], { scope: "account" });
+  return [];
+};
+export const createStockRequest: Contract["createStockRequest"] = async () => { throw new Error("stock_requests_unavailable"); };
+export const removeStockRequest: Contract["removeStockRequest"] = async () => { throw new Error("stock_requests_unavailable"); };
+`);
 // Keep the real admin screen, data shape and redirect from /admin.
 const adminData = await readFile("src/lib/methodology/admin-data.ts", "utf8");
 await cp("src/lib/methodology/admin-data.ts", path.join(out, "src/lib/methodology/admin-data-contract.ts"));

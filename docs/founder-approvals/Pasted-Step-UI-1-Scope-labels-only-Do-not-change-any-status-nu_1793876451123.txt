@@ -1,0 +1,44 @@
+Step UI-1. Scope: labels only. Do not change any status, number, source, threshold, stored run, hash, engine decision or methodology record. Read first: replit.md, docs/DECISIONS.md (D-11, D-17, D-26, D-42, D-101, D-130, D-131, D-138, D-143 to D-152), src/engine/reasons/ar.ts, src/components/stock/StockSummary.tsx, StockVerdictParts.tsx, src/i18n/approved-arabic*.
+
+On 5 November 2026 the founder approved the label table at the end of this prompt, and the company names below, as UI wording. Record that in docs/DECISIONS.md under the next free ID. It supersedes D-101 for the "numerator unavailable" reason wording, and the earlier approved wording of the engine statement. It does not approve legal text (O-7).
+
+Problem: Arabic stock pages show English criterion names, raw codes and internal wording, for example "معيار Prohibited primary business activity", "prohibited_income:", "الأثر: review", "البسط interest_bearing_debt", "no segment disclosure recorded".
+
+Do:
+1. Add one presentation map from stored values to display labels, in both locales. Stored runs are immutable (D-17), so map at render time only. Never rewrite stored rows or anything that feeds immutable_hash. If a value has no mapping, keep today's fallback.
+2. Apply it everywhere these appear: status reasons, criteria rows, "ما لا نعرفه", the full record, page title and description, and the homepage card. Arabic reasons should read "معيار النشاط الرئيسي للشركة: …".
+3. Reasons: hide the counts line when both counts are 0. When a criterion reason and an unknown reason say the same thing, show it once.
+4. Activity criterion: it is yes/no. Do not show "1.00", "0.00", "0" or "مقابل حد غير محدد", on the stock page or the homepage card. Show only the result word and the explanation sentence.
+5. Replace the English §11 line on the stock page with the existing approved disclaimer.short key, which the footer already shows in Arabic.
+6. The English-only note: show it only when a whole sentence or paragraph on the page is English. Company names, tickers, exchange names and source titles never trigger it. Remove the note from /search.
+7. Stock page: show version and draft state as "الإصدار 1.0 · مسودة". Don't show «موافَق عليه» next to it, because "approved" beside "draft" reads as a contradiction. Page title: "<company> (<ticker>) — <status> | سهيل", without the version.
+
+If a test pins an approved string or the engine hash, stop and tell me rather than changing the pin. Add tests that no raw code (word_with_underscores) renders on /stock/[slug] in either locale, with fixtures for each status. Run pnpm typecheck && pnpm lint && pnpm lint:logical && pnpm test. Stop and summarise, listing any stored value with no mapping.
+
+Label table (now showing | Arabic | English):
+Prohibited primary business activity | النشاط الرئيسي للشركة | Primary business activity
+Interest-bearing debt / market value basis | الديون بفوائد إلى القيمة السوقية | Interest-bearing debt to market value
+Prohibited income / total revenue | الإيرادات غير المباحة إلى إجمالي الإيرادات | Non-permissible income to total revenue
+Research implementation based on publicly documented criteria from Al Rajhi Capital | تطبيق بحثي مستقل مبني على معايير الراجحي المالية المنشورة | Independent research based on Al Rajhi Capital's published criteria
+Adapted research 1.0 — draft | الإصدار 1.0 · مسودة | Version 1.0 · Draft
+Founder-authorized 25-security US research draft only; provisional G1 decisions remain pending analyst review. | نسخة بحثية أولية تغطي أسهماً أمريكية مختارة، وما زالت قراراتها قيد مراجعة المحلل الشرعي. | An early research version covering selected US stocks. Its decisions are still pending Shariah analyst review.
+Founder-authorized draft preparation only. | إعداد أولي للنسخة البحثية. | Initial research version.
+Suhail independent research | سهيل · بحث مستقل | Suhail · Independent research
+Admin (verified by) | فريق سهيل | The Suhail team
+null (limit) | لا ينطبق | Not applicable
+review (effect) | تحتاج النتيجة إلى مراجعة | The result needs review
+no segment disclosure recorded | لم يُسجَّل إفصاح عن القطاعات | No segment disclosure recorded
+numerator unavailable; no value assumed | الرقم غير متاح، ولم نفترض أي قيمة | Figure unavailable; no value assumed
+البسط غير متاح؛ لم تُفترض أي قيمة. | الرقم غير متاح، ولم نفترض أي قيمة. | (unchanged)
+prohibited_income | الإيرادات غير المباحة | Non-permissible income
+interest_bearing_debt | الديون بفوائد | Interest-bearing debt
+market_value_basis | أساس القيمة السوقية | Market value basis
+total_revenue | إجمالي الإيرادات | Total revenue
+business_segments | قطاعات الأعمال | Business segments
+— ÷ $479B | الرقم غير متاح | Figure unavailable
+Closing price on | سعر الإغلاق في | Closing price on
+Prices: API Ninjas | الأسعار: API Ninjas | Prices: API Ninjas
+Unchanged | دون تغيير | Unchanged
+No screening run recorded for this methodology yet. | لم يُفحص هذا السهم بعد. | This stock hasn't been screened yet.
+No result is shown because no stored run is available. | ستظهر النتيجة هنا بعد فحصه. | The result will appear here once it's screened.
+الحالة أعلاه أنتجها المحرك الحتمي. لا يغيّرها نموذج لغوي أبدًا. | تصدر هذه النتيجة عن محرك حساب ثابت، ولا يغيّرها الذكاء الاصطناعي. | This result comes from a fixed calculation engine. AI never changes it.

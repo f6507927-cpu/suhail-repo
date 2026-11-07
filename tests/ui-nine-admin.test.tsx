@@ -6,7 +6,7 @@ import { uiNineLabels } from "../src/i18n/approved-arabic-ui-nine";
 import { uiNineText,adminFactLabel,adminInputCounts,adminVersionLabel } from "../src/i18n/admin-presentation";
 import { AdminRecordSection } from "../src/components/financial/AdminRecordSection";
 describe("UI-9 presentation approval",()=>{
-  const attachment=readFileSync("attached_assets/Pasted-Step-UI-9-Scope-admin-UX-only-Do-not-change-any-status-_1793900661946.txt","utf8");
+  const attachment=readFileSync("docs/founder-approvals/Pasted-Step-UI-9-Scope-admin-UX-only-Do-not-change-any-status-_1793900661946.txt","utf8");
   const rows=attachment.split("Approved table (Arabic | English):")[1].trim().split("\n").filter(row=>row.includes(" | ")).map(row=>row.split(" | ").map(value=>value.trim()));
   it("covers every exact approved table pair in both languages",()=>{
     expect(rows.length).toBeGreaterThan(25);

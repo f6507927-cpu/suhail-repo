@@ -1,0 +1,53 @@
+Step UI-9. Scope: admin UX only. Do not change any status, number, source, stored data, migration, engine decision, job logic, permission or audit behaviour. Every existing requireRole check, AAL2 check and audit write stays exactly as it is. Test locally or against disposable data only. Do not run anything against production or trigger any job or write there. Read first: replit.md, docs/DECISIONS.md, src/components/financial/FinancialAdmin.tsx, ScreeningControls.tsx, src/components/accounts/AdminScreens.tsx, src/components/methodology/AdminMethodologies.tsx. If an item is already done, say so and move on.
+
+The founder approved the Arabic in the table at the end of this prompt on 5 November 2026. Record it, and these UX decisions, in docs/DECISIONS.md under the next free ID. Admins mainly need to find one stock, check it and act safely. Design for that at 375px first, then widen.
+
+Do:
+1. Securities page: fix the sideways overflow (1,733px content at a 1,346px screen, 1,483px at 375px) at its cause. Show only the stock list first. Add a client-side search by ticker or name, using only the rows the page already loaded, and sort A–Z by ticker. Each row: ticker, name, latest period, and a plain count of unknown and estimated items.
+2. Selected stock: on a phone, open it as its own view with a back link. On desktop, list and detail sit side by side. Group the record into collapsed sections: company details, screening, financial data, prohibited income, business segments, market value, coverage. Only the first is open by default. Target: under 2,500px on a phone with one section open.
+3. Fix headings showing «تسمية غير معروفة». Use the existing label map to show the real name of each financial item. If a stored item has no label, show its stored name in plain text and list it in your summary. Never hide an item.
+4. Run screening: preselect the current default methodology version and mark it "(الافتراضي)". Other versions stay selectable. Show version number first, so it stays visible when the name is shortened. Use the same version naming in the settings dropdown, which must not cut off the number on a phone.
+5. Settings: mark example versions "(مثال)". Hide them from the default dropdown unless one is already the saved default. Replace the typed featured-stock field with a searchable picker of the in-universe stocks that still saves the same slug through the existing action, and allows "no featured stock".
+6. Screen all and Ingest all: separate them visually. Each gets one sentence saying what it does and how many stocks it covers. Each opens a confirmation showing the stock count and, for screening, the version, before calling the same existing action. Disable the button while a job runs. Do not change the jobs.
+7. Job history: plain Arabic names and a one-line summary, for example "فحص الكل · 48 سهماً · 0 تعذّر". Keep raw counters and the job code inside a collapsed "التفاصيل". A failed job states what failed and shows the existing resume action.
+8. Admin menu on phones: replace the sideways scrolling row with an "قائمة الإدارة" button and a full-width panel, labelled with the current section. Remove "الأعداد" and "المحلّلون" from the menu while they are placeholders; keep the routes. In your summary, say how an analyst profile can be created today, if at all. Do not build one.
+9. Audit log: on a phone, collapse filters behind "تصفية", with a count of active filters, so results come first. Use dropdowns for event type and entity from the existing enums. Show dates in the site's date format, using a native date input if needed. Results are readable stacked cards on a phone.
+10. Methodologies: hide raw UUIDs behind "التفاصيل الفنية", show "لا ينطبق" instead of null, collapse each criterion by default, and show its plain name and limit. Do not change any methodology content or workflow gate.
+11. Users: every icon-only button has a visible label or an aria-label. The table becomes stacked cards on a phone.
+12. All admin screens follow the UI-8 tap target, input size and text size rules, and have no sideways page scroll.
+
+Tests: Playwright with mocked or disposable data at 375x812 and 1366x768. Cover: no sideways scroll on all /admin pages; search filters the stock list; confirmations appear and cancel performs no write; run screening preselects the default version; no «تسمية غير معروفة» with fixture data. Add route tests that existing actions still require the same role. Run pnpm typecheck && pnpm lint && pnpm lint:logical && pnpm test. Stop and summarise with 375x812 screenshots of securities, ingestion, settings and audit, plus any stored label with no mapping.
+
+Approved table (Arabic | English):
+ابحث بالرمز أو الاسم | Search by ticker or name
+لا يوجد سهم مطابق. | No matching stock.
+العودة إلى القائمة | Back to the list
+بيانات الشركة | Company details
+الفحص | Screening
+البيانات المالية | Financial data
+الإيرادات غير المباحة | Prohibited income
+قطاعات الأعمال | Business segments
+القيمة السوقية | Market value
+التغطية | Coverage
+{count} غير معروف · {count} تقديري | {count} unknown · {count} estimated
+(الافتراضي) | (default)
+(مثال) | (example)
+لا يوجد سهم مميّز | No featured stock
+ابحث عن سهم | Search for a stock
+فحص الكل | Screen all
+يفحص كل الأسهم المختارة وفق الإصدار المحدد، ويضيف نتائج جديدة دون تعديل السجلات السابقة. | Screens all selected stocks under the chosen version, adding new results without editing earlier records.
+جلب بيانات الكل | Ingest all
+يجلب أحدث الإفصاحات لكل الأسهم المختارة. | Fetches the latest filings for all selected stocks.
+تأكيد التشغيل | Confirm run
+سيشمل هذا {count} سهماً. | This will cover {count} stocks.
+الإصدار: {version} | Version: {version}
+تشغيل | Run
+إلغاء | Cancel
+جارٍ التنفيذ… | Running…
+{count} تعذّر | {count} failed
+التفاصيل | Details
+التفاصيل الفنية | Technical details
+قائمة الإدارة | Admin menu
+تصفية | Filter
+{count} عامل تصفية | {count} filters
+لا ينطبق | Not applicable

@@ -21,7 +21,7 @@ function assertArabic(source: string, text: string | undefined) {
 
 describe("UI-1B complete interface copy boundary", () => {
   it("pins every supplied pair independently and preserves the two earlier approvals", () => {
-    const table = readFileSync("attached_assets/Pasted-Step-UI-1B-Scope-labels-only-on-every-page-including-ac_1793885319007.txt", "utf8")
+    const table = readFileSync("docs/founder-approvals/Pasted-Step-UI-1B-Scope-labels-only-on-every-page-including-ac_1793885319007.txt", "utf8")
       .split(/Approved table \(English \| Arabic\):\s*/)[1]!.trim().split(/\r?\n/).map(line => line.split(" | "));
     expect(table).toHaveLength(107);
     expect(uiOneBArabic).toEqual(Object.fromEntries(table));

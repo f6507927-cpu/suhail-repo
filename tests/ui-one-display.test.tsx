@@ -28,7 +28,7 @@ function text(html: string) {
 const statuses = ["passes_selected_methodology", "fails_selected_methodology", "requires_review", "insufficient_data", null] as const;
 describe("D-157 UI-1 display boundary", () => {
   it("pins every exact pair independently against the founder attachment", () => {
-    const attachment = readFileSync("attached_assets/Pasted-Step-UI-1-Scope-labels-only-Do-not-change-any-status-nu_1793876451123.txt", "utf8");
+    const attachment = readFileSync("docs/founder-approvals/Pasted-Step-UI-1-Scope-labels-only-Do-not-change-any-status-nu_1793876451123.txt", "utf8");
     const rows = attachment.split("Label table (now showing | Arabic | English):")[1].trim().split("\n");
     expect(rows).toHaveLength(26);
     for (const row of rows) {
