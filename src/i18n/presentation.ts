@@ -135,7 +135,8 @@ export const publicUiCopy: Readonly<Record<string, string>> = Object.fromEntries
   // D-144: shared phrase + structured-label consumers; D-130/D-131/D-138 win below.
   ...Object.entries(publicUxOne),
   ...messagePairs(en, ar),
-  ...Object.values(presentationLabels).flatMap(family => Object.values(family)),
+  // Pending pairs (D-162 marker) are never approved copy; they stay in the review list.
+  ...Object.values(presentationLabels).flatMap(family => Object.values(family)).filter(([, arabic]) => !arabic.startsWith(pendingArabic)),
   ["English only", "متاح بالإنجليزية فقط"], ["Arabic only", "متاح بالعربية فقط"],
   ["All recorded criteria passed. No additional status reasons were recorded.", "اجتاز السهم جميع المعايير المسجلة. لم تُسجّل أسباب إضافية."],
   ["No specific status reasons were recorded.", "لم تُسجّل أسباب محددة للنتيجة."],
