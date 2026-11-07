@@ -41,6 +41,9 @@ export const criterionSchema = z.object({
     suhail_upper_bound: upperBoundPolicySchema.optional(),
     prohibited_categories: z.array(z.enum(categories)).optional(),
     non_permissible_categories: z.array(z.enum(categories)).optional(),
+    // D-172: MSCI counts interest income inside the revenue screen. Only the
+    // prohibited_income proxy may be added to the segment numerator.
+    additional_numerator_line_items: z.array(z.literal("prohibited_income")).min(1).optional(),
   }).strict().nullable(),
   edge_cases: nullableText, source_reference: nullableText, effective_date: date,
   sort_order: z.number().int().min(0), notes: nullableText,
@@ -65,6 +68,7 @@ export const criterionSchema = z.object({
   if(revenue && !c.treatment_rule_data?.non_permissible_categories) issue("Non-permissible categories are required");
   if(revenue && (c.threshold_unit !== "percent_of_total_revenue" || c.numerator_line_items.join() !== "business_segments" || c.denominator_line_items.join() !== "total_revenue")) issue("Revenue evaluator uses business_segments divided by total_revenue");
   if(business && (c.numerator_line_items.join() !== "business_segments" || c.denominator_line_items.length)) issue("Business activity uses business_segments only");
+  if(c.treatment_rule_data?.additional_numerator_line_items && !revenue) issue("Additional numerator items apply only to the revenue evaluator");
 });
 export type CriterionData = z.infer<typeof criterionSchema>;
 export function engineCriterion(c: CriterionData & {id:string}): Criterion {

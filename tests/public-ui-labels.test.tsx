@@ -46,11 +46,17 @@ describe("explicit public display contracts", () => {
   it("keeps the D-131 supplemental labels exhaustive, approved and distinguishable", () => {
     expect(Object.keys(presentationLabels.activity).sort()).toEqual([...categories].sort());
     expect(new Set(categories.map(value => displayLabel("activity", value, "en"))).size).toBe(categories.length);
+    // D-172 categories await Arabic review: Arabic pages show the English
+    // source (D-162), never a marker or an invented approval.
+    const pending = ["music", "hotels", "cinema"];
     for (const value of categories) {
       expect(displayLabel("activity", value, "en")).not.toContain("_");
-      expect(displayLabel("activity", value, "ar")).toMatch(/[\u0600-\u06ff]/);
       expect(displayLabel("activity", value, "ar")).not.toContain("⟦AR-REVIEW⟧");
+      if (pending.includes(value)) expect(displayLabel("activity", value, "ar")).toBe(displayLabel("activity", value, "en"));
+      else expect(displayLabel("activity", value, "ar")).toMatch(/[؀-ۿ]/);
     }
+    for (const value of ["suhail_assets_cash", "suhail_assets_short_term_securities", "suhail_assets_long_term_securities"])
+      expect(displayLabel("lineItem", value, "ar")).toBe(displayLabel("lineItem", value, "en"));
     for (const value of ["ebitda", "prior_year_revenue", "prior_year_net_income", "business_segments"]) {
       expect(displayLabel("lineItem", value, "ar")).not.toContain("⟦AR-REVIEW⟧");
     }
