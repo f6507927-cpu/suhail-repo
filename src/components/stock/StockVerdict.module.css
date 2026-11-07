@@ -861,7 +861,8 @@
     white-space: nowrap;
     clip-path: inset(50%);
   }
-  .factsTable thead th { font-size: 13px; }
+  /* Screen-reader-only header: let its cells wrap so the clipped row stays inside the page. */
+  .factsTable thead th { font-size: 13px; padding: 0; white-space: normal; word-break: break-all; }
   .cardFields .field dd { font-size: 14px; }
   .unknownItems li { font-size: 14px; }
   .effect { font-size: 13px; }
@@ -911,4 +912,109 @@
   }
   .recordSection > summary.sectionHeading { min-height: 48px; }
   .versionLabel { font-size: 14px; }
+}
+
+/* UX polish: stock hero and fewer boxes. Sections separate by spacing and
+   background shade (radius tokens) rather than outlines and side stripes.
+   Status colours appear only for the stored Shariah status (reference §4.2). */
+.companyHeader {
+  position: relative;
+  margin-block-start: .5rem;
+  border-block-end: 0;
+  padding-block: 1.1rem .4rem;
+}
+.companyHeader::before {
+  content: "";
+  display: block;
+  height: 4px;
+  margin-block-end: 1rem;
+  border-radius: var(--radius-pill);
+  background: var(--divider);
+}
+.companyHeader[data-status="passes_selected_methodology"]::before { background: var(--pass); }
+.companyHeader[data-status="fails_selected_methodology"]::before { background: var(--fail); }
+.companyHeader[data-status="requires_review"]::before {
+  background: repeating-linear-gradient(90deg, var(--fail) 0 14px, transparent 14px 20px);
+}
+.companyHeader[data-status="insufficient_data"]::before {
+  background: repeating-linear-gradient(90deg, var(--insufficient) 0 14px, transparent 14px 20px);
+}
+.stockHead {
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: .85rem;
+}
+.heroMonogram { flex: none; }
+.heroAnswer {
+  display: grid;
+  justify-items: start;
+  gap: .7rem;
+  margin-block-start: 1.1rem;
+}
+.heroBadge {
+  border-radius: var(--radius-pill) !important;
+  padding: .55rem 1.15rem !important;
+  font-size: 1.05rem !important;
+  font-weight: 600;
+  line-height: 1.5 !important;
+}
+.heroBadge :global(svg) { width: 20px; height: 20px; }
+.answerSentence {
+  max-width: 44rem;
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.8;
+}
+.answerSentence bdi { font-weight: 600; }
+.verdictPanel {
+  margin-block-start: 1.1rem;
+  border: 0;
+  background: var(--public-raised, var(--card));
+}
+.meaningBlock { border: 0; padding: 0; }
+.unknownBox {
+  border: 0;
+  background: var(--muted-surface);
+}
+.ratioTrack { border: 0; }
+.factTile { border: 0; }
+.shortContext {
+  border: 0;
+  padding-inline-start: 0;
+}
+.fullRecord { border: 0; }
+.againBlock {
+  border: 0;
+  background: var(--muted-surface);
+}
+.screening { border: 0; }
+.reasonList li { border: 0; }
+
+@media (max-width: 760px) {
+  .companyHeader { padding-block: .6rem .2rem; }
+  .companyTitle h1 { font-size: clamp(1.45rem, 6.6vw, 2rem); }
+  .companyHeader::before { margin-block-end: .8rem; }
+  .heroBadge { padding: .5rem 1rem !important; font-size: 1rem !important; }
+  .answerSentence { font-size: 1rem; }
+  .verdictPanel { padding: 1rem; }
+}
+
+/* Light theme: keep the empty part of each ratio track visible without an outline.
+   Values are always printed beside the bar, so the bar is never the only signal. */
+:global(html:not(.dark)) .page .ratioTrack { background: var(--line); }
+:global(html:not(.dark)) .page .ratioTrack[data-unknown="true"] {
+  background: repeating-linear-gradient(135deg, var(--line) 0 5px, transparent 5px 10px);
+}
+
+/* Dark theme, stock page only: the global tokens fall just short of AA 4.5:1 on
+   the raised panel (#10393f). Each is lifted the least that clears it; globals stay. */
+:global(html.dark) .page {
+  --muted-foreground: #969fa2; /* 4.63:1, was #919a9d 4.35 */
+  --insufficient: #969fa2;
+  --brass: #c6954f; /* 4.65:1, was #c08b3e 4.17 */
+  --byline: #c6954f;
+  --pass: #49af83; /* 4.61:1, was #3fab7c */
+  --fail: #db8775; /* 4.61:1, was #d9816e */
 }

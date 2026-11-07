@@ -117,10 +117,16 @@ const nonPermissibleRevenue: Evaluator = (c, input) => {
   const categories = c.treatmentRuleData.non_permissible_categories as string[];
   // Even permissible segments need amounts/categories to establish an exhaustive numerator.
   const unavailable = segments.length === 0 || segments.some((s) => s.activityCategory === "unclassified" || amount(s) === null);
-  const numerator = unavailable ? null : segments.reduce((sum, s) =>
+  const segmentTotal = unavailable ? null : segments.reduce((sum, s) =>
     add(sum, categories.includes(s.activityCategory) ? amount(s)! : 0), 0);
+  // D-172: optional configured additions (MSCI's interest income proxy). Absent
+  // configuration leaves the evaluation, evidence and hash exactly as before.
+  const extraKeys = c.treatmentRuleData.additional_numerator_line_items as string[] | undefined;
+  const extra = extraKeys ? factSum(extraKeys, input.facts) : null;
+  const numerator = segmentTotal === null || (extra && extra.value === null) ? null : add(segmentTotal, extra?.value ?? 0);
   const denominator = factSum(["total_revenue"], input.facts);
-  return finishRatio(c, numerator, denominator.value, combine(segmentEvidence(segments), denominator), input.engineVersion,
+  const evidence = extra ? combine(segmentEvidence(segments), extra, denominator) : combine(segmentEvidence(segments), denominator);
+  return finishRatio(c, numerator, denominator.value, evidence, input.engineVersion,
     segments.length === 0 ? "no_segments" : "numerator_unavailable"); // D-86
 };
 

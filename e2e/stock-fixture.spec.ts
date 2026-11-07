@@ -34,17 +34,11 @@ for (const locale of ["ar", "en"] as const) {
       await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
       await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", new RegExp(company));
       await expect(page.locator('meta[property="og:description"]')).toHaveAttribute("content", /EX-A/);
-      const socialImage = "http://127.0.0.1:3400/icons/icon-512.png";
-      await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", socialImage);
-      await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute("content", socialImage);
-      const image = await request.get(socialImage);
-      expect(image.status()).toBe(200);
-      expect(image.headers()["content-type"]).toBe("image/png");
-      const png = await image.body();
-      expect(png.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
-      expect(png.readUInt32BE(16)).toBe(512);
-      expect(png.readUInt32BE(20)).toBe(512);
-      await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary");
+      // D-169: each stock has its own preview image route (rendered by src/stock/og-image.tsx).
+      const socialImage = (file: string) => `http://127.0.0.1:3400${path}/${file}`;
+      await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", socialImage("opengraph-image"));
+      await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute("content", socialImage("twitter-image"));
+      await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
       expect(await page.locator("[data-section]").evaluateAll(nodes => nodes.map(node => node.getAttribute("data-section")))).toEqual(["intro", "header", "why", "summary-metadata", "share", "figures", "short-context", "full-record", "screening", "known", "unknown", "methodology", "criteria", "fundamentals", "sources", "history", "metadata", "disclaimer", "search-again"]);
       expect(checkRegister(await page.locator("body").innerText(), locale).hardBans).toEqual([]);
       await expect(page.locator("[data-coverage-seal]")).toHaveCount(slug === "demo-fixa" ? 1 : 0);

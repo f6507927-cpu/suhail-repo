@@ -40,7 +40,8 @@ describe("D-138 bounded, independently pinned founder wording", () => {
   for (const locale of ["ar", "en"] as const) {
     it(`${locale}: all 19 categories render exact labels, without changing enum values`, () => {
       expect(categories).toHaveLength(19);
-      expect(categories.map(row => row.key).sort()).toEqual(Object.keys(presentationLabels.activity).sort());
+      // D-172 categories (music, hotels, cinema) await Arabic review and are not part of this approval.
+      expect(categories.map(row => row.key).sort()).toEqual(Object.keys(presentationLabels.activity).filter(key => !["music", "hotels", "cinema"].includes(key)).sort());
       for (const { key, english, arabic } of categories) {
         const expected = locale === "ar" ? arabic : english;
         expect(displayLabel("activity", key, locale)).toBe(expected);

@@ -7,7 +7,7 @@ test("legal drafts render in both locales without provider or database access", 
     expect(response!.headers()["www-authenticate"]).toBeUndefined();
     expect(response!.headers()["x-robots-tag"]).toBe("noindex, nofollow");
     await expect(page.getByText(locale === "ar" ? "مسودة — قيد المراجعة القانونية" : "Draft — under legal review", { exact: true })).toBeVisible();
-    await expect(page.locator("main")).toContainText("draft-2026-10-11");
+    await expect(page.locator("main")).toContainText("draft-2026-11-07");
     await expect(page.locator("article")).toContainText("⟦LEGAL-REVIEW⟧");
     await expect(page.locator("article h2")).toHaveCount(12);
     await expect(page.locator("article")).toContainText("[CONFIRM:");

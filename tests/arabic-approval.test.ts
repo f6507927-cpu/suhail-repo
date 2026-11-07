@@ -126,7 +126,7 @@ describe("D-101 row-level Arabic approval boundary", () => {
   it("keeps legal drafts unapproved after the explicit privacy-version update", () => {
     for (const kind of ["terms", "privacy"]) {
       const body = readFileSync(`content/legal/${kind}.ar.md`, "utf8");
-      expect(body).toContain(`version: ${kind==="privacy"?"draft-2026-11-04":"draft-2026-10-11"}`);
+      expect(body).toContain(`version: ${kind==="privacy"?"draft-2026-11-08":"draft-2026-11-07"}`); // D-175 legal batch
       expect(body).toContain("⟦LEGAL-REVIEW⟧ ⟦AR-REVIEW⟧");
       expect(body).not.toContain("[CONFIRM");
       expect(body).not.toContain("[OPERATOR NAME]");

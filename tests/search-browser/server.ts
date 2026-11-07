@@ -43,6 +43,8 @@ for (const key of Object.keys(env))
 Object.assign(env, {
   // Fixtures and EX-A are explicitly synthetic; do not hide them with live mode.
   SITE_MODE: "preview",
+  // Public demo content is hidden on every deployment; only this loopback fixture opts in.
+  PUBLIC_DEMO_FIXTURES: "1",
   HOSTNAME: "127.0.0.1",
   NEXT_PUBLIC_SUPABASE_URL: "https://auth.fixture.test",
   NEXT_PUBLIC_SUPABASE_ANON_KEY: "synthetic-test-key",

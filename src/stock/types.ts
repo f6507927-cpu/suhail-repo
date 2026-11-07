@@ -16,7 +16,15 @@ export type StockAnalyst = Pick<typeof analystProfile.$inferSelect, "name_ar" | 
 export type StockVersion = Pick<typeof methodology.methodologyVersion.$inferSelect, "id" | "version" | "version_label" | "production_enabled" | "is_demo"> & Partial<Pick<typeof methodology.methodologyVersion.$inferSelect, "workflow_status">>;
 export type StockMethodology = Pick<typeof methodology.methodology.$inferSelect, "name" | "slug" | "scope" | "official_or_inspired" | "is_demo">;
 export type StockExplanation = Pick<typeof screening.explanationObject.$inferSelect, "id" | "ai_text" | "validation_status" | "evidence" | "unknowns">;
+/** D-174: another production-enabled public methodology's own result; never combined. */
+export type OtherMethodologyResult = {
+  methodology: { name: string; slug: string; short_label: string | null };
+  version: { id: string; version: string; version_label: string | null };
+  run: Pick<StockRun, "id" | "status" | "status_reasons" | "generated_at" | "data_as_of" | "financial_period_label"> | null;
+  criteria: Pick<StockCriterion, "criterion_id" | "criterion_label" | "criterion_type" | "result" | "ratio" | "threshold" | "threshold_unit" | "threshold_direction" | "numerator_value" | "denominator_value" | "numerator_definition" | "sort_order">[];
+};
 export type PublicStockData = {
+  otherMethodologies?: OtherMethodologyResult[];
   publishedPick?: {
     href: string; thesis_ar: string | null; thesis_en: string | null;
     why_now_ar: string | null; why_now_en: string | null;

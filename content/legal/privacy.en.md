@@ -1,11 +1,11 @@
 ---
-version: draft-2026-11-04
+version: draft-2026-11-08
 ---
 ⟦LEGAL-REVIEW⟧
 
 # Privacy Policy (English)
 
-Draft for legal review. Version draft-2026-11-04, last updated 4 November 2026. This is a translation; the Arabic text prevails.
+Draft for legal review. Version draft-2026-11-08, last updated 8 November 2026. This is a translation; the Arabic text prevails.
 
 ## 1. Who we are
 
@@ -45,6 +45,10 @@ We use essential cookies only:
 - to remember your theme and language preference.
 
 We do not use analytics, tracking or advertising cookies.
+
+Your recently viewed stocks are stored only in your browser and never sent to us; you can clear them at any time.
+
+Your chosen screening methodology is stored only in your browser and never sent to us.
 
 ## 5. Who we share your data with
 

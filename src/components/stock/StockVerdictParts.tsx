@@ -214,7 +214,7 @@ const reasonCodes = new Set([
 ]);
 const thresholdUnits = new Set(["percent_of_total_revenue", "percent_of_total_assets", "percent_of_market_cap", "boolean", "absolute"]);
 
-function storedReasonToEngine(value: unknown): StatusReason | null {
+export function storedReasonToEngine(value: unknown): StatusReason | null {
   if (!value || typeof value !== "object") return null;
   const stored = value as Record<string, unknown>;
   const get = (camel: string, snake: string) => stored[camel] ?? stored[snake];

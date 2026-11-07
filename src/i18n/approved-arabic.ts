@@ -7,6 +7,7 @@ import { publicUiCopy } from "./presentation";
 import { uiOneBArabic } from "./approved-arabic-ui-one-b";
 import { uiNineLabels } from "./approved-arabic-ui-nine";
 import { uiOneBReviewProposals } from "./ui-one-b-review-proposals";
+import { methodologiesReviewProposals } from "./methodologies-review-proposals";
 
 // UI-1B removes runtime review markers; older approved wording wins.
 const approvedCopy: Readonly<Record<string, string>> = {
@@ -263,5 +264,6 @@ export const approvedArabicCopy: Readonly<Record<string, string>> = Object.fromE
   // D-144: earlier approvals win even where the redesign uses another label.
   // UI-9 only fills new vocabulary here: every earlier public/historical pair
   // retains precedence. Admin-specific overrides live at the admin UI boundary.
-  Object.entries({ ...uiNineLabels, ...uiOneBReviewProposals, ...uiOneBArabic, ...stockRequestsArabic, ...homeUxSixArabic, ...stockUxFiveArabic, ...approvedCopy, ...batchTwo, ...publicUiCopy }).map(([source, text]) => [source, isolateArabicCode(text)]),
+  // D-175 proposals have the lowest precedence: any approval wins.
+  Object.entries({ ...methodologiesReviewProposals, ...uiNineLabels, ...uiOneBReviewProposals, ...uiOneBArabic, ...stockRequestsArabic, ...homeUxSixArabic, ...stockUxFiveArabic, ...approvedCopy, ...batchTwo, ...publicUiCopy }).map(([source, text]) => [source, isolateArabicCode(text)]),
 );

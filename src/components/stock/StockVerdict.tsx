@@ -41,6 +41,10 @@ import { StockShare } from "./StockShare";
 import { StockFigures, StockSummary } from "./StockSummary";
 import { PublishedResearch } from "./PublishedResearch";
 import { StockRecordSection } from "./StockRecordSection";
+import { RecordRecentView } from "./RecordRecentView";
+import { TickerMonogram } from "../foundation/TickerMonogram";
+import { stockAnswer } from "@/stock/answer-sentence";
+import { OtherMethodologies } from "./OtherMethodologies";
 import arMessages from "@/i18n/messages/ar.json";
 import enMessages from "@/i18n/messages/en.json";
 
@@ -71,6 +75,7 @@ export function StockVerdict({
   const needsReverseLanguageNotice = locale === "en" &&
     Boolean(data.analyst && !data.analyst.name_en && data.analyst.name_ar);
   const englishSections = locale === "ar" ? stockEnglishOnlySections(data) : [];
+  const answer = stockAnswer(data, locale);
 
   return (
     <main className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
@@ -85,8 +90,9 @@ export function StockVerdict({
         </a>
       </p>
 
-      <header className={styles.companyHeader} data-section="header">
+      <header className={styles.companyHeader} data-section="header" data-status={run?.status ?? "none"}>
         <div className={styles.stockHead}>
+          <TickerMonogram ticker={security.display_symbol || security.ticker} size="lg" className={styles.heroMonogram} />
           <div className={styles.companyTitle}>
             <h1 lang={locale === "ar" && company.name_ar?.trim() ? "ar" : "en"}>
               <bdi dir={locale === "ar" && company.name_ar?.trim() ? "rtl" : "ltr"}>
@@ -115,13 +121,29 @@ export function StockVerdict({
             </div>
           </div>
         </div>
+        {run && (
+          <div className={styles.heroAnswer}>
+            <StatusBadge status={run.status} className={styles.heroBadge} />
+            {answer && (
+              /* Fixed template from the stored status and reasons; never AI text. */
+              <p className={styles.answerSentence} data-stock-answer lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
+                <bdi lang={answer.companyLang} dir={answer.companyLang === "ar" ? "rtl" : "ltr"}>{answer.company}</bdi>{answer.rest}
+              </p>
+            )}
+          </div>
+        )}
         <LanguageNotice locale={locale} needed={englishSections.length > 0 || needsReverseLanguageNotice}
           reverse={needsReverseLanguageNotice} sections={needsReverseLanguageNotice ? ["Coverage by"] : englishSections} />
       </header>
 
+      {security.slug && (
+        <RecordRecentView stock={{ slug: security.slug, ticker: security.display_symbol || security.ticker, name: englishName, nameAr: company.name_ar?.trim() || null }} />
+      )}
       <StockSummary data={data} locale={locale} />
       {run && canonicalUrl !== undefined && <StockShare canonicalUrl={canonicalUrl} locale={locale} />}
       {run && <StockFigures data={data} locale={locale} />}
+      {/* D-174: other methodologies' own results; never combined with the default. */}
+      <OtherMethodologies data={data} locale={locale} />
 
       <div className={styles.shortContext} data-section="short-context">
         <Disclaimer variant="short" locale={locale} />

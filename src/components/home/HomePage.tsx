@@ -11,6 +11,8 @@ import { Bilingual, ReasonList, Label, isBooleanCriterion, criterionExplanation 
 import { uiOneDisplay } from "@/i18n/approved-arabic-ui-one";
 import { stripPublicReviewMarker } from "../foundation/shared";
 import styles from "./HomePage.module.css";
+import { TickerMonogram } from "../foundation/TickerMonogram";
+import { RecentStocks } from "./RecentStocks";
 
 type Locale = "ar" | "en";
 
@@ -79,6 +81,7 @@ function FeaturedCard({ data, locale }: { data: NonNullable<PublicHomeData["feat
       aria-label={`${reviewText(locale, "Featured security on the homepage")}: ${companyName}`}
     >
       <div className={styles.featuredTop}>
+        <TickerMonogram ticker={data.security.ticker} className={styles.featuredMonogram} />
         <div className={styles.featuredIdentity}>
           <bdi className={styles.featuredName} lang={companyLang} dir={companyLang === "ar" ? "rtl" : "ltr"}>
             {companyName}
@@ -165,6 +168,8 @@ export function HomePage({ data, locale }: { data: PublicHomeData; locale: Local
                   </a>
                 ))}
               </nav>
+              {/* Browser-only list; server HTML stays empty so this page remains static. */}
+              <RecentStocks locale={locale} />
             </div>
           </div>
           {hasFeaturedRun && (
