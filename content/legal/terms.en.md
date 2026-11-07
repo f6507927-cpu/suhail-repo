@@ -1,11 +1,11 @@
 ---
-version: draft-2026-10-11
+version: draft-2026-11-07
 ---
 ⟦LEGAL-REVIEW⟧
 
 # Terms of Use (English)
 
-Draft for legal review. Version draft-2026-10-11, last updated 22 October 2026. This is a translation; the Arabic text prevails.
+Draft for legal review. Version draft-2026-11-07, last updated 7 November 2026. This is a translation; the Arabic text prevails.
 
 ## 1. Who we are and acceptance
 
@@ -26,8 +26,9 @@ Suhail ("Suhail", "we") is operated by its founding team, based in Cairo, Egypt.
 
 ## 4. Methodology and data accuracy
 
-- Statuses are calculated automatically, the same way for every stock, under the methodology published on the site.
-- The current methodology is an independent research implementation based on publicly documented criteria from Al Rajhi Capital. Suhail is not affiliated with, endorsed by or licensed by Al Rajhi Capital.
+- Statuses are calculated automatically, the same way for every stock, under each methodology published on the site. Each methodology gives its own result; we do not combine results into one score.
+- Each published methodology is an independent research implementation by Suhail, based on publicly documented criteria from a third party such as Al Rajhi Capital, the Accounting and Auditing Organization for Islamic Financial Institutions (AAOIFI) or MSCI. Suhail is not affiliated with, endorsed by or licensed by any of them. Our results are not their results, ratings, index decisions or certifications, and do not state compliance with their standards.
+- Where a source is unclear, or our data cannot support a criterion as written, we adapt it and say so on the methodology page.
 - Results rely on published data that may be late, incomplete or wrong. We do not guarantee that any result is accurate, complete or current.
 - "Needs review" means the automated screen could not reach a clear result. "Insufficient data" means the available data is not enough to decide.
 - Our results may differ from those of other screening providers that apply different criteria.
