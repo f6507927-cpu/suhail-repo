@@ -77,6 +77,8 @@ jobs:
       - run: pnpm test:e2e:accounts
       # Separate production Next copy: synthetic module IO, real roots/SSR/hydration.
       - run: pnpm test:e2e:hydration
+      # D-168: phone menu navigation, Chromium and WebKit iPhone, same synthetic build.
+      - run: pnpm test:e2e:menu
       # Finish all self-managed Next dev servers before building production.
       # D-102: build must never read a database, including the local test service.
       - run: env -u DATABASE_URL_MIGRATIONS -u DATABASE_URL_PUBLIC -u DATABASE_URL_APP -u DATABASE_URL_TEST -u DATABASE_URL -u PGHOST -u PGUSER -u PGDATABASE -u PGPORT -u PGPASSWORD -u SUPABASE_DB_CA_CERT pnpm build

@@ -6,7 +6,11 @@ import { spawn } from "node:child_process";
 // Copy the CURRENT application so all real root layouts, proxy, next/script,
 // navigation and hydration code run unchanged. Replace only module-boundary IO.
 const root = process.cwd();
-const out = path.join(root, "generated-artifacts/next-hydration");
+// D-168: the menu-navigation suite needs a rendered homepage (#stock-query).
+// It uses its own build directory and port and stubs only the homepage read.
+const menuHome = process.env.MENU_HOME_FIXTURE === "1";
+const relativeOut = menuHome ? "generated-artifacts/next-menu" : "generated-artifacts/next-hydration";
+const out = path.join(root, relativeOut);
 await mkdir(out, { recursive: true });
 // Remove copied sources so deleted/renamed application modules cannot survive
 // from an earlier run. Keep only Next's build cache, never stale source files.
@@ -69,7 +73,7 @@ await writeFile(path.join(out, "src/lib/auth/browser.ts"), `
 export function createBrowserAuth(): ReturnType<typeof import("./browser-contract").createBrowserAuth> { return null; }
 `);
 const next = path.join(root, "node_modules/next/dist/bin/next");
-const env = { ...process.env, TZ: "UTC", PORT: "3500" };
+const env = { ...process.env, TZ: "UTC", PORT: menuHome ? "3510" : "3500" };
 // Even an accidentally submitted real server action must fail closed: this
 // isolated project cannot receive workspace database/provider credentials.
 for (const key of Object.keys(env)) {
@@ -91,7 +95,7 @@ function run(args: string[], script = next) {
   });
 }
 await run(["build"]);
-const standalone = path.join(out, ".next/standalone/generated-artifacts/next-hydration");
+const standalone = path.join(out, ".next/standalone", relativeOut);
 await cp(path.join(out, "public"), path.join(standalone, "public"), { recursive: true });
 await cp(path.join(out, ".next/static"), path.join(standalone, ".next/static"), { recursive: true });
 await run([], path.join(standalone, "server.js"));

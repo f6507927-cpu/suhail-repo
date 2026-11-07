@@ -35,6 +35,7 @@
     "test:e2e:accounts": "playwright test --config playwright.accounts.config.ts",
     "test:e2e:stock": "playwright test --config playwright.stock.config.ts",
     "test:e2e:hydration": "playwright test --config playwright.hydration.config.ts",
+    "test:e2e:menu": "playwright test --config playwright.menu.config.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/db/migrate.ts",
     "db:seed": "tsx scripts/db/seed.ts",

@@ -11,7 +11,7 @@ export default defineConfig({
   // Cold Next/font compilation in the workspace can exceed 30 seconds.
   timeout: 120_000,
   // Fixture apps have their own server/config; never send them to the real app.
-  testIgnore: ["**/production.spec.ts", "**/*-fixture.spec.ts", "**/methodology-isr.spec.ts", "**/hydration.spec.ts", "**/security.spec.ts"],
+  testIgnore: ["**/production.spec.ts", "**/*-fixture.spec.ts", "**/methodology-isr.spec.ts", "**/hydration.spec.ts", "**/security.spec.ts", "**/mobile-menu-navigation.spec.ts"],
   outputDir: "generated-artifacts/playwright",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),

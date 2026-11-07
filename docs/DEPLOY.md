@@ -252,6 +252,64 @@ Sources: [configuration](https://docs.replit.com/features/project-setup/configur
 [machine configuration](https://docs.replit.com/features/publishing/machine-configuration),
 [publishing troubleshooting](https://docs.replit.com/build/troubleshooting).
 
+## Cold starts and always-on options (D-168) — founder decision pending
+
+**Nothing here was changed.** Deployment settings remain exactly as above.
+
+Measured read-only from outside Replit with single `curl` requests on
+6 November 2026 (UTC). These are not load tests. TTFB is time to first byte, including
+DNS, TLS and the round trip from the measuring machine. About 0.2 s of each figure is
+connection setup.
+
+| When (UTC) | Request | TTFB | `x-nextjs-cache` |
+| --- | --- | --- | --- |
+| 11:13, first request of the session | `/` · `/methodology` · `/methodology` | 0.84 · 0.77 · 0.78 s | HIT |
+| 11:13 | `/?_rsc` (client navigation payload, 46 KB) ×3 | 0.72–0.75 s | HIT |
+| 11:13 | `/en` · `/en/methodology` | 0.70 · 0.71 s | HIT |
+| 11:39, after 25 min with no requests from me | `/methodology` → `/` → `/?_rsc` | 0.75 → **2.20** → 0.85 s | HIT, then stale `/` |
+| 12:39, after 60 min with no requests from me | `/methodology` ×2 · `/` · `/en` | **2.24 · 2.12** · 0.74 · 0.77 s | — |
+| 12:40, single requests 3 s apart | `/methodology` ×3 | 0.74 · **5.61** · 1.25 s | HIT ×3 |
+| 12:41 | `/` → `/methodology` | **2.31** (STALE) → **5.63** s (HIT) | — |
+
+A true scale-to-zero boot was **not observed**: the instance stayed warm for
+the whole hour, possibly because of other traffic. Warm cache hits normally take
+about 0.65–0.8 s. However, **HIT responses intermittently took 5.6 s**, right after a STALE
+response had started background ISR regeneration. That points at regeneration
+(server render plus Supabase reads) monopolising a small instance's CPU or event
+loop, so unrelated cached requests queue behind it. The full homepage document
+is 68 KB of HTML plus scripts. The client-navigation payload is 46 KB.
+
+The reported 7–8 s wait (iPhone Safari, about 02:37 Riyadh) has two likely
+server-side contributors, and both are worst after a quiet period:
+(a) an **Autoscale cold start**. Replit documents that Autoscale "goes idle after 15
+minutes of inactivity" and that the app "starts up when the first request arrives".
+A fresh instance boots, runs `next start`, and has an empty per-instance ISR cache
+(D-20, D-102: no build-time pages), so its first page render also opens new
+Session-pooler TLS connections to Supabase.
+(b) **ISR regeneration blocking other requests** on the same small instance. This is the
+5.6 s HIT above: after 900 s every page is stale, so the first visits trigger
+regenerations.
+(c) The header link was a plain `<a>`, so each tap was a full document load with no
+feedback, and a second tap started another one.
+D-168 fixes (c) and the missing feedback. It cannot remove (a) or (b), which need a
+hosting decision.
+
+Options, priced from Replit's published pages (docs.replit.com/billing/deployment-pricing,
+features/publishing/machine-configuration, read 6 November 2026. Recheck before deciding):
+
+| Option | What it changes | Cost (published) | Trade-offs |
+| --- | --- | --- | --- |
+| **Keep Autoscale, scale to zero (current)** | Nothing | $2/month base + $0.60 per million compute units (1 CPU-second = 18 units, 1 GB-RAM-second = 2) + $0.40 per million requests, after plan credits | Cheapest at low traffic. First visitor after 15 idle minutes waits for a cold start. Up to 3 instances under load. |
+| **Autoscale with a minimum of 1 instance** | One instance always warm, others still scale | Not offered in current docs: only "Max machines" is documented. If Replit enables it, an always-running instance bills compute continuously. For example, 1 vCPU + 2 GB running ~2.59 M s/month is about 57 M units, about **$34/month** plus base and requests. | Keeps autoscaling and the 1–3 rollout limits above. Availability must be confirmed with Replit first (see "Commands and platform controls"). |
+| **Reserved VM** | One dedicated, never-sleeping server | Fixed monthly: shared 0.5 vCPU / 2 GB **$15**; dedicated 1 vCPU / 4 GB **$35**, 2 vCPU / 8 GB **$50**, 4 vCPU / 16 GB **$130** | No cold starts. ISR cache persists across requests until the process restarts. No horizontal scaling: one instance takes all traffic, and a restart or deploy is a short gap. Connection budget is 1 × 3 per role (simpler than the 1–3 table). Needs a `.replit` `deploymentTarget` change and rebuild. That is a deployment change requiring founder approval. |
+| Outside keep-warm ping | A monitor requests `/api/health` every <15 min | Instance never idles, so compute bills like always-on, plus a third-party monitor | Not recommended. It adds an external service, does not warm page ISR caches, and costs about as much as the options above. |
+
+Recommendation for the founder's decision, not an action: if the 7–8 s first-visit
+wait matters during Phase 0, a **Reserved VM** is the documented way to remove cold
+starts. Because (b) is CPU contention, prefer a dedicated 1 vCPU / 4 GB ($35/month)
+over the shared 0.5 vCPU size ($15/month). Keep Autoscale if the max-3 scaling is
+more important than the first visit after idle. No setting was changed for this task.
+
 ## Deployment variable inventory
 
 Names only; no real values or credential-bearing URLs belong in this guide.
