@@ -48,6 +48,11 @@ export const activityCategory = appSchema.enum("activity_category", [
   "energy",
   "telecom",
   "unclassified",
+  // MSCI Islamic Index Series §2.1 excludes these; analyst classification only,
+  // never assigned by the shared SIC table. conventional_media keeps its meaning.
+  "music",
+  "hotels",
+  "cinema",
 ]);
 export const criterionType = appSchema.enum("criterion_type", [
   "business_activity",

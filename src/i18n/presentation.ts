@@ -6,6 +6,7 @@ import { isolateArabicCode } from "./bidi";
 
 type Pair = readonly [english: string, arabic: string];
 const pair = (english: string, arabic: string): Pair => [english, arabic];
+const pendingArabic = "⟦AR-REVIEW⟧ ";
 // D-130: explicit display contracts; these never change stored evidence.
 export const presentationLabels = {
   result: {
@@ -60,6 +61,10 @@ export const presentationLabels = {
     prior_year_revenue: pair("Prior-year revenue", "إيرادات السنة السابقة"),
     prior_year_net_income: pair("Prior-year net income", "صافي دخل السنة السابقة"),
     business_segments: pair("Business segments", "قطاعات الأعمال"),
+    // D-171/D-172 engine-only asset inputs; Arabic pending review (D-162 fallback).
+    suhail_assets_cash: pair("Cash, including restricted cash (balance sheet)", "⟦AR-REVIEW⟧ Cash, including restricted cash (balance sheet)"),
+    suhail_assets_short_term_securities: pair("Short-term investments and securities", "⟦AR-REVIEW⟧ Short-term investments and securities"),
+    suhail_assets_long_term_securities: pair("Long-term investments and securities", "⟦AR-REVIEW⟧ Long-term investments and securities"),
   },
   // D-138 explicitly supersedes D-131 activity pairs, not classifications.
   activity: {
@@ -82,6 +87,11 @@ export const presentationLabels = {
     energy: pair("Energy", "الطاقة"),
     telecom: pair("Telecommunications", "الاتصالات"),
     unclassified: pair("Unclassified", "غير مصنّف"),
+    // Pending Arabic review (docs/ARABIC_REVIEW.md): Arabic pages show the
+    // English source until approved (D-162); never an invented approval.
+    music: pair("Music", "⟦AR-REVIEW⟧ Music"),
+    hotels: pair("Hotels", "⟦AR-REVIEW⟧ Hotels"),
+    cinema: pair("Cinema, film and television", "⟦AR-REVIEW⟧ Cinema, film and television"),
   },
   licence: {
     licensed: pair("Licensed", "مرخّص"), public_document: pair("Public document", "وثيقة متاحة للعموم"),
@@ -165,7 +175,11 @@ export function displayLabel(family: LabelFamily, value: string | null | undefin
     if (source) return locale === "ar" ? publicUiCopy[source] ?? source : source;
   } else {
     const labels: Readonly<Record<string, Pair>> = presentationLabels[family];
-    if (Object.hasOwn(labels, value)) return labels[value][locale === "ar" ? 1 : 0];
+    if (Object.hasOwn(labels, value)) {
+      const [english, arabic] = labels[value];
+      // A pending Arabic label falls back to its English source (D-162).
+      return locale === "ar" && !arabic.startsWith(pendingArabic) ? arabic : english;
+    }
   }
   return locale === "ar" ? "تسمية غير معروفة" : "Unrecognized label";
 }
