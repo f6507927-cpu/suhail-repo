@@ -103,13 +103,13 @@ origins; unknown future navigation copy is not approved or invented.
 | runtime phrase | JSX copy-helper child: src\components\stock\OtherMethodologies.tsx:68 | How this methodology works | كيف تعمل هذه المنهجية |  |
 | runtime phrase | JSX copy-helper child: src\components\stock\OtherMethodologies.tsx:67 | Not yet screened under this methodology. | لم يُفحص السهم بعد وفق هذه المنهجية. |  |
 | runtime phrase | JSX copy-helper child: src\components\stock\OtherMethodologies.tsx:38 | Total debt used | إجمالي الدين المستخدم |  |
-| runtime phrase | Rendered/conditionally rendered: src\i18n\presentation.ts:92 | Music | الموسيقى |  |
+| runtime phrase | Rendered/conditionally rendered: src\i18n\pending-arabic.ts:6 | Music | الموسيقى |  |
 | runtime phrase | JSX copy-helper child: src\components\stock\OtherMethodologies.tsx:63 | Every criterion passed. | اجتاز السهم جميع المعايير. |  |
-| runtime phrase | Rendered/conditionally rendered: src\i18n\presentation.ts:93 | Hotels | الفنادق |  |
-| runtime phrase | Rendered/conditionally rendered: src\i18n\presentation.ts:94 | Cinema, film and television | السينما والأفلام والتلفزيون |  |
-| runtime phrase | Rendered/conditionally rendered: src\i18n\presentation.ts:67 | Long-term investments and securities | الاستثمارات والأوراق المالية طويلة الأجل |  |
-| runtime phrase | Rendered/conditionally rendered: src\i18n\presentation.ts:66 | Short-term investments and securities | الاستثمارات والأوراق المالية قصيرة الأجل |  |
-| runtime phrase | Rendered/conditionally rendered: src\i18n\presentation.ts:65 | Cash, including restricted cash (balance sheet) | النقد بما فيه النقد المقيّد (الميزانية العمومية) |  |
+| runtime phrase | Rendered/conditionally rendered: src\i18n\pending-arabic.ts:7 | Hotels | الفنادق |  |
+| runtime phrase | Rendered/conditionally rendered: src\i18n\pending-arabic.ts:8 | Cinema, film and television | السينما والأفلام والتلفزيون |  |
+| runtime phrase | Rendered/conditionally rendered: src\i18n\pending-arabic.ts:11 | Long-term investments and securities | الاستثمارات والأوراق المالية طويلة الأجل |  |
+| runtime phrase | Rendered/conditionally rendered: src\i18n\pending-arabic.ts:10 | Short-term investments and securities | الاستثمارات والأوراق المالية قصيرة الأجل |  |
+| runtime phrase | Rendered/conditionally rendered: src\i18n\pending-arabic.ts:9 | Cash, including restricted cash (balance sheet) | النقد بما فيه النقد المقيّد (الميزانية العمومية) |  |
 | runtime phrase | JSX copy-helper child: src\components\stock\OtherMethodologies.tsx:79 | Other methodologies | منهجيات أخرى |  |
 | runtime phrase | JSX copy-helper child: src\components\stock\OtherMethodologies.tsx:88 | The result above uses the site's default methodology. | النتيجة أعلاه وفق المنهجية الافتراضية للموقع. |  |
 | runtime phrase | JSX copy-helper child: src\components\stock\OtherMethodologies.tsx:87 | Show the result under | اعرض النتيجة وفق |  |
