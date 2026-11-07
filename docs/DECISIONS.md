@@ -1,5 +1,11 @@
 # Suhail — Decision Log
 
+## 7 November 2026 — Track founder approval attachments used by tests
+
+| ID | Decision |
+| --- | --- |
+| D-180 | **Founder-requested CI fix.** Three regression tests pin approved Arabic/English pairs against founder attachments. Those files lived only in the ignored `attached_assets/` folder (D-82), so they never reached CI. `pnpm test` therefore failed on every push and stopped the database and browser suites from running. The originals were no longer in the Replit workspace. On 7 November 2026 the founder re-supplied the three prompt texts, and they are committed verbatim under their original names in the tracked folder `docs/founder-approvals/`. One exception: the re-supplied UI-1B copy ended with two extra rows, the two "Adapted research 1.1 — draft…" labels. These were approved separately under UI-8 (D-166) and are kept in `src/i18n/approved-arabic-ui-eight.ts`. With the founder's agreement, they are left out, so the committed UI-1B table has the 107 rows of the UI-1B approval, matching `src/i18n/approved-arabic-ui-one-b.ts` exactly. Before committing, check them for secrets, keys and personal data beyond the founder's name and email. Point `tests/ui-one-display.test.tsx` (UI-1, D-157), `tests/ui-one-b-copy.test.tsx` (UI-1B) and `tests/ui-nine-admin.test.tsx` (UI-9, D-167) at that folder. `attached_assets/` stays ignored; this is a narrow exception to D-82, not a reversal. The tests are not skipped or weakened: a missing approval file still fails with ENOENT. The text of earlier entries, including the paths cited in D-157 and D-167, is unchanged. The approved wording, pinned pairs, application code, statuses, migrations, Supabase and deployment are unchanged. |
+
 ## 6 November 2026 — Remove decorative footer wordmark
 
 The founder explicitly reverses D-165's footer-wordmark restoration: remove the
