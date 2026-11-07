@@ -36,6 +36,8 @@ export const routeInventory: Record<string, string> = {
   "src/app/[locale]/(public)/privacy/page.tsx#page": "public",
   "src/app/[locale]/(public)/search/page.tsx#page": "public",
   "src/app/[locale]/(public)/stock/[slug]/page.tsx#page": "public",
+  "src/app/[locale]/(public)/stock/[slug]/opengraph-image.tsx#metadata": "public",
+  "src/app/[locale]/(public)/stock/[slug]/twitter-image.tsx#metadata": "public",
   "src/app/[locale]/(public)/styleguide/page.tsx#page": "public",
   "src/app/[locale]/(public)/terms/page.tsx#page": "public",
   "src/app/api/account/profile/route.ts#GET": "authenticated",

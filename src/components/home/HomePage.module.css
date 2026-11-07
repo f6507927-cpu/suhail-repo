@@ -574,3 +574,17 @@
     background: #04181b;
   }
 }
+
+/* UX polish: ticker monogram beside the featured company; badge wraps below on phones. */
+.featuredTop {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem 0.85rem;
+}
+.featuredMonogram { background: var(--home-raised-2) !important; }
+.featuredIdentity { justify-items: start; text-align: start; }
+@media (max-width: 760px) {
+  .featuredTop { grid-template-columns: auto minmax(0, 1fr); }
+  .featuredBadge { grid-column: 1 / -1; justify-self: start; }
+}

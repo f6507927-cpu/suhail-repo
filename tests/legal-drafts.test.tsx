@@ -7,11 +7,12 @@ import { LegalDocument } from "../src/components/accounts/LegalDocument";
 import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION, currentConsent } from "../src/lib/auth/policies";
 
 // SHA-256 of the founder-completed drafts (D-140), normalized for whitespace only.
+// privacy.* include the D-169 §4 recently-viewed line, pending founder approval; version unchanged.
 const hashes = {
   "terms.ar": "3ad668cc22b108f5bf611eed33440dfaafbbbd5477e8a7f467939b7dc37c95d9",
-  "privacy.ar": "4ddd48b027de63ce91c18eecad9691f150d475b0c9d0fdfcd17221c64cb4ea84",
+  "privacy.ar": "cde090b3bd101a99e8393056bbf57e3097f0d091b3aa3d687ed5c561afc48539",
   "terms.en": "8109161444e13af2165515b97d9d48e99db05a120150eccf8d836298414a6754",
-  "privacy.en": "e5def5ff883c12b3588888401324d1bb08566836f62a7e70d0a7cde7569581e2",
+  "privacy.en": "04b184de3eb9fd7fdf8f945c8773b6584c5a5d40470d64763a4c62c579b1cdce",
 } as const;
 function digest(text: string) {
   return createHash("sha256").update(text.replace(/\s+/g, " ").trim()).digest("hex");
@@ -54,6 +55,14 @@ describe("supplied, unapproved bilingual legal drafts", () => {
     expect(file).toContain(locale==="ar"?"النص العربي هو المعتمد":"the Arabic text prevails");
     const review=readFileSync("docs/ARABIC_REVIEW.md","utf8");
     if(locale==="ar")for(const bullet of bullets)expect(review).toContain(bullet);
+  });
+  it.each(["ar", "en"] as const)("discloses browser-only recently viewed stocks in privacy %s section 4 (D-169)", locale => {
+    const file = readFileSync(`content/legal/privacy.${locale}.md`, "utf8").replace(/\r\n/g, "\n");
+    const section = file.split("## 4.")[1].split("\n## ")[0];
+    expect(section).toContain(locale === "ar"
+      ? "تُحفظ الأسهم التي شاهدتها مؤخرًا في متصفحك فقط ولا تُرسل إلينا أبدًا، ويمكنك مسحها في أي وقت."
+      : "Your recently viewed stocks are stored only in your browser and never sent to us; you can clear them at any time.");
+    expect(file).toContain(`version: ${CURRENT_PRIVACY_VERSION}`);
   });
   for (const locale of ["ar", "en"] as const) for (const kind of ["terms", "privacy"] as const) {
     it(`pins exact ${kind}.${locale} founder-completed wording`, () => {
