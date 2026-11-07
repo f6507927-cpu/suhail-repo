@@ -36,6 +36,8 @@
     "test:e2e": "playwright test",
     "test:e2e:accounts": "playwright test --config playwright.accounts.config.ts",
     "test:e2e:stock": "playwright test --config playwright.stock.config.ts",
+    "test:e2e:other-methodologies": "playwright test --config playwright.other-methodologies.config.ts",
+    "test:e2e:other-methodologies-ui": "playwright test --config playwright.other-methodologies-ui.config.ts",
     "test:e2e:hydration": "playwright test --config playwright.hydration.config.ts",
     "test:e2e:menu": "playwright test --config playwright.menu.config.ts",
     "db:generate": "drizzle-kit generate",
