@@ -41,11 +41,10 @@ const nextConfig: NextConfig = {
   experimental: {
     globalNotFound: true,
     authInterrupts: true,
-    // Browser checks must not inherit a previous dev session's compiler state.
-    // Only the self-managed Playwright server opts out; preview/build keep defaults.
-    ...(process.env.PLAYWRIGHT_TEST_SERVER === "1"
-      ? { turbopackFileSystemCacheForDev: false }
-      : {}),
+    // Persisted dev compiler state has repeatedly broken next/font resolution
+    // after preview restarts. Keep preview and test servers on fresh state.
+    // This development-only option does not change production build caching.
+    turbopackFileSystemCacheForDev: false,
   },
   env: { APP_GIT_SHA: getGitSha() },
 };
