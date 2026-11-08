@@ -180,7 +180,13 @@ describe("ticker monogram and preview image", () => {
     expect(route).toContain("revalidate = 900");
     expect(route).toContain("getPublicStockData");
     expect(route).not.toMatch(/cookies\(|headers\(|dbApp/);
-    expect(readFileSync("src/app/[locale]/(public)/stock/[slug]/twitter-image.tsx", "utf8")).toContain('from "./opengraph-image"');
+    const twitter = readFileSync("src/app/[locale]/(public)/stock/[slug]/twitter-image.tsx", "utf8");
+    expect(twitter).toContain('from "./opengraph-image"');
+    // Next.js cannot read re-exported segment config; both files declare the same literals.
+    for (const config of ["export const revalidate = 900;", 'export const dynamic = "force-static";']) {
+      expect(route).toContain(config);
+      expect(twitter).toContain(config);
+    }
   });
 });
 
