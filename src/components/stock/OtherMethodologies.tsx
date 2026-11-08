@@ -6,6 +6,7 @@ import { formatNumber } from "@/lib/format";
 import type { OtherMethodologyResult, PublicStockData } from "@/stock/types";
 import { MethodologySwitcher } from "./MethodologySwitcher";
 import styles from "./OtherMethodologies.module.css";
+import { methodologyPublicName } from "@/i18n/methodology-public-names";
 
 type Locale = "ar" | "en";
 type Criterion = OtherMethodologyResult["criteria"][number];
@@ -46,7 +47,7 @@ function ResultCard({ data, result, locale }: { data: PublicStockData; result: O
   const href = `${locale === "en" ? "/en" : ""}/methodology/${result.methodology.slug}`;
   return (
     <article className={styles.card} data-methodology-card={result.methodology.slug}>
-      <h3 className={styles.name}><Bilingual locale={locale} arabic={null} english={result.methodology.short_label ?? result.methodology.name} /></h3>
+      <h3 className={styles.name}><Bilingual locale={locale} arabic={methodologyPublicName(result.methodology.short_label ?? result.methodology.name, "ar")} english={result.methodology.short_label ?? result.methodology.name} /></h3>
       {result.run ? (
         <>
           <StatusBadge status={result.run.status} />
@@ -81,8 +82,8 @@ export function OtherMethodologies({ data, locale }: { data: PublicStockData; lo
       <MethodologySwitcher
         defaultSlug={data.methodology.slug}
         options={[
-          { slug: data.methodology.slug, label: <Bilingual locale={locale} arabic={null} english={data.methodology.name} />, isDefault: true },
-          ...others.map(o => ({ slug: o.methodology.slug, label: <Bilingual locale={locale} arabic={null} english={o.methodology.short_label ?? o.methodology.name} />, isDefault: false })),
+          { slug: data.methodology.slug, label: <Bilingual locale={locale} arabic={methodologyPublicName(data.methodology.name, "ar")} english={data.methodology.name} />, isDefault: true },
+          ...others.map(o => ({ slug: o.methodology.slug, label: <Bilingual locale={locale} arabic={methodologyPublicName(o.methodology.short_label ?? o.methodology.name, "ar")} english={o.methodology.short_label ?? o.methodology.name} />, isDefault: false })),
         ]}
         legend={<Copy locale={locale}>Show the result under</Copy>}
         defaultNote={<p className={styles.reason}><Copy locale={locale}>The result above uses the site&apos;s default methodology.</Copy></p>}

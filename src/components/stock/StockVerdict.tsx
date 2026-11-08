@@ -38,6 +38,7 @@ import { fundamentalsCaption } from "@/i18n/approved-arabic-ui-two";
 import { ApiNinjasAttribution } from "./ApiNinjasAttribution";
 import { StockSearchForm } from "../foundation/StockSearchForm";
 import { StockShare } from "./StockShare";
+import { methodologyPublicName } from "@/i18n/methodology-public-names";
 import { StockFigures, StockSummary } from "./StockSummary";
 import { PublishedResearch } from "./PublishedResearch";
 import { StockRecordSection } from "./StockRecordSection";
@@ -66,9 +67,9 @@ export function StockVerdict({
   const storedVersionLabel = version?.version_label || version?.version || run?.methodology_version_label;
   const versionLabel = publicMethodologyVersionLabel(uiOneDisplay(storedVersionLabel || "", locale));
   const methodologyName = methodology?.name
-    ? <Bilingual locale={locale} arabic={null} english={methodology.name} />
+    ? <Bilingual locale={locale} arabic={methodologyPublicName(methodology.name, "ar")} english={methodology.name} />
     : run?.methodology_name
-      ? <Bilingual locale={locale} arabic={null} english={run.methodology_name} />
+      ? <Bilingual locale={locale} arabic={methodologyPublicName(run.methodology_name, "ar")} english={run.methodology_name} />
       : <Copy locale={locale}>Methodology unavailable</Copy>;
   const history = [...(run ? [run] : []), ...data.priorRuns]
     .sort((a, b) => new Date(b.generated_at).getTime() - new Date(a.generated_at).getTime());
@@ -245,7 +246,7 @@ export function StockVerdict({
 
               <StockRecordSection sectionKey="methodology" id="stock-method-title" title={<Copy locale={locale}>Methodology</Copy>}>
                 <p className={styles.methodName}>
-                  {methodology?.name ? <Bilingual locale={locale} arabic={null} english={methodology.name} /> : <Copy locale={locale}>Methodology unavailable</Copy>}{" "}
+                  {methodology?.name ? <Bilingual locale={locale} arabic={methodologyPublicName(methodology.name, "ar")} english={methodology.name} /> : <Copy locale={locale}>Methodology unavailable</Copy>}{" "}
                   <span className={styles.versionLabel} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>{stripPublicReviewMarker(versionLabel ?? "")}</span>
                   {version?.workflow_status && !isSuppliedDraft(storedVersionLabel) && <> · <Label family="workflow" value={version.workflow_status} locale={locale} /></>}
                 </p>
