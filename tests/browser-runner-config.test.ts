@@ -68,7 +68,7 @@ describe("browser runner isolation", () => {
     expect(config.use?.trace).toBe("retain-on-failure");
   });
 
-  it("disables persisted compiler state only for the self-managed test server", async () => {
+  it("disables persisted dev compiler state for both preview and test servers", async () => {
     vi.stubEnv("PLAYWRIGHT_TEST_SERVER", "1");
     const { default: testConfig } = await import("../next.config");
     expect(testConfig.experimental?.turbopackFileSystemCacheForDev).toBe(false);
@@ -76,7 +76,8 @@ describe("browser runner isolation", () => {
     vi.resetModules();
     vi.stubEnv("PLAYWRIGHT_TEST_SERVER", "");
     const { default: previewConfig } = await import("../next.config");
-    expect(previewConfig.experimental?.turbopackFileSystemCacheForDev).toBeUndefined();
+    expect(previewConfig.experimental?.turbopackFileSystemCacheForDev).toBe(false);
+    expect(previewConfig.experimental?.turbopackFileSystemCacheForBuild).toBeUndefined();
     expect(previewConfig.experimental?.authInterrupts).toBe(true);
     expect(previewConfig.allowedDevOrigins).toEqual(testConfig.allowedDevOrigins);
   });
