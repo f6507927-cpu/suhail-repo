@@ -30,6 +30,7 @@ import { TermExplain, TermSheet } from "../foundation/TermExplain";
 import styles from "./StockVerdict.module.css";
 
 import { isSuppliedDraft, missingFigure, uiOneDisplay, stockShortVersionLabel } from "@/i18n/approved-arabic-ui-one";
+import { methodologyPublicName } from "@/i18n/methodology-public-names";
 
 type Locale = "ar" | "en";
 const fixedMeaning: Record<string, string> = {
@@ -274,11 +275,11 @@ export function StockSummary({ data, locale }: { data: PublicStockData; locale: 
   const publishedHref = eligibleSeal ? data.publishedPick?.href : null;
   const versionLabelText = publicMethodologyVersionLabel(stockShortVersionLabel(versionLabel || "", locale));
   // D-160: shorten only this known display name, never the stored/full-record identity.
-  const shortMethodologyTitle = methodologyTitle === "Research implementation based on publicly documented criteria from Al Rajhi Capital"
-    ? uiOneDisplay(methodologyTitle, locale).split(/\s+/).slice(0, locale === "ar" ? 3 : 2).join(" ")
-    : methodologyTitle === "Suhail independent research"
+  // D-181: the renamed default methodology is already short; show its full public name.
+  const shortMethodologyTitle = methodologyPublicName(methodologyTitle, locale)
+    ?? (methodologyTitle === "Suhail independent research"
       ? uiOneDisplay(methodologyTitle, locale)
-      : methodologyTitle;
+      : methodologyTitle);
 
   return (
     <section className={styles.verdictPanel} data-section="why" aria-labelledby={run ? "stock-why-title" : "stock-no-run-title"}>

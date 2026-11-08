@@ -13,6 +13,7 @@ import { stripPublicReviewMarker } from "../foundation/shared";
 import styles from "./HomePage.module.css";
 import { TickerMonogram } from "../foundation/TickerMonogram";
 import { RecentStocks } from "./RecentStocks";
+import { methodologyPublicName } from "@/i18n/methodology-public-names";
 
 type Locale = "ar" | "en";
 
@@ -142,7 +143,7 @@ export function HomePage({ data, locale }: { data: PublicHomeData; locale: Local
   const prefix = locale === "en" ? "/en" : "";
   const hasFeaturedRun = data.featured?.run ? data.featured : null;
   const methodologyLabel = data.methodology
-    ? `${uiOneDisplay(data.methodology.name, locale)} · ${uiOneDisplay(data.methodology.version, locale)}`
+    ? `${methodologyPublicName(data.methodology.name, locale) ?? uiOneDisplay(data.methodology.name, locale)} · ${uiOneDisplay(data.methodology.version, locale)}`
     : reviewText(locale, "No default methodology has been set yet.");
 
   return (

@@ -8,7 +8,7 @@ import { PublicMethodologyVersions } from "../src/components/methodology/PublicM
 import { StockVerdict } from "../src/components/stock/StockVerdict";
 import { uiOneMethodologyFixture, uiOneMethodologyGroups } from "./fixtures/ui-one-methodology";
 import { uiOneFixture } from "./fixtures/ui-one-stock";
-import { uiOneDisplay } from "../src/i18n/approved-arabic-ui-one";
+import { uiOneDisplay, uiOneProse } from "../src/i18n/approved-arabic-ui-one";
 import ar from "../src/i18n/messages/ar.json";
 import en from "../src/i18n/messages/en.json";
 vi.mock("server-only", () => ({}));
@@ -31,10 +31,15 @@ describe("D-157 public methodology presentation", () => {
       <MethodologyDetail methodology={data.methodology} version={document.version} criteria={document.criteria} locale={locale} />
     </PublicMethodologyVersions>, locale);
     for (const source of [data.methodology.name, data.methodology.scope!, data.methodology.publisher!, document.version.version_label!]) {
-      const escaped = renderToStaticMarkup(<>{uiOneDisplay(source, locale)}</>);
+      // D-181: public pages use uiOneProse, which applies the founder-chosen methodology name.
+      const escaped = renderToStaticMarkup(<>{uiOneProse(source, locale)}</>);
       expect(directory).toContain(escaped);
       expect(detail).toContain(escaped);
     }
+    const coreName = locale === "ar" ? "منهجية سهيل الأساسية" : "Suhail core methodology";
+    expect(directory).toContain(coreName);
+    expect(detail).toContain(coreName);
+    expect(directory).not.toContain(uiOneDisplay(data.methodology.name, locale));
     expect(directory).toContain('href="/methodology/fixture"');
     expect(detail).toContain(locale === "ar" ? "فريق سهيل" : "The Suhail team");
     expect(detail).toContain(uiOneDisplay("Founder-authorized draft preparation only.", locale));
@@ -46,6 +51,7 @@ describe("D-157 public methodology presentation", () => {
     expect(detail).not.toMatch(/>prohibited_income<|>total_revenue</);
     expect({ data, groups }).toEqual(before);
     const stock = render(<StockVerdict data={uiOneFixture()} locale={locale} />, locale);
+    expect(stock).toContain(coreName); // D-181 public name on the stock page
     expect(stock).toContain(`${locale === "en" ? "/en" : ""}/methodology/fixture?version=1.0#methodology-fixture-version-1.0`);
   });
   it("keeps unknown labels and explicit workflow evidence separate from the supplied draft wording", () => {
