@@ -1,5 +1,11 @@
 # Suhail — Decision Log
 
+## 8 November 2026 — Public name of the default methodology
+
+| ID | Decision |
+| --- | --- |
+| D-181 | **Founder-chosen public name, presentation only.** The default methodology (stored name "Research implementation based on publicly documented criteria from Al Rajhi Capital", short label "Al Rajhi criteria — adapted research") is shown publicly as "Suhail core methodology" / «منهجية سهيل الأساسية», on the homepage, stock pages, the "Other methodologies" switcher and the methodology pages. The founder chose this name and its Arabic on 8 November 2026. The mapping lives in `src/i18n/methodology-public-names.ts` and applies in `uiOneProse`; `uiOneDisplay` keeps the D-157 approved pair unchanged and pinned. The stored methodology record, history, runs and admin screens are unchanged. The source credit stays on the methodology page (source document title, link and notes naming Al Rajhi Capital), and Terms §4 is unchanged. AAOIFI and MSCI keep their names. No database, migration or deployment change. |
+
 ## 7 November 2026 — Track founder approval attachments used by tests
 
 | ID | Decision |

@@ -1,4 +1,5 @@
 import { uiEightStoredVersion, uiEightVersion } from "./approved-arabic-ui-eight";
+import { methodologyPublicName } from "./methodology-public-names";
 // D-157: founder-approved 5 November 2026. Presentation only; historical pins stand.
 export const uiOneLabels: Readonly<Record<string, readonly [ar: string, en: string]>> = {
   "Prohibited primary business activity": ["النشاط الرئيسي للشركة", "Primary business activity"],
@@ -40,6 +41,10 @@ export function uiOneDisplay(value: string, locale: "ar" | "en"): string {
 
 /** Known tokens inside stored calculation prose; unknown surrounding text survives. */
 export function uiOneProse(value: string, locale: "ar" | "en"): string {
+  // D-181: the founder-chosen public methodology name wins over the D-157 pair,
+  // which stays pinned in uiOneDisplay as approved.
+  const publicName = methodologyPublicName(value, locale);
+  if (publicName) return publicName;
   const exact = uiOneDisplay(value, locale);
   if (exact !== value) return exact;
   return Object.entries(uiOneLabels).reduce((text, [source, pair]) => {

@@ -32,12 +32,12 @@ for (const locale of ["ar", "en"] as const) for (const width of [390, 1366]) {
     await page.goto(`${prefix}/stock/fixture`);
     await page.locator('[data-section="why"] a[href*="/methodology/fixture"]').click();
     await expect(page).toHaveURL(new RegExp(`${prefix}/methodology/fixture\\?version=1.0#methodology-fixture-version-1.0`));
-    await expect(page.locator("h1")).toContainText(locale === "ar" ? "تطبيق بحثي مستقل" : "Independent research");
+    await expect(page.locator("h1")).toContainText(locale === "ar" ? "منهجية سهيل الأساسية" : "Suhail core methodology"); // D-181
     await expect(page.locator("body")).toContainText(locale === "ar" ? "فريق سهيل" : "The Suhail team");
     await expect(page.locator("#public-version-selector")).toContainText(locale === "ar" ? "الإصدار 1.0 · مسودة" : "Version 1.0 · Draft");
     await expect(page.locator("body")).not.toContainText("Adapted research 1.0");
     await page.goto(`${prefix}/methodology`);
-    await expect(page.locator("h2")).toContainText(locale === "ar" ? "تطبيق بحثي مستقل" : "Independent research");
+    await expect(page.locator("h2")).toContainText(locale === "ar" ? "منهجية سهيل الأساسية" : "Suhail core methodology"); // D-181
     await page.locator('h2 a[href$="/methodology/fixture"]').click();
     await expect(page.locator("body")).toContainText(locale === "ar" ? "إعداد أولي للنسخة البحثية." : "Initial research version.");
   });
