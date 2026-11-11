@@ -6,7 +6,8 @@ export function methodologyDisplay(value: string, locale: "ar" | "en") {
   return stripPublicReviewMarker(uiOneProse(value, locale));
 }
 
-/** A draft-labelled record remains publicly provisional even if its flags are enabled. */
-export function isDraftMethodologyLabel(value: string | null | undefined) {
+/** D-182: recorded workflow wins over stale label prose; legacy data may lack it. */
+export function isDraftMethodologyLabel(value: string | null | undefined, workflow?: string | null) {
+  if (workflow) return workflow === "draft";
   return Boolean(value && (/\bdraft\b/i.test(value) || /مسودة/.test(value)));
 }

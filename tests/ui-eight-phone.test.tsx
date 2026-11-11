@@ -11,6 +11,7 @@ import { uiOneMethodologyFixture } from "./fixtures/ui-one-methodology";
 import { uiEightStoredVersion, uiEightVersion } from "../src/i18n/approved-arabic-ui-eight";
 import { uiOneDisplay, stockShortVersionLabel } from "../src/i18n/approved-arabic-ui-one";
 import { displayLabel } from "../src/i18n/presentation";
+import { publicMethodologyVersionLabel } from "../src/i18n/methodology-labels";
 import ar from "../src/i18n/messages/ar.json";
 import en from "../src/i18n/messages/en.json";
 vi.mock("../src/i18n/navigation", () => ({ usePathname: () => "/", getPathname: () => "/", useRouter: () => ({ replace: vi.fn() }),
@@ -40,11 +41,11 @@ describe("D-166 phone-first stock record", () => {
     data.version!.version = "1.1"; data.version!.version_label = uiEightStoredVersion;
     const before = structuredClone(data);
     const summary = render(locale, <StockSummary data={data} locale={locale} />);
-    expect(summary).toContain(uiEightVersion[locale].short);
+    expect(summary).toContain(publicMethodologyVersionLabel(uiEightVersion[locale].short));
     expect(summary).not.toContain(uiEightVersion[locale].full);
-    expect(summary).not.toContain(displayLabel("workflow", "approved", locale));
+    expect(summary).toContain(displayLabel("workflow", "approved", locale));
     const html = render(locale, <StockVerdict data={data} locale={locale} />);
-    const escapedFull = uiEightVersion[locale].full.replaceAll("'", "&#x27;");
+    const escapedFull = publicMethodologyVersionLabel(uiEightVersion[locale].full).replaceAll("'", "&#x27;");
     expect(html).toContain(escapedFull);
     expect(html.indexOf(escapedFull)).toBeLessThan(html.indexOf('data-record-section="screening"'));
     expect(html).toContain("data-record-version");

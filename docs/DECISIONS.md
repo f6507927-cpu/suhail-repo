@@ -1,5 +1,11 @@
 # Suhail — Decision Log
 
+## 8 November 2026 — Published methodology workflow labels
+
+| ID | Decision |
+| --- | --- |
+| D-182 | **Founder-requested public display correction after D-181's naming mapping.** Apply D-159's stale-draft cleanup after the approved Arabic/English version-label mappings, including UI-8's short and full 1.1 forms. Known launch labels omit stale “Draft” / «مسودة» while retaining the upper-bound assumption caveat. Public stock summaries, full records and methodology pages show the recorded workflow state; a stored draft label must neither suppress an approved badge nor override recorded workflow or production flags. Actual draft versions retain their draft workflow label. Preserve D-181's public name, approved translation tables, arbitrary custom labels, stored version labels, evidence, historical runs, governance and production flags. Fixture tests only; no database, migration or deployment change. |
+
 ## 8 November 2026 — Public name of the default methodology
 
 | ID | Decision |

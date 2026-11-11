@@ -48,14 +48,14 @@ describe("UI-5 methodology presentation only", () => {
       expect(text(html)).toContain("A stored structured treatment sentence.");
       expect(closed).not.toContain("A stored structured treatment sentence.");
       expect(closed).toContain(locale === "ar" ? "شرح عربي محفوظ للمعيار 0." : "Stored English explanation for criterion 0.");
-      expect(closed).toContain((locale === "ar" ? ar : en).publicMethodology.provisionalNotice);
-      expect(closed).toContain((locale === "ar" ? ar : en).publicMethodology.draftReview);
+      expect(closed).not.toContain((locale === "ar" ? ar : en).publicMethodology.provisionalNotice);
+      expect(closed).not.toContain((locale === "ar" ? ar : en).publicMethodology.draftReview);
       expect(closed).toContain(locale === "ar" ? "لا ينطبق" : "Not applicable");
       expect(html).not.toContain("<table");
       expect(text(html)).not.toMatch(/\bD-\d+|interest_bearing_debt|market_value_basis|\bnull\b/);
       expect(html).toContain('href="https://example.test/source"');
       expect(html).toContain(locale === "ar" ? "فريق سهيل" : "The Suhail team");
-      expect(html).not.toContain((locale === "ar" ? ar : en).methodologies.inProduction);
+      expect(html).toContain((locale === "ar" ? ar : en).methodologies.inProduction);
       expect(data).toEqual(before);
       expect(document.version.production_enabled).toBe(true);
       expect(document.version.workflow_status).toBe("approved");

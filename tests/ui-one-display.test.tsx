@@ -53,8 +53,9 @@ describe("D-157 UI-1 display boundary", () => {
       expect(html).not.toContain("data-language-notice");
       if (status) {
         expect(html).toContain("a".repeat(64));
-        expect(visible).toContain(locale === "ar" ? "الإصدار 1.0 · مسودة" : "Version 1.0 · Draft");
-        expect(visible).not.toContain(locale === "ar" ? "موافَق عليه" : "Approved");
+        expect(visible).toContain(locale === "ar" ? "الإصدار 1.0" : "Version 1.0");
+        expect(visible).not.toContain(locale === "ar" ? "الإصدار 1.0 · مسودة" : "Version 1.0 · Draft");
+        expect(visible).toContain(locale === "ar" ? "موافَق عليه" : "Approved");
         expect(visible).toContain(locale === "ar" ? "تصدر هذه النتيجة عن محرك حساب ثابت، ولا يغيّرها الذكاء الاصطناعي." : "This result comes from a fixed calculation engine. AI never changes it.");
         expect(visible).toContain(locale === "ar" ? "الرقم غير متاح" : "Figure unavailable");
         expect(visible).not.toContain("1.00");

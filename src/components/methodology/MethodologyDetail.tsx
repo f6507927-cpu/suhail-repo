@@ -153,7 +153,7 @@ export function MethodologyDetail({
   });
   const sourceUrl = safeSourceUrl(method.source_url);
   const example = method.official_or_inspired === "internal_example" || method.is_demo || version.is_demo;
-  const isDraft = isDraftMethodologyLabel(storedVersion.version_label);
+  const isDraft = isDraftMethodologyLabel(storedVersion.version_label, storedVersion.workflow_status);
   const englishOnlyRemains = labelLocale === "ar" && (
     hasEnglishProse(method.scope) ||
     hasEnglishProse(version.changelog) ||
