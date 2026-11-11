@@ -241,9 +241,9 @@ describe("stock public-label cleanup (D-150)", () => {
   });
 
   it.each([
-    ["Adapted research 1.0 — draft", "الإصدار 1.0 · مسودة"],
-    // D-166/UI-8 applies the approved Arabic display; all evidence assertions stay.
-    ["Adapted research 1.1 — draft; Suhail upper-bound assumption", "الإصدار 1.1 · مسودة، ويعتمد على افتراض الحد الأعلى لدى سهيل"],
+    ["Adapted research 1.0 — draft", "الإصدار 1.0"],
+    // D-182 removes stale draft wording after UI-8's mapping.
+    ["Adapted research 1.1 — draft; Suhail upper-bound assumption", "الإصدار 1.1، ويعتمد على افتراض الحد الأعلى لدى سهيل"],
   ])("uses the public label for %s in rendered and social/document titles without editing evidence", (stored, shown) => {
     const data = stockFixture();
     data.version!.version_label = stored;
@@ -256,9 +256,7 @@ describe("stock public-label cleanup (D-150)", () => {
     const metadata = stockMetadata(data, "ar", "https://example.test");
     expect(JSON.stringify(metadata)).toContain(shown);
     expect(JSON.stringify(metadata)).not.toContain(stored);
-    // The explicitly supplied UI-1 draft pair suppresses its adjacent approval badge only.
-    if (stored !== "Adapted research 1.0 — draft")
-      expect(html).toContain(displayLabel("workflow", "approved", "ar"));
+    expect(html).toContain(displayLabel("workflow", "approved", "ar"));
     expect(data).toEqual(original);
     data.version = null;
     expect(renderStock(data)).not.toContain(stored);

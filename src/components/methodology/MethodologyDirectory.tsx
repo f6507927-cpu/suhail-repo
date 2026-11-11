@@ -95,6 +95,7 @@ export function MethodologyDirectory({
                         ? <span>{display(latest ?? "—")}</span>
                         : <bdi dir="ltr" className="font-mono">{display(latest ?? "—")}</bdi>}
                     </span>
+                    {current?.workflow_status && <span>{displayLabel("workflow", current.workflow_status, locale === "ar" ? "ar" : "en")}</span>}
                     <span>
                       <span className="text-muted-foreground"><MethodologyCopy id="publicVersions" />: </span>
                       <Num>{formatNumber(group.versions.length, locale === "ar" ? "ar" : "en")}</Num>
