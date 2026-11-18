@@ -8,7 +8,8 @@ Provider API-key names must be absent; their values are never read. The command
 prints automatic validation comparisons and leaves usefulness for human scoring.
 It writes no files or data and does not generate, approve or publish research.
 See [AI_RESEARCH_P1.md](AI_RESEARCH_P1.md) for contracts and remaining gates.
-Deployment build/run commands and deferred AI variables below are unchanged.
+The P2 recorded-client path is also exercised without importing a real provider.
+Deployment build/run commands are unchanged. P2 variable requirements are below.
 
 ## SEC Notes-data dry run (D-142, D-154)
 
@@ -342,6 +343,10 @@ freezes them at build time, so changing them requires a rebuild.
 | `JOB_BATCH_SIZE` | configuration | Optional positive integer, default 100 for workspace jobs | job runtime |
 | `GIT_SHA` / `GITHUB_SHA` | public build metadata | Optional; otherwise local git SHA | build |
 | `PORT` | platform-supplied configuration | Platform binding; start defaults to 3000 if absent | runtime |
+| `ANTHROPIC_API_KEY` | secret | Required only for separately authorised research generation; read only by the server provider | lazy runtime |
+| `LLM_MODEL` | configuration | Required explicit research model, no default | lazy runtime |
+| `AI_RESEARCH_MAX_OUTPUT_TOKENS` | configuration | Required positive output ceiling for research generation | lazy runtime |
+| `AI_RESEARCH_MAX_INPUT_TOKENS` | configuration | Required positive input ceiling for research generation | lazy runtime |
 
 Actual consumers: site/auth/SEC schemas in `src/env`, auth browser/server clients,
 runtime database factories, `src/security/forwarding-diagnostic.ts`, jobs and
@@ -357,9 +362,36 @@ are configuration; establish its actual runtime needs then.
 server/fixture, benchmark, local DB bootstrap and `POSTGRES_TEST_BIN` settings).
 Never deploy generic `DATABASE_URL` / `PG*` credentials, workspace CLI owner keys
 or test adapters. No `SESSION_SECRET` consumer is present; it is not required.
-Deferred under D-54 (mapped to D-63): `ANTHROPIC_API_KEY`, `LLM_MODEL`,
-`REVALIDATE_SECRET`, `S3_BUCKET_ARCHIVE`, `SEND_OTP_HOOK_SECRET` and future OTP
+Deferred under D-54 (mapped to D-63): `REVALIDATE_SECRET`, `S3_BUCKET_ARCHIVE`, `SEND_OTP_HOOK_SECRET` and future OTP
 provider configuration. Do not request these for this deployment.
+
+### Private research P2 (D-216)
+
+Migration `0023_private_research` is prepared, **not applied to Supabase**.
+An authorised operator applies it through the existing migration procedure;
+build/start never apply it. No publication table or public research page exists.
+All new tables deny `suhail_public`, and publishing is off in the inserted settings.
+Budget and active-stock limits start at zero, allowed sectors empty; freshness and
+price thresholds stay unset until the founder configures them. No production
+threshold or token-budget guess is introduced.
+
+The admin entry is inside existing Settings → Research drafts and controls,
+with direct routes `/admin/research` and `/admin/research/settings` (English
+prefix `/en`). Arabic admin copy is pending review, not approved translations.
+The Arabic prompt and banned list remain **DRAFT (O-13)**. Real generation is
+refused until that approval is recorded in reviewed code; setting credentials
+alone does not activate it. There is no automatic request, queue or schedule.
+The only allowed test provider is `RecordedResearchClient`; credentials must be
+absent during tests/evaluation. No real provider call was made for this work.
+
+Each generation attempt reserves input+output ceilings against its UTC-month
+budget in a short database transaction, then calls the provider outside that
+transaction. Reported usage releases/true-ups the reservation. Unknown transport
+usage is charged conservatively at the reservation; a process crash leaves the
+reservation in that month's row, never silently reclaims spendable budget.
+Only structural failures retry once, with another reservation. Publication
+transitions are refused in P2 even if a future authorised gate action supplies
+valid founder/lawyer evidence. Do not enable that gate as a P2 setup step.
 
 ## Session pooler and connection capacity
 

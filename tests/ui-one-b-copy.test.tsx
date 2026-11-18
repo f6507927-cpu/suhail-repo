@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { discover, leaves } from "../scripts/ar-review";
+import { discover, leaves, pendingResearchArabic } from "../scripts/ar-review";
 import { approvedArabicCopy } from "../src/i18n/approved-arabic";
 import { uiOneBArabic } from "../src/i18n/approved-arabic-ui-one-b";
 import { uiOneBReviewProposals } from "../src/i18n/ui-one-b-review-proposals";
@@ -39,7 +39,16 @@ describe("UI-1B complete interface copy boundary", () => {
     expect(audit.errors).toEqual([]);
     expect(audit.unresolved).toEqual([]);
     expect(audit.copySources.length).toBeGreaterThan(530);
-    for (const source of audit.copySources) assertArabic(source, approvedArabicCopy[source]);
+    for (const source of audit.copySources) {
+      const entry = audit.entries.find(e => e.source === source);
+      // P2 expressly forbids creating Arabic UI copy. Keep the exact private
+      // origins pending and visible, not silently approved or auto-translated.
+      if (entry && pendingResearchArabic(entry) && !approvedArabicCopy[source]) {
+        expect(reviewText("ar", source)).toBe(source);
+        continue;
+      }
+      assertArabic(source, approvedArabicCopy[source]);
+    }
     for (const [key, text] of Object.entries(leaves(ar))) assertArabic(key, text);
     for (const [source, copy] of Object.entries(accountCopyDictionary)) assertArabic(source, copy.ar);
     for (const source of Object.keys(uiOneBReviewProposals)) assertArabic(source, reviewText("ar", source));
