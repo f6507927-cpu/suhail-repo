@@ -1,5 +1,11 @@
 # Suhail — Decision Log
 
+## 18 November 2026 — AI research P1, fixture-only contracts
+
+| ID | Decision |
+| --- | --- |
+| D-215 | **Offline P1 implementation of the approved research design.** Packets select current, explicitly sourced facts from the two latest annual periods and the latest stored run per production-enabled methodology; missing/zero derivation inputs and incompatible units remain unavailable. The closed derived list is revenue growth, net/gross/operating margins, debt/equity and unchanged stored operating/investing/financing cash flows; exact decimal decomposition reuses the engine, with six-place half-away-from-zero derived ratios. Hashes omit only build time and the hash itself. The strict model schema excludes code-owned D-42 context/citations, requires three bilingual plain-summary lines (up to 240 characters each), and limitations identify unavailable/stale items by `covers` IDs. Typed figures need block or sentence-local citations; figure tokens resolve their own citations. Guidance is capped at 2,000 characters. Freshness settings are explicit caller inputs, not production defaults. Ten clearly synthetic fixtures, frozen packet hashes and hand-written positive/negative outputs evaluate safety, not human usefulness. Arabic safety lists remain DRAFT under O-13. No provider client, automatic request/queue, database access, schema, migration, role, UI, legal-copy, deployment or P2 work is included. D-197 and D-210–D-214 are preserved. |
+
 ## 18 November 2026 — AI research assistant additions (design only)
 
 **Proposed, pending founder approval.** Documentation only. Extends D-182 to D-196; detail is in [AI_RESEARCH_DESIGN.md](AI_RESEARCH_DESIGN.md) sections 4, 6, 7, 8 and 13. IDs D-210 to D-214 are reserved for this set so they cannot collide with decisions numbered in parallel branches.

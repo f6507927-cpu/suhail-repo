@@ -7,6 +7,7 @@
   },
   "packageManager": "pnpm@10.26.1",
   "scripts": {
+    "research:eval": "tsx scripts/research/evaluate.ts",
     "prices:month": "node --conditions=react-server --import tsx scripts/prices/month.ts",
     "prices:dry-run": "node --conditions=react-server --import tsx scripts/prices/dry-run.ts",
     "ar-review:list": "tsx scripts/ar-review.ts",
