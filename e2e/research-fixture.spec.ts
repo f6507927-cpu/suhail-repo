@@ -32,3 +32,12 @@ test("settings start off and leave unconfigured thresholds blank", async ({ page
   await expect(page.locator('[name="max_packet_age_days"]')).toHaveValue("");
   await expect(page.locator('[name="monthly_token_budget"]')).toHaveValue("0");
 });
+test("admin list offers explicit reconciliation only for a requested draft", async ({ page }) => {
+  await page.goto("/?locale=en&mode=list");
+  const button = page.getByRole("button", { name: "Mark abandoned and release reservation", exact: true });
+  await expect(button).toHaveCount(1);
+  await button.click();
+  await expect(page.locator("#recording")).toContainText("abandoned-fixture");
+  const fields = Object.fromEntries(JSON.parse(await page.locator("#recording").textContent() ?? "[]"));
+  expect(fields.draft_id).toBe("abandoned-fixture");
+});

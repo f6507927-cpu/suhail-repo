@@ -12,6 +12,7 @@ export interface ResearchListProps {
   securities: { id: string; ticker: string }[];
   requestAction: ResearchAction;
   settingsHref: string | null;
+  reconcileAction?: ResearchAction;
 }
 function researchStateLabel(state: string) {
   const labels: Record<string, string> = {
@@ -23,13 +24,26 @@ function researchStateLabel(state: string) {
   return labels[state] ?? "Research draft";
 }
 
-export function ResearchList({ locale, rows, securities, requestAction, settingsHref }: ResearchListProps) {
+export function ResearchList({ locale, rows, securities, requestAction, settingsHref, reconcileAction }: ResearchListProps) {
   const router = useRouter();
   const [stateFilter, setStateFilter] = useState("");
   const [pending, setPending] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [failed, setFailed] = useState(false);
   const lock = useRef(false);
+  async function reconcile(id: string) {
+    if (!reconcileAction || lock.current) return;
+    lock.current = true; setPending(true); setFeedback(""); setFailed(false);
+    try {
+      const form = new FormData(); form.set("draft_id", id);
+      const result = await reconcileAction(form);
+      setFailed(!result.ok);
+      setFeedback(result.message || reviewText(locale, result.ok ? "Action completed." : "Action could not be completed."));
+      if (result.ok) router.refresh();
+    } catch {
+      setFailed(true); setFeedback(reviewText(locale, "Action could not be completed."));
+    } finally { lock.current = false; setPending(false); }
+  }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (lock.current) return;
@@ -65,6 +79,10 @@ export function ResearchList({ locale, rows, securities, requestAction, settings
       {rows.filter(row => !stateFilter || row.state === stateFilter).map(row => <article key={row.id} className="flex flex-col gap-4 border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2"><bdi dir="ltr" className="font-mono text-lg font-semibold">{row.ticker}</bdi><span className="border border-border px-2 py-1 text-xs">{reviewText(locale, researchStateLabel(row.state))}</span><span className="text-sm text-muted-foreground">{row.blocks} {reviewText(locale, row.blocks === 1 ? "blocking issue" : "blocking issues")}</span></div>
         <a href={localePath(locale, `/admin/research/${encodeURIComponent(row.id)}`)} className="inline-flex min-h-11 items-center justify-center bg-secondary px-4 text-sm font-medium hover:bg-muted">{reviewText(locale, "Inspect draft")}</a>
+        {row.state === "requested" && reconcileAction && <button type="button" disabled={pending}
+          onClick={() => void reconcile(row.id)} className="min-h-11 border border-border px-4 text-sm">
+          {reviewText(locale, "Mark abandoned and release reservation")}
+        </button>}
       </article>)}
       {rows.length === 0 && <div className="border border-dashed border-border bg-card px-5 py-12 text-center"><p className="font-medium">{reviewText(locale, "No research drafts yet")}</p><p className="mt-2 text-sm text-muted-foreground">{reviewText(locale, "Choose a covered security above to begin an evidence-led review.")}</p></div>}
     </div>

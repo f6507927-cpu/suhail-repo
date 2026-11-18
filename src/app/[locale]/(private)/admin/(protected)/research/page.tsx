@@ -5,7 +5,7 @@ import { researchDraft } from "@/db/schema/research";
 import { ResearchList } from "@/components/research";
 import { requirePageRole } from "@/lib/auth/guards";
 import { localePath } from "@/lib/auth/paths";
-import { requestResearchDraft } from "@/lib/research/actions";
+import { requestResearchDraft, reconcileResearchDraft } from "@/lib/research/actions";
 import { privatePageMetadata } from "@/components/accounts/private-page-metadata";
 
 export const dynamic = "force-dynamic";
@@ -23,5 +23,6 @@ export default async function ResearchPage({ params }: { params: Promise<{ local
   return <ResearchList locale={locale} rows={rows.map(row => ({
     id: row.id, ticker: row.ticker, state: row.state, blocks: row.issues.filter(i => i.severity === "block").length,
   }))} securities={securities} requestAction={requestResearchDraft}
+    reconcileAction={context.user.role === "admin" ? reconcileResearchDraft : undefined}
     settingsHref={context.user.role === "admin" ? "/admin/research/settings" : null} />;
 }

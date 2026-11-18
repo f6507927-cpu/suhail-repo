@@ -19,8 +19,11 @@ createRoot(document.querySelector("#app")!).render(
     ai_research_publishing: false, monthly_token_budget: 0, max_active_research_stocks: 0, allowed_sectors: [],
     max_packet_age_days: null, max_financial_age_days: null, price_move_threshold_percent: null, publication_age_days: null,
   }} saveAction={action} gateAction={action} /> :
-    mode === "list" ? <ResearchList locale={locale} rows={[{ id: "fixture", ticker: "SYNTHETIC", state: "in_review", blocks: 1 }]}
-      securities={[{ id: "fixture", ticker: "SYNTHETIC" }]} requestAction={action} settingsHref="/admin/research/settings" /> :
+    mode === "list" ? <ResearchList locale={locale} rows={[
+      { id: "fixture", ticker: "SYNTHETIC", state: "in_review", blocks: 1 },
+      { id: "abandoned-fixture", ticker: "SYNTHETIC", state: "requested", blocks: 1 },
+    ]} securities={[{ id: "fixture", ticker: "SYNTHETIC" }]} requestAction={action}
+      reconcileAction={action} settingsHref="/admin/research/settings" /> :
       <ResearchReview locale={locale} draft={{ id: "fixture", state: "in_review", ai_output: draft, analyst_text: draft,
         validation_results: [], failure_reason: null, text_hash: "fixture-current" }}
         packet={packet} activeAnalyst={true} saveAction={action} transitionAction={action} regenerateAction={action} />

@@ -3,6 +3,7 @@
  * Preview browsing does not bypass any private access level (D-137).
  */
 export const routeInventory: Record<string, string> = {
+  "src/lib/research/actions.ts#action:reconcileResearchDraft": "admin-aal2",
   "src/app/[locale]/(private)/admin/(protected)/research/page.tsx#page": "admin-editor-aal2",
   "src/app/[locale]/(private)/admin/(protected)/research/[id]/page.tsx#page": "admin-editor-aal2",
   "src/app/[locale]/(private)/admin/(protected)/research/settings/page.tsx#page": "admin-aal2",

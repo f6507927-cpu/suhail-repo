@@ -88,3 +88,32 @@ production use; the existing admin fallback displays its English source.
 - Shariah reviewer: O-11 allowed status/religious wording and hiding policy.
 - No automatic queue, refresh job, publication, public research pages, legal
   changes, provider activation, P3/P4/P5 or deployment.
+
+## PR review corrections (D-217)
+
+- Settings and gate audit details contain locked before/after snapshots of every
+  changed scope/threshold field and the gate's enabled state, decision/lawyer
+  references and enablement metadata. Disabling clears the live columns, not
+  the historical audit snapshot.
+- Migration `0024_research_reservations` adds per-draft amount/month and attempt/
+  settlement tracking. It is prepared only; migration 0023 is unchanged.
+- Admins can explicitly mark a requested draft abandoned from the draft list.
+  This is manual reconciliation, not a timer with an invented timeout. It
+  atomically sets failed/abandoned, releases only its reservation and frees the
+  active-stock slot. Repeating it does nothing. Completed drafts are refused.
+  A late provider settlement records actual usage once, never subtracts another
+  reservation or resurrects the draft. This is not provider cancellation.
+  Old aggregate-only reservations cannot be attributed safely; the migration
+  deliberately does not guess ownership or zero the monthly totals.
+- Prompt version 2 leaves ids, enums, numbers and dates in structured JSON.
+  Only free names, labels, explanations, notes and analyst guidance use random
+  untrusted boundaries. Exact repeated evidence text shares one section;
+  analyst guidance retains a separate section and remains non-evidence.
+- `pnpm exec tsx scripts/research/measure-prompt.ts` compares the synthetic
+  SYNALPHA packet against the pre-review all-string wrapper preserved only in
+  a test fixture. Measured system+user text: **37,690 → 6,698 reference tokens**
+  (81,367 → 22,884 bytes; about 82% fewer tokens). Counts vary slightly with the
+  random delimiters. `@anthropic-ai/tokenizer` 0.0.4 is development-only, added
+  solely for this reproducible offline comparison. Its legacy encoding is only
+  a rough estimate for Claude 3+; API framing/output-schema overhead is excluded.
+  No real provider request was made to obtain these counts.
