@@ -1,7 +1,7 @@
 # AI research assistant — design (Phase 0)
 
 Status: **proposed, awaiting founder approval. No code in this PR.**
-Decisions: D-182 to D-196 and D-210 to D-213. Open items: O-9 to O-13 (see `docs/DECISIONS.md`).
+Decisions: D-182 to D-196 and D-210 to D-214. Open items: O-9 to O-13 (see `docs/DECISIONS.md`).
 Sources read: `AGENTS.md`, `replit.md`, `docs/DECISIONS.md`, `docs/DEPLOY.md`,
 `docs/SUHAIL_BUILD_REFERENCE.md` §4.6, §10, §11, the D-151 analyst code
 (`analyst_profile`, `app.public_pick_analyst`, migration 0019), and the screening,
@@ -256,3 +256,14 @@ Migrations: one per phase, continuing after `0022` with `journal.when` greater t
 | P5 (optional) | 10-K section excerpts in the packet | for tests, recorded | only if needed |
 
 Each PR description lists decisions taken, open questions for the founder, the lawyer and the Shariah reviewer, and what is not done.
+
+## 14. Value and experience test for every addition (D-214)
+
+Every new screen, field or feature in this work answers these before it is built, and the PR description records the answers:
+1. **Who gains, and what exactly?** A named reader (analyst or consumer) and the effort or confusion removed.
+2. **Is it easier than before?** Fewer clicks or less reading than the alternative. If not, it does not ship.
+3. **Simple by default.** The first view leads with the answer; detail sits behind a disclosure.
+4. **Phone and Arabic first.** Checked at 375×812 and in Arabic, no sideways scroll (D-166).
+5. **One main action per screen,** and no new navigation item unless one is merged or removed.
+6. **Quiet and consistent.** Existing tokens and components; restraint over decoration (CDS restraint rule).
+
