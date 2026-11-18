@@ -1,0 +1,18 @@
+{
+  "version": "research-rubric-1",
+  "synthetic_only": true,
+  "automatic_dimensions": {
+    "accuracy": ["schema", "grounding", "status", "packet_integrity", "coverage", "freshness", "data_limitations", "other_issuer"],
+    "citation_coverage": ["schema", "citations"],
+    "compliance_wording": ["schema", "banned_phrase", "personal_data", "disclosure"],
+    "both_languages": ["schema", "languages"]
+  },
+  "usefulness": {
+    "scoring": "human only; null means not scored, never inferred from validator results",
+    "scale": "0–4, from unhelpful to clear, balanced and useful for analyst review",
+    "scores": {
+      "handwritten-v1": null,
+      "deliberately-bad-v0": null
+    }
+  }
+}

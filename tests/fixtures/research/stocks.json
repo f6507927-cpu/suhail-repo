@@ -1,0 +1,12 @@
+[
+  {"ticker":"SYNALPHA","name":"Synthetic Alpha","revenue":120000000,"prior_revenue":100000000,"income":12000000,"debt":20000000,"equity":40000000,"close":24.5,"status":"passes_selected_methodology"},
+  {"ticker":"SYNBETA","name":"Synthetic Beta","revenue":80000000,"prior_revenue":100000000,"income":-4000000,"debt":90000000,"equity":30000000,"close":11,"status":"fails_selected_methodology"},
+  {"ticker":"SYNGAMMA","name":"Synthetic Gamma","revenue":50000000,"prior_revenue":50000000,"income":null,"debt":20000000,"equity":0,"close":8.25,"status":"requires_review"},
+  {"ticker":"SYNDELTA","name":"Synthetic Delta","revenue":null,"prior_revenue":40000000,"income":2000000,"debt":10000000,"equity":20000000,"close":5,"status":"insufficient_data"},
+  {"ticker":"SYNEPSILON","name":"Synthetic Epsilon","revenue":1500000000,"prior_revenue":1200000000,"income":300000000,"debt":500000000,"equity":1000000000,"close":150,"status":"passes_selected_methodology"},
+  {"ticker":"SYNZETA","name":"Synthetic Zeta","revenue":30000000,"prior_revenue":0,"income":1000000,"debt":15000000,"equity":10000000,"close":3.5,"status":"requires_review"},
+  {"ticker":"SYNETA","name":"Synthetic Eta","revenue":123450000,"prior_revenue":100000000,"income":12345000,"debt":30000000,"equity":30000000,"close":17.125,"status":"passes_selected_methodology"},
+  {"ticker":"SYNTHETA","name":"Synthetic Theta","revenue":90000000,"prior_revenue":110000000,"income":-2000000,"debt":200000000,"equity":-5000000,"close":2.125,"status":"fails_selected_methodology"},
+  {"ticker":"SYNIOTA","name":"Synthetic Iota","revenue":10000000,"prior_revenue":9000000,"income":0,"debt":0,"equity":1000000,"close":1.5,"status":"passes_selected_methodology"},
+  {"ticker":"SYNKAPPA","name":"Synthetic Kappa","revenue":240000000,"prior_revenue":200000000,"income":null,"debt":null,"equity":null,"close":30,"status":"insufficient_data"}
+]

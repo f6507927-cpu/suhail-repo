@@ -1,5 +1,15 @@
 # Phase 0 Autoscale operating guide
 
+## Offline research evaluation (P1, D-215)
+
+`pnpm research:eval` runs only ten synthetic fixtures and hand-written outputs.
+It requires no deployment variables, database, provider credential or network.
+Provider API-key names must be absent; their values are never read. The command
+prints automatic validation comparisons and leaves usefulness for human scoring.
+It writes no files or data and does not generate, approve or publish research.
+See [AI_RESEARCH_P1.md](AI_RESEARCH_P1.md) for contracts and remaining gates.
+Deployment build/run commands and deferred AI variables below are unchanged.
+
 ## SEC Notes-data dry run (D-142, D-154)
 
 **Local v1.1 upper-bound comparison (D-154):**
