@@ -88,6 +88,28 @@ describe("D-189 deterministic research packets", () => {
     const derived = buildResearchPacket(rows, FIXTURE_CLOCK).items.find(i => i.id === "drv.debt_to_equity");
     expect(derived?.value).toBeNull(); expect(derived?.unavailable).toBeTruthy();
   });
+  it.each([
+    ["net_income", "net_margin"], ["gross_profit", "gross_margin"],
+    ["operating_income", "operating_margin"], ["interest_bearing_debt", "debt_to_equity"],
+    ["operating_cash_flow", "operating_cash_flow"], ["investing_cash_flow", "investing_cash_flow"],
+    ["financing_cash_flow", "financing_cash_flow"],
+  ])("retains a zero %s in %s", (field, id) => {
+    const rows = input(); rows.periods[0].facts.find(f => f.field === field)!.value = 0;
+    const item = buildResearchPacket(rows, FIXTURE_CLOCK).items.find(i => i.id === `drv.${id}`)!;
+    expect(item.value).toBe(0);
+    expect(item.unavailable).toBeNull();
+  });
+  it("allows zero current revenue with a nonzero growth base, but never a zero denominator", () => {
+    const rows = input(); rows.periods[0].facts.find(f => f.field === "total_revenue")!.value = 0;
+    const packet = buildResearchPacket(rows, FIXTURE_CLOCK);
+    expect(packet.items.find(i => i.id === "drv.revenue_growth")).toMatchObject({ value: -100, unavailable: null });
+    for (const id of ["net_margin", "gross_margin", "operating_margin"])
+      expect(packet.items.find(i => i.id === `drv.${id}`)).toMatchObject({ value: null, unavailable: expect.any(String) });
+    rows.periods[1].facts.find(f => f.field === "total_revenue")!.value = 0;
+    expect(buildResearchPacket(rows, FIXTURE_CLOCK).items.find(i => i.id === "drv.revenue_growth")?.value).toBeNull();
+    rows.periods[0].facts.find(f => f.field === "total_revenue")!.value = 120000000;
+    expect(buildResearchPacket(rows, FIXTURE_CLOCK).items.find(i => i.id === "drv.revenue_growth")?.value).toBeNull();
+  });
   it("propagates Estimated confidence and never invents cash flow from earnings", () => {
     const rows = input();
     rows.periods[0].facts.find(f => f.field === "net_income")!.confidence_tier = "Estimated";
@@ -161,11 +183,24 @@ describe("D-211 changes[]", () => {
     const rows = input(); rows.periods[0].facts[0].value = 130000000;
     const next = buildResearchPacket(rows, "2026-11-03T12:00:00Z");
     const changes = compareResearchPackets(fixturePackets[0], next, {
-      price_move_percent: 5, max_age_days: 90, reference_date: "2026-08-04T12:00:00Z",
+      price_move_percent: 5, max_age_days: 90, reference_date: "2027-02-01T12:00:00Z",
     });
     expect(changes).toContainEqual(expect.objectContaining({ item_id: "fin.total_revenue.FY2025", trigger: "new_filing" }));
-    expect(changes).toContainEqual({ item_id: "packet.age", type: "changed", old_value: false, new_value: true, trigger: "age" });
+    expect(changes).toContainEqual({ item_id: "packet.age", type: "changed", old_value: true, new_value: false, trigger: "age" });
     expect(() => compareResearchPackets(fixturePackets[0], fixturePackets[1])).toThrow("different securities");
+  });
+  it("does not treat a build after the reference as an old packet", () => {
+    const next = buildResearchPacket(input(), "2026-11-03T12:00:00Z");
+    expect(compareResearchPackets(fixturePackets[0], next, {
+      price_move_percent: 5, max_age_days: 90, reference_date: "2026-08-04T12:00:00Z",
+    })).toEqual([]);
+  });
+  it("labels identity and derived changes without claiming a new filing", () => {
+    const rows = input(); rows.security.activity = "updated manufacturing";
+    rows.periods[0].facts.find(f => f.field === "net_income")!.value = 0;
+    const changes = compareResearchPackets(fixturePackets[0], buildResearchPacket(rows, FIXTURE_CLOCK));
+    expect(changes).toContainEqual(expect.objectContaining({ item_id: "id.activity", trigger: "identity_change" }));
+    expect(changes).toContainEqual(expect.objectContaining({ item_id: "drv.net_margin", trigger: "derived_change" }));
   });
   it("honours an explicit price-move threshold without hiding unrelated changes", () => {
     const rows = input(); rows.prices[0].close = 24.6; rows.security.activity = "changed";

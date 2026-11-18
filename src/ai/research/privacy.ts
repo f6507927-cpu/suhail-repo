@@ -3,8 +3,23 @@ export function hasEmail(text: string) {
   return /[^\s@]+@[^\s@]+\.[^\s@]+/u.test(text);
 }
 export function hasPhone(text: string) {
-  return /(?:\+?\d[\d ()-]{6,}\d)/u.test(text.replace(/[\u0660-\u0669\u06f0-\u06f9]/g,
-    c => String(c.charCodeAt(0) - (c <= "\u0669" ? 0x660 : 0x6f0))));
+  const normalized = text.replace(/[\u0660-\u0669\u06f0-\u06f9]/g,
+    c => String(c.charCodeAt(0) - (c <= "\u0669" ? 0x660 : 0x6f0)))
+    .replace(/\b\d{4}-\d{2}-\d{2}\b/g, date => " ".repeat(date.length));
+  for (const match of normalized.matchAll(/(?<![\d.,])\+?\d[\d ()-]*\d(?!\d|[.,]\d)/gu)) {
+    const candidate = match[0], digits = candidate.replace(/\D/g, "");
+    if (digits.length > 15) continue;
+    if (/^\+[1-9]/u.test(candidate) && digits.length >= 7) return true;
+    // A bare financial figure is not evidence of a phone number. Domestic
+    // numbers require phone-style grouping or an explicit contact label.
+    const contact = /(?:\b(?:phone|tel|mobile|call)|هاتف|جوال|اتصل)\s*[:：]?\s*$/iu.test(normalized.slice(0, match.index));
+    const groupedFigure = /^\d{1,3}(?:[ -]\d{3})+$/u.test(candidate);
+    const groups = candidate.split(/\D+/u).filter(Boolean);
+    const groupedPhone = groups.length >= 2 && groups.length <= 6
+      && groups.every((g, index) => g.length >= (index === 0 ? 1 : 2) && g.length <= 4);
+    if (digits.length >= 9 && (contact || (groupedPhone && !groupedFigure))) return true;
+  }
+  return false;
 }
 export function assertPacketPrivacy(value: unknown): void {
   if (typeof value === "string" && hasEmail(value)) throw new Error("Personal data in research evidence");

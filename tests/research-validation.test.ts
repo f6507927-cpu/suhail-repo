@@ -273,4 +273,22 @@ describe("grounding, Arabic normalization and safety edges", () => {
     expect(checks(draft(), { ...settings, guidance: text })).toContain("personal_data");
   });
   it("allows short non-personal guidance", () => expect(validateGuidance("Explain the uncertainty plainly.")).toEqual([]));
+  it.each([
+    "Evidence dated 2025-10-31.",
+    "Revenue 1200000000; shares 12345678901234567890.",
+    "2025 1200000000",
+    "Revenue $120,000,000.00; margin 0.00%.",
+    "Revenue 120 000 000 and assets 120-000-000-000.",
+    "التاريخ ٢٠٢٥-١٠-٣١ والإيرادات ١٢٠٠٠٠٠٠٠٠.",
+  ])("does not flag dates or figures in guidance or packet text: %s", text => {
+    expect(validateGuidance(text)).toEqual([]);
+    const rows = fixtureInput(); rows.security.activity = text;
+    expect(() => buildResearchPacket(rows, FIXTURE_CLOCK)).not.toThrow();
+  });
+  it.each(["+1 (202) 555-0199", "+966551234567.", "٠٥٥ ١٢٣ ٤٥٦٧", "Phone: 2025550199", "06 12 34 56 78"])(
+    "still refuses a real phone shape in guidance and packet text: %s", text => {
+      expect(validateGuidance(text)).toContainEqual(expect.objectContaining({ check: "personal_data" }));
+      const rows = fixtureInput(); rows.security.activity = text;
+      expect(() => buildResearchPacket(rows, FIXTURE_CLOCK)).toThrow("Personal contact");
+    });
 });

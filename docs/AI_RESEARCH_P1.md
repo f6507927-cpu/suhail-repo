@@ -28,12 +28,14 @@ unchanged. The provider environment inventory remains deferred until P2.
   and unchanged stored operating/investing/financing cash flows. Each derived
   item records formula, exact input IDs and rounding rule. Arithmetic uses the
   engine's decimal decomposition, six-place half-away-from-zero calculations.
-  Missing/zero or incompatible-unit inputs are unavailable. A stored zero fact
-  remains zero; it is never silently converted to a missing fact.
+  Missing inputs, zero denominators (including the prior-revenue growth base),
+  or incompatible units are unavailable. Zero numerators compute normally;
+  stored zero cash flows remain zero, never missing.
 - `compareResearchPackets` returns added/removed/changed item records with both
   old and new values. Trigger categories: new filing, status change, price
-  move, age. It does not schedule or regenerate anything. Optional thresholds
-  and the age reference are caller-supplied; no production setting is invented.
+  move, age, identity and derived-figure changes. It does not schedule or
+  regenerate anything. Age is reference minus build time, with a strict
+  greater-than threshold. Settings are caller-supplied, not production defaults.
 
 ## Drafts and validation
 
@@ -74,6 +76,10 @@ new packet representing latest stored evidence. **P1 does not query to confirm
 that the caller has supplied the latest evidence.** P2 must do so.
 
 Guidance is limited to 2,000 characters and blocks email/phone patterns. The
+phone scan excludes ISO dates, unformatted figures and grouped thousands;
+domestic numbers require phone-shaped groups or a contact label, while
+international numbers require a leading plus. It is not complete PII detection.
+The
 validator also checks bilingual figure sets, banned/advice phrases, other known
 issuers, coverage, provenance/hash integrity and publish-time disclosure
 resolution. P1 neither writes nor approves any legal text. Schema, validator,

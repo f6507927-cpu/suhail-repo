@@ -8,7 +8,7 @@ export interface PacketChange {
   type: "added" | "removed" | "changed";
   old_value: PacketItem | boolean | null;
   new_value: PacketItem | boolean | null;
-  trigger: "new_filing" | "status_change" | "price_move" | "age";
+  trigger: "new_filing" | "identity_change" | "derived_change" | "status_change" | "price_move" | "age";
 }
 function fingerprint(item: PacketItem) { return hash(JSON.parse(JSON.stringify(item)) as JsonValue); }
 /** D-211: only describes changes; it never queues work or changes a screening. */
@@ -33,10 +33,12 @@ export function compareResearchPackets(oldPacket: ResearchPacket, newPacket: Res
     result.push({ item_id: id, type: !before ? "added" : !after ? "removed" : "changed",
       old_value: before ?? null, new_value: after ?? null,
       trigger: (after ?? before)?.kind === "price" ? "price_move"
-        : (after ?? before)?.kind === "screening" ? "status_change" : "new_filing" });
+        : (after ?? before)?.kind === "screening" ? "status_change"
+          : (after ?? before)?.kind === "identity" ? "identity_change"
+            : (after ?? before)?.kind === "derived" ? "derived_change" : "new_filing" });
   }
   if (settings) {
-    const ageAt = (date: string) => (Date.parse(date) - Date.parse(settings.reference_date)) / 86_400_000 > settings.max_age_days;
+    const ageAt = (date: string) => (Date.parse(settings.reference_date) - Date.parse(date)) / 86_400_000 > settings.max_age_days;
     const before = ageAt(oldPacket.built_at), after = ageAt(newPacket.built_at);
     if (before !== after) result.push({ item_id: "packet.age", type: "changed", old_value: before, new_value: after, trigger: "age" });
   }

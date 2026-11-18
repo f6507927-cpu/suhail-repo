@@ -99,14 +99,15 @@ export function buildResearchPacket(rows: unknown, clock: string): ResearchPacke
   const fid = (field: string, id?: string) => `fin.${field}.${id ?? "missing"}`;
   const derive = (id: string, inputs: string[], formula: string, op: "ratio" | "growth" | "identity", multiplier = 1) => {
     const values = inputs.map(id => items.find(i => i.id === id));
-    const missing = values.some(i => !i || i.unavailable || typeof i.value !== "number" || i.value === 0)
+    const missing = values.some(i => !i || i.unavailable || typeof i.value !== "number")
+      || (op !== "identity" && values[1]?.value === 0)
       || new Set(values.filter(Boolean).map(i => i!.unit)).size > 1;
     const a = values[0]?.value as number, b = values[1]?.value as number;
     const value = missing ? null : op === "identity" ? a : decimalCalculation(a, b, op, multiplier);
     put({ id: `drv.${id}`, kind: "derived", value, unit: multiplier === 100 ? "percent" : op === "identity" ? values[0]?.unit ?? "unavailable" : "ratio",
       date: latest?.period_end ?? identity.date, period: latest?.id ?? null, source: derivedSource,
       confidence_tier: values.some(i => i?.confidence_tier === "Estimated") ? "Estimated" : "Calculated",
-      unavailable: missing ? "Missing or zero derivation input" : null,
+      unavailable: missing ? "Missing input, zero denominator or incompatible units" : null,
       derivation: { formula, inputs, rounding: op === "identity" ? "stored value unchanged" : "6 decimal places, half away from zero" } });
   };
   derive("revenue_growth", [fid("total_revenue", latest?.id), fid("total_revenue", prior?.id)], "(current revenue - prior revenue) / prior revenue * 100", "growth", 100);
