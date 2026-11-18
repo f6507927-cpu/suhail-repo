@@ -14,7 +14,8 @@ for (const locale of ["ar", "en"] as const) {
   const label = (value: string) => reviewText(locale, value);
   test(`D-138 ${locale}: exact activity options, input states, CIK and unchanged submission`, async ({ page }) => {
     await page.goto(`${prefix}/admin/securities?screen=financial&role=admin`);
-    await page.getByRole("button", { name: label("Segments"), exact: true }).click();
+    await page.locator("[data-security-row]").first().click();
+    await page.locator('[data-admin-record-section="Business segments"] > summary').click();
     await page.getByRole("button", { name: label("Edit"), exact: true }).click();
     const category = page.getByLabel(label("Activity category"), { exact: true });
     for (const row of founderCategories) {
@@ -57,7 +58,8 @@ const readScreeningCalls = () => window.screeningFixture.calls;
 
 test("adapted support shows missing quarter evidence and submits only explicitly attested closes", async ({ page }) => {
   await page.goto(`${securitiesUrl}&role=admin`);
-  await page.getByRole("button", { name: "Prices", exact: true }).click();
+  await page.locator("[data-security-row]").first().click();
+  await page.locator('[data-admin-record-section="Prices"] > summary').click();
   await expect(page.getByText("2026 Q3", { exact: true })).toBeVisible();
   for (const end of ["2026-07-31", "2026-08-31", "2026-09-30"])
     await expect(page.getByText(end, { exact: true })).toBeVisible();
@@ -114,9 +116,9 @@ test("editor can inspect records but cannot invoke financial mutations", async (
   await expect(page.getByRole("button", { name: "Override", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Confirm from filing", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Accept SEC", exact: true })).toHaveCount(0);
-  await page.getByRole("button", { name: "Segments", exact: true }).click();
+  await page.locator('[data-admin-record-section="Business segments"] > summary').click();
   await expect(page.getByRole("button", { name: "Add segment", exact: true })).toHaveCount(0);
-  await page.getByRole("button", { name: "Prices", exact: true }).click();
+  await page.locator('[data-admin-record-section="Prices"] > summary').click();
   await expect(page.getByLabel("Close", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Save close", exact: true })).toHaveCount(0);
   expect(await page.evaluate(readCalls)).toEqual([]);
@@ -148,7 +150,8 @@ test("admin can override, confirm from a filing, and accept a retained SEC alter
 
 test("admin can create, edit, and delete a latest-period segment", async ({ page }) => {
   await page.goto(`${securitiesUrl}&role=admin`);
-  await page.getByRole("button", { name: "Segments", exact: true }).click();
+  await page.locator("[data-security-row]").first().click();
+  await page.locator('[data-admin-record-section="Business segments"] > summary').click();
   await page.getByRole("button", { name: "Add segment", exact: true }).click();
   await page.getByLabel("Segment name", { exact: true }).fill("Fixture new segment");
   await page.getByLabel("Revenue amount", { exact: true }).fill("18000");
@@ -172,7 +175,7 @@ test("admin can create, edit, and delete a latest-period segment", async ({ page
 
 test("admin can save manual price, coverage, company fields, and confirm removal", async ({ page }) => {
   await page.goto(`${securitiesUrl}&role=admin`);
-  await page.getByRole("button", { name: "Prices", exact: true }).click();
+  await page.locator('[data-admin-record-section="Prices"] > summary').click();
   await page.getByLabel("Date", { exact: true }).fill("2026-01-16");
   await page.getByLabel("Close", { exact: true }).fill("48.75");
   await page.getByLabel("Source label", { exact: true }).fill("Fixture manual close");
@@ -183,7 +186,7 @@ test("admin can save manual price, coverage, company fields, and confirm removal
   await page.getByLabel("Assigned analyst", { exact: true }).selectOption("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");
   await page.getByRole("button", { name: "Save coverage", exact: true }).click();
   await expect.poll(async () => page.evaluate(readCalls)).toHaveLength(2);
-  await page.getByRole("button", { name: "Company", exact: true }).click();
+  await page.locator('[data-admin-record-section="Company details"] > summary').click();
   await page.getByLabel("Arabic name", { exact: true }).fill("Fixture Arabic issuer");
   await page.getByLabel("Arabic description", { exact: true }).fill("Fixture Arabic description");
   await page.getByLabel("English description", { exact: true }).fill("Fixture English description");

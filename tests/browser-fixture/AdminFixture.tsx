@@ -28,6 +28,8 @@ export function AdminFixture({ locale, mode, bare = false }: { locale: Locale; m
   ) : mode === "audit" ? (
     <AuditAdminScreen
       locale={locale}
+      eventOptions={["user_role_change"]}
+      entityOptions={["users"]}
       initialRows={empty ? [] : [{
         id: "fixture-event", event_type: "user_role_change", entity_name: "users",
         entity_id: "fixture-user", summary: "Fixture role change",
@@ -45,6 +47,7 @@ export function AdminFixture({ locale, mode, bare = false }: { locale: Locale; m
       locale={locale}
       settings={{ default_shariah_methodology_version_id: null, allow_ineligible_editor_pick: false }}
       versions={[{ id: "fixture-version", version_label: "Fixture version" }]}
+      securities={[{ slug: "nasdaq-aapl", ticker: "AAPL", name: "Apple", nameAr: "أبل" }]}
       saveSettings={(...args) => accountFixture.action("saveSettings", ...args)}
     />
   ) : <DeferredAdminSection locale={locale} title="Methodologies" />;

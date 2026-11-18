@@ -1,5 +1,11 @@
 # Suhail — Decision Log
 
+## 18 November 2026 — CI browser fixture ownership
+
+| ID | Decision |
+| --- | --- |
+| D-218 | **General browser smoke tests use isolated fixtures, not deployment credentials.** The default browser runner explicitly selects real-page smoke tests and serves the current Next application from the existing generated public-role test copy. Only that copy's connection factory uses the validated loopback `DATABASE_URL_TEST` destination, retaining the real public role check, SQL, RLS, routes and auth. CI's disposable PostgreSQL service may use a different explicit port from the workspace; the public identity is derived from that validated target, never from workspace application URLs or `PG*`. Inherited database/provider credentials are stripped from the copied application. Admin/component fixtures run through their own configurations in CI, not through real admin authentication. Smoke tests refer to labelled demo stocks/methodologies only in fixture mode; explicit preview runs retain their live paths and never start or seed a test server. Regression tests account for all previously discovered general specs, so this routing fix cannot silently drop them. Assertions follow the current phone menu, hero badge, fixed public CSP, footer anchor, deduplicated company names and actual fixture workflow state. Analyst bylines are not assessment reasons. The development-only styleguide sample table is keyboard-focusable rather than suppressing its accessibility failure. No runtime connection guard, production product behaviour, Supabase credential, migration or hosted data change. |
+
 ## 18 November 2026 — P2 review corrections
 
 | ID | Decision |

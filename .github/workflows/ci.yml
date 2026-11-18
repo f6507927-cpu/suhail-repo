@@ -76,6 +76,14 @@ jobs:
       - run: pnpm test:e2e:stock
       - run: pnpm test:e2e:research
       - run: pnpm test:e2e
+      # D-218: do not discover these with the general Next smoke tests. Each
+      # suite owns its populated SSR/client fixture server and preserves auth.
+      - run: pnpm exec playwright test --config playwright.ui-one.config.ts
+      - run: pnpm exec playwright test --config playwright.ui-eight.config.ts
+      - run: pnpm exec playwright test --config playwright.ui-nine.config.ts
+      - run: pnpm test:e2e:other-methodologies-ui
+      - run: pnpm test:e2e:other-methodologies
+      - run: pnpm exec playwright test --config playwright.stock-ux-five.config.ts
       - run: pnpm test:e2e:accounts
       # Separate production Next copy: synthetic module IO, real roots/SSR/hydration.
       - run: pnpm test:e2e:hydration

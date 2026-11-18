@@ -3,6 +3,17 @@ name: Database CLI module boundaries
 description: Node/tsx and Vitest resolve TypeScript modules differently; verify actual CLI commands.
 ---
 
+Browser-runner global hooks and their setup CLIs can use different TypeScript
+module loaders. Keep database setup and cleanup behind the same verified
+loader/runtime rather than importing application database modules into a hook.
+
+**Why:** A setup CLI successfully resolved a mixed ESM/CommonJS graph while the
+browser runner's teardown loader rejected a named export from that same graph.
+Passing type checks and the browser assertions did not verify cleanup.
+
+**How to apply:** Exercise cleanup as well as setup in the actual browser command;
+use a guarded CLI subprocess when the runner's module loader is incompatible.
+
 Verify database commands by executing them, not only by importing their functions through Vitest.
 
 **Why:** Vitest handled top-level await and schema exports successfully while tsx initially compiled CLI scripts as CommonJS. Marking only the runner as ESM then made namespace imports of the CommonJS schema expose a default wrapper rather than its tables.

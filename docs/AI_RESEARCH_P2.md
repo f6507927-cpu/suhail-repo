@@ -3,6 +3,31 @@
 Implements the P2 portion of D-182–D-196, D-210–D-214 and D-216.
 P1 merged in PR #18 before this branch. P3/P4 are not started.
 
+## CI browser setup correction (D-218)
+
+The general Playwright glob incorrectly included admin/component tests whose
+assertions require their dedicated fixture servers. Its Next server also lacked
+a public database target. The default suite now explicitly owns real-page smoke
+tests and uses the existing generated Next/public-role loopback harness.
+CI runs the displaced suites with their existing configurations; none are skipped
+to make CI pass. The harness derives the public login from the validated
+`DATABASE_URL_TEST` (5432 in CI, normally 55432 locally), strips deployment/provider
+credentials, and leaves runtime guards, SQL, RLS and auth unchanged.
+UI smoke paths use synthetic seeded records locally; explicit preview mode keeps
+the original live paths and starts no server. No dependencies or migrations added.
+Stale assertions were updated for the phone menu, hero status placement, fixed
+public CSP, current cache headers, footer anchor/removed wordmark, deduplicated
+company names and fixture-specific workflow states. Analyst credentials are not
+treated as assessment reasons in viewport checks. The development-only styleguide
+sample table gained keyboard focusability; axe checks remain enabled.
+The account component bundle supplies empty build-time environment flags and
+test-only navigation boundaries, never workspace credentials. Public home links
+load the synthetic destination; protected destinations are only recorded.
+The existing EX-B eligibility override is still limited to disposable PostgreSQL:
+screening/audits finish before the temporary read-fixture flag is set, and an
+explicit teardown clears that same demo row using the setup CLI's module loader.
+This does not test or authorize real production-methodology enablement.
+
 ## Boundaries and operating state
 
 - No real provider call, Supabase read/write, migration application or deployment
