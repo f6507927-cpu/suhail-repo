@@ -49,7 +49,7 @@ import { OtherMethodologies } from "./OtherMethodologies";
 import arMessages from "@/i18n/messages/ar.json";
 import enMessages from "@/i18n/messages/en.json";
 
-import { isSuppliedDraft, uiOneDisplay } from "@/i18n/approved-arabic-ui-one";
+import { uiOneDisplay } from "@/i18n/approved-arabic-ui-one";
 
 type Locale = "ar" | "en";
 export function StockVerdict({
@@ -171,13 +171,8 @@ export function StockVerdict({
                   <Field label={<Copy locale={locale}>Under</Copy>}>
                     {methodologyName}{" "}
                     <span className={styles.versionLabel} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>{stripPublicReviewMarker(versionLabel ?? "")}</span>
-                    {version?.workflow_status && !isSuppliedDraft(storedVersionLabel) && <span> · <Label family="workflow" value={version.workflow_status} locale={locale} /></span>}
+                    {version?.workflow_status && <span> · <Label family="workflow" value={version.workflow_status} locale={locale} /></span>}
                   </Field>
-                  {version?.workflow_status && storedVersionLabel === "Adapted research 1.1 — draft; Suhail upper-bound assumption" && (
-                    <Field label={locale === "ar" ? arMessages.publicMethodology.workflowStatus : enMessages.publicMethodology.workflowStatus}>
-                      <Label family="workflow" value={version.workflow_status} locale={locale} />
-                    </Field>
-                  )}
                   <Field label={<Copy locale={locale}>Period end</Copy>}><StockDate value={data.period?.period_end} locale={locale} /></Field>
                   <Field label={<Copy locale={locale}>Filing date</Copy>}>{data.period?.source_id && data.period.reported_date
                     ? <StockDate value={data.period.reported_date} locale={locale} />
@@ -248,7 +243,7 @@ export function StockVerdict({
                 <p className={styles.methodName}>
                   {methodology?.name ? <Bilingual locale={locale} arabic={methodologyPublicName(methodology.name, "ar")} english={methodology.name} /> : <Copy locale={locale}>Methodology unavailable</Copy>}{" "}
                   <span className={styles.versionLabel} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>{stripPublicReviewMarker(versionLabel ?? "")}</span>
-                  {version?.workflow_status && !isSuppliedDraft(storedVersionLabel) && <> · <Label family="workflow" value={version.workflow_status} locale={locale} /></>}
+                  {version?.workflow_status && <> · <Label family="workflow" value={version.workflow_status} locale={locale} /></>}
                 </p>
                 {methodology?.scope && (
                   <p className={styles.scope}><Bilingual locale={locale} arabic={null} english={methodology.scope} /></p>

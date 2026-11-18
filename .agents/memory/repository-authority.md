@@ -16,6 +16,18 @@ for those missing changes to be restored.
 decision numbers from this repository rather than treating numbers mentioned
 from another copy as occupied.
 
+## Branch and pull-request workflow
+
+The repository blocks direct pushes to `development` and `master`. From now on,
+work on a branch (for example `replit/<short-task-name>`), push that branch, and
+open a pull request into `development`. Do not try to push directly to
+`development` or `master`, and do not change the repository's branch rules.
+
+**Why:** The founder explicitly requires this protected-branch workflow.
+
+**How to apply:** Use a task branch for future work and submit changes through
+a pull request targeting `development`.
+
 ## Supabase and deployment authorization
 
 The founder requires: “No Supabase writes or deploy until I authorise.”

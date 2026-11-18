@@ -87,7 +87,9 @@ for (const locale of ["ar", "en"] as const) for (const width of [390, 1366]) {
   });
   test(`${locale} ${width}: public evidence matrix`, async ({ page }, info) => {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto(`${locale === "en" ? "/en" : ""}/stock/demo-fixa`);
+    // D-197: keep a real English-only block for this notice assertion, rather
+    // than depending on the now-corrected launch-time version label.
+    await page.goto(`${locale === "en" ? "/en" : ""}/stock/demo-fixa?variant=english-notice`);
     await page.locator('details[data-section="full-record"] > summary').click();
     await page.locator('details[data-record-section="criteria"] > summary').click();
     await checkCriteriaReachability(page);
