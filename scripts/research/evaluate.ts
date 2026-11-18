@@ -4,6 +4,7 @@ import { fixturePackets, FIXTURE_CLOCK } from "../../tests/fixtures/research/pac
 import { NEGATIVE_CASES, recordedOutput } from "../../tests/fixtures/research/outputs";
 import rubric from "../../tests/fixtures/research/rubric.json";
 import hashes from "../../tests/fixtures/research/hashes.json";
+import { groundingRegressionFixtures } from "../../tests/fixtures/research/grounding-regressions";
 
 assertOfflineResearch(Object.keys(process.env));
 if (fixturePackets.some(p => hashes[p.security.ticker as keyof typeof hashes] !== p.packet_hash))
@@ -28,5 +29,11 @@ for (const version of ["deliberately-bad-v0", "handwritten-v1"] as const) {
   }
   console.log(JSON.stringify({ version, accepted, total: fixturePackets.length, scores: totals,
     usefulness: rubric.usefulness.scores[version], validator_version: validationReport(recordedOutput(fixturePackets[0], version, 0), fixturePackets[0], settings).validator_version }));
+}
+for (const fixture of groundingRegressionFixtures()) {
+  const blocks = validationReport(fixture.draft, fixture.packet, settings).issues.filter(i => i.severity === "block");
+  const passed = fixture.expected ? blocks.some(i => i.check === fixture.expected) : blocks.length === 0;
+  if (!passed) regressions++;
+  console.log(`grounding regression ${fixture.id}: ${passed ? "PASS" : "FAIL"} (${fixture.expected ? "must block" : "must remain valid"})`);
 }
 if (regressions) { console.error(`Fixture evaluation regressions: ${regressions}`); process.exitCode = 1; }

@@ -54,8 +54,12 @@ Grounding runs on rendered prose, including every `plain_summary` line. It
 recognizes Western/Arabic-Indic/Persian digits, percent, magnitude words and
 ISO/long Gregorian dates. Ambiguous slash dates block. Numeric tolerance is
 the reference §10.4 exact/absolute/rounded/strict relative tolerance. Monetary
-and ratio figures are checked against cited items, not unrelated figures in
-the packet; dates/years must match stored packet dates, never a tolerance.
+and ratio figures are checked against each sentence's own inline/token evidence
+plus explicit block citations, never a different sentence's references.
+Rendered tokens retain their item/type: an amount such as 2025 cannot become a
+calendar year. Bare four-digit amounts stay numeric; only explicit calendar
+wording gives prose a year role. Dates/years must match dates on cited evidence
+(including its financial period), never a tolerance or unrelated packet dates.
 
 Unavailable items must be represented by nonempty bilingual limitations with
 explicit `covers` IDs. Freshness blocks use `stale:packet`, `stale:financial`

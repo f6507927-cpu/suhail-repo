@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { assembleDraft, modelDraftSchema, renderFigures, screeningContext } from "../src/ai/research/draft";
 import { BANNED_AR, BANNED_EN, containsPhrase, normalizeArabic, ARABIC_LIST_STATUS } from "../src/ai/research/banned-phrases";
-import { extractClaims, withinTolerance } from "../src/ai/research/grounding";
+import { extractClaims, renderedClaims, withinTolerance } from "../src/ai/research/grounding";
 import { validateGuidance, validateResearchDraft, validationReport, type ValidationSettings } from "../src/ai/research/validators";
 import { buildResearchPacket } from "../src/ai/research/packet";
 import { fixtureInput, fixturePackets, FIXTURE_CLOCK } from "./fixtures/research/packets";
 import { handwrittenModel, NEGATIVE_CASES, recordedOutput } from "./fixtures/research/outputs";
 import { renderEnglish } from "../src/engine/reasons/en";
 import { renderArabicDraft } from "../src/engine/reasons/ar";
+import { groundingRegressionFixtures } from "./fixtures/research/grounding-regressions";
 
 const settings: ValidationSettings = { now: FIXTURE_CLOCK, max_packet_age_days: 30,
   max_financial_age_days: 550, known_issuers: fixturePackets.map(p => p.security.name) };
@@ -179,6 +180,24 @@ describe("D-190 validators and fixture evaluation", () => {
   });
 });
 describe("grounding, Arabic normalization and safety edges", () => {
+  it.each(groundingRegressionFixtures())("pins bilingual evidence-scoping regression: $id", fixture => {
+    const issues = validateResearchDraft(fixture.draft, fixture.packet, settings);
+    if (fixture.expected) {
+      for (const locale of ["ar", "en"])
+        expect(issues).toContainEqual(expect.objectContaining({ check: fixture.expected,
+          location: `financial_highlights.0.${locale}` }));
+    } else expect(issues).toEqual([]);
+  });
+  it("does not infer a calendar role from four digits, and retains the figure's item/type", () => {
+    expect(extractClaims("Revenue was 2025.")[0].kind).toBe("number");
+    expect(extractClaims("بلغت الإيرادات ٢٠٢٥.")[0].kind).toBe("number");
+    expect(extractClaims("In 2025.")[0].kind).toBe("year");
+    const fixture = groundingRegressionFixtures().find(f => f.id === "numeric-token-2049")!;
+    expect(renderedClaims("{{fig:px.close.2026-10}}", fixture.packet, "ar").claims).toEqual([
+      { raw: "2,049", value: 2049, kind: "number", item_id: "px.close.2026-10" },
+    ]);
+    expect(renderedClaims("In {{fig:px.close.2026-10}}", fixture.packet, "en").claims[0].kind).toBe("number");
+  });
   it.each([
     ["١٬٢٠٠٫٥٪", 1200.5, "percent"], ["۱۲۰ میلیون", 120, "number"],
     ["$1.5 billion", 1500000000, "number"], ["١٫٥ مليار", 1500000000, "number"],

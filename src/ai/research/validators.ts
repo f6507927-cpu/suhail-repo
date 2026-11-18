@@ -5,7 +5,7 @@ import type { JsonValue } from "../../engine/types";
 import { BANNED_AR, BANNED_EN, BANNED_PHRASES_VERSION, BANNED_AR_VERSION, BANNED_EN_VERSION, containsPhrase, normalizeArabic } from "./banned-phrases";
 import { VALIDATOR_VERSION, type ResearchPacket, type ValidationIssue } from "./contracts";
 import { DRAFT_SCHEMA_VERSION, figureTokenIds, inlineCiteIds, modelDraftSchema, proseFields, renderFigures, screeningContext, type ResearchDraft } from "./draft";
-import { extractClaims, isGrounded, packetDates } from "./grounding";
+import { isGrounded, packetDates, renderedClaims } from "./grounding";
 import { packetHash } from "./packet";
 import { hasEmail, hasPhone } from "./privacy";
 import { STYLE_GUIDE } from "./style-guide";
@@ -50,7 +50,6 @@ export function validateResearchDraft(value: unknown, packet: ResearchPacket, se
   if (packet_hash !== packet.packet_hash || packet.packet_hash !== packetHash(packet)) add("packet_integrity", "Packet hash mismatch", "packet_hash");
   if (!same(shariah_context ?? null, screeningContext(packet))) add("status", "Code-owned screening context changed", "shariah_context");
   const byId = new Map(packet.items.map(i => [i.id, i]));
-  const dates = packetDates(packet);
   const allCites = new Set<string>();
   const fields = proseFields(parsed.data);
   for (const field of fields) {
@@ -69,23 +68,21 @@ export function validateResearchDraft(value: unknown, packet: ResearchPacket, se
       catch (error) { add("grounding", (error as Error).message, location); continue; }
       if (/\{\{(?:fig|cite):/.test(rendered.replace(/\{\{cite:[^{}]+\}\}/g, ""))) add("grounding", "Malformed evidence token", location);
       const prose = rendered.replace(/\{\{cite:[^{}]+\}\}/g, "");
-      const claims = extractClaims(prose);
-      numericSets.push([...new Set(claims.map(c => `${c.kind}:${c.value}`))].sort());
-      // Ground against cited evidence, not an unrelated number elsewhere in the packet.
-      const citedItems = referenced.flatMap(id => byId.has(id) ? [byId.get(id)!] : []);
-      for (const claim of claims)
-        if (!isGrounded(claim, citedItems, dates)) add("grounding", `Unsupported ${claim.kind}: ${claim.raw}`, location);
-      // Each figure-bearing sentence must carry an inline/token cite or explicit field cites.
-      for (const sentence of rendered.split(/(?<=[.!?؟؛])(?:\s+|$)/u)) {
-        const clean = sentence.replace(/\{\{cite:[^{}]+\}\}/g, "");
-        if (extractClaims(clean).length && ![...field.cites, ...inlineCiteIds(sentence)].some(id => byId.has(id))) {
-          // Figure tokens resolve their own citation, but only in the sentence containing them.
-          const originalSentences = text.split(/(?<=[.!?؟؛])(?:\s+|$)/u);
-          const index = rendered.split(/(?<=[.!?؟؛])(?:\s+|$)/u).indexOf(sentence);
-          if (!figureTokenIds(originalSentences[index] ?? "").some(id => byId.has(id)))
-            add("citations", "Figure-bearing sentence has no valid citation", location);
-        }
+      const claimsInField: string[] = [];
+      // D-190: only explicit block cites are shared. An inline cite/token in a
+      // different sentence can never ground this sentence's amounts or dates.
+      for (const sentence of text.split(/(?<=[.!?؟؛])(?:\s+|$)/u)) {
+        const sentenceIds = [...field.cites, ...inlineCiteIds(sentence), ...figureTokenIds(sentence)];
+        const citedItems = sentenceIds.flatMap(id => byId.has(id) ? [byId.get(id)!] : []);
+        const dates = packetDates(packet, citedItems);
+        const { claims } = renderedClaims(sentence, packet, locale);
+        claimsInField.push(...claims.map(c => `${c.kind}:${c.value}`));
+        for (const claim of claims)
+          if (!isGrounded(claim, citedItems, dates)) add("grounding", `Unsupported ${claim.kind}: ${claim.raw}`, location);
+        if (claims.length && !citedItems.length)
+          add("citations", "Figure-bearing sentence has no valid citation", location);
       }
+      numericSets.push([...new Set(claimsInField)].sort());
       for (const entry of locale === "ar" ? BANNED_AR : BANNED_EN)
         if (containsPhrase(prose, entry.phrase)) add("banned_phrase", entry.reason, location, entry.severity);
       for (const name of settings.known_issuers.filter(n => n.length >= 4))

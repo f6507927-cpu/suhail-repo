@@ -17,6 +17,10 @@ No real model output, database export, recording or credential is used.
   strings, not new UI translations or approved Arabic research.
 - `rubric.json`: versioned automatic dimensions and a separate, unscored human
   usefulness field. A technically valid draft is not necessarily useful.
+- `grounding-regressions.ts`: bilingual year-shaped numeric amounts, real
+  numeric figure tokens in that range, explicit calendar-year claims, swapped
+  inline citations and cross-sentence token leakage. Both tests and evaluation
+  require invalid claims to block and valid numeric tokens to remain valid.
 
 Run `pnpm research:eval`. It scores all ten packets for both versions, prints
 per-stock blocks and per-version dimension totals, and exits nonzero if a

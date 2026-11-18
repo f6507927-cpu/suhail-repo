@@ -1,8 +1,13 @@
 import type { PacketItem, ResearchPacket } from "./contracts";
 import { normalizeArabic } from "./banned-phrases";
 import { roundDecimal } from "./decimal";
+import { renderFigures } from "./draft";
 
-export type Claim = { raw: string; value: number | string; kind: "number" | "percent" | "date" | "year" };
+export type Claim = {
+  raw: string; value: number | string; kind: "number" | "percent" | "date" | "year";
+  /** A rendered figure retains its evidence/type instead of being reinterpreted as prose. */
+  item_id?: string;
+};
 export function westernDigits(text: string) {
   return text.replace(/[\u0660-\u0669\u06f0-\u06f9]/g,
     c => String(c.charCodeAt(0) - (c <= "\u0669" ? 0x660 : 0x6f0)))
@@ -16,7 +21,7 @@ const months = [
 ];
 const monthIndex = new Map(months.flatMap((names, i) => names.map(name => [normalizeArabic(name), i + 1] as const)));
 const monthPattern = months.flat().join("|");
-export function extractClaims(value: string): Claim[] {
+export function extractClaims(value: string, detectYearContext = true): Claim[] {
   let text = westernDigits(value);
   const claims: Claim[] = [];
   const date = (raw: string, year: string, month: number, day: string) => {
@@ -42,8 +47,13 @@ export function extractClaims(value: string): Claim[] {
       m: 1e6, million: 1e6, "مليون": 1e6, "ملايين": 1e6,
       k: 1e3, thousand: 1e3, "الف": 1e3, "الاف": 1e3 };
     n *= multiplier[mag] ?? 1;
+    // D-190: a year-shaped amount is still an amount. Only explicit calendar
+    // language gives a typed *prose* number the year role. Figure tokens never
+    // take this path: their packet item determines their type.
+    const prefix = normalizeArabic(text.slice(0, match.index!));
+    const yearContext = detectYearContext && /(?:\b(?:in|during|since|year|fy)\s*|(?<!\p{L})(?:عام|سنة|لسنة|لعام)\s*)$/iu.test(prefix);
     claims.push({ raw: match[0].trim(), value: n, kind: groups.percent ? "percent"
-      : !groups.magnitude && !groups.currency.trim() && /^(?:1|2)\d{3}$/.test(groups.number) ? "year" : "number" });
+      : yearContext && !groups.magnitude && !groups.currency.trim() && /^(?:1|2)\d{3}$/.test(groups.number) ? "year" : "number" });
   }
   return claims;
 }
@@ -55,13 +65,30 @@ export function withinTolerance(claim: number, allowed: number) {
     || claim === roundDecimal(allowed, 1)
     || (allowed !== 0 && Math.abs((claim - allowed) / allowed) < 0.005);
 }
-export function packetDates(packet: ResearchPacket) {
-  return [...new Set([...packet.items.map(i => i.date),
-    ...packet.items.filter(i => i.unit === "date" && typeof i.value === "string").map(i => String(i.value)),
-    ...packet.periods.flatMap(p => [p.period_end, p.reported_date]),
-    ...packet.screenings.flatMap(s => [s.data_as_of, s.run_at.slice(0, 10)])])];
+export function packetDates(packet: ResearchPacket, items: PacketItem[]) {
+  const periods = new Set(items.map(i => i.period));
+  return [...new Set([...items.map(i => i.date),
+    ...items.filter(i => i.unit === "date" && typeof i.value === "string").map(i => String(i.value)),
+    ...packet.periods.filter(p => periods.has(p.id)).flatMap(p => [p.period_end, p.reported_date])])];
+}
+/** Rendered token claims keep their item ID and cannot turn USD 2025 into a year. */
+export function renderedClaims(text: string, packet: ResearchPacket, locale: "ar" | "en") {
+  const rendered = renderFigures(text, packet, locale);
+  const claims: Claim[] = [];
+  const expression = /\{\{fig:([^{}]+)\}\}/g;
+  let position = 0;
+  for (const token of text.matchAll(expression)) {
+    claims.push(...extractClaims(text.slice(position, token.index).replace(/\{\{cite:[^{}]+\}\}/g, "")));
+    const item = packet.items.find(i => i.id === token[1])!;
+    const expanded = renderFigures(token[0], packet, locale);
+    claims.push(...extractClaims(expanded, false).map(claim => ({ ...claim, item_id: item.id })));
+    position = token.index! + token[0].length;
+  }
+  claims.push(...extractClaims(text.slice(position).replace(/\{\{cite:[^{}]+\}\}/g, "")));
+  return { rendered, claims };
 }
 export function isGrounded(claim: Claim, items: PacketItem[], dates: string[]) {
+  if (claim.item_id) items = items.filter(i => i.id === claim.item_id);
   if (claim.kind === "date") return dates.includes(String(claim.value));
   if (claim.kind === "year") return dates.some(d => d.slice(0, 4) === String(claim.value));
   return items.some(i => !i.unavailable && typeof i.value === "number"
