@@ -76,9 +76,13 @@ export function validateResearchDraft(value: unknown, packet: ResearchPacket, se
         const citedItems = sentenceIds.flatMap(id => byId.has(id) ? [byId.get(id)!] : []);
         const dates = packetDates(packet, citedItems);
         const { claims } = renderedClaims(sentence, packet, locale);
-        claimsInField.push(...claims.map(c => `${c.kind}:${c.value}`));
-        for (const claim of claims)
+        for (const claim of claims) {
           if (!isGrounded(claim, citedItems, dates)) add("grounding", `Unsupported ${claim.kind}: ${claim.raw}`, location);
+          const units = citedItems.filter(item => isGrounded(claim, [item], packetDates(packet, [item]))).map(item => item.unit);
+          const unit = claim.kind === "date" || claim.kind === "year" ? "calendar"
+            : claim.kind === "percent" ? "percent" : claim.currency ?? [...new Set(units)].sort().join("|");
+          claimsInField.push(`${claim.kind}:${claim.value}:${unit}`);
+        }
         if (claims.length && !citedItems.length)
           add("citations", "Figure-bearing sentence has no valid citation", location);
       }
