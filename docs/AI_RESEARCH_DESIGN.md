@@ -147,7 +147,7 @@ A draft with any `block` result cannot move to `approved`. The database enforces
 ## 6. Analyst workflow
 
 ### 6.1 Who can act
-No new `user_role` value. "Analyst" is the existing `admin`/`editor` role (TOTP + AAL2 already enforced by `requireRole`) **and** an active `analyst_profile` whose `user_id` is the actor. This reuses D-29/D-151, avoids an enum migration and role-change flows (D-47), and means a person who is not a named, credentialed analyst cannot approve even with an admin role. Requesting a draft needs only `admin`/`editor`.
+No new `user_role` value and no multi-role column. The two are independent, so one person can be an admin (or editor) and an analyst at the same time: the role lives in `users.role`, the analyst capability in `analyst_profile`. "Analyst" is the existing `admin`/`editor` role (TOTP + AAL2 already enforced by `requireRole`) **and** an active `analyst_profile` whose `user_id` is the actor. This reuses D-29/D-151, avoids an enum migration and role-change flows (D-47), and means a person who is not a named, credentialed analyst cannot approve even with an admin role. Requesting a draft needs only `admin`/`editor`.
 
 ### 6.2 States and transitions
 
