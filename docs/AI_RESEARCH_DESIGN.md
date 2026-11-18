@@ -1,7 +1,7 @@
 # AI research assistant — design (Phase 0)
 
 Status: **proposed, awaiting founder approval. No code in this PR.**
-Decisions: D-182 to D-196. Open items: O-9 to O-13 (see `docs/DECISIONS.md`).
+Decisions: D-182 to D-196 and D-210 to D-213. Open items: O-9 to O-13 (see `docs/DECISIONS.md`).
 Sources read: `AGENTS.md`, `replit.md`, `docs/DECISIONS.md`, `docs/DEPLOY.md`,
 `docs/SUHAIL_BUILD_REFERENCE.md` §4.6, §10, §11, the D-151 analyst code
 (`analyst_profile`, `app.public_pick_analyst`, migration 0019), and the screening,
@@ -110,6 +110,7 @@ Arabic is primary. Every prose field is `{ ar: string, en: string }`; `ar` is re
 | --- | --- | --- |
 | `title` | model | |
 | `summary` | model | one paragraph |
+| `plain_summary` | model | three short lines for the public page: what the company does, what the screening says per methodology (figures by token), what could change. No jargon. |
 | `business_overview` | model | from identity/activity items only |
 | `financial_highlights[]` | model | each `{ text, cites: [itemId…] }`; a figure without a cite is a blocking error |
 | `strengths[]`, `risks[]` | model | each with cites where a figure is used |
@@ -149,6 +150,8 @@ A draft with any `block` result cannot move to `approved`. The database enforces
 ### 6.1 Who can act
 No new `user_role` value and no multi-role column. The two are independent, so one person can be an admin (or editor) and an analyst at the same time: the role lives in `users.role`, the analyst capability in `analyst_profile`. "Analyst" is the existing `admin`/`editor` role (TOTP + AAL2 already enforced by `requireRole`) **and** an active `analyst_profile` whose `user_id` is the actor. This reuses D-29/D-151, avoids an enum migration and role-change flows (D-47), and means a person who is not a named, credentialed analyst cannot approve even with an admin role. Requesting a draft needs only `admin`/`editor`.
 
+**Manual first (D-210).** Drafts are requested by an analyst, one stock at a time. The system never queues drafts by itself. Two settings in `research_setting` bound the scope and are checked when a draft is requested: a maximum number of stocks under active research, and an allowed-sector list (by the stored sector label or SIC grouping) with an optional per-sector limit. Together with the monthly token budget they cap cost and analyst workload. Automatic queuing is a later decision.
+
 ### 6.2 States and transitions
 
 ```
@@ -168,6 +171,8 @@ Rejected and failed drafts are kept. `published → updated` creates a new draft
 ### 6.3 Review screen (admin, `requireRole` first, usable on a phone)
 Packet on one side, draft on the other; validation results at the top; inline editing of both languages; a tracked diff between the AI draft and the current text (diff computed from stored versions: `research_draft` keeps the immutable `ai_output` and a mutable `analyst_text`); required checklist before approval: figures checked, risks adequate, wording compliant, Shariah context correct, disclosure present, analyst view confirmed. Checklist answers are stored with the approval event.
 
+**Edit-reason tags (D-212).** When an analyst changes AI text, they pick a tag from a fixed list (tone, accuracy, too strong, missing risk, citation, compliance wording, other). Tags are stored with the review event and counted per month in an admin report. Learning is not model training: a person reviews the most frequent tags, updates the prompt, style guide or banned lists under a new version, and re-scores the evaluation set before adopting the change. Using approved published pieces as prompt examples is deferred until research has been published.
+
 ### 6.4 Regenerate with guidance
 Optional free text, stored on the new request as `analyst_instructions`, passed in its own delimited, lowest-priority section, never written into the packet and never treated as a fact. It cannot add numbers: figures still have to match the packet.
 
@@ -185,6 +190,8 @@ Computed by a job in `src/jobs` (same job style as `screen-universe`) writing fl
 | Month-end price moved beyond threshold | latest stored month-end close vs the packet's close, threshold in percent |
 | Age | `now - published_at` above configured days (default 90) |
 
+**Refresh drafts (D-211).** A refresh request starts from the last published version. The packet builder compares the old and new packets and emits `changes[]` in code: items added, removed or changed, with old and new values and the trigger that caused each. The model receives the previous published text and the change list and is told to revise only what the changes require. The review screen highlights the changed passages so the analyst reviews the changes, not a whole new draft. All validators still run on the whole text.
+
 A flagged publication gets `outdated = true` with its reasons and appears in the analyst queue as a refresh draft request (it does not unpublish itself: the page stays, with an "outdated" notice).
 
 **Hiding the analyst view when the stock stops passing the default methodology** is enforced **at read time**, not by a job alone: the public view joins the latest default-methodology run (via `app.public_settings`, D-36) and returns the analyst-view fields as null unless that status is `passes_selected_methodology`. The page remains with a notice. This holds even if the job or revalidation is late; the worst case is bounded by the existing time-based ISR window (D-20). Re-showing it requires an analyst to review: a flag `analyst_view_review_required` set by the job and cleared only by an analyst action.
@@ -195,6 +202,7 @@ A flagged publication gets `outdated = true` with its reasons and appears in the
 - The analyst comes from `analyst_profile` by **foreign key** (`analyst_profile_id`), exposed through a new security-barrier view in the style of `app.public_pick_analyst` (migration 0019), returning only name, title, credentials, headshot key and bio. No `users` data, no e-mail. D-151 holds: no active profile, no byline, no publication row visible.
 - Page content: analyst name and credentials, approval date, data date, the methodology results it refers to, citations linking to the stock's existing evidence record, the AI-assisted + human-reviewed disclosure, and the reference §11 short line.
 - Rendering: ISR, Arabic first, phone first at 375×812 (D-166), logical CSS only, Western digits in IBM Plex Mono with bidi isolation, dates via `ar-u-ca-gregory-nu-latn`. Pages never read cookies or headers (D-20, D-22). Published, updated or withdrawn actions call a new `revalidatePublic("research")` surface in `src/security/revalidate-public.ts`.
+- Consumer aids (D-213): the page opens with the `plain_summary`, and shows a "why this changed" note whenever research was updated or flagged outdated. The note is filled by code from the stored trigger and date (new filing, status change, price move, age), never written by the model, and corrections are shown prominently (reference §4.6).
 - Never public: unapproved drafts, validation details, packet internals, open questions for the analyst, model/prompt versions. No list-all endpoint: research is reachable only from its stock page (and the existing home card).
 - Nothing is rendered when `ai_research_publishing` is off: see section 9.
 
@@ -241,10 +249,10 @@ Migrations: one per phase, continuing after `0022` with `journal.when` greater t
 | Phase | Content | AI calls | Migration |
 | --- | --- | --- | --- |
 | P0 | This document and D-182 to D-196; O-9 to O-13 | none | none |
-| P1 | Packet builder, validators, banned lists (drafts), style guide, evaluation harness and rubric, fixtures | none (hand-written and negative-case fixtures) | none |
-| P2 | `ResearchModelClient`, generation job/action, storage, review workflow and screen, audit, budget, gate row (off) | real only outside CI | 0023 |
-| P3 | Staleness job, outdated flags, refresh queue, read-time hiding | none | 0024 |
-| P4 | Publication, gated public display, legal drafts (Terms, Privacy), methodology page | none | 0025 |
+| P1 | Packet builder (including `changes[]` comparison), validators, banned lists (drafts), style guide, evaluation harness and rubric, fixtures; `plain_summary` in the draft schema | none (hand-written and negative-case fixtures) | none |
+| P2 | `ResearchModelClient`, generation job/action, storage, review workflow and screen, edit-reason tags, scope settings, audit, budget, gate row (off) | real only outside CI | 0023 |
+| P3 | Staleness job, outdated flags, refresh queue, refresh drafts from the last published version, read-time hiding | none | 0024 |
+| P4 | Publication, gated public display with plain summary and "why this changed" notes, legal drafts (Terms, Privacy), methodology page | none | 0025 |
 | P5 (optional) | 10-K section excerpts in the packet | for tests, recorded | only if needed |
 
 Each PR description lists decisions taken, open questions for the founder, the lawyer and the Shariah reviewer, and what is not done.
