@@ -29,7 +29,7 @@ import { StoredMonthlyClose } from "./StoredMonthlyClose";
 import { TermExplain, TermSheet } from "../foundation/TermExplain";
 import styles from "./StockVerdict.module.css";
 
-import { isSuppliedDraft, missingFigure, uiOneDisplay, stockShortVersionLabel } from "@/i18n/approved-arabic-ui-one";
+import { missingFigure, uiOneDisplay, stockShortVersionLabel } from "@/i18n/approved-arabic-ui-one";
 import { methodologyPublicName } from "@/i18n/methodology-public-names";
 
 type Locale = "ar" | "en";
@@ -340,7 +340,7 @@ export function StockSummary({ data, locale }: { data: PublicStockData; locale: 
                 <dt><Copy locale={locale}>Version</Copy></dt>
                 <dd>
                   <span className={styles.versionLabel} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>{versionLabelText || "—"}</span>
-                  {workflow && !isSuppliedDraft(versionLabel) && <span> · <Label family="workflow" value={workflow} locale={locale} /></span>}
+                  {workflow && <span> · <Label family="workflow" value={workflow} locale={locale} /></span>}
                 </dd>
               </div>
               <div className={styles.metaRow} data-meta="date-confidence">

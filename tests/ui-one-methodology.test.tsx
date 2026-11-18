@@ -9,6 +9,7 @@ import { StockVerdict } from "../src/components/stock/StockVerdict";
 import { uiOneMethodologyFixture, uiOneMethodologyGroups } from "./fixtures/ui-one-methodology";
 import { uiOneFixture } from "./fixtures/ui-one-stock";
 import { uiOneDisplay, uiOneProse } from "../src/i18n/approved-arabic-ui-one";
+import { publicMethodologyVersionLabel } from "../src/i18n/methodology-labels";
 import ar from "../src/i18n/messages/ar.json";
 import en from "../src/i18n/messages/en.json";
 vi.mock("server-only", () => ({}));
@@ -32,7 +33,7 @@ describe("D-157 public methodology presentation", () => {
     </PublicMethodologyVersions>, locale);
     for (const source of [data.methodology.name, data.methodology.scope!, data.methodology.publisher!, document.version.version_label!]) {
       // D-181: public pages use uiOneProse, which applies the founder-chosen methodology name.
-      const escaped = renderToStaticMarkup(<>{uiOneProse(source, locale)}</>);
+      const escaped = renderToStaticMarkup(<>{publicMethodologyVersionLabel(uiOneProse(source, locale))}</>);
       expect(directory).toContain(escaped);
       expect(detail).toContain(escaped);
     }
