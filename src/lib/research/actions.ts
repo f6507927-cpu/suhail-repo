@@ -1,18 +1,19 @@
 "use server";
-import { and, eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireRole } from "../auth/guards";
 import { withAdminAction } from "../auth/actions";
 import { dbApp } from "../../db/app";
 import { company } from "../../db/schema/market";
-import { researchDraft, researchSetting } from "../../db/schema/research";
+import { researchDraft } from "../../db/schema/research";
 import { assembleDraft, modelDraftSchema } from "../../ai/research/draft";
 import { validateGuidance, validateResearchDraft } from "../../ai/research/validators";
 import { getResearchEnv } from "../../env/research";
 import { loadResearchPacket } from "./loader";
 import { actorBudget, assertActiveAnalyst, blockingCount, configuredSettings, createRequestedDraft,
-  lockedDraft, recordResearch, researchTextHash } from "./store";
+  lockedDraft, recordResearch, researchTextHash, reconcileRequestedDraft } from "./store";
+import { updateResearchGate, updateResearchSettings } from "./settings";
 import { ARABIC_GENERATION_APPROVED } from "./prompt";
 import { generateResearch } from "./generate";
 import { AnthropicResearchClient } from "./anthropic-client";
@@ -142,12 +143,7 @@ export async function saveResearchSettings(form: FormData): Promise<ResearchActi
       price_move_threshold_percent: Number(form.get("price_move_threshold_percent")),
       publication_age_days: Number(form.get("publication_age_days")),
     });
-    await withAdminAction(["admin"], async (tx, actor) => {
-      await tx.execute(sql`select pg_advisory_xact_lock(73501948)`);
-      await tx.update(researchSetting).set({ ...settings,
-        price_move_threshold_percent: String(settings.price_move_threshold_percent) }).where(eq(researchSetting.id, 1));
-      await recordResearch(tx, actor, "research_settings", null, null, null, null);
-    });
+    await withAdminAction(["admin"], (tx, actor) => updateResearchSettings(tx, actor, settings));
     refresh(); return { ok: true };
   } catch { return errorResult(); }
 }
@@ -158,14 +154,15 @@ export async function changeResearchGate(form: FormData): Promise<ResearchAction
     const decision = z.string().max(100).parse(form.get("decision_id") ?? "");
     const lawyer = z.string().max(1000).parse(form.get("lawyer_reference") ?? "");
     assertGateEvidence(enabled, decision, lawyer);
-    await withAdminAction(["admin"], async (tx, actor) => {
-      await tx.update(researchSetting).set({
-        ai_research_publishing: enabled, gate_decision_id: enabled ? decision : null,
-        gate_lawyer_answer_ref: enabled ? lawyer : null, gate_enabled_by: enabled ? actor.id : null,
-        gate_enabled_at: enabled ? new Date() : null,
-      }).where(and(eq(researchSetting.id, 1), sql`true`));
-      await recordResearch(tx, actor, "research_gate", null, null, null, null);
-    });
+    await withAdminAction(["admin"], (tx, actor) => updateResearchGate(tx, actor, enabled, decision, lawyer));
     refresh(); return { ok: true };
+  } catch { return errorResult(); }
+}
+export async function reconcileResearchDraft(form: FormData): Promise<ResearchActionResult> {
+  await requireRole(["admin"]);
+  try {
+    const id = uuid.parse(form.get("draft_id"));
+    await withAdminAction(["admin"], (tx, actor) => reconcileRequestedDraft(tx, actor, id));
+    refresh(); return { ok: true, id };
   } catch { return errorResult(); }
 }

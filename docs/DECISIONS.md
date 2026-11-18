@@ -1,5 +1,11 @@
 # Suhail — Decision Log
 
+## 18 November 2026 — P2 review corrections
+
+| ID | Decision |
+| --- | --- |
+| D-217 | **Auditable settings, explicit orphan reconciliation and compact prompts.** Research settings/gate writes lock their singleton row and retain complete before/after budget, scope, threshold and gate evidence in the same transaction's audit event, including evidence cleared when disabling the gate. An admin-only manual action can mark a `requested` draft `failed / abandoned`; it releases only that draft's tracked reservation and frees its active-stock slot. No arbitrary timeout is introduced. Reservation amount, UTC month and attempt/settlement identity are stored on the draft so retry, repeated reconciliation and a late provider response cannot release another reservation or resurrect a failed draft; late reported usage is charged once. Unknown usage still follows D-216, except that an explicit admin abandonment releases the outstanding reservation. Pre-existing aggregate-only reservations cannot be safely attributed retrospectively and are never guessed or reset. Migration 0024 adds this tracking without editing 0023; neither is applied to Supabase here. Prompt version 2 isolates only free text (with per-request unpredictable boundaries and separate analyst guidance); identifiers, enums, dates and numbers remain structured, and repeated exact text shares a referenced section. Prompt-size comparisons use an offline, explicitly labelled legacy reference tokenizer, not a live provider request or a claim about current-model billing. The tokenizer is a development-only measurement dependency. O-13 still blocks live generation; publishing remains off, and no public/legal text changes. |
+
 ## 18 November 2026 — AI research P2, private generation and review
 
 | ID | Decision |

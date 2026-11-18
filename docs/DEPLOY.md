@@ -368,6 +368,8 @@ provider configuration. Do not request these for this deployment.
 ### Private research P2 (D-216)
 
 Migration `0023_private_research` is prepared, **not applied to Supabase**.
+PR review adds `0024_research_reservations`, also prepared only; apply pending
+migrations in journal order through the operator-controlled procedure.
 An authorised operator applies it through the existing migration procedure;
 build/start never apply it. No publication table or public research page exists.
 All new tables deny `suhail_public`, and publishing is off in the inserted settings.
@@ -389,6 +391,12 @@ budget in a short database transaction, then calls the provider outside that
 transaction. Reported usage releases/true-ups the reservation. Unknown transport
 usage is charged conservatively at the reservation; a process crash leaves the
 reservation in that month's row, never silently reclaims spendable budget.
+Under D-217 an admin may explicitly mark a stuck requested draft abandoned from
+the draft list. Its per-draft reservation is released atomically and its active
+stock slot is freed. Reconciliation does not cancel a provider call; late reported
+usage is charged once without resurrecting the draft. Historical aggregate-only
+reservations are not guessed or reset. Settings/gate audit details preserve
+before/after values, including gate evidence cleared on disablement.
 Only structural failures retry once, with another reservation. Publication
 transitions are refused in P2 even if a future authorised gate action supplies
 valid founder/lawyer evidence. Do not enable that gate as a P2 setup step.
