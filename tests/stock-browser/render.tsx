@@ -13,6 +13,10 @@ export async function renderStock(slug: string, locale: "ar" | "en", variant?: s
   const data = await loadPublicStock(slug);
   if (!data) return null;
   // Component-state coverage only; no stored data or real route is modified.
+  // D-197: known version labels are localized now. Exercise the language notice
+  // with genuinely untranslated prose, not an accidentally stale draft label.
+  if (variant === "english-notice" && data.methodology)
+    data.methodology = { ...data.methodology, scope: "Untranslated fixture methodology scope." };
   if (variant === "passed" || variant === "failed") data.explanation = {
     id: "fixture-explanation", ai_text: "Fixture narrative grounded in stored evidence.",
     validation_status: variant, evidence: [{ claim: "Fixture evidence statement" }], unknowns: [],
