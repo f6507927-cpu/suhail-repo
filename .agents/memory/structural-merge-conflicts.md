@@ -42,3 +42,14 @@ silently reserving the same decision number for unrelated approvals.
 
 **How to apply:** Check the combined decision log before finishing, then update
 the task's own references consistently without relabeling another approval.
+
+Completion synchronization can rewrite local ancestry without changing the
+tested file tree, even after the feature branch was pushed.
+
+**Why:** Replaying an already-published branch onto the workspace base changed
+commit identities while preserving every file. Treating that history difference
+as new source changes caused older additions to be replayed again.
+
+**How to apply:** Compare complete trees as well as ancestry before reconciling
+the remote branch. Preserve genuine new edits and the tested content; do not
+overwrite remote history merely to remove a history-only divergence.

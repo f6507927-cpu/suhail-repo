@@ -19,7 +19,8 @@ No real model output, database export, recording or credential is used.
   usefulness field. A technically valid draft is not necessarily useful.
 - `grounding-regressions.ts`: bilingual year-shaped numeric amounts, real
   numeric figure tokens in that range, explicit calendar-year claims, swapped
-  inline citations and cross-sentence token leakage. Both tests and evaluation
+  inline citations, cross-sentence token leakage, complete token modifiers and
+  currency/percentage incompatibility. Both tests and evaluation
   require invalid claims to block and valid numeric tokens to remain valid.
 
 Run `pnpm research:eval`. It scores all ten packets for both versions, prints

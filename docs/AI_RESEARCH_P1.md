@@ -57,7 +57,12 @@ the reference §10.4 exact/absolute/rounded/strict relative tolerance. Monetary
 and ratio figures are checked against each sentence's own inline/token evidence
 plus explicit block citations, never a different sentence's references.
 Rendered tokens retain their item/type: an amount such as 2025 cannot become a
-calendar year. Bare four-digit amounts stay numeric; only explicit calendar
+calendar year. Parsing covers the complete rendered expression, with transparent
+bidi controls and mapped token spans. Appending percent/magnitude modifiers to a
+token blocks; adjacent tokens cannot be interpreted as unrelated amounts.
+Typed currency symbols/codes are retained and must match cited currency units;
+ordinary amounts cannot cite percentages. Bilingual comparison includes units,
+not just equal numeric digits. Bare four-digit amounts stay numeric; only explicit calendar
 wording gives prose a year role. Dates/years must match dates on cited evidence
 (including its financial period), never a tolerance or unrelated packet dates.
 

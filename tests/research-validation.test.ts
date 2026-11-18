@@ -198,6 +198,48 @@ describe("grounding, Arabic normalization and safety edges", () => {
     ]);
     expect(renderedClaims("In {{fig:px.close.2026-10}}", fixture.packet, "en").claims[0].kind).toBe("number");
   });
+  it("parses complete rendered modifiers without losing token provenance or currency", () => {
+    expect(renderedClaims("{{fig:px.close.2026-10}} million", packet, "en").claims[0]).toMatchObject({
+      value: 24500000, kind: "number", item_id: "px.close.2026-10", magnitude: 1000000, token_modified: true,
+    });
+    expect(renderedClaims("{{fig:px.close.2026-10}}%", packet, "en").claims[0]).toMatchObject({
+      value: 24.5, kind: "percent", item_id: "px.close.2026-10", token_modified: true,
+    });
+    expect(extractClaims("$33")[0]).toMatchObject({ value: 33, kind: "number", currency: "USD" });
+    expect(extractClaims("EUR 24.5")[0]).toMatchObject({ currency: "EUR" });
+    expect(extractClaims("JPY 24.5")[0]).toMatchObject({ currency: "JPY" });
+    expect(extractClaims("¥24.5")[0]).toMatchObject({ currency: "ambiguous:¥" });
+    expect(extractClaims("33% dollars")[0]).toMatchObject({ kind: "percent", currency: "USD" });
+    expect(extractClaims("$\u061c33%")[0]).toMatchObject({ kind: "percent", currency: "USD" });
+  });
+  it("requires bilingual figures to agree in currency, not only numeric digits", () => {
+    const rows = structuredClone(fixtureInput());
+    const income = rows.periods[0].facts.find(f => f.field === "net_income")!;
+    income.value = 24.5; income.unit = "EUR";
+    const p = buildResearchPacket(rows, FIXTURE_CLOCK), model = handwrittenModel(p);
+    model.financial_highlights[0] = { text: {
+      ar: "المبلغ €24.5 {{cite:fin.net_income.FY2025}}.",
+      en: "The amount is $24.5 {{cite:px.close.2026-10}}.",
+    }, cites: [] };
+    const issues = validateResearchDraft(assembleDraft(model, p), p, settings);
+    expect(issues.map(i => i.check)).toContain("languages");
+    expect(issues.map(i => i.check)).not.toContain("grounding");
+  });
+  it("rejects token modifiers even at zero, doubled percent signs and merged numeric tokens", () => {
+    const p = fixturePackets[8], model = handwrittenModel(p);
+    model.financial_highlights[0] = { text: {
+      ar: "القيمة {{fig:fin.net_income.FY2025}} مليون.",
+      en: "The value is {{fig:fin.net_income.FY2025}} million.",
+    }, cites: [] };
+    expect(validateResearchDraft(assembleDraft(model, p), p, settings).map(i => i.check)).toContain("grounding");
+    for (const text of [
+      { ar: "القيمة {{fig:scr.fixture-method.debt.threshold}}%.", en: "The value is {{fig:scr.fixture-method.debt.threshold}}%." },
+      { ar: "القيمة {{fig:px.close.2026-10}}{{fig:fin.total_revenue.FY2025}}.", en: "The value is {{fig:px.close.2026-10}}{{fig:fin.total_revenue.FY2025}}." },
+    ]) {
+      const model = handwrittenModel(packet); model.financial_highlights[0] = { text, cites: [] };
+      expect(checks(assembleDraft(model, packet))).toContain("grounding");
+    }
+  });
   it.each([
     ["١٬٢٠٠٫٥٪", 1200.5, "percent"], ["۱۲۰ میلیون", 120, "number"],
     ["$1.5 billion", 1500000000, "number"], ["١٫٥ مليار", 1500000000, "number"],
