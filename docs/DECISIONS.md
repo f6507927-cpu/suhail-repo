@@ -1,5 +1,23 @@
 # Suhail — Decision Log
 
+## 18 November 2026 — AI research assistant additions (design only)
+
+**Proposed, pending founder approval.** Documentation only. Extends D-182 to D-196; detail is in [AI_RESEARCH_DESIGN.md](AI_RESEARCH_DESIGN.md) sections 4, 6, 7, 8 and 13. IDs D-210 to D-214 are reserved for this set so they cannot collide with decisions numbered in parallel branches.
+
+| ID | Decision |
+| --- | --- |
+| D-214 | **Value and experience test for every addition.** Before building any screen, field or feature in the AI research work, state who gains and what effort or confusion is removed; keep it easier than the alternative; lead with the answer and put detail behind a disclosure; check 375×812 and Arabic first; one main action per screen and no new navigation item without merging or removing one; reuse existing tokens and components. The PR description records the answers. See AI_RESEARCH_DESIGN.md section 14. |
+| D-213 | **Consumer aids.** The public research section opens with a plain three-line `plain_summary`, and shows a "why this changed" note when research was updated or flagged outdated. The note is filled by code from the stored trigger and date, not by the model; corrections are prominent (reference §4.6). |
+| D-212 | **Edit-reason tags.** Analysts tag why they changed AI text (tone, accuracy, too strong, missing risk, citation, compliance wording, other). Tags are stored with the review event and reported monthly. They feed prompt and style-guide improvement, not model training. |
+| D-211 | **Refresh drafts.** A refresh starts from the last published version; code computes `changes[]` between the old and new packets; the model revises only what the changes require; the review screen highlights changed passages. All validators still run on the whole text. |
+| D-210 | **Manual first, bounded scope.** Drafts are analyst-requested, one stock at a time; no automatic queuing. Settings cap the number of stocks under active research and restrict research to an allowed-sector list with an optional per-sector limit, checked at request time. Learning from analysts is a feedback loop on prompt and style guide with re-scoring of the evaluation set; approved-example prompting waits until research is published. |
+
+## 8 November 2026 — Published methodology workflow labels
+
+| ID | Decision |
+| --- | --- |
+| D-197 | **Founder-requested public display correction after D-181's naming mapping.** Apply D-159's stale-draft cleanup after the approved Arabic/English version-label mappings, including UI-8's short and full 1.1 forms. Known launch labels omit stale “Draft” / «مسودة» while retaining the upper-bound assumption caveat. Public stock summaries, full records and methodology pages show the recorded workflow state; a stored draft label must neither suppress an approved badge nor override recorded workflow or production flags. Actual draft versions retain their draft workflow label. Preserve D-181's public name, approved translation tables, arbitrary custom labels, stored version labels, evidence, historical runs, governance and production flags. Fixture tests only; no database, migration or deployment change. |
+
 ## 13 November 2026 — AI research assistant, design only (P0)
 
 **Proposed, pending founder approval.** Documentation only: no code, schema, setting, dependency or live-data change is applied by these entries. Detail is in [AI_RESEARCH_DESIGN.md](AI_RESEARCH_DESIGN.md). IDs continue after D-181.
