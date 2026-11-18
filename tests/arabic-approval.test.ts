@@ -83,7 +83,9 @@ describe("D-101 row-level Arabic approval boundary", () => {
   });
   it("covers all 27 audit enum codes and code-valued summaries without approving arbitrary summaries", () => {
     const codes = rows.filter(([id]) => id.startsWith("F-"));
-    expect(codes.map((row) => row[3]).sort()).toEqual([...auditEventType.enumValues].sort());
+    // D-216 adds private audit codes, not new Arabic approvals. Preserve the
+    // exact original 27 approved codes; research wording awaits human authors.
+    expect(codes.map((row) => row[3]).sort()).toEqual(auditEventType.enumValues.filter(code => !code.startsWith("research_")).sort());
     for (const [id, , , code, draft] of codes) {
       expect(reviewText("ar", code), id).toBe(approvedDraft(id, draft));
       expect(reviewText("en", code), id).toBe(code);

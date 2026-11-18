@@ -5,6 +5,9 @@ import { NEGATIVE_CASES, recordedOutput } from "../../tests/fixtures/research/ou
 import rubric from "../../tests/fixtures/research/rubric.json";
 import hashes from "../../tests/fixtures/research/hashes.json";
 import { groundingRegressionFixtures } from "../../tests/fixtures/research/grounding-regressions";
+import { RecordedResearchClient } from "../../src/lib/research/recorded-client";
+import { generateResearch } from "../../src/lib/research/generate";
+import { handwrittenModel } from "../../tests/fixtures/research/outputs";
 
 assertOfflineResearch(Object.keys(process.env));
 if (fixturePackets.some(p => hashes[p.security.ticker as keyof typeof hashes] !== p.packet_hash))
@@ -37,3 +40,21 @@ for (const fixture of groundingRegressionFixtures()) {
   console.log(`grounding regression ${fixture.id}: ${passed ? "PASS" : "FAIL"} (${fixture.expected ? "must block" : "must remain valid"})`);
 }
 if (regressions) { console.error(`Fixture evaluation regressions: ${regressions}`); process.exitCode = 1; }
+
+// D-216: exercise the same generation/retry/validation interface as P2, with
+// recordings only. No SDK import, environment value or network dependency.
+async function evaluateRecordedClient() {
+  let accepted = 0;
+  for (const packet of fixturePackets) {
+    const client = new RecordedResearchClient([{
+      text: JSON.stringify(handwrittenModel(packet)), model: "recorded-fixture",
+      model_version: "handwritten-v1", stop_reason: "end_turn", input_tokens: 100, output_tokens: 100,
+    }]);
+    const result = await generateResearch(client, { packet, guidance: "", max_input_tokens: 1000, max_output_tokens: 1000 },
+      { reserve: async () => true, settle: async () => {} }, settings);
+    if (result.state === "generated" && !result.issues.some(i => i.severity === "block")) accepted++;
+  }
+  console.log(JSON.stringify({ path: "P2 RecordedResearchClient", accepted, total: fixturePackets.length, usefulness: "human-scored" }));
+  if (accepted !== fixturePackets.length) process.exitCode = 1;
+}
+evaluateRecordedClient().catch(() => { console.error("Recorded-client evaluation failed"); process.exitCode = 1; });

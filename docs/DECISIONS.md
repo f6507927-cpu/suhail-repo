@@ -1,5 +1,11 @@
 # Suhail — Decision Log
 
+## 18 November 2026 — AI research P2, private generation and review
+
+| ID | Decision |
+| --- | --- |
+| D-216 | **P2 implementation only; publishing remains off.** Private research packets/events are append-only, model output is immutable after generation, and the database guards transitions and approval against the current validated text hash, open blocks, an active analyst and all six checklist answers. Admin/editor MFA guards are rechecked inside short role-locked write transactions; provider calls and stored-evidence reads run outside write transactions. Manual requests only, bounded by configured coverage/universe/sectors/active-stock limits. Budget starts at zero, stock cap zero and allowed sectors empty; freshness/price thresholds have no invented operational defaults. Each attempt atomically reserves input+output ceilings against its UTC month, then true-ups reported tokens; unknown transport usage conservatively consumes the reservation, and crash reservations are not automatically reclaimed. Only structural JSON/schema/truncation failures retry once; content failures remain blocking findings for the analyst. The server-only Anthropic SDK uses the documented `output_config.format` shape; its tuple-transform limitation is handled only in the transport schema, while the original P1 schema still validates exactly three short summary lines. Arabic research prompt/list approval remains unresolved (O-13), so real generation is refused until reviewed code records that approval. The P2 brief forbids invented/machine-translated Arabic UI wording: new private research rows remain visibly **PENDING HUMAN-AUTHORED ARABIC** in the review inventory, a narrow call-site exception to D-138, not an Arabic proposal or approval. Existing approvals, public pages, legal text, screening decisions and P1 packet hashes are unchanged. Migration 0023 is prepared only, never applied to Supabase here; tests use disposable PostgreSQL and recorded providers only. Publication transitions remain refused throughout P2, irrespective of valid evidence for a future gate change. No P3/P4 work, live provider call, hosted write or deployment is authorised. |
+
 ## 18 November 2026 — AI research P1, fixture-only contracts
 
 | ID | Decision |

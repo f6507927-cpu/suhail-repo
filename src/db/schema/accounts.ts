@@ -73,6 +73,12 @@ export const auditEventType = appSchema.enum("audit_event_type", [
   "user_mfa_reset",
   "user_account_deleted",
   "consent_recorded",
+  "research_requested",
+  "research_generated",
+  "research_edited",
+  "research_transition",
+  "research_settings",
+  "research_gate",
 ]);
 export const auditEvent = appSchema.table("audit_event", {
   ...base(),
