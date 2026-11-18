@@ -1,6 +1,6 @@
 import { uiEightVersion } from "./approved-arabic-ui-eight";
 
-/** D-159/D-182: known launch-time wording is not the current governance state.
+/** D-159/D-197: known launch-time wording is not the current governance state.
  * Display-only: retain stored labels, workflow badges and arbitrary names.
  */
 export function publicMethodologyVersionLabel(label: string | null | undefined, version = "") {

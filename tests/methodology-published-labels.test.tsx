@@ -21,7 +21,7 @@ vi.mock("../src/i18n/navigation", () => ({
 }));
 vi.stubGlobal("React", React);
 
-// D-182: exercise the actual mapping -> public cleanup -> rendered workflow.
+// D-197: exercise the actual mapping -> public cleanup -> rendered workflow.
 describe("published methodology labels after D-181", () => {
   for (const locale of ["ar", "en"] as const) {
     const render = (node: React.ReactNode) => renderToStaticMarkup(

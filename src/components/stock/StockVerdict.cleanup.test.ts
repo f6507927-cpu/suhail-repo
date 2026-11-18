@@ -242,7 +242,7 @@ describe("stock public-label cleanup (D-150)", () => {
 
   it.each([
     ["Adapted research 1.0 — draft", "الإصدار 1.0"],
-    // D-182 removes stale draft wording after UI-8's mapping.
+    // D-197 removes stale draft wording after UI-8's mapping.
     ["Adapted research 1.1 — draft; Suhail upper-bound assumption", "الإصدار 1.1، ويعتمد على افتراض الحد الأعلى لدى سهيل"],
   ])("uses the public label for %s in rendered and social/document titles without editing evidence", (stored, shown) => {
     const data = stockFixture();
