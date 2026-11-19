@@ -38,7 +38,9 @@ jobs:
           POSTGRES_DB: suhail_test
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
-          - 5432:5432
+          - "127.0.0.1:5432:5432"
+          # The existing isolated search runner uses this second loopback port.
+          - "127.0.0.1:55432:5432"
         options: >-
           --health-cmd "pg_isready -U postgres"
           --health-interval 10s
@@ -72,14 +74,47 @@ jobs:
       - run: pnpm research:eval
       # The isolated suite applies migrations and seeds twice before role tests.
       - run: pnpm test:db
-      - run: pnpm exec playwright install --with-deps chromium webkit
+      - id: install-browser-deps
+        run: pnpm exec playwright install --with-deps chromium webkit
       - run: pnpm test:e2e:stock
-      - run: pnpm test:e2e
-      - run: pnpm test:e2e:accounts
+      - name: Run pnpm test:e2e
+        env:
+          NODE_ENV: test
+          DATABASE_URL_PUBLIC: postgresql://suhail_public@127.0.0.1:55432/suhail_test
+          DATABASE_URL_APP: postgresql://suhail_app@127.0.0.1:55432/suhail_test
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:3500
+          PLAYWRIGHT_FIXTURE_MODE: development
+          PLAYWRIGHT_TEST_SERVER: "1"
+        run: |
+          # test:db has applied migrations. Open restricted logins only in the CI service.
+          psql -X -v ON_ERROR_STOP=1 "$DATABASE_URL_TEST" \
+            -c 'ALTER ROLE suhail_public LOGIN' -c 'ALTER ROLE suhail_app LOGIN'
+          test "$(psql -XAt "$DATABASE_URL_PUBLIC" -c 'SELECT current_user')" = suhail_public
+          test "$(psql -XAt "$DATABASE_URL_APP" -c 'SELECT current_user')" = suhail_app
+
+          # Next compiles NODE_ENV to development, so raw pnpm dev rejects loopback.
+          # Use the existing isolated real-Next runner and its strict public-role adapter.
+          setsid pnpm exec tsx tests/search-browser/server.ts &
+          server=$!
+          trap 'kill -- "-$server" 2>/dev/null || true; wait "$server" 2>/dev/null || true' EXIT
+          deadline=$((SECONDS + 120))
+          until curl --silent --fail --max-time 2 "$PLAYWRIGHT_BASE_URL/api/health" >/dev/null; do
+            if ! kill -0 "$server" 2>/dev/null || (( SECONDS >= deadline )); then
+              echo "Real Next.js browser fixture did not become ready" >&2
+              exit 1
+            fi
+            sleep 1
+          done
+          pnpm test:e2e
+      # Keep independent suite results visible even if a preceding suite fails.
+      - if: ${{ !cancelled() && steps.install-browser-deps.outcome == 'success' }}
+        run: pnpm test:e2e:accounts
       # Separate production Next copy: synthetic module IO, real roots/SSR/hydration.
-      - run: pnpm test:e2e:hydration
+      - if: ${{ !cancelled() && steps.install-browser-deps.outcome == 'success' }}
+        run: pnpm test:e2e:hydration
       # D-168: phone menu navigation, Chromium and WebKit iPhone, same synthetic build.
-      - run: pnpm test:e2e:menu
+      - if: ${{ !cancelled() && steps.install-browser-deps.outcome == 'success' }}
+        run: pnpm test:e2e:menu
       # Finish all self-managed Next dev servers before building production.
       # D-102: build must never read a database, including the local test service.
       - run: env -u DATABASE_URL_MIGRATIONS -u DATABASE_URL_PUBLIC -u DATABASE_URL_APP -u DATABASE_URL_TEST -u DATABASE_URL -u PGHOST -u PGUSER -u PGDATABASE -u PGPORT -u PGPASSWORD -u SUPABASE_DB_CA_CERT pnpm build
