@@ -2,6 +2,19 @@ import { expect, type Page, type TestInfo } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { checkRegister } from "../src/lib/copy-register";
 
+/** Current phone header keeps account/theme controls inside the menu (D-168). */
+export async function openPublicMenu(page: Page) {
+  const menu = page.getByRole("button", { name: /^(القائمة|Menu)$/ });
+  if (await menu.isVisible() && await menu.getAttribute("aria-expanded") !== "true")
+    await menu.click();
+}
+
+export async function publicThemeControl(page: Page, locale: string) {
+  const toggle = page.getByRole("button", { name: locale === "ar" ? "تغيير المظهر" : "Change theme" });
+  if (!await toggle.isVisible()) await openPublicMenu(page);
+  return toggle;
+}
+
 export async function checkPublicUi(page: Page, info: TestInfo, label: string) {
   const publicText = await page.locator("body").innerText();
   const locale = await page.locator("html").getAttribute("lang") === "en" ? "en" : "ar";

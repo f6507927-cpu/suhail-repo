@@ -205,7 +205,7 @@ export default async function Styleguide({
         <p className="text-sm text-muted-foreground">
           {reviewText(locale, "Raw --muted = secondary text. shadcn bg-muted → --muted-surface. Text ≥4.5:1; meaningful outlines/icons ≥3:1. Decorative separators are exempt.")}
         </p>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto" tabIndex={0}>
           <table className="w-full text-start text-xs">
             <caption className="pb-4 text-start">
               <LocalizedText>{t("styleguide.labels")}</LocalizedText>

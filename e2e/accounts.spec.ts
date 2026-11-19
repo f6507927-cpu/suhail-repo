@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createServer } from "node:http";
+import { openPublicMenu } from "./public-ui-checks";
 // Only the external transport is isolated: the real Next start route and Supabase
 // SDK generate the PKCE URL/cookies. No runtime auth bypass or real Google grant.
 for (const prefix of ["", "/en"]) {
@@ -208,6 +209,7 @@ test("cookie-free public/legal pages and unauthorized profile are never shared c
     if (req.url().endsWith("/api/account/profile")) profiles++;
   });
   await page.goto("/");
+  await openPublicMenu(page);
   await expect(page.getByRole("link", { name: "تسجيل الدخول" })).toBeVisible({
     timeout: 30000,
   });
@@ -223,13 +225,17 @@ test("cookie-free public/legal pages and unauthorized profile are never shared c
     const response = await request.get(route);
     expect(response.ok()).toBe(true);
     expect(response.headers()["set-cookie"]).toBeUndefined();
-    expect(response.headers()["content-security-policy"]).toBeUndefined();
+    // Public pages have a fixed CSP (D-40), not a per-request nonce.
+    expect(response.headers()["content-security-policy"]).toContain("default-src 'self'");
+    expect(response.headers()["content-security-policy"]).not.toContain("'nonce-");
   }
   const response = await request.get("/api/account/profile");
   expect(response.status()).toBe(401);
-  expect(response.headers()["cache-control"]).toBe("private, no-store");
+  expect(response.headers()["cache-control"]).toBe("private, no-store, max-age=0");
   expect(response.headers()["cloudflare-cdn-cache-control"]).toBe("no-store");
-  expect(await (await request.get("/robots.txt")).text()).toContain(
-    "Disallow: /en/admin",
+  // Preview disallows the entire site; live disallows the private prefix.
+  // Both protect /en/admin. Do not require live indexing rules in fixtures.
+  expect(await (await request.get("/robots.txt")).text()).toMatch(
+    /^Disallow: (?:\/|\/en\/admin)\s*$/m,
   );
 });

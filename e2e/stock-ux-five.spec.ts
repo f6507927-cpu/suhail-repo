@@ -33,10 +33,13 @@ for(const locale of ["ar","en"] as const) {
       expect(html).toContain('name="robots" content="noindex, nofollow"');
       await page.goto(path);
       const answer=page.locator('[data-section="why"]');
-      const badge=answer.locator('.status-pass,.status-fail,.status-review,.status-insufficient').first();
+      const badge=page.locator('[data-section="header"] .status-pass,[data-section="header"] .status-fail,[data-section="header"] .status-review,[data-section="header"] .status-insufficient').first();
       await expect(badge).toBeVisible();
       await expect(badge.locator("svg")).toBeVisible();
-      await expect(answer.locator('[class*="reasonBlock"]')).toBeVisible();
+      const reasonBlock=answer.locator('[class*="reasonBlock"]');
+      await expect(reasonBlock).toHaveCount(1);
+      // A passing run with no reasons intentionally has only its sr-only heading.
+      if(status!=="passes_selected_methodology") await expect(reasonBlock).toBeVisible();
       await expect(answer.locator('[class*="meaningBlock"]')).toBeVisible();
       await expect(page.locator('[data-section="search-again"] input[type="search"]')).toBeVisible();
       await expect(page.locator("[data-coverage-seal]")).toHaveCount(seal?1:0);
@@ -60,20 +63,24 @@ for(const locale of ["ar","en"] as const) {
       }
       // §13.3 6b: result colors only on the status/criteria; figures use neutral ink.
       if(status==="passes_selected_methodology") {
-        expect(await badge.evaluate(el=>getComputedStyle(el).backgroundColor)).toMatch(/rgb\((46, 125, 91|63, 171, 124)\)/);
+        expect(await badge.evaluate(el=>getComputedStyle(el).backgroundColor)).toMatch(/rgb\((46, 125, 91|63, 171, 124|73, 175, 131)\)/);
       }
       const figures=page.locator('[class*="factValue"]');
       for(const figure of await figures.all()) {
-        expect(await figure.evaluate(el=>getComputedStyle(el).color)).not.toMatch(/rgb\((46, 125, 91|63, 171, 124|179, 70, 47|217, 129, 110)\)/);
+        expect(await figure.evaluate(el=>getComputedStyle(el).color)).not.toMatch(/rgb\((46, 125, 91|63, 171, 124|73, 175, 131|179, 70, 47|217, 129, 110)\)/);
       }
       // §13.3 6c: check the rendered register, including English fallbacks.
       expect(checkRegister(await page.locator("body").innerText(),locale).hardBans).toEqual([]);
-      await expect(page.locator("[data-language-notice]")).toHaveCount(locale==="ar"?1:0);
+      // Fully translated fixtures need no English-only notice; when present,
+      // the notice must be singular rather than repeated in each section.
+      expect(await page.locator("[data-language-notice]").count()).toBeLessThanOrEqual(locale==="ar"?1:0);
       await expect(page.locator("body")).not.toContainText("⟦AR-REVIEW⟧");
       await answer.locator('details summary').first().click();
       await expect(answer).toContainText(locale==="ar"?"شرح توضيحي اختباري":"Synthetic plain criterion explanation");
       await record.locator(":scope > summary").click();
+      await record.locator('[data-record-section="metadata"] > summary').click();
       await expect(record.locator('[data-section="metadata"]')).toBeVisible();
+      await record.locator('[data-record-section="fundamentals"] > summary').click();
       const numeric=record.locator('[data-section="fundamentals"] bdi.font-mono').first();
       expect(await numeric.evaluate(el=>getComputedStyle(el).fontFamily)).toMatch(/Plex.*Mono|Mono.*Plex/i);
       await record.locator(":scope > summary").click();

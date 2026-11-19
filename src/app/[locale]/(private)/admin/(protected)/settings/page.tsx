@@ -5,6 +5,7 @@ import { requirePageRole } from "@/lib/auth/guards";
 import { localePath } from "@/lib/auth/paths";
 import { readSettings } from "@/lib/auth/admin-data";
 import { saveSettings } from "../actions";
+import { ResearchEntryLink } from "@/components/research/ResearchEntryLink";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -21,6 +22,7 @@ export default async function AdminSettingsPage({ params }: PageProps) {
   const result = await readSettings();
   return (
     <section aria-label={t("nav.admin")}>
+      <ResearchEntryLink locale={locale} />
       <SettingsAdminScreen
         locale={locale}
         settings={result.settings}

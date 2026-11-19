@@ -67,6 +67,10 @@ describe("exact environment inventory", () => {
         "API_NINJAS_KEY",
         "API_NINJAS_STORAGE_READY",
         "API_NINJAS_MONTHLY_CAP",
+        "ANTHROPIC_API_KEY",
+        "LLM_MODEL",
+        "AI_RESEARCH_MAX_INPUT_TOKENS",
+        "AI_RESEARCH_MAX_OUTPUT_TOKENS",
       ].sort(),
     );
     const later = example.split("# Later (D-54)\n")[1];
@@ -74,8 +78,6 @@ describe("exact environment inventory", () => {
     expect(
       [...later.matchAll(/^# ([A-Z][A-Z0-9_]*)=$/gm)].map((match) => match[1]),
     ).toEqual([
-      "ANTHROPIC_API_KEY",
-      "LLM_MODEL",
       "REVALIDATE_SECRET",
       "S3_BUCKET_ARCHIVE",
       "SEND_OTP_HOOK_SECRET",

@@ -14,12 +14,14 @@ try {
   const db = drizzle(client, { schema });
   const [exB] = await db.select().from(schema.methodologyVersion).where(eq(schema.methodologyVersion.version_label, "EX-B v1.0"));
   if (!exB?.is_demo) throw new Error("Expected the synthetic EX-B fixture");
-  await client.begin(async sql => {
-    await sql`set local session_replication_role = replica`;
-    await sql`update app.methodology_version set production_enabled = true, is_public = true where id = ${exB.id}`;
-  });
   for (const slug of ["demo-fixa", "demo-fixc"]) {
     const [s] = await db.select().from(schema.security).where(eq(schema.security.slug, slug));
     await db.transaction(tx => screenSecurity(s.id, exB.id, { asOf: "2026-10-16", trigger: "demo-seed" }, work => work(tx, null)));
   }
+  // Complete the genuine demo screenings/audits before the existing test-only
+  // eligibility override. An audit correctly refuses a production demo.
+  await client.begin(async sql => {
+    await sql`set local session_replication_role = replica`;
+    await sql`update app.methodology_version set production_enabled = true, is_public = true where id = ${exB.id}`;
+  });
 } finally { await client.end(); }

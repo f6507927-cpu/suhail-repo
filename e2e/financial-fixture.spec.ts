@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { reviewText } from "../src/components/accounts/types";
 
@@ -9,12 +9,38 @@ const founderCategories = readFileSync("tests/fixtures/arabic-follow-up-founder.
     return { key, en, ar };
   });
 
+async function expandDisclosure(disclosure: Locator) {
+  await expect(disclosure).toBeVisible();
+  if (await disclosure.getAttribute("open") === null) {
+    await disclosure.locator(":scope > summary").press("Enter");
+  }
+  await expect(disclosure).toHaveAttribute("open", "");
+}
+
+async function openRecordSection(page: Page, name: string) {
+  await page.locator("[data-security-row]").first().click();
+  const section = page.locator(`details[data-admin-record-section="${name}"]`);
+  await expandDisclosure(section);
+  return section;
+}
+
+async function openTickerForm(page: Page, tickerLabel: string) {
+  await expandDisclosure(page.locator("details").filter({
+    has: page.getByLabel(tickerLabel, { exact: true }),
+  }));
+}
+
+async function confirmRun(page: Page, action: "Screen all" | "Ingest all") {
+  await page.getByRole("button", { name: action, exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Run", exact: true }).click();
+}
+
 for (const locale of ["ar", "en"] as const) {
   const prefix = locale === "en" ? "/en" : "";
   const label = (value: string) => reviewText(locale, value);
   test(`D-138 ${locale}: exact activity options, input states, CIK and unchanged submission`, async ({ page }) => {
     await page.goto(`${prefix}/admin/securities?screen=financial&role=admin`);
-    await page.getByRole("button", { name: label("Segments"), exact: true }).click();
+    await openRecordSection(page, "Business segments");
     await page.getByRole("button", { name: label("Edit"), exact: true }).click();
     const category = page.getByLabel(label("Activity category"), { exact: true });
     for (const row of founderCategories) {
@@ -30,6 +56,7 @@ for (const locale of ["ar", "en"] as const) {
     expect((await page.evaluate(() => window.financialFixture.calls))[0]).toMatchObject({
       operation: "segment", data: { activity_category: "interest_based_lending", input_state: "estimated" },
     });
+    await openTickerForm(page, label("Ticker"));
     await page.getByLabel(label("Ticker"), { exact: true }).fill("FIX");
     await page.getByRole("button", { name: label("Preview"), exact: true }).click();
     const cik = page.locator("dt").filter({ hasText: "CIK" });
@@ -57,7 +84,7 @@ const readScreeningCalls = () => window.screeningFixture.calls;
 
 test("adapted support shows missing quarter evidence and submits only explicitly attested closes", async ({ page }) => {
   await page.goto(`${securitiesUrl}&role=admin`);
-  await page.getByRole("button", { name: "Prices", exact: true }).click();
+  await openRecordSection(page, "Market value");
   await expect(page.getByText("2026 Q3", { exact: true })).toBeVisible();
   for (const end of ["2026-07-31", "2026-08-31", "2026-09-30"])
     await expect(page.getByText(end, { exact: true })).toBeVisible();
@@ -78,16 +105,18 @@ test("adapted support shows missing quarter evidence and submits only explicitly
 
 test("only admins can add sourced prohibited income for the displayed annual period", async ({ page }) => {
   await page.goto(`${securitiesUrl}&role=editor`);
+  await openRecordSection(page, "Prohibited income");
   await expect(page.getByRole("button", { name: "Add prohibited income", exact: true })).toHaveCount(0);
   await page.goto(`${securitiesUrl}&role=admin`);
-  await page.getByRole("button", { name: "Add prohibited income", exact: true }).click();
-  await page.getByLabel("Value", { exact: true }).fill("100");
-  await page.getByLabel("Input state", { exact: true }).selectOption("estimated");
-  await page.getByLabel("Source label", { exact: true }).fill("Synthetic conservative annual total");
-  await page.getByLabel("Source URL", { exact: true }).fill("https://example.invalid/annual");
-  await page.getByLabel("Filing note reference", { exact: true }).fill("SYNTHETIC-GROSS-TOTAL");
-  await page.getByLabel("Reason (required)", { exact: true }).fill("Synthetic conservative annual estimate");
-  await page.getByRole("button", { name: "Save", exact: true }).click();
+  const income = await openRecordSection(page, "Prohibited income");
+  await income.getByRole("button", { name: "Add prohibited income", exact: true }).click();
+  await income.getByLabel("Value", { exact: true }).fill("100");
+  await income.getByLabel("Input state", { exact: true }).selectOption("estimated");
+  await income.getByLabel("Source label", { exact: true }).fill("Synthetic conservative annual total");
+  await income.getByLabel("Source URL", { exact: true }).fill("https://example.invalid/annual");
+  await income.getByLabel("Filing note reference", { exact: true }).fill("SYNTHETIC-GROSS-TOTAL");
+  await income.getByLabel("Reason (required)", { exact: true }).fill("Synthetic conservative annual estimate");
+  await income.getByRole("button", { name: "Save", exact: true }).click();
   await expect.poll(async () => page.evaluate(readCalls)).toHaveLength(1);
   expect((await page.evaluate(readCalls))[0]).toMatchObject({ operation: "addProhibitedIncome",
     data: { value: "100", input_state: "estimated", confidence_tier: "Estimated",
@@ -97,7 +126,8 @@ test("only admins can add sourced prohibited income for the displayed annual per
 
 test("admin can preview a fixture ticker and confirm it for ingestion", async ({ page }) => {
   await page.goto(`${securitiesUrl}&role=admin`);
-  await page.getByLabel("Ticker").fill("NEWF");
+  await openTickerForm(page, "Ticker");
+  await page.getByLabel("Ticker", { exact: true }).fill("NEWF");
   await page.getByRole("button", { name: "Preview", exact: true }).click();
   await expect(page.getByText("0000000001")).toBeVisible();
   await expect(page.getByText("Fixture Research Systems").first()).toBeVisible();
@@ -110,13 +140,15 @@ test("admin can preview a fixture ticker and confirm it for ingestion", async ({
 
 test("editor can inspect records but cannot invoke financial mutations", async ({ page }) => {
   await page.goto(`${securitiesUrl}&role=editor`);
+  await openTickerForm(page, "Ticker");
   await expect(page.getByRole("button", { name: "Preview", exact: true })).toBeDisabled();
+  await openRecordSection(page, "Financial data");
   await expect(page.getByRole("button", { name: "Override", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Confirm from filing", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Accept SEC", exact: true })).toHaveCount(0);
-  await page.getByRole("button", { name: "Segments", exact: true }).click();
+  await expandDisclosure(page.locator('[data-admin-record-section="Business segments"]'));
   await expect(page.getByRole("button", { name: "Add segment", exact: true })).toHaveCount(0);
-  await page.getByRole("button", { name: "Prices", exact: true }).click();
+  await expandDisclosure(page.locator('[data-admin-record-section="Market value"]'));
   await expect(page.getByLabel("Close", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Save close", exact: true })).toHaveCount(0);
   expect(await page.evaluate(readCalls)).toEqual([]);
@@ -124,19 +156,20 @@ test("editor can inspect records but cannot invoke financial mutations", async (
 
 test("admin can override, confirm from a filing, and accept a retained SEC alternative", async ({ page }) => {
   await page.goto(`${securitiesUrl}&role=admin`);
-  await page.getByRole("button", { name: "Override", exact: true }).first().click();
-  await page.getByLabel("Value", { exact: true }).fill("260000");
-  await page.getByLabel("Reason (required)", { exact: true }).fill("Fixture correction review");
-  await page.getByLabel("Source label", { exact: true }).fill("Fixture internal review");
-  await page.getByRole("button", { name: "Save", exact: true }).click();
+  const financial = await openRecordSection(page, "Financial data");
+  await financial.getByRole("button", { name: "Override", exact: true }).first().click();
+  await financial.getByLabel("Value", { exact: true }).fill("260000");
+  await financial.getByLabel("Reason (required)", { exact: true }).fill("Fixture correction review");
+  await financial.getByLabel("Source label", { exact: true }).fill("Fixture internal review");
+  await financial.getByRole("button", { name: "Save", exact: true }).click();
   await expect.poll(async () => page.evaluate(readCalls)).toHaveLength(1);
   await expect(page.getByRole("button", { name: "Confirm from filing", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Confirm from filing", exact: true }).click();
-  await page.getByLabel("Source label", { exact: true }).fill("Fixture note confirmation");
-  await page.getByLabel("Filing note reference", { exact: true }).fill("FIXTURE-NOTE-01");
-  await page.getByLabel("Source URL", { exact: true }).fill("https://example.invalid/fixture-note");
-  await page.getByLabel("Reason (required)", { exact: true }).fill("Fixture filing note verified");
-  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await financial.getByLabel("Source label", { exact: true }).fill("Fixture note confirmation");
+  await financial.getByLabel("Filing note reference", { exact: true }).fill("FIXTURE-NOTE-01");
+  await financial.getByLabel("Source URL", { exact: true }).fill("https://example.invalid/fixture-note");
+  await financial.getByLabel("Reason (required)", { exact: true }).fill("Fixture filing note verified");
+  await financial.getByRole("button", { name: "Save", exact: true }).click();
   await expect.poll(async () => page.evaluate(readCalls)).toHaveLength(2);
   await page.getByRole("button", { name: "Accept SEC", exact: true }).click();
   await expect.poll(async () => page.evaluate(readCalls)).toHaveLength(3);
@@ -148,14 +181,14 @@ test("admin can override, confirm from a filing, and accept a retained SEC alter
 
 test("admin can create, edit, and delete a latest-period segment", async ({ page }) => {
   await page.goto(`${securitiesUrl}&role=admin`);
-  await page.getByRole("button", { name: "Segments", exact: true }).click();
-  await page.getByRole("button", { name: "Add segment", exact: true }).click();
-  await page.getByLabel("Segment name", { exact: true }).fill("Fixture new segment");
-  await page.getByLabel("Revenue amount", { exact: true }).fill("18000");
-  await page.getByLabel("Source label", { exact: true }).fill("Fixture segment filing");
-  await page.getByLabel("Filing note reference", { exact: true }).fill("FIXTURE-SEGMENT-01");
-  await page.getByLabel("Source URL", { exact: true }).fill("https://example.invalid/fixture-segment");
-  await page.getByRole("button", { name: "Save segment", exact: true }).click();
+  const segments = await openRecordSection(page, "Business segments");
+  await segments.getByRole("button", { name: "Add segment", exact: true }).click();
+  await segments.getByLabel("Segment name", { exact: true }).fill("Fixture new segment");
+  await segments.getByLabel("Revenue amount", { exact: true }).fill("18000");
+  await segments.getByLabel("Source label", { exact: true }).fill("Fixture segment filing");
+  await segments.getByLabel("Filing note reference", { exact: true }).fill("FIXTURE-SEGMENT-01");
+  await segments.getByLabel("Source URL", { exact: true }).fill("https://example.invalid/fixture-segment");
+  await segments.getByRole("button", { name: "Save segment", exact: true }).click();
   await expect.poll(async () => page.evaluate(readCalls)).toHaveLength(1);
   await page.getByRole("button", { name: "Edit", exact: true }).click();
   await page.getByLabel("Segment name", { exact: true }).fill("Fixture services revised");
@@ -172,18 +205,18 @@ test("admin can create, edit, and delete a latest-period segment", async ({ page
 
 test("admin can save manual price, coverage, company fields, and confirm removal", async ({ page }) => {
   await page.goto(`${securitiesUrl}&role=admin`);
-  await page.getByRole("button", { name: "Prices", exact: true }).click();
+  await openRecordSection(page, "Market value");
   await page.getByLabel("Date", { exact: true }).fill("2026-01-16");
   await page.getByLabel("Close", { exact: true }).fill("48.75");
   await page.getByLabel("Source label", { exact: true }).fill("Fixture manual close");
   await page.getByLabel("Source URL", { exact: true }).fill("https://example.invalid/fixture-close");
   await page.getByRole("button", { name: "Save close", exact: true }).click();
   await expect.poll(async () => page.evaluate(readCalls)).toHaveLength(1);
-  await page.getByRole("button", { name: "Coverage", exact: true }).click();
+  await expandDisclosure(page.locator('[data-admin-record-section="Coverage"]'));
   await page.getByLabel("Assigned analyst", { exact: true }).selectOption("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");
   await page.getByRole("button", { name: "Save coverage", exact: true }).click();
   await expect.poll(async () => page.evaluate(readCalls)).toHaveLength(2);
-  await page.getByRole("button", { name: "Company", exact: true }).click();
+  await expandDisclosure(page.locator('[data-admin-record-section="Company details"]'));
   await page.getByLabel("Arabic name", { exact: true }).fill("Fixture Arabic issuer");
   await page.getByLabel("Arabic description", { exact: true }).fill("Fixture Arabic description");
   await page.getByLabel("English description", { exact: true }).fill("Fixture English description");
@@ -202,7 +235,7 @@ test("admin can save manual price, coverage, company fields, and confirm removal
 
 test("ingestion controls start, resume, and retry fixture jobs", async ({ page }) => {
   await page.goto("/en/admin/ingestion?screen=financial&view=ingestion&role=admin");
-  await page.getByRole("button", { name: "Ingest now", exact: true }).click();
+  await confirmRun(page, "Ingest all");
   await expect.poll(async () => page.evaluate(readCalls)).toHaveLength(1);
   await page.getByRole("button", { name: "Resume", exact: true }).click();
   await expect.poll(async () => page.evaluate(readCalls)).toHaveLength(2);
@@ -235,6 +268,7 @@ test("historical verification is hash-only, not a replay mismatch", async ({ pag
 
 test("screening admin can run a selected version, inspect unchanged evidence, and verify a stored run", async ({ page }) => {
   await page.goto(`${securitiesUrl}&role=admin&screening=1`);
+  await openRecordSection(page, "Screening");
   await expect(page.getByText("Unchanged", { exact: true }).first()).toBeVisible();
   await page.getByLabel("Methodology version").selectOption("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
   await page.getByRole("button", { name: "Run screening now", exact: true }).click();
@@ -259,31 +293,35 @@ test("verification failure presents detailed difference feedback", async ({ page
 
 test("bulk screening reports its universe summary and gates a missing production methodology", async ({ page }) => {
   await page.goto("/en/admin/ingestion?screen=financial&view=ingestion&role=admin&screening=1");
-  await page.getByRole("button", { name: "Screen all", exact: true }).click();
-  await expect(page.getByText("Job summary", { exact: true })).toBeVisible();
-  const jobSummary = page.getByRole("heading", { name: "Job summary", exact: true }).locator("..").locator("dl");
-  await expect(jobSummary.getByText("8", { exact: true })).toBeVisible();
+  await confirmRun(page, "Screen all");
+  const jobSummary = page.locator("details").filter({ has: page.getByText("Processed", { exact: true }).and(page.locator("dt")) });
+  await expandDisclosure(jobSummary);
+  await expect(jobSummary.locator("dt").getByText("Processed", { exact: true }).locator("..").locator("dd")).toHaveText("8");
   await expect(page.getByRole("button", { name: "Resume screen job", exact: true })).toBeVisible();
   await page.goto("/en/admin/ingestion?screen=financial&view=ingestion&role=admin&screening=1&bulk=gate");
-  await page.getByRole("button", { name: "Screen all", exact: true }).click();
-  await expect(page.getByText("No production methodology to screen with", { exact: true })).toBeVisible();
+  await confirmRun(page, "Screen all");
+  await expect(page.getByRole("status").filter({ hasText: "No production methodology to screen with" })).toBeVisible();
   const calls = await page.evaluate(readScreeningCalls);
   expect(calls).toContainEqual({ action: "runUniverseAction", args: ["screen", undefined] });
 });
 
 test("cancelled bulk work shows the existing failure and releases UI pending state", async ({ page }) => {
   await page.goto("/en/admin/ingestion?screen=financial&view=ingestion&role=admin&screening=1&bulk=cancel");
-  const submit = page.getByRole("button", { name: "Screen all", exact: true });
-  await submit.click();
-  await expect(submit).toBeDisabled();
-  await expect(page.getByText("Screening operation failed. Check the inputs and methodology, then try again.", { exact: true })).toBeVisible();
-  await expect(submit).toBeEnabled();
-  await submit.click();
-  await expect(submit).toBeEnabled();
+  const screen = page.locator('[data-bulk-kind="screen"]');
+  const submit = screen.getByRole("button", { name: "Screen all", exact: true });
+  for (const count of [1, 2]) {
+    await confirmRun(page, "Screen all");
+    await expect(screen.getByRole("button", { name: "Running…", exact: true })).toBeDisabled();
+    await expect.poll(() => page.evaluate(readScreeningCalls)).toHaveLength(count);
+    await page.evaluate(() => window.screeningFixture.finishCancelledBulk());
+    await expect(page.getByText("Screening operation failed. Check the inputs and methodology, then try again.", { exact: true })).toBeVisible();
+    await expect(submit).toBeEnabled();
+  }
 });
 
 test("editor can inspect screening history and detail but has no screening or bulk actions", async ({ page }) => {
   await page.goto(`${securitiesUrl}&role=editor&screening=1`);
+  await openRecordSection(page, "Screening");
   await expect(page.getByRole("button", { name: "Run screening now", exact: true })).toHaveCount(0);
   await expect(page.getByRole("link", { name: /Run details/ })).toBeVisible();
   await page.goto("/en/admin/runs/33333333-3333-4333-8333-333333333333?screen=financial&role=editor");

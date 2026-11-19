@@ -21,7 +21,7 @@ for (const locale of ["ar", "en"] as const) {
       expect(introBox!.height).toBeLessThanOrEqual(64);
       expect(await intro.evaluate(element => getComputedStyle(element).borderInlineStartWidth)).toBe("0px");
       if (status !== "none") {
-        const badge = summary.locator('[class*="largeBadge"]');
+        const badge = header.locator('[class*="heroBadge"]');
         await expect(badge).toBeVisible();
         const badgeBox = await badge.boundingBox();
         expect(badgeBox!.y + badgeBox!.height).toBeLessThan(812);
@@ -77,7 +77,7 @@ test("UI-3 real preview: Apple, JPM and KO at both requested widths", async ({ p
     for (const slug of ["nasdaq-aapl", "nyse-jpm", "nyse-ko"]) {
       await page.goto(`${origin}/stock/${slug}`, { waitUntil: "networkidle" });
       const summary = page.locator('[data-section="why"]');
-      const badge = summary.locator('[class*="largeBadge"]');
+      const badge = page.locator('[data-section="header"] [class*="heroBadge"]');
       await expect(badge).toBeVisible();
       expect((await badge.boundingBox())!.y + (await badge.boundingBox())!.height).toBeLessThan(812);
       const reason = summary.locator("ul li").first();

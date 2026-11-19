@@ -37,6 +37,7 @@
     "test:e2e": "playwright test",
     "test:e2e:accounts": "playwright test --config playwright.accounts.config.ts",
     "test:e2e:stock": "playwright test --config playwright.stock.config.ts",
+    "test:e2e:research": "playwright test --config playwright.research.config.ts",
     "test:e2e:other-methodologies": "playwright test --config playwright.other-methodologies.config.ts",
     "test:e2e:other-methodologies-ui": "playwright test --config playwright.other-methodologies-ui.config.ts",
     "test:e2e:hydration": "playwright test --config playwright.hydration.config.ts",
@@ -51,6 +52,7 @@
     "bench:search": "vitest run --config vitest.search-benchmark.config.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.10.0",
     "@radix-ui/react-slot": "^1.4.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.3",
@@ -69,6 +71,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@anthropic-ai/tokenizer": "0.0.4",
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.64.0",
     "@tailwindcss/postcss": "^4.3.3",
