@@ -38,6 +38,8 @@ jobs:
           POSTGRES_DB: suhail_test
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
+          - "127.0.0.1:5432:5432"
+          # The existing isolated search runner uses this second loopback port.
           - "127.0.0.1:55432:5432"
         options: >-
           --health-cmd "pg_isready -U postgres"
@@ -45,7 +47,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      DATABASE_URL_TEST: postgresql://postgres@127.0.0.1:55432/suhail_test
+      DATABASE_URL_TEST: postgresql://postgres@127.0.0.1:5432/suhail_test
     steps:
       - uses: actions/checkout@v4
         with:
