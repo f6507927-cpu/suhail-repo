@@ -25,6 +25,44 @@ test.afterEach(async ({ page }, info) => {
   expect(errors, "Every console error, hydration warning and page error is a regression").toEqual([]);
 });
 
+test("locale documents load all IBM Plex weights from the app origin", async ({ page }) => {
+  const fontRequests: string[] = [];
+  page.on("request", request => {
+    if (request.resourceType() === "font") fontRequests.push(request.url());
+  });
+  // The browser must not be able to consult Google to satisfy a font load.
+  await page.route(/^https:\/\/fonts\.(googleapis|gstatic)\.com\//, route => route.abort());
+  for (const [path, direction, primary] of [["/", "rtl", "--font-arabic"], ["/en", "ltr", "--font-latin"]]) {
+    await page.goto(path);
+    await expect(page.locator("html")).toHaveAttribute("dir", direction);
+    const faces = await page.evaluate(async (primary) => {
+      const styles = getComputedStyle(document.documentElement);
+      const family = (variable: string) => styles.getPropertyValue(variable).split(",")[0].trim();
+      const samples = [
+        { variable: "--font-arabic", text: "سهيل", weights: [300, 400, 500, 600, 700] },
+        { variable: "--font-latin", text: "Suhail", weights: [300, 400, 500, 600, 700] },
+        { variable: "--font-numbers", text: "0123456789", weights: [400, 500] },
+      ];
+      const loaded = await Promise.all(samples.flatMap(({ variable, text, weights }) =>
+        weights.map(async weight => {
+          const faces = await document.fonts.load(`${weight} 16px ${family(variable)}`, text);
+          return faces.some(face => face.status === "loaded" && face.weight === String(weight) && face.display === "swap");
+        }),
+      ));
+      const unquote = (name: string) => name.replace(/['"]/g, "").trim();
+      return { loaded, matchesPrimary: unquote(styles.fontFamily.split(",")[0]) === unquote(family(primary)) };
+    }, primary);
+    expect(faces.loaded).toEqual(Array(12).fill(true));
+    expect(faces.matchesPrimary).toBe(true);
+  }
+  const origin = new URL(page.url()).origin;
+  expect(new Set(fontRequests).size).toBe(12);
+  for (const url of fontRequests) {
+    expect(new URL(url).origin).toBe(origin);
+    expect(new URL(url).pathname).toMatch(/^\/_next\/static\/media\/.*\.woff2$/);
+  }
+});
+
 for (const locale of ["ar", "en"] as const) {
   test(`UX-3 ${locale}: 375px single-row header and keyboard-accessible menu`, async ({ page }) => {
     const prefix = locale === "en" ? "/en" : "";
