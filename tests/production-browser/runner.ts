@@ -59,9 +59,6 @@ export const dbPublic = new Proxy({} as ReturnType<typeof create>, {
       case "isr-home":
         env.PORT = "3400";
         break;
-      case "isr-warm":
-        Object.assign(env, { PORT: "3400", SITE_MODE: "preview", PUBLIC_DEMO_FIXTURES: "1" });
-        break;
       default:
         throw new Error(`Unknown production browser fixture mode: ${mode}`);
     }

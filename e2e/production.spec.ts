@@ -46,18 +46,17 @@ test("@search production home ISR and dynamic search have separate caching bound
       expect(response.headers()["set-cookie"]).toBeUndefined();
       const html = (await response.text()).replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "");
       expect(html).toContain('name="robots" content="noindex, follow"');
-      expect(html).toContain("Enter 1–40 characters");
+      expect(html).toContain((prefix ? enMessages : arMessages).publicSearch.hint);
       expect(html).not.toMatch(/href="(?:\/en)?\/stock\//);
     }
   }
 });
 import enMessages from "../src/i18n/messages/en.json";
 import arMessages from "../src/i18n/messages/ar.json";
-import { approvedArabicCopy } from "../src/i18n/approved-arabic";
 
 for (const locale of ["ar", "en"] as const) {
   const prefix = locale === "en" ? "/en" : "";
-  const title = locale === "ar" ? approvedArabicCopy.Methodologies : "Methodologies";
+  const title = locale === "ar" ? "المنهجية" : "Methodology";
   const messages=locale==="ar"?arMessages:enMessages;
   test(`@security ${locale} actual public/auth/404 home links and no auth Back control`, async ({page}) => {
     for (const path of [prefix||"/", `${prefix}/auth/sign-in?error=cancelled`, `${prefix}/auth/sign-in?error=provider`, `${prefix}/missing-navigation-page`]) {
@@ -258,12 +257,19 @@ async function expectHomeTheme(
   page: Page,
   locale: keyof typeof publicHomes,
   theme: "dark" | "light",
+  touch = false,
 ) {
   const home = publicHomes[locale];
   await expect(page).toHaveURL(new RegExp(`${home.path}$`));
   await expect(page.locator("html")).toHaveAttribute("lang", locale);
   await expect(page.locator("html")).toHaveAttribute("dir", home.dir);
   const control = page.getByRole("button", { name: home.theme, exact: true });
+  if (touch) {
+    const menu = page.getByRole("button", { name: /^(القائمة|Menu)$/ });
+    await expect(menu).toBeVisible();
+    if (await menu.getAttribute("aria-expanded") !== "true") await menu.tap();
+    await expect(menu).toHaveAttribute("aria-expanded", "true");
+  }
   // Enabled and aria-pressed prove hydration, not just the before-paint script.
   await expect(control).toBeEnabled();
   await expect(control).toHaveAttribute("aria-pressed", String(theme === "dark"));
@@ -329,37 +335,37 @@ test.describe("@phone public production touch controls", () => {
       const otherHome = publicHomes[otherLocale];
       await page.goto(home.path);
       expect(await page.evaluate(() => localStorage.getItem("suhail-theme"))).toBeNull();
-      await expectHomeTheme(page, locale, "dark");
+      await expectHomeTheme(page, locale, "dark", true);
       await expectTouchHeader(page);
 
       await page.getByRole("button", { name: home.theme, exact: true }).tap();
-      await expectHomeTheme(page, locale, "light");
+      await expectHomeTheme(page, locale, "light", true);
       expect(await page.evaluate(() => localStorage.getItem("suhail-theme"))).toBe("light");
       await expectTouchHeader(page);
       await page.reload();
-      await expectHomeTheme(page, locale, "light");
+      await expectHomeTheme(page, locale, "light", true);
 
       await page.getByRole("link", { name: home.language, exact: true }).tap();
-      await expectHomeTheme(page, otherLocale, "light");
+      await expectHomeTheme(page, otherLocale, "light", true);
       await expectTouchHeader(page);
       await page.getByRole("button", { name: otherHome.theme, exact: true }).tap();
-      await expectHomeTheme(page, otherLocale, "dark");
+      await expectHomeTheme(page, otherLocale, "dark", true);
       expect(await page.evaluate(() => localStorage.getItem("suhail-theme"))).toBe("dark");
       await page.getByRole("link", { name: otherHome.language, exact: true }).tap();
-      await expectHomeTheme(page, locale, "dark");
+      await expectHomeTheme(page, locale, "dark", true);
       await page.reload();
-      await expectHomeTheme(page, locale, "dark");
+      await expectHomeTheme(page, locale, "dark", true);
       await expectTouchHeader(page);
       // A fresh document in another tab must restore the saved choice too.
       const restored = await context.newPage();
       await restored.goto(home.path);
-      await expectHomeTheme(restored, locale, "dark");
+      await expectHomeTheme(restored, locale, "dark", true);
       await restored.close();
 
       const details = page.locator("#full-disclaimer");
       const paragraph = details.locator("p");
       await expect(details.locator("summary")).toHaveCount(0);
-      await expect(paragraph).toBeVisible();
+      await expect(paragraph).toBeHidden();
       await page.getByRole("link", { name: home.disclaimer, exact: true }).tap();
       await expect(page).toHaveURL(/#full-disclaimer$/);
       await expect(paragraph).toBeVisible();
@@ -461,17 +467,19 @@ for (const locale of ["ar", "en"] as const) {
     const main = page.getByRole("main");
     await expect(main.getByRole("searchbox")).toBeFocused();
     await page.keyboard.press("Tab");
-    await expect(main.getByRole("button", { name: (locale === "ar" ? arMessages : enMessages).publicSearch.submit, exact: true })).toBeFocused();
-    await page.keyboard.press("Tab");
-    await expect(main.getByRole("link")).toBeFocused();
+    await expect(main.getByRole("button", { name: (locale === "ar" ? arMessages : enMessages).publicSearch.screenSubmit, exact: true })).toBeFocused();
+    for (const ticker of ["AAPL", "NVDA", "KO"]) {
+      await page.keyboard.press("Tab");
+      await expect(main.getByRole("link", { name: ticker, exact: true })).toBeFocused();
+    }
     await page.keyboard.press("Tab");
     const details = page.locator("#full-disclaimer");
     await expect(page.getByRole("link", { name: home.disclaimer, exact: true })).toBeFocused();
     await expect(details.locator("summary")).toHaveCount(0);
-    await expect(details.locator("p")).toBeVisible();
+    await expect(details.locator("p")).toBeHidden();
 
-    // The full disclosure is already visible; its native anchor works without JS.
-    await page.getByRole("link", { name: home.disclaimer, exact: true }).click();
+    // The focusable anchor reveals the full disclosure.
+    await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/#full-disclaimer$/);
     await expect(details.locator("p")).toBeVisible();
     await expect(details.locator("p")).toHaveText((locale==="ar"?arMessages:enMessages).disclaimer.full);
