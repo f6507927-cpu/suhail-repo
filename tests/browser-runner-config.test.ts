@@ -1,11 +1,36 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { readFileSync, readdirSync } from "node:fs";
 
 afterEach(() => {
   vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
   vi.resetModules();
 });
 
 describe("browser runner isolation", () => {
+  it("fails closed for server redirects in the component-only router boundary", async () => {
+    const router = await import("./browser-fixture/router");
+    expect(() => router.redirect()).toThrow("Unexpected server redirect");
+    expect(() => router.permanentRedirect()).toThrow("Unexpected server redirect");
+  });
+
+  it("records component navigation without loading real protected routes", async () => {
+    const pushState = vi.fn(), replaceState = vi.fn();
+    const assign = vi.fn(), replace = vi.fn();
+    vi.stubGlobal("window", { history: { pushState, replaceState }, location: { assign, replace } });
+    const { useRouter } = await import("./browser-fixture/router");
+    useRouter().push("/en/account");
+    useRouter().replace("/en/admin");
+    expect(pushState).toHaveBeenCalledWith(null, "", "/en/account");
+    expect(replaceState).toHaveBeenCalledWith(null, "", "/en/admin");
+    expect(assign).not.toHaveBeenCalled();
+    expect(replace).not.toHaveBeenCalled();
+    useRouter().push("/");
+    useRouter().replace("/en");
+    expect(assign).toHaveBeenCalledWith("/");
+    expect(replace).toHaveBeenCalledWith("/en");
+  });
+
   it("runs phone touch and private CSP checks in actual WebKit without a Chromium executable", async () => {
     vi.stubEnv("PLAYWRIGHT_CHROMIUM_EXECUTABLE", "/managed/chromium");
     vi.stubEnv("PLAYWRIGHT_WEBKIT_EXECUTABLE", "");
@@ -58,13 +83,80 @@ describe("browser runner isolation", () => {
       reuseExistingServer: false,
       env: { PORT: "3100", PLAYWRIGHT_TEST_SERVER: "1" },
     });
+    expect(config.webServer).toHaveProperty("command", expect.stringContaining("tests/search-browser/server.ts"));
+    expect(config.metadata).toMatchObject({ publicFixture: true });
+  });
+
+  it("uses CI's validated disposable port and public identity, never ambient app targets", async () => {
+    vi.stubEnv("PLAYWRIGHT_BASE_URL", "");
+    vi.stubEnv("DATABASE_URL_TEST", "postgresql://postgres@127.0.0.1:5432/suhail_test");
+    vi.stubEnv("DATABASE_URL_PUBLIC", "postgresql://wrong@untrusted.invalid:6543/wrong");
+    const { default: config } = await import("../playwright.config");
+    expect(config.webServer).toMatchObject({
+      env: {
+        DATABASE_URL_TEST: "postgresql://postgres@127.0.0.1:5432/suhail_test",
+        DATABASE_URL_PUBLIC: "postgresql://suhail_public@127.0.0.1:5432/suhail_test",
+        DATABASE_URL_APP: "",
+        PLAYWRIGHT_FIXTURE_MODE: "development",
+      },
+    });
+  });
+
+  it("uses seeded fixture routes when CI already owns the loopback server", async () => {
+    vi.stubEnv("PLAYWRIGHT_BASE_URL", "http://127.0.0.1:3500");
+    vi.stubEnv("PLAYWRIGHT_PUBLIC_FIXTURE", "1");
+    const { default: config } = await import("../playwright.config");
+    expect(config.use?.baseURL).toBe("http://127.0.0.1:3500");
+    expect(config.webServer).toBeUndefined();
+    expect(config.metadata).toMatchObject({ publicFixture: true });
+  });
+
+  it("refuses a hosted test target before starting any server", async () => {
+    vi.stubEnv("PLAYWRIGHT_BASE_URL", "");
+    vi.stubEnv("DATABASE_URL_TEST", "postgresql://postgres@not-loopback.pooler.supabase.com:5432/suhail_test");
+    await expect(import("../playwright.config")).rejects.toThrow("DATABASE_URL_TEST");
+  });
+
+  it("assigns every formerly general browser spec to its proper CI configuration", async () => {
+    const { default: config } = await import("../playwright.config");
+    const general = config.testMatch as string[];
+    const smoke = general.map(pattern => pattern.replace("**/", ""));
+    const dedicated = [
+      ["playwright.ui-one.config.ts", ["ui-one", "ui-two", "ui-three", "ui-four", "ui-five"]],
+      ["playwright.ui-eight.config.ts", ["ui-eight"]],
+      ["playwright.ui-nine.config.ts", ["ui-nine-admin"]],
+      ["playwright.other-methodologies-ui.config.ts", ["other-methodologies-ui"]],
+      ["playwright.other-methodologies.config.ts", ["other-methodologies"]],
+      ["playwright.stock-ux-five.config.ts", ["stock-ux-five"]],
+      ["playwright.accounts.config.ts", ["profile-deadline"]],
+    ] as const;
+    const ci = readFileSync(".github/workflows/ci.yml", "utf8");
+    const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { scripts: Record<string, string> };
+    for (const [file, names] of dedicated) {
+      const configuration = readFileSync(file, "utf8");
+      expect(ci.includes(file) || Object.entries(pkg.scripts).some(([name, command]) =>
+        command.includes(file) && ci.includes(`pnpm ${name}`))).toBe(true);
+      for (const name of names) {
+        expect(configuration).toContain(`${name}.spec.ts`);
+        expect(smoke).not.toContain(`${name}.spec.ts`);
+      }
+    }
+    const separatelyOwned = new Set([
+      "production", "methodology-isr", "hydration", "security", "mobile-menu-navigation",
+      ...dedicated.flatMap(([, names]) => names),
+    ].map(name => `${name}.spec.ts`));
+    const legacyDiscovered = readdirSync("e2e").filter(name =>
+      name.endsWith(".spec.ts") && !name.endsWith("-fixture.spec.ts") && !separatelyOwned.has(name));
+    expect(smoke.slice().sort()).toEqual(legacyDiscovered.sort());
   });
 
   it("runs the identical suite against an explicit preview without another server", async () => {
     vi.stubEnv("PLAYWRIGHT_BASE_URL", "https://preview.example.test");
+    vi.stubEnv("DATABASE_URL_TEST", "not-a-database-url");
     const { default: config } = await import("../playwright.config");
     expect(config.use?.baseURL).toBe("https://preview.example.test");
     expect(config.webServer).toBeUndefined();
+    expect(config.metadata).toMatchObject({ publicFixture: false });
     expect(config.use?.trace).toBe("retain-on-failure");
   });
 
