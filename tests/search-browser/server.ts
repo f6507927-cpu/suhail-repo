@@ -1,12 +1,19 @@
 import { cp, mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { spawn } from "node:child_process";
+import { stockTestEnvironment } from "../stock-browser/environment";
 
 // Next compiles NODE_ENV to development/production. Do not weaken the real
 // application's D-91 boundary to accommodate local browser tests. Only the
 // generated test copy replaces dbPublic's connection factory with the existing
 // strict loopback TEST parser; SQL, role verification, RLS and routes are real.
 if (process.env.NODE_ENV !== "test") throw new Error("Search browser server is test-only");
+// D-218: validate before copying/starting anything. No hosted destinations or
+// ambient PG* defaults; only the selected disposable TEST database is eligible.
+const publicTarget = stockTestEnvironment().DATABASE_URL_PUBLIC;
+const port = process.env.PORT || "3500";
+if (!/^\d+$/.test(port) || Number(port) < 1024 || Number(port) > 65535)
+  throw new Error("Invalid public fixture port");
 const root = process.cwd();
 const out = path.join(root, "generated-artifacts/next-search");
 await mkdir(out, { recursive: true });
@@ -22,7 +29,7 @@ import { connectDatabase } from "./connect";
 import { verifyRuntimeRole } from "./verified-sql";
 import { runtimeOptions } from "./runtime-client";
 const create = () => drizzle(verifyRuntimeRole(
-  connectDatabase("DATABASE_URL_TEST", runtimeOptions, "postgresql://suhail_public@127.0.0.1:55432/suhail_test"),
+  connectDatabase("DATABASE_URL_TEST", runtimeOptions, ${JSON.stringify(publicTarget)}),
   "DATABASE_URL_PUBLIC"
 ), { schema });
 let db: ReturnType<typeof create> | undefined;
@@ -38,11 +45,12 @@ export const dbPublic = new Proxy({} as ReturnType<typeof create>, {
 // navigation to private routes. The only database target is hardcoded loopback.
 const env = { ...process.env };
 for (const key of Object.keys(env))
-  if (/^(DATABASE_URL|PG|SUPABASE_|NEXT_PUBLIC_SUPABASE_|SESSION_SECRET|NODE_ENV)/.test(key))
+  if (/^(DATABASE_URL|PG|SUPABASE_|NEXT_PUBLIC_SUPABASE_|SESSION_SECRET|NODE_ENV|ANTHROPIC_|LLM_MODEL|API_NINJAS_|SEC_USER_AGENT|S3_|REVALIDATE_SECRET)/.test(key))
     delete env[key];
 Object.assign(env, {
   // Fixtures and EX-A are explicitly synthetic; do not hide them with live mode.
   SITE_MODE: "preview",
+  SITE_URL: `http://127.0.0.1:${port}`,
   // Public demo content is hidden on every deployment; only this loopback fixture opts in.
   PUBLIC_DEMO_FIXTURES: "1",
   HOSTNAME: "127.0.0.1",
@@ -60,10 +68,10 @@ function run(script: string, args: string[]) {
 if (process.env.PLAYWRIGHT_FIXTURE_MODE === "development") {
   // UX-5 §13.3 checks explicitly target a dev server. Connection replacement
   // remains confined to this generated copy, including in development mode.
-  await run(path.join(root, "node_modules/next/dist/bin/next"), ["dev", "-H", "0.0.0.0", "-p", "3500"]);
+  await run(path.join(root, "node_modules/next/dist/bin/next"), ["dev", "-H", "0.0.0.0", "-p", port]);
 } else {
 await run(path.join(root, "node_modules/next/dist/bin/next"), ["build"]);
 // Match this repository's production/browser runner (pnpm start), including
 // its bind address. Packaging/relocation is a separate deployment check.
-await run(path.join(root, "node_modules/next/dist/bin/next"), ["start", "-H", "0.0.0.0", "-p", "3500"]);
+await run(path.join(root, "node_modules/next/dist/bin/next"), ["start", "-H", "0.0.0.0", "-p", port]);
 }

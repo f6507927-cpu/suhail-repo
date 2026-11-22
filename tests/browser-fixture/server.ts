@@ -14,7 +14,9 @@ await mkdir(out,{recursive:true});
 const css = await postcss([tailwindcss()]).process(await readFile("src/app/globals.css","utf8"), {from:path.resolve("src/app/globals.css")});
 await build({
   entryPoints:["tests/browser-fixture/app.tsx"],outfile:path.join(out,"app.js"),bundle:true,platform:"browser",format:"iife",
-  define:{"process.env.NODE_ENV":'"production"',"process.env.NEXT_PUBLIC_SUPABASE_URL":'"https://auth.fixture.test"'},
+  // Next/next-intl's browser helpers also read build-time flags. Supply an
+  // explicitly empty environment, never the workspace's credentials.
+  define:{"process.env":"{}","process.env.NODE_ENV":'"production"',"process.env.NEXT_PUBLIC_SUPABASE_URL":'"https://auth.fixture.test"'},
   alias:{"@":path.resolve("src"),"@/app/[locale]/(private)/admin/(protected)/financial-actions":path.resolve("tests/browser-fixture/financial-actions.ts"),"@/app/[locale]/(private)/admin/(protected)/screening-actions":path.resolve("tests/browser-fixture/screening-actions.ts"),"@/lib/auth/browser":path.resolve("tests/browser-fixture/auth.ts"),"@/i18n/navigation":path.resolve("tests/browser-fixture/navigation.tsx"),"next/image":path.resolve("tests/browser-fixture/image.tsx"),"next/navigation":path.resolve("tests/browser-fixture/router.ts")},
 });
 const server=createServer(async(req,res)=>{

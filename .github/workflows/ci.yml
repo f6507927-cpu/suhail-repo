@@ -84,14 +84,20 @@ jobs:
           DATABASE_URL_PUBLIC: postgresql://suhail_public@127.0.0.1:55432/suhail_test
           DATABASE_URL_APP: postgresql://suhail_app@127.0.0.1:55432/suhail_test
           PLAYWRIGHT_BASE_URL: http://127.0.0.1:3500
+          PLAYWRIGHT_PUBLIC_FIXTURE: "1"
           PLAYWRIGHT_FIXTURE_MODE: development
           PLAYWRIGHT_TEST_SERVER: "1"
+          SITE_MODE: preview
         run: |
           # test:db has applied migrations. Open restricted logins only in the CI service.
           psql -X -v ON_ERROR_STOP=1 "$DATABASE_URL_TEST" \
             -c 'ALTER ROLE suhail_public LOGIN' -c 'ALTER ROLE suhail_app LOGIN'
           test "$(psql -XAt "$DATABASE_URL_PUBLIC" -c 'SELECT current_user')" = suhail_public
           test "$(psql -XAt "$DATABASE_URL_APP" -c 'SELECT current_user')" = suhail_app
+
+          # The externally managed runner needs the same synthetic data as the
+          # Playwright-owned isolated runner.
+          pnpm exec tsx --conditions=react-server tests/search-browser/setup.ts
 
           # Next compiles NODE_ENV to development, so raw pnpm dev rejects loopback.
           # Use the existing isolated real-Next runner and its strict public-role adapter.
@@ -107,7 +113,20 @@ jobs:
             sleep 1
           done
           pnpm test:e2e
+      # D-218: these suites own their populated SSR/client fixture servers.
       # Keep independent suite results visible even if a preceding suite fails.
+      - if: ${{ !cancelled() && steps.install-browser-deps.outcome == 'success' }}
+        run: pnpm exec playwright test --config playwright.ui-one.config.ts
+      - if: ${{ !cancelled() && steps.install-browser-deps.outcome == 'success' }}
+        run: pnpm exec playwright test --config playwright.ui-eight.config.ts
+      - if: ${{ !cancelled() && steps.install-browser-deps.outcome == 'success' }}
+        run: pnpm exec playwright test --config playwright.ui-nine.config.ts
+      - if: ${{ !cancelled() && steps.install-browser-deps.outcome == 'success' }}
+        run: pnpm test:e2e:other-methodologies-ui
+      - if: ${{ !cancelled() && steps.install-browser-deps.outcome == 'success' }}
+        run: pnpm test:e2e:other-methodologies
+      - if: ${{ !cancelled() && steps.install-browser-deps.outcome == 'success' }}
+        run: pnpm exec playwright test --config playwright.stock-ux-five.config.ts
       - if: ${{ !cancelled() && steps.install-browser-deps.outcome == 'success' }}
         run: pnpm test:e2e:accounts
       # Separate production Next copy: synthetic module IO, real roots/SSR/hydration.
@@ -120,9 +139,27 @@ jobs:
       # D-102: build must never read a database, including the local test service.
       - run: env -u DATABASE_URL_MIGRATIONS -u DATABASE_URL_PUBLIC -u DATABASE_URL_APP -u DATABASE_URL_TEST -u DATABASE_URL -u PGHOST -u PGUSER -u PGDATABASE -u PGPORT -u PGPASSWORD -u SUPABASE_DB_CA_CERT pnpm build
       - run: node scripts/scan-bundle.mjs
-      - run: pnpm exec playwright test --config playwright.security.config.ts
-      - run: pnpm exec playwright test --config playwright.methodology-isr.config.ts
-      - run: pnpm exec playwright test --config playwright.production.config.ts
+      - id: build-browser-fixture
+        name: Build isolated production browser fixture without a database
+        env:
+          PLAYWRIGHT_PRODUCTION_FIXTURE: "1"
+        run: pnpm exec tsx tests/production-browser/runner.ts build
+      # Run the cold outage check before any suite can warm the methodology cache.
+      - if: ${{ !cancelled() && steps.build-browser-fixture.outcome == 'success' }}
+        name: Run methodology ISR outage suite
+        env:
+          PLAYWRIGHT_PRODUCTION_FIXTURE: "1"
+        run: |
+          pnpm exec tsx tests/production-browser/runner.ts isr-home
+          pnpm exec playwright test --config playwright.methodology-isr.config.ts
+      - if: ${{ !cancelled() && steps.build-browser-fixture.outcome == 'success' }}
+        env:
+          PLAYWRIGHT_PRODUCTION_FIXTURE: "1"
+        run: pnpm exec playwright test --config playwright.security.config.ts
+      - if: ${{ !cancelled() && steps.build-browser-fixture.outcome == 'success' }}
+        env:
+          PLAYWRIGHT_PRODUCTION_FIXTURE: "1"
+        run: pnpm exec playwright test --config playwright.production.config.ts
       - uses: actions/upload-artifact@v4
         if: always()
         with:

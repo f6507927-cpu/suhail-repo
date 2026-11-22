@@ -1,5 +1,6 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { productionRoot } from "./production-browser/config";
 
 // Next 16 stores on-demand renders in namespaced route-cache directories,
 // unlike build-prerendered HTML. Inspect both layouts without guessing hashes.
@@ -14,8 +15,8 @@ export function methodologyCacheFiles(locale: string, page: string): string[] {
       else if (path.endsWith(suffix)) files.push(path);
     }
   }
-  visit(".next/server/app");
-  visit(".next/server/route-cache");
+  visit(join(productionRoot, ".next/server/app"));
+  visit(join(productionRoot, ".next/server/route-cache"));
   return files;
 }
 

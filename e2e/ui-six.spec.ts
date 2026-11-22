@@ -3,7 +3,9 @@ const paths = ["/", "/search?q=a", "/stock/nyse-ko", "/methodology", "/auth/sign
 for (const width of [375, 768, 1440]) {
   test(`UI-6 actual pages: no horizontal scroll at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: width === 1440 ? 1000 : 812 });
-    for (const [index, path] of paths.entries()) {
+    const targets = test.info().config.metadata.publicFixture
+      ? paths.map(path => path.replace("/stock/nyse-ko", "/stock/demo-fixa")) : paths;
+    for (const [index, path] of targets.entries()) {
       const response = await page.goto(path, { waitUntil: "networkidle" });
       expect(response?.status(), path).toBe(200);
       await page.evaluate(() => document.fonts.ready);
@@ -25,7 +27,9 @@ for (const width of [375, 768, 1440]) {
           await article.hover();
           expect(await article.evaluate(element => getComputedStyle(element).backgroundColor)).toBe(before);
         }
-        await expect(page.locator("footer").getByText("سهيل", { exact: true })).toBeVisible();
+        // Footer wordmark was deliberately removed; keep the legal navigation.
+        await expect(page.locator("footer").getByText("سهيل", { exact: true })).toHaveCount(0);
+        await expect(page.locator("footer").getByRole("link", { name: "شروط الاستخدام" })).toBeVisible();
       }
       if (path !== "/auth/sign-in") {
         const language = page.locator("header a").filter({ hasText: /^English$/ }).first();
@@ -57,8 +61,11 @@ test("UI-6 public 404 retains search and both standalone home choices", async ({
 });
 test("UI-6 light styling stays public and retains legacy private control radius", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
-  for (const path of paths) {
-    await page.goto(path, { waitUntil: "networkidle" });
+  const targets = test.info().config.metadata.publicFixture
+    ? paths.map(path => path.replace("/stock/nyse-ko", "/stock/demo-fixa")) : paths;
+  for (const path of targets) {
+    const response = await page.goto(path, { waitUntil: "networkidle" });
+    expect(response?.status(), path).toBe(200);
     await page.evaluate(() => document.documentElement.classList.remove("dark"));
     expect(await page.evaluate(() => document.documentElement.scrollWidth), path).toBe(375);
   }

@@ -1,8 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
+import { publicFixtureServer } from "./tests/search-browser/config";
 
 // An explicit origin runs the same checks against an already-running preview.
 // Never launch a second Next server for that mode.
 const previewOrigin = process.env.PLAYWRIGHT_BASE_URL || undefined;
+const fixtureServer = previewOrigin ? undefined : publicFixtureServer(3100);
 
 // Playwright honors PLAYWRIGHT_BROWSERS_PATH automatically; browser installation
 // is managed by the environment and must not be triggered by this project.
@@ -10,10 +12,13 @@ export default defineConfig({
   testDir: "./e2e",
   // Cold Next/font compilation in the workspace can exceed 30 seconds.
   timeout: 120_000,
-  // Fixture apps have their own server/config; never send them to the real app.
-  testIgnore: ["**/production.spec.ts", "**/*-fixture.spec.ts", "**/methodology-isr.spec.ts", "**/hydration.spec.ts", "**/security.spec.ts", "**/mobile-menu-navigation.spec.ts"],
+  // D-218: explicit ownership. Admin/component fixtures run in their own CI
+  // configurations, never against a real Next authentication/database boundary.
+  testMatch: ["**/foundation.spec.ts", "**/health.spec.ts", "**/accounts.spec.ts",
+    "**/public-motion.spec.ts", "**/ui-one-b.spec.ts", "**/ui-six.spec.ts"],
+  metadata: { publicFixture: !previewOrigin || process.env.PLAYWRIGHT_PUBLIC_FIXTURE === "1" },
   outputDir: "generated-artifacts/playwright",
-  fullyParallel: true,
+  workers: 1,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
   reporter: "list",
@@ -33,13 +38,14 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"], viewport: { width: 375, height: 812 } },
     },
   ],
-  webServer: previewOrigin ? undefined : {
-    command: "pnpm dev",
-    url: "http://127.0.0.1:3100/api/health",
-    env: { PORT: "3100", PLAYWRIGHT_TEST_SERVER: "1", SITE_MODE: "live" },
+  webServer: fixtureServer ? {
+    ...fixtureServer,
+    // Real routes, SQL, RLS and auth; only the generated copy's public
+    // connection factory accepts the validated disposable loopback target.
+    env: { ...fixtureServer.env,
+      PLAYWRIGHT_FIXTURE_MODE: "development" },
     // Fail on an occupied port instead of silently testing an unknown server.
-    // Pause the preview workflow first: Next's lock is per repo, not per port.
     reuseExistingServer: false,
-    timeout: 120_000,
-  },
+    timeout: 180_000,
+  } : undefined,
 });

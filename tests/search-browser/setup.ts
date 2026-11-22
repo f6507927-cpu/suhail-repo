@@ -18,6 +18,14 @@ try {
   // UX-4: an additional synthetic share class uses the seeded company's
   // fabricated period/facts and a genuine engine-produced EX-A run.
   const [base] = await db.select().from(schema.security).where(eq(schema.security.slug, "demo-fixa"));
+  if (process.env.PLAYWRIGHT_STOCK_LANGUAGE_FIXTURE === "1") {
+    if (!base?.is_demo || !base.coverage_analyst_id) throw new Error("Expected a covered demo language fixture");
+    const [analyst] = await db.select().from(schema.analystProfile).where(eq(schema.analystProfile.id, base.coverage_analyst_id));
+    if (!analyst?.is_demo) throw new Error("Expected a demo analyst for the language fixture");
+    await db.update(schema.analystProfile).set({
+      credentials: "This fictional analyst profile is used only to verify the language notice.",
+    }).where(eq(schema.analystProfile.id, analyst.id));
+  }
   // UX-5: a covered, genuinely passing fixture whose assigned profile is inactive.
   // The real loader must suppress its identity without suppressing the seal.
   const inactiveId = "c0e00000-0000-4000-8000-000000000005";
