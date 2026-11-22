@@ -12,13 +12,15 @@ import { validateGuidance, validateResearchDraft } from "../../ai/research/valid
 import { getResearchEnv } from "../../env/research";
 import { loadResearchPacket } from "./loader";
 import { actorBudget, assertActiveAnalyst, blockingCount, configuredSettings, createRequestedDraft,
-  lockedDraft, recordResearch, researchTextHash, reconcileRequestedDraft } from "./store";
+  lockedDraft, recordResearch, researchTextHash, reconcileRequestedDraft, researchWriteLock, saveResearchGeneration } from "./store";
 import { updateResearchGate, updateResearchSettings } from "./settings";
 import { ARABIC_GENERATION_APPROVED } from "./prompt";
 import { generateResearch } from "./generate";
 import { AnthropicResearchClient } from "./anthropic-client";
-import { CHECKLIST, EDIT_REASONS, RESEARCH_STATES, type Checklist } from "./contracts";
+import { CHECKLIST, EDIT_REASONS, RESEARCH_STATES, type Checklist, type ResearchRequest } from "./contracts";
 import { assertGateEvidence, assertTransition, scopeSettingsSchema } from "./workflow";
+import { createRefreshRequest } from "./refresh";
+import { clearAnalystViewReview } from "./stale-store";
 
 type ResearchActionResult = { ok: boolean; message?: string; id?: string };
 const uuid = z.uuid();
@@ -37,36 +39,53 @@ async function validationSettings(securityId: string, now: string) {
   return { now, max_packet_age_days: scope.max_packet_age_days, max_financial_age_days: scope.max_financial_age_days,
     latest_packet: await loadResearchPacket(securityId, now), known_issuers: issuers.map(row => row.name) };
 }
+const generationClosed: ResearchActionResult = { ok: false, message: "Arabic research prompt and safety list await human approval (O-13). No provider call was made." };
+
+async function completeGeneration(draftId: string, request: ResearchRequest, settings: Awaited<ReturnType<typeof validationSettings>>) {
+  const generated = await generateResearch(new AnthropicResearchClient(), request, actorBudget(draftId, settings.now), settings);
+  await withAdminAction(roles, (tx, actor) => saveResearchGeneration(tx, actor, draftId, generated));
+  refresh();
+  return { ok: true, id: draftId, message: generated.state === "failed" ? `Generation failed: ${generated.reason}` : undefined };
+}
+
 export async function requestResearchDraft(form: FormData): Promise<ResearchActionResult> {
   await requireRole(roles);
   try {
-    if (!ARABIC_GENERATION_APPROVED) return { ok: false, message: "Arabic research prompt and safety list await human approval (O-13). No provider call was made." };
+    if (!ARABIC_GENERATION_APPROVED) return generationClosed;
     const id = uuid.parse(form.get("security_id"));
     const previousId = form.get("previous_draft_id") ? uuid.parse(form.get("previous_draft_id")) : null;
     const guidance = z.string().max(2000).parse(form.get("guidance") ?? "");
     if (validateGuidance(guidance).length) return { ok: false, message: "Remove personal contact information from guidance." };
     const env = getResearchEnv();
-    const now = new Date().toISOString();
-    const settings = await validationSettings(id, now);
+    const settings = await validationSettings(id, new Date().toISOString());
     const packet = settings.latest_packet;
     const draft = await withAdminAction(roles, (tx, actor) => createRequestedDraft(tx, actor, packet, guidance, previousId));
-    const generated = await generateResearch(new AnthropicResearchClient(), {
-      packet, guidance, max_input_tokens: env.AI_RESEARCH_MAX_INPUT_TOKENS, max_output_tokens: env.AI_RESEARCH_MAX_OUTPUT_TOKENS,
-    }, actorBudget(draft.id, now), settings);
-    await withAdminAction(roles, async (tx, actor) => {
-      const current = await lockedDraft(tx, draft.id);
-      if (current.draft.state !== "requested") throw new Error("Draft already completed");
-      const textHash = generated.draft ? researchTextHash(generated.draft) : null;
-      const [saved] = await tx.update(researchDraft).set({
-        state: generated.state, ai_output: generated.draft, analyst_text: generated.draft,
-        text_hash: textHash, validation_text_hash: textHash, validation_results: generated.issues,
-        input_tokens: generated.input_tokens, output_tokens: generated.output_tokens, attempts: generated.attempts,
-        model: generated.model, model_version: generated.model_version, failure_reason: generated.reason,
-      }).where(eq(researchDraft.id, draft.id)).returning();
-      await recordResearch(tx, actor, "research_generated", saved, packet.packet_hash, "requested", generated.state);
-    });
-    refresh();
-    return { ok: true, id: draft.id, message: generated.state === "failed" ? `Generation failed: ${generated.reason}` : undefined };
+    return await completeGeneration(draft.id, { packet, guidance, max_input_tokens: env.AI_RESEARCH_MAX_INPUT_TOKENS,
+      max_output_tokens: env.AI_RESEARCH_MAX_OUTPUT_TOKENS }, settings);
+  } catch { return errorResult(); }
+}
+export async function requestResearchRefresh(form: FormData): Promise<ResearchActionResult> {
+  await requireRole(roles);
+  try {
+    if (!ARABIC_GENERATION_APPROVED) return generationClosed;
+    const previousId = uuid.parse(form.get("draft_id"));
+    const [previous] = await dbApp.select({ security_id: researchDraft.security_id }).from(researchDraft).where(eq(researchDraft.id, previousId));
+    if (!previous) return errorResult();
+    const env = getResearchEnv();
+    const settings = await validationSettings(previous.security_id, new Date().toISOString());
+    const packet = settings.latest_packet;
+    const { draft, refresh: revision } = await withAdminAction(roles, (tx, actor) => createRefreshRequest(tx, actor, packet, previousId));
+    return await completeGeneration(draft.id, { packet, refresh: revision, guidance: "",
+      max_input_tokens: env.AI_RESEARCH_MAX_INPUT_TOKENS, max_output_tokens: env.AI_RESEARCH_MAX_OUTPUT_TOKENS }, settings);
+  } catch { return errorResult(); }
+}
+export async function confirmResearchAnalystView(form: FormData): Promise<ResearchActionResult> {
+  await requireRole(roles);
+  try {
+    const id = uuid.parse(form.get("draft_id"));
+    const run = uuid.parse(form.get("reviewed_run_id"));
+    await withAdminAction(roles, (tx, actor) => clearAnalystViewReview(tx, actor, id, run));
+    refresh(); return { ok: true, id };
   } catch { return errorResult(); }
 }
 export async function regenerateResearchDraft(form: FormData): Promise<ResearchActionResult> {
@@ -118,6 +137,7 @@ export async function transitionResearchDraft(form: FormData): Promise<ResearchA
     const note = z.string().max(2000).parse(form.get("note") ?? "");
     await withAdminAction(roles, async (tx, actor) => {
       await assertActiveAnalyst(tx, actor.id);
+      if (to === "approved") await tx.execute(researchWriteLock);
       const { draft, packet } = await lockedDraft(tx, id, expectedHash(form));
       const issues = validateResearchDraft(draft.analyst_text, packet, settings);
       assertTransition(draft.state, to, blockingCount(issues), checklist);

@@ -2,7 +2,7 @@ import { build } from "esbuild";
 
 await build({
   entryPoints: { "ingest-sec": "src/jobs/run-ingest-sec.ts", "ingest-all": "src/jobs/run-ingest-all.ts",
-    "screen-universe": "src/jobs/run-screen-universe.ts" },
+    "screen-universe": "src/jobs/run-screen-universe.ts", "research-staleness": "src/jobs/run-research-staleness.ts" },
   outdir: "dist/jobs", bundle: true, platform: "node", format: "esm",
   packages: "external",
   plugins: [{

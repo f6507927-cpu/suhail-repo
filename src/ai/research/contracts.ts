@@ -53,6 +53,7 @@ export const packetInputSchema = z.object({
     facts: z.array(fact),
   })),
   runs: z.array(runSchema),
+  filings: z.array(evidence.extend({ id: key, period_end: dateSchema, reported_date: dateSchema })).optional(),
   prices: z.array(evidence.extend({
     month_end_for: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
     close: z.number().finite().positive(), currency: z.string().regex(/^[A-Z]{3}$/),
@@ -89,6 +90,7 @@ export interface ResearchPacket {
   sections: Record<PacketItem["kind"], string[]>;
   screenings: PacketRun[];
   periods: { id: string; period_end: string; reported_date: string }[];
+  filings?: { id: string; period_end: string; reported_date: string }[];
 }
 /** D-189: P2 supplies IO; this module provides a contract, not an implementation. */
 export interface ResearchPacketLoader {

@@ -176,6 +176,13 @@
       "when": 1795017000000,
       "tag": "0024_research_reservations",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1795388552025,
+      "tag": "0025_research_refresh",
+      "breakpoints": true
     }
   ]
 }

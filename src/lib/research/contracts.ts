@@ -1,5 +1,6 @@
 import type { ResearchPacket, ValidationIssue } from "../../ai/research/contracts";
 import type { ResearchDraft } from "../../ai/research/draft";
+import type { PacketChange } from "../../ai/research/changes";
 
 export const RESEARCH_STATES = ["requested", "generated", "failed", "in_review", "changes_requested", "edited", "approved", "rejected", "published", "updated", "withdrawn"] as const;
 export type ResearchState = typeof RESEARCH_STATES[number];
@@ -11,6 +12,7 @@ export interface ResearchRequest {
   guidance: string;
   max_input_tokens: number;
   max_output_tokens: number;
+  refresh?: { previous: ResearchDraft; changes: PacketChange[] };
 }
 export interface ModelResult {
   text: string;

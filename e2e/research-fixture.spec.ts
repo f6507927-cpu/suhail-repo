@@ -41,3 +41,32 @@ test("admin list offers explicit reconciliation only for a requested draft", asy
   const fields = Object.fromEntries(JSON.parse(await page.locator("#recording").textContent() ?? "[]"));
   expect(fields.draft_id).toBe("abandoned-fixture");
 });
+for (const locale of ["ar", "en"]) {
+  test(`${locale} phone queue shows counts and records only the explicitly requested draft`, async ({ page }) => {
+    await page.goto(`/?locale=${locale}&mode=queue`);
+    await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
+    await expect(page.getByRole("heading", { name: "Research refresh queue" })).toBeVisible();
+    await expect(page.locator("dt").filter({ hasText: "New filing" }).locator("..").locator("dd")).toHaveText("2");
+    await expect(page.locator("dt").filter({ hasText: "Approval aged" }).locator("..").locator("dd")).toHaveText("0");
+    await expect(page.getByRole("button", { name: "Refresh in progress" })).toBeDisabled();
+    await expect(page.locator("#recording")).toBeEmpty();
+    await page.getByRole("button", { name: "Request refresh", exact: true }).click();
+    expect(Object.fromEntries(JSON.parse(await page.locator("#recording").textContent() ?? "[]")))
+      .toEqual({ draft_id: "approved-fixture" });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await page.screenshot({ path: `generated-artifacts/research-ui/phone-${locale}-queue.png` });
+  });
+  test(`${locale} phone review highlights revised prose and ties unchanged passages to changed evidence`, async ({ page }) => {
+    await page.goto(`/?locale=${locale}&mode=refresh`);
+    const highlights = page.getByRole("region", { name: "Changed passages", exact: true });
+    await expect(highlights.getByRole("heading", { name: "Changed passages" })).toBeVisible();
+    await expect(highlights.locator('p[lang="en"] mark')).toContainText("A recent filing changed the available evidence.");
+    await expect(highlights.locator('p[lang="ar"] mark')).toContainText("غيّر التقرير الجديد البيانات المتاحة.");
+    expect(await highlights.locator("[data-refresh-passage]").count()).toBeGreaterThan(1);
+    await expect(highlights.getByText("Changed evidence:").first()).toBeVisible();
+    await highlights.getByText("Packet changes").click();
+    await expect(highlights.locator("details").getByText("fin.total_revenue.FY2025", { exact: true })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await page.screenshot({ path: `generated-artifacts/research-ui/phone-${locale}-refresh.png` });
+  });
+}

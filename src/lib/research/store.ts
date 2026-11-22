@@ -1,35 +1,25 @@
 import "server-only";
 import { and, eq, inArray, sql } from "drizzle-orm";
-import { dbApp } from "../../db/app";
-import { researchDraft, researchPacket, researchReviewEvent, researchSetting, researchUsage } from "../../db/schema/research";
-import { analystProfile } from "../../db/schema/accounts";
+import { researchDraft, researchPacket, researchRefresh, researchReviewEvent, researchUsage } from "../../db/schema/research";
 import { security, company } from "../../db/schema/market";
 import { audit, type Tx, type AppUser } from "../auth/audit";
 import { withAdminAction } from "../auth/actions";
-import { PROMPT_VERSION } from "./prompt";
+import { PROMPT_VERSION, REFRESH_PROMPT_VERSION } from "./prompt";
+import type { PacketChange } from "../../ai/research/changes";
 import { VALIDATOR_VERSION, type ResearchPacket, type ValidationIssue } from "../../ai/research/contracts";
 import { hash } from "../../engine/canonical";
 import type { JsonValue } from "../../engine/types";
-import type { Checklist, ResearchBudget, ResearchState } from "./contracts";
-import { assertScope, scopeSettingsSchema } from "./workflow";
+import type { Checklist, GenerationResult, ResearchBudget, ResearchState } from "./contracts";
+import { assertScope } from "./workflow";
+import { configuredSettings, researchWriteLock } from "./access";
+export { assertActiveAnalyst, configuredSettings, researchWriteLock } from "./access";
 
 export function researchTextHash(value: unknown) {
   return hash(JSON.parse(JSON.stringify(value)) as JsonValue);
 }
-export async function assertActiveAnalyst(tx: Pick<Tx, "select">, actorId: string) {
-  const [profile] = await tx.select({ id: analystProfile.id }).from(analystProfile)
-    .where(and(eq(analystProfile.user_id, actorId), eq(analystProfile.active, true)));
-  if (!profile) throw new Error("An active analyst profile is required");
-}
-export async function configuredSettings(db: Pick<Tx, "select"> = dbApp) {
-  const [row] = await db.select().from(researchSetting).where(eq(researchSetting.id, 1));
-  if (!row) throw new Error("Research settings are unavailable");
-  return { row, scope: scopeSettingsSchema.parse({ ...row,
-    price_move_threshold_percent: row.price_move_threshold_percent === null ? null : Number(row.price_move_threshold_percent) }) };
-}
 type Draft = typeof researchDraft.$inferSelect;
 export async function recordResearch(tx: Tx, actor: AppUser,
-  eventType: "research_requested" | "research_generated" | "research_edited" | "research_transition" | "research_settings" | "research_gate",
+  eventType: "research_requested" | "research_generated" | "research_edited" | "research_transition" | "research_settings" | "research_gate" | "research_refresh_requested",
   draft: Draft | null, packetHash: string | null, from: ResearchState | null, to: ResearchState | null,
   options: { checklist?: Checklist; edit_reasons?: string[]; note?: string;
     details?: Record<string, JsonValue> } = {}) {
@@ -46,8 +36,9 @@ export async function recordResearch(tx: Tx, actor: AppUser,
     details: { from, to, packet_hash: packetHash, text_hash: draft?.text_hash ?? null, ...options.details } });
 }
 /** D-210: only the short DB work is serialised; no provider calls under this lock. */
-export async function createRequestedDraft(tx: Tx, actor: AppUser, packet: ResearchPacket, guidance: string, previousId: string | null) {
-  await tx.execute(sql`select pg_advisory_xact_lock(73501948)`);
+export async function createRequestedDraft(tx: Tx, actor: AppUser, packet: ResearchPacket, guidance: string, previousId: string | null,
+  refresh?: { changes: PacketChange[] }) {
+  await tx.execute(researchWriteLock);
   const { scope } = await configuredSettings(tx);
   const [stock] = await tx.select({ id: security.id, covered: sql<boolean>`${security.coverage_analyst_id} is not null`,
     in_universe: security.in_universe, sector: company.sector_label }).from(security)
@@ -64,10 +55,15 @@ export async function createRequestedDraft(tx: Tx, actor: AppUser, packet: Resea
     packet_schema_version: packet.packet_schema_version, packet_hash: packet.packet_hash, built_at: new Date(packet.built_at) }).returning();
   const [draft] = await tx.insert(researchDraft).values({
     security_id: stock.id, packet_id: storedPacket.id, previous_draft_id: previousId, analyst_instructions: guidance,
-    prompt_version: PROMPT_VERSION, validator_version: VALIDATOR_VERSION,
+    prompt_version: refresh ? REFRESH_PROMPT_VERSION : PROMPT_VERSION, validator_version: VALIDATOR_VERSION,
     validation_results: [{ check: "not_validated", severity: "block", message: "Generation required", location: "draft" }],
   }).returning();
-  await recordResearch(tx, actor, "research_requested", draft, packet.packet_hash, null, "requested");
+  if (refresh) {
+    await tx.insert(researchRefresh).values({ draft_id: draft.id, changes: refresh.changes });
+    await recordResearch(tx, actor, "research_refresh_requested", draft, packet.packet_hash, null, "requested",
+      { details: { before: { approved_draft_id: previousId, refresh_draft_id: null },
+        after: { approved_draft_id: previousId, refresh_draft_id: draft.id, state: "requested", change_count: refresh.changes.length } } });
+  } else await recordResearch(tx, actor, "research_requested", draft, packet.packet_hash, null, "requested");
   return draft;
 }
 export async function activeResearchStocks(tx: Pick<Tx, "select">) {
@@ -83,6 +79,18 @@ export async function lockedDraft(tx: Tx, id: string, expectedHash?: string | nu
   const [packet] = await tx.select().from(researchPacket).where(eq(researchPacket.id, draft.packet_id));
   if (!packet) throw new Error("Research packet unavailable");
   return { draft, packet: packet.payload };
+}
+export async function saveResearchGeneration(tx: Tx, actor: AppUser, draftId: string, generated: GenerationResult) {
+  const { draft, packet } = await lockedDraft(tx, draftId);
+  if (draft.state !== "requested") throw new Error("Draft already completed");
+  const textHash = generated.draft ? researchTextHash(generated.draft) : null;
+  const [saved] = await tx.update(researchDraft).set({
+    state: generated.state, ai_output: generated.draft, analyst_text: generated.draft,
+    text_hash: textHash, validation_text_hash: textHash, validation_results: generated.issues,
+    input_tokens: generated.input_tokens, output_tokens: generated.output_tokens, attempts: generated.attempts,
+    model: generated.model, model_version: generated.model_version, failure_reason: generated.reason,
+  }).where(eq(researchDraft.id, draftId)).returning();
+  await recordResearch(tx, actor, "research_generated", saved, packet.packet_hash, "requested", generated.state);
 }
 export async function reserveDraftBudget(tx: Tx, actor: AppUser, draftId: string, month: string, tokens: number) {
   const { draft } = await lockedDraft(tx, draftId);

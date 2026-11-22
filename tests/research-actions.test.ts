@@ -4,9 +4,14 @@ vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("../src/lib/auth/guards", () => ({ requireRole: auth.requireRole }));
 vi.mock("../src/lib/auth/actions", () => ({ withAdminAction: auth.withAdminAction }));
-import { changeResearchGate, reconcileResearchDraft } from "../src/lib/research/actions";
+import { changeResearchGate, reconcileResearchDraft, requestResearchRefresh } from "../src/lib/research/actions";
 beforeEach(() => { vi.resetAllMocks(); auth.requireRole.mockResolvedValue({}); });
 describe("PR19 actual server action boundaries", () => {
+  it("keeps manual refresh behind O-13 without initiating a provider or DB write", async () => {
+    expect(await requestResearchRefresh(new FormData())).toMatchObject({ ok: false, message: expect.stringContaining("No provider call") });
+    expect(auth.requireRole).toHaveBeenCalledWith(["admin", "editor"]);
+    expect(auth.withAdminAction).not.toHaveBeenCalled();
+  });
   it.each([
     ["", "lawyer-ref"], ["216", "lawyer-ref"], ["D-", "lawyer-ref"],
     ["D-217", ""], ["D-217", "   "],

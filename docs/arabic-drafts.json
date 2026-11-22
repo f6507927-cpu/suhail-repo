@@ -1,4 +1,9 @@
 {
+  "U-00c47aab7a11c407cf9b6f7ad26e5d3686b83691f9acfa9c76aff704afbda028": {
+    "source": "Research refresh queue",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
   "U-0271534d6f8524c0ebaa8c3a05996cd925d4b930b1f79c884989f49aa269824c": {
     "source": "blocking issues",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
@@ -26,6 +31,11 @@
   },
   "U-124e5354b58af9162dce89d0e7cc2970d83151beaefa13d5bc6e7aa4b73bc024": {
     "source": "Founder decision ID",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
+  "U-16873e493a1e64d59b8022b89d0c2831e146144e4a1870c4a71c5d55d10777d4": {
+    "source": "Packet changes",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
@@ -114,8 +124,18 @@
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
+  "U-481cb8f2d05bc5a394a6383a3387b15b817cc975fc1698d04f34aee66f2524db": {
+    "source": "Analyst view needs review",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
   "U-4830dc293f02ef66280eb186adb24e8efbc1cfdfdccae208658eb00b181f6058": {
     "source": "Code-owned screening context",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
+  "U-4868c6f03de5c11d8ccf0493133519f4e8c5d49c0b0f9626336c7a4fcae4fa9c": {
+    "source": "The analyst view remains hidden without a passing default screening result.",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
@@ -131,6 +151,11 @@
   },
   "U-549d8d7458a4077dfda4e13d75d6228d7ec6b780ac3a686a611d3a2012e290f5": {
     "source": "Inspect draft",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
+  "U-58c601dc57caae560a0840bdacfbe6b9769ff94e9d4f0e882415e3e0b69323a3": {
+    "source": "Compared with the last approved draft. Full-text validation still applies.",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
@@ -174,6 +199,16 @@
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
+  "U-6cfef9ccfdfbac89d9b836288bf15cc92a6fc704ea21eb2e9dd9aab084261eb2": {
+    "source": "An active analyst profile is required to request a refresh.",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
+  "U-6dacf489169c245fd2a948c79d3affc209523385282169e0e4a1a9ec42eed15c": {
+    "source": "Changed evidence",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
   "U-70e4d3c00ded344331c3abbf8fcdfa11adca6c41fde35d060322baf81d5053f1": {
     "source": "Choose a covered security",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
@@ -189,8 +224,23 @@
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
+  "U-77d8f0e3790774ddee93842968a5e2aa479a903c2b6384bae5eea69313ada3b0": {
+    "source": "Refresh in progress",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
+  "U-7ee2956e49dc06ff43dd334255abfcf7e6e9faf123de5b4472c2039ef8d55aab": {
+    "source": "Changed passages",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
   "U-81bd7eed585247b2581167c8bdc54ef7c432fc71b947355ec9d214579f18fb33": {
     "source": "Blocking checks remain visible until resolved.",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
+  "U-83d2512d4ebf2c4b8dda17ecd297e058a246fbe9dad03c8411f23aea867caacf": {
+    "source": "No outdated research drafts.",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
@@ -239,6 +289,11 @@
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
+  "U-bbaf5b26871b41686adfadb80a7e4f052b889ffb76101d25400695aa31e346d5": {
+    "source": "Request refresh",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
   "U-bf2f6400ba09a4220f8676d9afc0009a41aeb6fb941fb96fae37044b5210cc4d": {
     "source": "Edited version",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
@@ -246,6 +301,11 @@
   },
   "U-bf84be6144f8a5bcb69cf0a228a0e73d6e32ea76f68f5a2e86d1c3c561888c59": {
     "source": "Arabic and English remain paired; evidence references are preserved.",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
+  "U-c2e0b1fe2e34c6e1e7bd85637cd82140282afa7055dc69108027ce3619bb0ac5": {
+    "source": "The default screening passes again. Review the analyst view before restoring it.",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
@@ -329,6 +389,11 @@
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
+  "U-ee3db3bc91f7afd7c1ae90827ed8c7ed92ae55dd2ce946f94c462cc03780dd41": {
+    "source": "No passages changed.",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
   "U-f0d19b31d927e8d08878a1d3b9cdd88f2b39ca50b3369c4c54101263e2421ad3": {
     "source": "Blocking issue",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
@@ -336,6 +401,11 @@
   },
   "U-f189411452ed2860ac837e01dde5e41285696039ad4dc3fd5b1373da564e1c76": {
     "source": "All states",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
+  "U-f442234d0db478959eb9ee2e4023598db7f1c27c7d531f8d83806597400c4ad5": {
+    "source": "Confirm analyst view after screening review",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },

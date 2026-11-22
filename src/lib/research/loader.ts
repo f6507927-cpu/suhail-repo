@@ -8,8 +8,9 @@ import { buildResearchPacket, FINANCIAL_FIELDS } from "../../ai/research/packet"
 import { runSchema } from "../../ai/research/contracts";
 import type { PacketInput, ResearchPacketLoader, Source } from "../../ai/research/contracts";
 import { activityEvidence } from "../financial/activity-evidence";
+import { latestResearchFilings } from "./filings";
 
-type Db = Pick<typeof dbApp, "select">;
+type Db = Pick<typeof dbApp, "select" | "execute">;
 function sourceRef(row: typeof source.$inferSelect): Source {
   if (row.is_demo || row.is_synthetic || row.production_blocked) throw new Error("Ineligible research evidence source");
   return { id: row.id, label: row.label, url: row.source_url, accession: row.document_reference,
@@ -145,7 +146,7 @@ export class StoredResearchPacketLoader implements ResearchPacketLoader {
             date: f.as_of_date ?? p.period_end!, source: resolved(f.source_id), confidence_tier: f.confidence_tier,
             unavailable_reason: f.unknown_note ?? "No usable stored value" };
         }) })),
-      runs, prices };
+      runs, prices, filings: await latestResearchFilings(this.db, securityId, this.asOf.slice(0, 10)) };
   }
 }
 export async function loadResearchPacket(securityId: string, now: string, loader: ResearchPacketLoader = new StoredResearchPacketLoader(dbApp, now)) {

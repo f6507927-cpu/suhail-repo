@@ -42,6 +42,12 @@ export function buildResearchPacket(rows: unknown, clock: string): ResearchPacke
       source: identity.source, confidence_tier: identity.confidence_tier,
       unavailable: value === null ? `${field} not recorded` : null, derivation: null });
   unique(input.periods.map(p => p.id), "period");
+  const filings = input.filings?.slice().sort((a, b) => compareCodePoints(a.id, b.id));
+  for (const filing of filings ?? []) {
+    put({ id: `fin.filing.${filing.id}`, kind: "financial", value: filing.reported_date, unit: "date",
+      date: filing.reported_date, period: filing.period_end, source: filing.source,
+      confidence_tier: filing.confidence_tier, unavailable: null, derivation: null });
+  }
   const annual = input.periods.filter(p => p.annual).sort((a, b) => compareCodePoints(b.period_end, a.period_end)).slice(0, 2);
   unique(annual.map(p => p.period_end), "annual period end");
   for (const p of annual) {
@@ -126,6 +132,7 @@ export function buildResearchPacket(rows: unknown, clock: string): ResearchPacke
       status: r.status, data_as_of: r.data_as_of, run_at: r.run_at, immutable_hash: r.immutable_hash,
       engine_version: r.engine_version, calculation_version: r.calculation_version, reasons: r.reasons })),
     periods: annual.map(({ id, period_end, reported_date }) => ({ id, period_end, reported_date })),
+    ...(filings?.length ? { filings: filings.map(({ id, period_end, reported_date }) => ({ id, period_end, reported_date })) } : {}),
   };
   for (const item of items) packet.sections[item.kind].push(item.id);
   packet.packet_hash = packetHash(packet);
