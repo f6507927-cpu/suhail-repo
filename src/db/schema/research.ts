@@ -1,10 +1,12 @@
-import { bigint, boolean, integer, jsonb, text, uuid, date, numeric } from "drizzle-orm/pg-core";
+import { bigint, boolean, integer, jsonb, text, uuid, date, numeric, bigserial, index } from "drizzle-orm/pg-core";
 import { appSchema, time, userRole } from "./core";
 import { security } from "./market";
 import type { ResearchPacket, ValidationIssue } from "../../ai/research/contracts";
 import type { ResearchDraft } from "../../ai/research/draft";
 import type { Checklist, ResearchState } from "../../lib/research/contracts";
 import type { ScopeSettings } from "../../lib/research/workflow";
+import type { StaleReason } from "../../ai/research/staleness";
+import type { PacketChange } from "../../ai/research/changes";
 
 // D-216: private tables only; public views/publication belong to P4.
 export const researchPacket = appSchema.table("research_packet", {
@@ -81,4 +83,18 @@ export const researchReviewEvent = appSchema.table("research_review_event", {
   checklist: jsonb("checklist").$type<Checklist>(),
   edit_reasons: text("edit_reasons").array().notNull().default([]),
   note: text("note").notNull().default(""),
+});
+export const researchStalenessEvent = appSchema.table("research_staleness_event", {
+  id: bigserial("id", { mode: "number" }).primaryKey(),
+  draft_id: uuid("draft_id").notNull().references(() => researchDraft.id),
+  outdated: boolean("outdated").notNull(),
+  outdated_reasons: text("outdated_reasons").array().$type<StaleReason[]>().notNull(),
+  analyst_view_review_required: boolean("analyst_view_review_required").notNull(),
+  cleared_version_id: uuid("cleared_version_id"),
+  cleared_stop_id: uuid("cleared_stop_id"),
+  occurred_at: time("occurred_at").notNull().defaultNow(),
+}, t => [index("research_staleness_draft_event").on(t.draft_id, t.id.desc())]);
+export const researchRefresh = appSchema.table("research_refresh", {
+  draft_id: uuid("draft_id").primaryKey().references(() => researchDraft.id),
+  changes: jsonb("changes").$type<PacketChange[]>().notNull(),
 });

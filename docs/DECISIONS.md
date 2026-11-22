@@ -1,5 +1,13 @@
 # Suhail — Decision Log
 
+## 23 November 2026 — AI research P3, private refresh
+
+| ID | Decision |
+| --- | --- |
+| D-218 | **Record staleness without changing approved text.** Compare genuine stored filing dates, production screening hashes/statuses, comparable month-end closes and approval age. Use configured thresholds and append only changed flag states with an atomic audit. No job may request generation. |
+| D-219 | **Hide the analyst view on the live default screening result.** A non-pass or missing result hides the private projection immediately. A recorded stop remains hidden after recovery until an active analyst confirms the current passing run; that confirmation and its evidence are audited. |
+| D-220 | **Refresh from the latest approved draft, by request only.** Keep the linked version and code-owned evidence diff, use P2 limits and reconciliation, validate all returned text, and highlight the changed passages in the existing analyst workflow. Publishing, public output, legal copy and the O-13 generation gate stay unchanged. |
+
 ## 18 November 2026 — P2 review corrections
 
 | ID | Decision |

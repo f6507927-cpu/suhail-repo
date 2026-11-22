@@ -68,6 +68,7 @@ export function ResearchList({ locale, rows, securities, requestAction, settings
       {feedback && <div className="sm:col-span-3"><Message error={failed}>{feedback}</Message></div>}
     </form>
     <div className="mt-8 flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-xl font-semibold">{reviewText(locale, "Draft queue")}</h2><p className="mt-1 text-sm text-muted-foreground">{reviewText(locale, "Blocking checks remain visible until resolved.")}</p></div>{settingsHref && <a href={localePath(locale, settingsHref)} className="min-h-11 border border-border px-4 py-2 text-sm hover:bg-secondary">{reviewText(locale, "Research settings")}</a>}</div>
+    <a href={localePath(locale, "/admin/research/queue")} className="mt-2 inline-flex min-h-11 items-center text-sm underline">{reviewText(locale, "Research refresh queue")}</a>
     <div className="mt-4 space-y-3">
       <label className="block text-sm">{reviewText(locale, "Filter by state")}
         <select value={stateFilter} onChange={event => setStateFilter(event.target.value)} className="mt-2 block w-full border border-input bg-background">

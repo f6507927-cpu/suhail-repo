@@ -4,9 +4,11 @@ import { readFile, mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import postcss from "postcss";
 import tailwindcss from "@tailwindcss/postcss";
-import { fixturePackets } from "../fixtures/research/packets";
+import { fixtureInput, fixturePackets, FIXTURE_CLOCK } from "../fixtures/research/packets";
 import { handwrittenModel } from "../fixtures/research/outputs";
 import { assembleDraft } from "../../src/ai/research/draft";
+import { buildResearchPacket } from "../../src/ai/research/packet";
+import { compareResearchPackets } from "../../src/ai/research/changes";
 if (process.env.NODE_ENV !== "test") throw new Error("Research UI harness is fixture-only");
 const out = resolve("generated-artifacts/research-ui");
 await mkdir(out, { recursive: true });
@@ -18,7 +20,14 @@ await build({ entryPoints: ["tests/research-browser/client.tsx"], outfile: `${ou
 const css = await postcss([tailwindcss()]).process(await readFile("src/app/globals.css", "utf8"),
   { from: resolve("src/app/globals.css") });
 const packet = fixturePackets[0];
-const fixture = JSON.stringify({ packet, draft: assembleDraft(handwrittenModel(packet), packet) }).replaceAll("<", "\\u003c");
+const changedRows = fixtureInput();
+changedRows.periods[0].facts[0].value = changedRows.periods[0].facts[0].value! + 100;
+changedRows.prices[0].close += 10;
+const freshPacket = buildResearchPacket(changedRows, FIXTURE_CLOCK);
+const revisedModel = handwrittenModel(freshPacket);
+revisedModel.summary = { en: "A recent filing changed the available evidence.", ar: "غيّر التقرير الجديد البيانات المتاحة." };
+const fixture = JSON.stringify({ packet, draft: assembleDraft(handwrittenModel(packet), packet),
+  refreshed: assembleDraft(revisedModel, freshPacket), changes: compareResearchPackets(packet, freshPacket) }).replaceAll("<", "\\u003c");
 createServer(async (req, res) => {
   if (req.url === "/health") { res.end("fixture ready"); return; }
   if (req.url === "/client.js") { res.setHeader("Content-Type", "text/javascript"); res.end(await readFile(`${out}/client.js`)); return; }

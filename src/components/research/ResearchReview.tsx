@@ -7,6 +7,8 @@ import { CHECKLIST, EDIT_REASONS, type ResearchState } from "@/lib/research/cont
 import { TRANSITIONS } from "@/lib/research/workflow";
 import type { Locale } from "../accounts/types";
 import { Heading, Message, ResearchFrame, reviewText, type ResearchAction } from "./research-ui";
+import type { PacketChange } from "@/ai/research/changes";
+import { RefreshPassages } from "./RefreshPassages";
 
 export interface ResearchReviewProps {
   locale: Locale;
@@ -16,6 +18,8 @@ export interface ResearchReviewProps {
   saveAction: ResearchAction;
   transitionAction: ResearchAction;
   regenerateAction: ResearchAction;
+  revision?: { previous: ResearchDraft; changes: PacketChange[] };
+  analystViewReview?: { required: boolean; runId: string | null; clearAction: ResearchAction };
 }
 function modelOnly(draft: ResearchDraft | null): ModelDraft | null {
   if (!draft) return null;
@@ -93,7 +97,8 @@ function stateLabel(state: ResearchState) {
 function severityLabel(severity: "block" | "warn") {
   return severity === "block" ? "Blocking issue" : "Warning";
 }
-export function ResearchReview({ locale, draft, packet, activeAnalyst, saveAction, transitionAction, regenerateAction }: ResearchReviewProps) {
+export function ResearchReview({ locale, draft, packet, activeAnalyst, saveAction, transitionAction, regenerateAction,
+  revision, analystViewReview }: ResearchReviewProps) {
   const router = useRouter();
   const initial = draft.analyst_text ?? draft.ai_output;
   const baseModel = useMemo(() => modelOnly(initial), [initial]);
@@ -142,6 +147,20 @@ export function ResearchReview({ locale, draft, packet, activeAnalyst, saveActio
       <ul className="mt-3 space-y-2">{draft.validation_results.map((issue, i) => <li key={`${issue.check}-${i}`} className="flex flex-col gap-1 border-t border-border/70 pt-2 text-sm sm:flex-row sm:items-start sm:gap-3"><span className="shrink-0 font-semibold">{reviewText(locale, severityLabel(issue.severity))}</span><span className="font-mono text-xs" dir="ltr">{issue.check} · {issue.location}</span><span>{issue.message}</span></li>)}</ul>
     </section>}
     {!initial && <Message error>{reviewText(locale, "No generated text is available. Inspect the failure details before retrying.")}</Message>}
+    {analystViewReview?.required && <section className="mb-6 border border-border bg-card p-4">
+      <h2 className="font-semibold">{reviewText(locale, "Analyst view needs review")}</h2>
+      <p className="mt-2 text-sm">{reviewText(locale, analystViewReview.runId
+        ? "The default screening passes again. Review the analyst view before restoring it."
+        : "The analyst view remains hidden without a passing default screening result.")}</p>
+      {analystViewReview.runId && <button type="button" disabled={!activeAnalyst || !!pending} onClick={() => {
+        const form = new FormData();
+        form.set("draft_id", draft.id);
+        form.set("reviewed_run_id", analystViewReview.runId!);
+        void run(analystViewReview.clearAction, form, "confirm_view");
+      }} className="mt-3 min-h-11 border border-border px-4 disabled:opacity-40">{reviewText(locale, "Confirm analyst view after screening review")}</button>}
+    </section>}
+    {revision && initial && <RefreshPassages locale={locale} previous={slotsOf(revision.previous)} current={editedSlots}
+      changes={revision.changes} label={slotLabel} />}
     {edited && <form onSubmit={save} className="space-y-6">
       <section className="border border-border bg-card p-4 sm:p-6">
         <div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-xl font-semibold">{reviewText(locale, "Field-by-field editorial review")}</h2><p className="mt-1 text-sm text-muted-foreground">{reviewText(locale, "Arabic and English remain paired; evidence references are preserved.")}</p></div><span className="text-xs text-muted-foreground">{changed.length} {reviewText(locale, "changed fields")}</span></div>

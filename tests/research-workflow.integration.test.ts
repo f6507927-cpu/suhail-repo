@@ -67,7 +67,7 @@ describe("D-216 private research PostgreSQL enforcement", () => {
         has_table_privilege('suhail_app',${"app." + table},'UPDATE') update,
         has_table_privilege('suhail_app',${"app." + table},'DELETE') delete`;
       expect(row).toEqual({ read: true, insert: table !== "research_setting",
-        update: !["research_packet", "research_review_event"].includes(table), delete: false });
+        update: !["research_packet", "research_review_event", "research_staleness_event", "research_refresh"].includes(table), delete: false });
     }
   });
   it.each(["research_packet", "research_review_event"])("refuses owner UPDATE/DELETE/TRUNCATE of %s", async table => {
