@@ -86,6 +86,7 @@ jobs:
           PLAYWRIGHT_PUBLIC_FIXTURE: "1"
           PLAYWRIGHT_FIXTURE_MODE: development
           PLAYWRIGHT_TEST_SERVER: "1"
+          SITE_MODE: preview
         run: |
           # test:db has applied migrations. Open restricted logins only in the CI service.
           psql -X -v ON_ERROR_STOP=1 "$DATABASE_URL_TEST" \
