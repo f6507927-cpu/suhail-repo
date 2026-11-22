@@ -294,13 +294,21 @@ test("verification failure presents detailed difference feedback", async ({ page
 test("bulk screening reports its universe summary and gates a missing production methodology", async ({ page }) => {
   await page.goto("/en/admin/ingestion?screen=financial&view=ingestion&role=admin&screening=1");
   await confirmRun(page, "Screen all");
-  const jobSummary = page.locator("details").filter({ has: page.getByText("Processed", { exact: true }).and(page.locator("dt")) });
+  const heading = page.getByRole("heading", { level: 3, name: /^Screen all · \d+ stocks · 1 failed$/ });
+  await expect(heading).toBeVisible();
+  const jobSummary = heading.locator("..").locator("details");
+  await expect(jobSummary.locator(":scope > summary")).toHaveText("Details");
+  await expect(jobSummary).not.toHaveAttribute("open", "");
   await expandDisclosure(jobSummary);
+  await expect(jobSummary).toHaveAttribute("open", "");
   await expect(jobSummary.locator("dt").getByText("Processed", { exact: true }).locator("..").locator("dd")).toHaveText("8");
   await expect(page.getByRole("button", { name: "Resume screen job", exact: true })).toBeVisible();
   await page.goto("/en/admin/ingestion?screen=financial&view=ingestion&role=admin&screening=1&bulk=gate");
   await confirmRun(page, "Screen all");
-  await expect(page.getByRole("status")).toHaveText("No production methodology to screen with");
+  const refusal = page.getByRole("status");
+  await expect(refusal).toBeVisible();
+  await expect(refusal).toHaveText("No production methodology to screen with");
+  await expect(heading).toHaveCount(0);
   const calls = await page.evaluate(readScreeningCalls);
   expect(calls).toContainEqual({ action: "runUniverseAction", args: ["screen", undefined] });
 });

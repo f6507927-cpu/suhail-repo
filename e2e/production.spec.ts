@@ -1,7 +1,9 @@
 import { createHash } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
-import { checkPublicUi } from "./public-ui-checks";
+import { join } from "node:path";
+import { productionFixture, productionRoot } from "../tests/production-browser/config";
+import { checkPublicUi, openPublicMenu } from "./public-ui-checks";
 test.beforeEach(async ({context}, testInfo) => {
   // Local HTTP clients only: independent synthetic IP budget per test. This
   // exercises the real limiter, not a runtime bypass or platform forwarding claim.
@@ -27,7 +29,7 @@ for (const locale of ["ar", "en"] as const) for (const width of [390, 1366]) {
 }
 
 test("@search production home ISR and dynamic search have separate caching boundaries", async ({ request }) => {
-  const manifest = JSON.parse(readFileSync(".next/prerender-manifest.json", "utf8"));
+  const manifest = JSON.parse(readFileSync(join(productionRoot, ".next/prerender-manifest.json"), "utf8"));
   expect(manifest.dynamicRoutes["/[locale]"]).toMatchObject({ response: "empty", compute: "blocking" });
   expect(manifest.dynamicRoutes).not.toHaveProperty("/[locale]/search");
   for (const prefix of ["", "/en"]) {
@@ -80,7 +82,7 @@ for (const locale of ["ar", "en"] as const) {
   test(`${locale} public Methodologies link opens a truthful cookie-free destination`, async ({
     page, request,
   }) => {
-    test.skip(Boolean(process.env.CI), "D-78: database-available checks run in a configured runtime; database-free CI runs the cold ISR suite.");
+    test.skip(Boolean(process.env.CI) && !productionFixture, "D-78: database-available checks require a configured runtime.");
     let profiles = 0;
     page.on("request", (req) => {
       if (new URL(req.url()).pathname === "/api/account/profile") profiles++;
@@ -107,7 +109,7 @@ for (const locale of ["ar", "en"] as const) {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(locale === "ar" ? enMessages.methodologies.title : arMessages.methodologies.title);
   });
   test(`${locale} demo example-a documentation is a 404 on deployments`,async({request})=>{
-    test.skip(Boolean(process.env.CI), "D-78: database-available checks run in a configured runtime; database-free CI runs the cold ISR suite.");
+    test.skip(Boolean(process.env.CI) && !productionFixture, "D-78: database-available checks require a configured runtime.");
     // Demo/example methodologies never reach a public page outside explicit local fixtures.
     // Literal-criteria rendering is covered by the methodology fixture suite.
     for(const path of [`${prefix}/methodology/example-a`,`${prefix}/methodology/example-a?version=private-version`]) {
@@ -120,7 +122,7 @@ for (const locale of ["ar", "en"] as const) {
     }
   });
   test(`@security ${locale} public methodology HTML and ISR headers are independent of cookies`,async({request})=>{
-    test.skip(Boolean(process.env.CI), "D-78: cached data checks run in a configured runtime; database-free CI runs the cold ISR suite.");
+    test.skip(Boolean(process.env.CI) && !productionFixture, "D-78: cached data checks require a configured runtime.");
     for(const path of [prefix||"/",`${prefix}/methodology`]) {
       const anonymous=await request.get(path);
       const cookieRequest=await request.get(path,{headers:{Cookie:"public-cache-probe=synthetic; theme=light"}});
@@ -182,6 +184,7 @@ test("@security private production scripts use nonce CSP and restore theme; lega
     if (request.url().endsWith("/api/account/profile")) profiles++;
   });
   await page.goto("/");
+  await openPublicMenu(page);
   await expect(page.getByRole("link", { name: "تسجيل الدخول" })).toBeVisible();
   expect(profiles).toBe(0);
   const response = await page.goto("/en/auth/sign-in?next=%2Fen%2Faccount");
@@ -206,7 +209,10 @@ test("@security private production scripts use nonce CSP and restore theme; lega
   expect(legal.headers()["set-cookie"]).toBeUndefined();
   expect(legal.headers()["content-security-policy"]).toContain("'unsafe-inline'");
   expect(legal.headers()["cache-control"]).toContain("s-maxage=900");
-  expect(await legal.text()).toContain("⟦LEGAL-REVIEW⟧");
+  const legalHtml = await legal.text();
+  expect(legalHtml).toContain("Draft — under legal review");
+  expect(legalHtml).toContain("draft-2026-11-07");
+  expect(legalHtml).not.toContain("⟦LEGAL-REVIEW⟧");
 });
 
 test("styleguide excluded in production in both locales; shell is static and health unchanged", async ({

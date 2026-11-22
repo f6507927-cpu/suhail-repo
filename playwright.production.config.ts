@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { fixtureStart, productionFixture } from "./tests/production-browser/config";
 
 export default defineConfig({
   testDir: "./e2e",
@@ -47,7 +48,7 @@ export default defineConfig({
   // Pause any Next development server before building/running this suite;
   // production and development share generated metadata in this repository.
   webServer: {
-    command: "pnpm start",
+    command: productionFixture ? fixtureStart("production") : "pnpm start",
     url: "http://127.0.0.1:3200/api/health",
     env: { PORT: "3200", SITE_MODE: "live" },
     timeout: 120_000,

@@ -75,6 +75,27 @@ describe("browser runner isolation", () => {
     }
   });
 
+  it("starts all three CI production suites from the isolated build and preserves ISR outage mode", async () => {
+    vi.stubEnv("PLAYWRIGHT_PRODUCTION_FIXTURE", "1");
+    const [{ default: security }, { default: production }, { default: isr }] = await Promise.all([
+      import("../playwright.security.config"),
+      import("../playwright.production.config"),
+      import("../playwright.methodology-isr.config"),
+    ]);
+    expect(security.webServer).toMatchObject({
+      command: "pnpm exec tsx tests/production-browser/runner.ts security",
+      url: "http://127.0.0.1:3600/api/health", reuseExistingServer: false,
+    });
+    expect(production.webServer).toMatchObject({
+      command: "pnpm exec tsx tests/production-browser/runner.ts production",
+      url: "http://127.0.0.1:3200/api/health", reuseExistingServer: false,
+    });
+    expect(isr.webServer).toMatchObject({
+      command: "pnpm exec tsx tests/production-browser/runner.ts isr-outage",
+      url: "http://127.0.0.1:3400/api/health", reuseExistingServer: false,
+    });
+  });
+
   it("owns a fresh loopback server instead of reusing an unknown one", async () => {
     vi.stubEnv("PLAYWRIGHT_BASE_URL", "");
     const { default: config } = await import("../playwright.config");

@@ -17,7 +17,7 @@ async function usesLoadedLocalFace(locator: import("@playwright/test").Locator, 
     const unquote=(name:string)=>name.replace(/['"]/g,"").trim();
     if(!family || unquote(styles.fontFamily.split(",")[0])!==unquote(family)) return false;
     const faces=await document.fonts.load(`${styles.fontWeight} 16px ${family}`, sample);
-    return faces.some(face=>face.status==="loaded" && face.display==="swap");
+    return faces.some(face=>unquote(face.family)===unquote(family) && face.status==="loaded" && face.display==="swap");
   }, {variable,sample});
 }
 for(const locale of ["ar","en"] as const) {
@@ -72,7 +72,8 @@ for(const locale of ["ar","en"] as const) {
       expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
       // §13.3 6a: real computed font, spacing and icon/text status presentation.
       // next/font/local uses generated family names, not the old Google name.
-      expect(await usesLoadedLocalFace(page.locator("body"), locale==="ar"?"--font-arabic":"--font-latin", locale==="ar"?"سهيل":"Suhail")).toBe(true);
+      expect(await usesLoadedLocalFace(page.locator("body"), locale==="ar"?"--font-arabic":"--font-latin", locale==="ar"?"سهيل":"Suhail"),
+        `${path}: body uses its loaded IBM Plex Sans face`).toBe(true);
       if(status!=="passes_selected_methodology") {
         const ratio=await reason.evaluate(el=>parseFloat(getComputedStyle(el).lineHeight)/parseFloat(getComputedStyle(el).fontSize));
         expect(ratio).toBeGreaterThanOrEqual(locale==="ar"?1.8:1.5);
@@ -103,7 +104,8 @@ for(const locale of ["ar","en"] as const) {
       await expect(record.locator('[data-section="metadata"]')).toBeVisible();
       await record.locator('[data-record-section="fundamentals"] > summary').click();
       const numeric=record.locator('[data-section="fundamentals"] bdi.font-mono').first();
-      expect(await usesLoadedLocalFace(numeric, "--font-numbers", "0123456789")).toBe(true);
+      expect(await usesLoadedLocalFace(numeric, "--font-numbers", "0123456789"),
+        `${path}: numeric facts use the loaded IBM Plex Mono face`).toBe(true);
       await record.locator(":scope > summary").click();
     }
     // §13.3 12: home and all stock states produce no browser console errors.

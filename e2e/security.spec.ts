@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { securityHeaders } from "../src/security/headers";
+import { openPublicMenu } from "./public-ui-checks";
 test("legal drafts render in both locales without provider or database access", async ({ page }) => {
   for (const locale of ["ar", "en"]) for (const kind of ["terms", "privacy"]) {
     const response = await page.goto(`${locale === "en" ? "/en" : ""}/${kind}`);
@@ -7,15 +8,18 @@ test("legal drafts render in both locales without provider or database access", 
     expect(response!.headers()["www-authenticate"]).toBeUndefined();
     expect(response!.headers()["x-robots-tag"]).toBe("noindex, nofollow");
     await expect(page.getByText(locale === "ar" ? "مسودة — قيد المراجعة القانونية" : "Draft — under legal review", { exact: true })).toBeVisible();
-    await expect(page.locator("main")).toContainText("draft-2026-11-07");
-    await expect(page.locator("article")).toContainText("⟦LEGAL-REVIEW⟧");
+    await expect(page.locator("main")).toContainText(kind === "terms" ? "draft-2026-11-07" : "draft-2026-11-08");
+    // D-140/D-162: the filing marker stays in source, not in public markup.
+    await expect(page.locator("article")).not.toContainText("⟦LEGAL-REVIEW⟧");
     await expect(page.locator("article h2")).toHaveCount(12);
-    await expect(page.locator("article")).toContainText("[CONFIRM:");
+    await expect(page.locator("article")).not.toContainText("[CONFIRM:");
     await expect(page.locator("article")).not.toContainText("Open questions for the lawyer");
     await expect(page.locator("article")).not.toContainText("أسئلة مفتوحة للمحامي");
     if (kind === "privacy") {
       await expect(page.locator("article table tr")).toHaveCount(4);
-      await expect(page.locator("article table")).toContainText("[SUPABASE REGION]");
+      await expect(page.locator("article table").getByRole("row", { name: /Supabase/ }))
+        .toContainText(locale === "ar" ? "مومباي" : "India (Mumbai)");
+      await expect(page.locator("article table")).not.toContainText("[SUPABASE REGION]");
     }
   }
 });
@@ -56,6 +60,7 @@ test("fifteen actual page views with one identity do not prevent signing in", as
   for (let i = 0; i < 15; i++) {
     const response = await page.goto("/en");
     expect(response?.status()).toBe(200);
+    await openPublicMenu(page);
     await expect(page.locator('a[href*="/auth/sign-in"]').first()).toBeVisible();
   }
   const response = page.waitForResponse(r => new URL(r.url()).pathname.endsWith("/auth/sign-in") && r.status() === 200);

@@ -138,9 +138,27 @@ jobs:
       # D-102: build must never read a database, including the local test service.
       - run: env -u DATABASE_URL_MIGRATIONS -u DATABASE_URL_PUBLIC -u DATABASE_URL_APP -u DATABASE_URL_TEST -u DATABASE_URL -u PGHOST -u PGUSER -u PGDATABASE -u PGPORT -u PGPASSWORD -u SUPABASE_DB_CA_CERT pnpm build
       - run: node scripts/scan-bundle.mjs
-      - run: pnpm exec playwright test --config playwright.security.config.ts
-      - run: pnpm exec playwright test --config playwright.methodology-isr.config.ts
-      - run: pnpm exec playwright test --config playwright.production.config.ts
+      - id: build-browser-fixture
+        name: Build isolated production browser fixture without a database
+        env:
+          PLAYWRIGHT_PRODUCTION_FIXTURE: "1"
+        run: pnpm exec tsx tests/production-browser/runner.ts build
+      # Run the cold outage check before any suite can warm the methodology cache.
+      - if: ${{ !cancelled() && steps.build-browser-fixture.outcome == 'success' }}
+        name: Run methodology ISR outage suite
+        env:
+          PLAYWRIGHT_PRODUCTION_FIXTURE: "1"
+        run: |
+          pnpm exec tsx tests/production-browser/runner.ts isr-home
+          pnpm exec playwright test --config playwright.methodology-isr.config.ts
+      - if: ${{ !cancelled() && steps.build-browser-fixture.outcome == 'success' }}
+        env:
+          PLAYWRIGHT_PRODUCTION_FIXTURE: "1"
+        run: pnpm exec playwright test --config playwright.security.config.ts
+      - if: ${{ !cancelled() && steps.build-browser-fixture.outcome == 'success' }}
+        env:
+          PLAYWRIGHT_PRODUCTION_FIXTURE: "1"
+        run: pnpm exec playwright test --config playwright.production.config.ts
       - uses: actions/upload-artifact@v4
         if: always()
         with:
