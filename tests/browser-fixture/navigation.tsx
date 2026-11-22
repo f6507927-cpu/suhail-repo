@@ -6,6 +6,7 @@ export function Link({href,...props}:ComponentProps<"a">) {
   return <a href={localized} {...props}/>;
 }
 export function useRouter(){return {
+  prefetch(){}, // Isolated component fixtures never warm real protected routes.
   refresh:()=>{},
   // Router stand-in records destinations without loading real protected routes.
   push:(url:string)=>window.history.pushState(null,"",`${window.location.pathname.startsWith("/en")?"/en":""}${url}`),

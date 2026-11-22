@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { publicThemeControl } from "./public-ui-checks";
+import ar from "../src/i18n/messages/ar.json";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
@@ -73,11 +75,8 @@ for (const locale of ["ar", "en"] as const) {
       if (theme === "dark")
         await expect(page.locator("html")).toHaveClass(/dark/);
       else await expect(page.locator("html")).not.toHaveClass(/dark/);
-      await expect(
-        page.getByRole("button", {
-          name: locale === "ar" ? "تغيير المظهر" : "Change theme",
-        }),
-      ).toBeEnabled();
+      await expect(await publicThemeControl(page, locale)).toBeEnabled();
+      await page.keyboard.press("Escape");
       await expectNoAutomaticReloads(page);
       await page.evaluate(() => document.fonts.ready);
       for (const surface of ["dark", "light"]) {
@@ -131,7 +130,7 @@ test("same-path locale switching, persisted theme and full disclaimer", async ({
   await page.getByRole("link", { name: "تغيير اللغة" }).click();
   await expect(page).toHaveURL(/\/en\/styleguide$/);
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
-  await page.getByRole("button", { name: "Change theme" }).click();
+  await (await publicThemeControl(page, "en")).click();
   await expect(page.locator("html")).not.toHaveClass(/dark/);
   await page.reload();
   await expect(page.locator("html")).not.toHaveClass(/dark/);
@@ -139,13 +138,16 @@ test("same-path locale switching, persisted theme and full disclaimer", async ({
   await expect(page).toHaveURL(/\/styleguide$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
   await expect(page.locator("html")).not.toHaveClass(/dark/);
-  await page.getByRole("button", { name: "تغيير المظهر" }).click();
+  await (await publicThemeControl(page, "ar")).click();
   await page.reload();
   await expect(page.locator("html")).toHaveClass(/dark/);
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await page.getByRole("link", { name: "إخلاء المسؤولية الكامل" }).click();
-  await expect(page.locator("#full-disclaimer")).toHaveAttribute("open", "");
+  // The disclosure is now a :target section, not a native details element.
+  await expect(page).toHaveURL(/#full-disclaimer$/);
+  await expect(page.locator("#full-disclaimer")).toBeVisible();
+  await expect(page.locator("#full-disclaimer")).toHaveText(ar.disclaimer.full);
 });
 async function expectNoAutomaticReloads(page: Page, expectedDocuments = 1) {
   // Give the development HMR handshake time to settle. Do not suppress it:
@@ -170,14 +172,11 @@ test("default theme, home locales, keyboard and no external font requests", asyn
     await expect(page.locator("html")).toHaveAttribute("lang", locale);
     await expect(page.locator("html")).toHaveAttribute("dir", dir);
     await expect(page.locator("html")).toHaveClass(/dark/);
-    await expect(
-      page.getByRole("button", {
-        name: locale === "ar" ? "تغيير المظهر" : "Change theme",
-      }),
-    ).toBeEnabled();
     await expectNoAutomaticReloads(page, ++documentCount);
     await page.keyboard.press("Tab");
     await expect(page.locator('a[href="#content"]')).toBeFocused();
+    await expect(await publicThemeControl(page, locale)).toBeEnabled();
+    await page.keyboard.press("Escape");
   }
   expect(externalFonts).toEqual([]);
 });

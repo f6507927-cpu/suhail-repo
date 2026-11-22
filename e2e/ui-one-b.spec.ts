@@ -4,7 +4,12 @@ const paths = ["/", "/search?q=a", "/search?q=zzzz", "/stock/nyse-ko",
 for (const locale of ["ar", "en"]) for (const path of paths) {
   test(`UI-1B ${locale}: ${path} has no rendered review annotations`, async ({ page }) => {
     test.setTimeout(90000);
-    const url = locale === "en" ? `/en${path === "/" ? "" : path}` : path;
+    // D-218: the default CI runner serves seeded synthetic records, not live
+    // Coca-Cola/Al Rajhi records. Explicit preview runs retain their live paths.
+    const target = test.info().config.metadata.publicFixture
+      ? path.replace("/stock/nyse-ko", "/stock/demo-fixa").replace("/methodology/al-rajhi-adapted", "/methodology/example-a")
+      : path;
+    const url = locale === "en" ? `/en${target === "/" ? "" : target}` : target;
     const response = await page.goto(url);
     expect(response?.status()).toBe(200);
     await expect(page.locator("main")).toBeVisible();

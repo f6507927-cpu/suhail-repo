@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { productionRoot } from "../tests/production-browser/config";
 import { methodologyCacheFile, methodologyCacheFiles } from "../tests/methodology-isr-cache";
 
 // next-intl serializes the full message dictionary into script/Flight payloads,
@@ -9,7 +11,7 @@ function visibleMarkup(html: string) {
 }
 
 test("database-free build produces no prerendered public locale pages", () => {
-  const manifest = JSON.parse(readFileSync(".next/prerender-manifest.json", "utf8"));
+  const manifest = JSON.parse(readFileSync(join(productionRoot, ".next/prerender-manifest.json"), "utf8"));
   for (const locale of ["ar", "en"]) {
     expect(Object.keys(manifest.routes).filter(path => path === `/${locale}` || path.startsWith(`/${locale}/`))).toEqual([]);
     expect(methodologyCacheFiles(locale, "methodology")).toEqual([]);

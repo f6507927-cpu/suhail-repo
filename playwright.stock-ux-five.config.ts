@@ -5,5 +5,5 @@ if(!server || Array.isArray(server))throw new Error("Expected the isolated fixtu
 export default defineConfig({
   ...searchConfig, testMatch:"**/stock-ux-five.spec.ts",
   outputDir:"generated-artifacts/playwright-stock-ux-five",
-  webServer:{...server,env:{...server.env,PLAYWRIGHT_FIXTURE_MODE:"development"}},
+  webServer:{...server,env:{...server.env,PLAYWRIGHT_FIXTURE_MODE:"development",PLAYWRIGHT_STOCK_LANGUAGE_FIXTURE:"1"}},
 });
