@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
-import { assertDrafts, discover, draftFor, draftGap, escapeCell, generate, leaves, marker, phraseId, renderInventory, retiredPublicPresentationKeys, type Entry } from "../scripts/ar-review";
+import { assertDrafts, discover, draftFor, draftGap, escapeCell, generate, leaves, marker, pendingResearchArabic, phraseId, renderInventory, retiredPublicPresentationKeys, type Entry } from "../scripts/ar-review";
 import en from "../src/i18n/messages/en.json";
 import ar from "../src/i18n/messages/ar.json";
 import removed from "../docs/arabic-dead-keys.json";
@@ -84,7 +84,9 @@ describe("live-only pending Arabic inventory with pinned founder approvals", () 
       else {
         const draft = draftFor(entry, drafts);
         expect(draftGap(entry, draft), entry.id).toBeNull();
-        expect(draft, entry.id).toMatch(/[\u0600-\u06ff]/);
+        if (pendingResearchArabic(entry) && draft.startsWith("PENDING HUMAN-AUTHORED ARABIC"))
+          expect(draft).toContain("D-216");
+        else expect(draft, entry.id).toMatch(/[\u0600-\u06ff]/);
       }
     }
   });

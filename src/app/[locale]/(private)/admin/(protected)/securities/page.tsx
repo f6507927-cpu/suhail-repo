@@ -7,6 +7,7 @@ import { getFinancialAdminData } from "@/lib/financial/data";
 import { getScreeningAdminData } from "@/screening/data";
 import { getUnmetSearches } from "@/lib/financial/unmet-search";
 import { UnmetSearchPanel } from "@/components/financial/UnmetSearchPanel";
+import { ResearchEntryLink } from "@/components/research/ResearchEntryLink";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -23,6 +24,7 @@ export default async function SecuritiesAdminPage({ params }: PageProps) {
   const [data, screening] = await Promise.all([getFinancialAdminData(), getScreeningAdminData()]);
   const unmet = context.user.role === "admin" ? await getUnmetSearches() : null;
   return <section aria-label={t("nav.admin")}>
+    <ResearchEntryLink locale={locale} />
     <FinancialAdmin data={data} screening={screening} role={context.user.role as "admin" | "editor"} view="securities" />
     {unmet && <div className="mt-8"><UnmetSearchPanel rows={unmet} locale={locale} /></div>}
   </section>;

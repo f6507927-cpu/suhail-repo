@@ -5,3 +5,4 @@ export * from "./methodology";
 export * from "./screening";
 export * from "./editorial";
 export * from "./search";
+export * from "./research";

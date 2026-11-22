@@ -42,3 +42,4 @@
 - [Post-sync dependencies](post-sync-dependencies.md) — task sync can update lockfiles without refreshing installed modules; verify runtime dependencies separately.
 - [RTL overflow evidence](rtl-overflow-evidence.md) — inspect the left edge too; intrinsic descendant widths are not proof of document overflow.
 - [Browser fixture fidelity](browser-fixture-fidelity.md) — serve module CSS as well as global styles; Intl medium does not guarantee named Arabic months.
+- [Structured output schemas](structured-output-schema-compatibility.md) — test SDK schema conversion offline; type-valid tuples may still be unsupported.
