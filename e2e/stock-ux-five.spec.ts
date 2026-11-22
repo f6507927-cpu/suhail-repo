@@ -88,9 +88,13 @@ for(const locale of ["ar","en"] as const) {
       // §13.3 6c: check the rendered register, including English fallbacks.
       expect(checkRegister(await page.locator("body").innerText(),locale).hardBans).toEqual([]);
       const notice=page.locator("[data-language-notice]");
-      const expectsNotice=locale==="ar" && slug==="demo-fixa";
-      await expect(notice).toHaveCount(expectsNotice?1:0);
-      if(expectsNotice) await expect(notice).toBeVisible();
+      const noticeText=locale==="ar" && (slug==="demo-fixa" ? "متاح بالإنجليزية فقط: بتغطية" :
+        slug==="demo-fixd" ? "متاح بالإنجليزية فقط: المعايير" : "");
+      await expect(notice, path).toHaveCount(noticeText?1:0);
+      if(noticeText) {
+        await expect(notice).toBeVisible();
+        await expect(notice).toHaveText(noticeText);
+      }
       await expect(page.locator("body")).not.toContainText("⟦AR-REVIEW⟧");
       await answer.locator('details summary').first().click();
       await expect(answer).toContainText(locale==="ar"?"شرح توضيحي اختباري":"Synthetic plain criterion explanation");

@@ -93,6 +93,10 @@ jobs:
           test "$(psql -XAt "$DATABASE_URL_PUBLIC" -c 'SELECT current_user')" = suhail_public
           test "$(psql -XAt "$DATABASE_URL_APP" -c 'SELECT current_user')" = suhail_app
 
+          # The externally managed runner needs the same synthetic data as the
+          # Playwright-owned isolated runner.
+          pnpm exec tsx --conditions=react-server tests/search-browser/setup.ts
+
           # Next compiles NODE_ENV to development, so raw pnpm dev rejects loopback.
           # Use the existing isolated real-Next runner and its strict public-role adapter.
           setsid pnpm exec tsx tests/search-browser/server.ts &
