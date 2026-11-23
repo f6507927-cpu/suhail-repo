@@ -494,11 +494,66 @@ redirect URIs. No Supabase/Google/domain configuration was changed or tested.
 
 ## Release, rollback and data freshness
 
-After separate authorization, first run **`pnpm db:migrate` from the workspace
-shell**, using its owner migration credential, then deploy the reviewed build.
-This is documentation, not authorization to run it now. Build/run hooks never
-migrate/seed/import. Keep schema changes backward-compatible for one release.
-Rollback redeploys the previous build; **no down-migrations**.
+### Founder’s release checklist
+
+This checklist is documentation, not authorization to run a migration or publish.
+
+1. **Verify the release and target.** In the workspace, check out the reviewed
+   `development` commit and record `git rev-parse HEAD`. Confirm both required
+   PRs are merged into that revision. Confirm the installed dependencies match
+   the lockfile and run the release checks:
+
+   ```sh
+   (
+     set -e
+     pnpm install --frozen-lockfile
+     pnpm typecheck
+     pnpm lint
+     pnpm test
+     env -u DATABASE_URL_MIGRATIONS -u DATABASE_URL_PUBLIC -u DATABASE_URL_APP \
+       -u DATABASE_URL_TEST -u DATABASE_URL -u PGHOST -u PGUSER -u PGDATABASE \
+       -u PGPORT -u PGPASSWORD -u SUPABASE_DB_CA_CERT pnpm build
+     node scripts/scan-bundle.mjs
+   )
+   ```
+
+   Stop on any failure. Record the currently serving version from `/api/health`
+   and keep its build available for rollback. Verify the production database
+   identity and compare its actual `drizzle.__drizzle_migrations` history
+   (`created_at` and `hash`) with the journal's `when` values and the
+   corresponding SQL file hashes. A deployed commit or successful health check
+   does not establish the applied schema. Stop on unknown history, an unexpected
+   migration, or an incompatible change; keep the previous build able to run
+   on the new schema through the release.
+2. **Back up before migrating.** Confirm a current, restorable production
+   database backup or point-in-time recovery point. Record the UTC timestamp,
+   backup identifier and restore procedure in the private release record.
+   Stop if the backup or recovery path is unavailable.
+3. **Apply the approved migrations from the workspace shell.** After separate
+   authorization, use the production owner connection via the workspace-only
+   `DATABASE_URL_MIGRATIONS` secret. Verify the target before running
+   **`pnpm db:migrate`** from the reviewed checkout. Do not print the credential
+   or copy it to Publishing. Verify the applied migration history and the
+   expected final journal entry before continuing. On failure or a mismatch,
+   stop and investigate; do not publish or blindly retry. Build and start
+   hooks never migrate, seed, or import.
+4. **Publish the reviewed commit.** Follow the connection-budget and drain
+   procedure above. In Replit Publishing, keep the existing Autoscale setup
+   (`deploymentTarget = "cloudrun"`), build
+   `pnpm install --frozen-lockfile && pnpm build`, and run `pnpm start`.
+   Confirm the intended commit and existing runtime configuration before
+   publishing. Do not activate research generation, publishing or legal gates
+   as part of a code rollout.
+5. **Verify the published release.** On the approved published HTTPS origin,
+   check `/api/health` returns HTTP 200 and the reviewed commit suffix. For the
+   current preview configuration, run `pnpm smoke -- --base <published-https-url>`.
+   Then verify public stock search, a known stock page and the methodology page
+   in both locales: the health endpoint does not test database reads. Check that
+   research is not public while the gate is off, confirm expected sign-in and
+   MFA behavior using authorized test accounts, and review startup and request
+   errors in Publishing. If the rollout fails, stop and redeploy the previous
+   compatible build. Do not run down-migrations or restore the database without
+   a separately approved recovery decision.
 
 D-20: each instance has an independent ISR cache with `revalidate = 900`.
 There is no shared cache; best-effort revalidation cannot synchronize instances
