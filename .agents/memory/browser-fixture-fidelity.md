@@ -21,3 +21,13 @@ a numeric Arabic Gregorian date. It does not guarantee a named month.
 
 **How to apply:** Pin the visible Arabic date in browser tests as well as server
 formatting tests; preserve the existing time zone and Western numbering policy.
+
+Match the full CI seed and homepage cache warm-up order when investigating
+production browser regressions. A stock-only seed is not equivalent.
+
+**Why:** The rendered homepage can include a methodology link before the
+disclaimer, changing the keyboard tab sequence independently of a dependency
+upgrade.
+
+**How to apply:** Use a disposable PostgreSQL instance, follow the production
+fixture setup order in CI, and reproduce before changing any focus assertions.
