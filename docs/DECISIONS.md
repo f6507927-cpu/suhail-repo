@@ -1,5 +1,12 @@
 # Suhail — Decision Log
 
+## Founder’s provisional research approvals
+
+| ID | Decision |
+| --- | --- |
+| D-221 | **O-12 answered provisionally; adjustable later.** Any active analyst with the existing review permissions may approve; the analyst need not cover that stock. If publication is separately authorised, research belongs on the stock page only, not on an Editor’s Pick card. The founder records the first ten real packets and model outputs on his own machine, never from hosted CI or any machine in this workspace. Tokens are the budget unit, and hiding the analyst view at read time when the default methodology stops passing is confirmed. Suggested starting values to enter in Research settings: 300,000 tokens per month, 10% price movement, and 90 days since approval or publication. These are not application defaults and have not been applied. O-9, O-10, and O-11 remain open. |
+| D-222 | **O-13 answered provisionally, for two exact artifacts only.** The founder approves `BANNED_AR` in `src/ai/research/banned-phrases.ts` and the existing English `RESEARCH_SYSTEM_PROMPT` in `src/lib/research/prompt.ts` unchanged. The English prompt instructs bilingual generation; this is not approval of an Arabic-language prompt or of Arabic admin-screen labels or the Arabic AI-assisted disclosure (P4). The labels keep their English fallback and `PENDING HUMAN-AUTHORED ARABIC` review rows. The wording flag is enabled, but provider credentials and configured research scope remain necessary. O-9, O-10 and O-11 remain open, and no publication or legal gate is enabled. |
+
 ## 23 November 2026 — AI research P3, private refresh
 
 | ID | Decision |
@@ -557,8 +564,8 @@ change or altered matching semantics is authorized by this performance decision.
 | O-9 | **Lawyer.** Does the Privacy Policy wording still hold for research drafts (the current sentence covers only "AI explanations of screening results" and says "plan later")? Anthropic as processor: data-processing terms, retention and training use under our account type, data location. P5 only: 10-K text names officers, so third-party personal data would reach the provider | P2 first real call; P4 legal drafts; P5 |
 | O-10 | **Lawyer.** Is published, AI-assisted, analyst-reviewed stock research with an "analyst view" permissible in the jurisdictions we target (CMA licence position per reference §4.6; operator based in Egypt per D-140) without a licence, and what disclosure wording is required? Is research language (positive / neutral / cautious) acceptable, and under what conditions could explicit ratings or price targets ever be enabled? | Turning on `AI_RESEARCH_PUBLISHING` (D-185) |
 | O-11 | **Shariah reviewer.** May research text name a stock's result per methodology (quoting stored statuses only) and use the words "compliant" or "halal" in any form (the reference bans them in AI text; the brief bans only "halal certified")? Is hiding the analyst view when the default methodology stops passing sufficient? | P2 banned list; P4 |
-| O-12 | **Founder.** (a) Must the approver be the security's covering analyst (D-37) or any active analyst? (b) Should published research also feed the home Editor's Pick card, or only the stock page? (c) Who runs the one-off recording of the 10 real packets and model outputs, since no machine here may touch Supabase? (d) Initial monthly token budget, price-move threshold and age threshold. (e) Confirm tokens as the budget unit and the read-time hiding rule. | P1 / P2 |
-| O-13 | **Arabic reviewer.** Approve the Arabic prompt, Arabic banned-phrase list, Arabic status strings and Arabic AI-assisted/human-reviewed disclosure (extends O-3). | P2 Arabic generation; P4 |
+| O-12 | **Answered provisionally by the founder (D-221).** Any active analyst with the existing review permissions; stock page only if publication is authorised; founder records the first ten real packets on his own machine; token budgeting and read-time hiding confirmed. Suggested settings values are not defaults. | Answered provisionally |
+| O-13 | **Answered provisionally by the founder (D-222), limited to the existing Arabic banned-phrase list and existing English generation prompt.** Arabic admin labels and the P4 Arabic AI-assisted disclosure were not written or approved. | Answered provisionally; untranslated copy remains pending |
 
 ## Clarifications from Step 0
 

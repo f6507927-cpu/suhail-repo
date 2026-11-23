@@ -34,6 +34,7 @@ test("settings start off and leave unconfigured thresholds blank", async ({ page
 });
 test("admin list offers explicit reconciliation only for a requested draft", async ({ page }) => {
   await page.goto("/?locale=en&mode=list");
+  await expect(page.getByText("Research prompts will not go live until O13 is approved.")).toHaveCount(0);
   const button = page.getByRole("button", { name: "Mark abandoned and release reservation", exact: true });
   await expect(button).toHaveCount(1);
   await button.click();

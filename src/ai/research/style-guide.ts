@@ -1,7 +1,7 @@
-/** D-191: this is not an approved Arabic prompt or new public UI copy. */
+/** D-222: no Arabic-language prompt, admin labels or disclosure are approved here. */
 export const STYLE_GUIDE = {
-  version: "research-style-1",
-  arabic_status: "DRAFT — pending human approval (O-13)",
+  version: "research-style-2",
+  arabic_status: "Existing English generation prompt and Arabic banned list provisionally approved (D-222)",
   rules: [
     "Neutral, plain research; no recommendation, target, prediction, hype or emoji.",
     "Arabic primary: short light-fusha sentences, natively written, not a translation task.",

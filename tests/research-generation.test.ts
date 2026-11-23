@@ -1,10 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import ts from "typescript";
 import { generateResearch } from "../src/lib/research/generate";
 import { RecordedResearchClient } from "../src/lib/research/recorded-client";
-import { ARABIC_GENERATION_APPROVED, ARABIC_PROMPT_STATUS, buildPrompt } from "../src/lib/research/prompt";
+import { ARABIC_GENERATION_APPROVED, ARABIC_PROMPT_STATUS, PROMPT_VERSION, REFRESH_PROMPT_VERSION,
+  RESEARCH_SYSTEM_PROMPT, buildPrompt } from "../src/lib/research/prompt";
 import { assertGateEvidence, assertScope, assertTransition, type ScopeSettings } from "../src/lib/research/workflow";
 import { CHECKLIST, type ModelResult, type ResearchBudget } from "../src/lib/research/contracts";
 import { handwrittenModel } from "./fixtures/research/outputs";
@@ -110,8 +112,14 @@ describe("P2 recorded generation and structural-only retries", () => {
     const references = new Set([...a.user.split("\n")[1].matchAll(/"untrusted_text":"([^"]+)"/g)].map(match => match[1]));
     expect(markers.length).toBe(references.size);
     expect(references.size).toBeGreaterThan(1);
-    expect(ARABIC_PROMPT_STATUS).toContain("DRAFT");
-    expect(ARABIC_GENERATION_APPROVED).toBe(false);
+  });
+  it("pins D-222 to the existing English system prompt with approved version labels", () => {
+    expect(ARABIC_PROMPT_STATUS).toBe("Founder-approved, provisional (D-222)");
+    expect(ARABIC_GENERATION_APPROVED).toBe(true);
+    expect(PROMPT_VERSION).toBe("research-prompt-2");
+    expect(REFRESH_PROMPT_VERSION).toBe("research-refresh-prompt-1");
+    expect(createHash("sha256").update(RESEARCH_SYSTEM_PROMPT).digest("hex"))
+      .toBe("645019fe3e267695acd2572692c6a8950d5c02ff52dcfa7e7f9ddb8153a0dede");
   });
   it("leaves identifiers, dates, enums and numbers structured while isolating only prose", () => {
     const prompt = buildPrompt(request);
@@ -151,9 +159,32 @@ describe("P2 recorded generation and structural-only retries", () => {
     expect(b.user).not.toBe(a.user);
     expect(JSON.parse(structured).packet.screenings[0].status).toBe(packet.screenings[0].status);
   });
-  it("blocks the real provider under tests before reading credentials", async () => {
+  it.each(["NODE_ENV", "VITEST", "CI"] as const)("blocks the real provider in %s before any network call", async flag => {
     const { AnthropicResearchClient } = await import("../src/lib/research/anthropic-client");
-    await expect(new AnthropicResearchClient().generate(request)).rejects.toThrow("forbidden in tests");
+    const fetch = vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("Network forbidden"));
+    try {
+      vi.stubEnv("NODE_ENV", flag === "NODE_ENV" ? "test" : "production");
+      vi.stubEnv("VITEST", flag === "VITEST" ? "true" : undefined);
+      vi.stubEnv("CI", flag === "CI" ? "true" : undefined);
+      vi.stubEnv("ANTHROPIC_API_KEY", undefined);
+      expect(() => AnthropicResearchClient.assertConfigured()).toThrow("forbidden in tests and CI");
+      await expect(new AnthropicResearchClient().generate(request)).rejects.toThrow("forbidden in tests and CI");
+      expect(fetch).not.toHaveBeenCalled();
+    } finally { vi.unstubAllEnvs(); fetch.mockRestore(); }
+  });
+  it("leaves the example key unset and refuses production configuration without it", async () => {
+    expect(readFileSync(".env.example", "utf8").split(/\r?\n/).filter(line => line.startsWith("ANTHROPIC_API_KEY=")))
+      .toEqual(["ANTHROPIC_API_KEY="]);
+    const { AnthropicResearchClient } = await import("../src/lib/research/anthropic-client");
+    const fetch = vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("Network forbidden"));
+    try {
+      vi.stubEnv("NODE_ENV", "production");
+      vi.stubEnv("VITEST", undefined); vi.stubEnv("CI", undefined);
+      vi.stubEnv("ANTHROPIC_API_KEY", undefined);
+      expect(() => AnthropicResearchClient.assertConfigured()).toThrow("Research environment validation failed: ANTHROPIC_API_KEY");
+      await expect(new AnthropicResearchClient().generate(request)).rejects.toThrow("Research environment validation failed: ANTHROPIC_API_KEY");
+      expect(fetch).not.toHaveBeenCalled();
+    } finally { vi.unstubAllEnvs(); fetch.mockRestore(); }
   });
 });
 const scope: ScopeSettings = { monthly_token_budget: 10000, max_active_research_stocks: 2,

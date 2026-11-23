@@ -1,7 +1,7 @@
 export const BANNED_PHRASES_VERSION = "research-banned-1";
 export const BANNED_EN_VERSION = "research-banned-en-1";
-export const BANNED_AR_VERSION = "research-banned-ar-draft-1";
-export const ARABIC_LIST_STATUS = "DRAFT — pending human approval (O-13)";
+export const BANNED_AR_VERSION = "research-banned-ar-1";
+export const ARABIC_LIST_STATUS = "Founder-approved, provisional (D-222)";
 export interface BannedPhrase {
   phrase: string; reason: string; severity: "block" | "warn";
 }
@@ -18,7 +18,7 @@ export const BANNED_EN: BannedPhrase[] = [
   ...entries(["you should buy", "you should sell", "your portfolio", "position sizing", "portfolio sizing",
     "allocate your", "invest your"], "Personalised investment advice"),
 ];
-// D-191: fixture/safety drafts only; not founder-approved Arabic UI or a generation prompt.
+// D-222 approves these exact safety entries, not Arabic UI or disclosure copy.
 export const BANNED_AR: BannedPhrase[] = [
   ...entries(["اشتر", "اشتري", "شراء", "بع", "بيع", "توصية", "أوصي", "السعر المستهدف", "القيمة العادلة",
     "سيرتفع حتماً", "سينخفض حتماً", "مضمون", "مضمونة", "بلا مخاطر", "بدون مخاطر"], "Recommendation or certainty"),

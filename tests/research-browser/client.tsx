@@ -25,7 +25,7 @@ createRoot(document.querySelector("#app")!).render(
       { id: "approved-fixture", ticker: "SYNALPHA", reasons: ["new_filing", "price_moved"], review_required: false, refresh_in_progress: false },
       { id: "pending-fixture", ticker: "SYNBETA", reasons: ["new_filing", "status_changed"], review_required: true, refresh_in_progress: true },
     ]} activeAnalyst={true} requestAction={action} /> :
-    mode === "list" ? <ResearchList locale={locale} rows={[
+    mode === "list" ? <ResearchList locale={locale} generationApproved={true} rows={[
       { id: "fixture", ticker: "SYNTHETIC", state: "in_review", blocks: 1 },
       { id: "abandoned-fixture", ticker: "SYNTHETIC", state: "requested", blocks: 1 },
     ]} securities={[{ id: "fixture", ticker: "SYNTHETIC" }]} requestAction={action}

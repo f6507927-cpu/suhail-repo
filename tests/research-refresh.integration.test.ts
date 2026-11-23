@@ -140,6 +140,23 @@ describe("P3 private research flags and refreshes in PostgreSQL", () => {
       expect(audit.details).toMatchObject({ after: { cleared_stop_id: fail, cleared_version_id: f.version } });
     });
   });
+  it("refuses a regular or refresh draft with empty sectors or zero budget before recording a new request", async () => {
+    await run(async (tx, f) => {
+      await tx.execute(sql`set local role suhail_app`);
+      expect(await runResearchStaleness(now, tx)).toEqual({ inspected: 1, updated: 1 });
+      const revised = buildResearchPacket(f.rows, now.toISOString());
+      for (const configure of [
+        { allowed_sectors: [], monthly_token_budget: 100, reason: /sector is not allowed/i },
+        { allowed_sectors: [{ sector: "Technology", limit: 1 }], monthly_token_budget: 0, reason: /budget is not configured/i },
+      ]) {
+        await tx.update(schema.researchSetting).set({ allowed_sectors: configure.allowed_sectors, monthly_token_budget: configure.monthly_token_budget });
+        await expect(createRequestedDraft(tx, f.actor, revised, "", null)).rejects.toThrow(configure.reason);
+        await expect(createRefreshRequest(tx, f.actor, revised, f.draft)).rejects.toThrow(configure.reason);
+      }
+      expect(await tx.select().from(schema.researchDraft)).toHaveLength(1);
+      expect(await tx.select().from(schema.researchUsage)).toHaveLength(0);
+    });
+  });
   it("uses the shared budget, counts one active stock, and reconciles and retries an orphan refresh", async () => {
     await run(async (tx, f) => {
       const other = randomUUID();

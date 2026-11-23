@@ -11,7 +11,7 @@ export interface ResearchListProps {
   rows: { id: string; ticker: string; state: string; blocks: number }[];
   securities: { id: string; ticker: string }[];
   requestAction: ResearchAction;
-  settingsHref: string | null;
+  settingsHref: string | null; generationApproved: boolean;
   reconcileAction?: ResearchAction;
 }
 function researchStateLabel(state: string) {
@@ -24,7 +24,7 @@ function researchStateLabel(state: string) {
   return labels[state] ?? "Research draft";
 }
 
-export function ResearchList({ locale, rows, securities, requestAction, settingsHref, reconcileAction }: ResearchListProps) {
+export function ResearchList({ locale, rows, securities, requestAction, settingsHref, reconcileAction, generationApproved }: ResearchListProps) {
   const router = useRouter();
   const [stateFilter, setStateFilter] = useState("");
   const [pending, setPending] = useState(false);
@@ -60,7 +60,7 @@ export function ResearchList({ locale, rows, securities, requestAction, settings
   }
   return <ResearchFrame>
     <Heading locale={locale} eyebrow="ADMIN / RESEARCH WORKFLOW" title="Research drafts" description="Request an evidence packet, then inspect failures and validation before review." />
-    <aside className="mb-5 border-s-2 border-border bg-secondary/50 px-4 py-3 text-sm leading-6">{reviewText(locale, "Research prompts will not go live until O13 is approved.")}</aside>
+    {!generationApproved && <aside className="mb-5 border-s-2 border-border bg-secondary/50 px-4 py-3 text-sm leading-6">{reviewText(locale, "Research prompts will not go live until O13 is approved.")}</aside>}
     <form onSubmit={submit} className="grid gap-4 border border-border bg-card p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end sm:p-6">
       <label className="block text-sm"><span className="mb-2 block text-muted-foreground">{reviewText(locale, "Security")}</span><select name="security_id" required defaultValue="" className="w-full border border-input bg-background px-3"><option value="" disabled>{reviewText(locale, "Choose a covered security")}</option>{securities.map(item => <option key={item.id} value={item.id}>{item.ticker}</option>)}</select></label>
       <label className="block text-sm"><span className="mb-2 block text-muted-foreground">{reviewText(locale, "Optional guidance")}</span><input name="guidance" maxLength={1200} className="w-full border border-input bg-background px-3" placeholder={reviewText(locale, "Focus for the analyst")} /></label>

@@ -7,20 +7,28 @@ import { getResearchEnv } from "../../env/research";
 import { ARABIC_GENERATION_APPROVED, buildPrompt } from "./prompt";
 import type { ModelResult, ResearchModelClient, ResearchRequest } from "./contracts";
 
+function providerConfiguration() {
+  if (process.env.NODE_ENV === "test" || process.env.VITEST || process.env.CI)
+    throw new Error("Real research providers are forbidden in tests and CI");
+  if (!ARABIC_GENERATION_APPROVED) throw new Error("Research generation wording awaits approval");
+  // Only this module reads the key; check it before any request or reservation.
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey?.trim()) throw new Error("Research environment validation failed: ANTHROPIC_API_KEY");
+  return { apiKey, env: getResearchEnv() };
+}
+
 /** D-187: no automatic SDK retries; generation owns the single structural retry.
  * API/SDK shape checked 2026-11-18:
  * https://platform.claude.com/docs/en/build-with-claude/structured-outputs
  * @anthropic-ai/sdk 1.10.0: messages.create output_config.format, zodOutputFormat.
  */
 export class AnthropicResearchClient implements ResearchModelClient {
+  static assertConfigured() {
+    return providerConfiguration().env;
+  }
+
   async generate(request: ResearchRequest): Promise<ModelResult> {
-    if (process.env.NODE_ENV === "test" || process.env.VITEST || process.env.CI)
-      throw new Error("Real research providers are forbidden in tests and CI");
-    if (!ARABIC_GENERATION_APPROVED) throw new Error("Arabic research prompt and safety list await human approval (O-13)");
-    const env = getResearchEnv();
-    // Only this file reads the secret; never include it in returned data or errors.
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey?.trim()) throw new Error("Research environment validation failed: ANTHROPIC_API_KEY");
+    const { apiKey, env } = providerConfiguration();
     assertPacketPrivacy(request.packet);
     if (validateGuidance(request.guidance).length) throw new Error("Invalid analyst guidance");
     const prompt = buildPrompt(request);
