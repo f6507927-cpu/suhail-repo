@@ -341,15 +341,16 @@ const proposals = JSON.parse(readFileSync("docs/arabic-draft-proposals.json", "u
 // not fictional Arabic proposals or approval. No general D-138 relaxation.
 export function pendingResearchArabic(entry: Entry) {
   return entry.id.startsWith("U-") && entry.contexts.length > 0 && entry.contexts.every(context =>
-    context.includes("src/components/research/") ||
+    context.includes("src/components/research/") || context.includes("src/components/stock/StockResearch.tsx") ||
     context.includes("/admin/(protected)/research/"));
 }
 const humanResearchWording = "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)";
+const humanPublicationWording = "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)";
 export function draftFor(entry: Entry, drafts: Record<string, Draft>) {
   // D-139: supplied Arabic is the draft/source, not legally approved text.
   if (entry.id.startsWith("L-")) return entry.source;
   if (pendingResearchArabic(entry) && !proposals[entry.source] && !drafts[entry.id])
-    return humanResearchWording;
+    return entry.contexts.some(context => /StockResearch\.tsx|PublicationControls\.tsx/.test(context)) ? humanPublicationWording : humanResearchWording;
   // D-103–D-106 supersede only documentation drafts, never runtime approvals.
   if (["Edge cases", "Verified by", "Available in production", "Not enabled for production",
     "Production status", "Enable for production", "Enable production", "Borderline margin"].includes(entry.source)) {
@@ -363,7 +364,7 @@ export function draftFor(entry: Entry, drafts: Record<string, Draft>) {
 }
 export function draftGap(entry: Entry, draft: string | undefined): string | null {
   if (entry.id.startsWith("L-")) return null; // O-7: no invented legal text.
-  if (pendingResearchArabic(entry) && draft === humanResearchWording) return null;
+  if (pendingResearchArabic(entry) && (draft === humanResearchWording || draft === humanPublicationWording)) return null;
   if (!draft?.trim()) return "empty or missing";
   if (/DRAFT REQUIRED|needs O-7 text|⟦AR-REVIEW⟧|⟦LEGAL-REVIEW⟧/i.test(draft)) return "placeholder";
   if (draft.trim() === entry.source.trim()) return "source-identical";

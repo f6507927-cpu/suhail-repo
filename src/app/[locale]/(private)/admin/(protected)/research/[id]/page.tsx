@@ -2,14 +2,17 @@ import { and, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { dbApp } from "@/db/app";
-import { researchDraft, researchPacket, researchRefresh } from "@/db/schema/research";
+import { researchDraft, researchPacket, researchRefresh, researchSetting } from "@/db/schema/research";
 import { analystProfile } from "@/db/schema/accounts";
 import { ResearchReview } from "@/components/research";
 import { requirePageRole } from "@/lib/auth/guards";
 import { localePath } from "@/lib/auth/paths";
-import { saveResearchEdits, transitionResearchDraft, regenerateResearchDraft, confirmResearchAnalystView } from "@/lib/research/actions";
+import { saveResearchEdits, transitionResearchDraft, regenerateResearchDraft, confirmResearchAnalystView, changeResearchPublication } from "@/lib/research/actions";
 import { readApprovedAnalystView } from "@/lib/research/stale-store";
 import { privatePageMetadata } from "@/components/accounts/private-page-metadata";
+import { PublicationControls } from "@/components/research/PublicationControls";
+import { currentPublication } from "@/lib/research/publication";
+import { PUBLIC_RESEARCH_COPY_APPROVED } from "@/lib/research/publication-policy";
 
 export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -30,10 +33,20 @@ export default async function ReviewPage({ params }: { params: Promise<{ locale:
   const [baseline] = result.changes && previousId
     ? await dbApp.select({ text: researchDraft.analyst_text }).from(researchDraft).where(eq(researchDraft.id, previousId)) : [];
   const view = result.draft.state === "approved" ? await readApprovedAnalystView(result.draft.id) : null;
-  return <ResearchReview key={`${result.draft.id}:${result.draft.text_hash}:${result.draft.state}`}
+  const publication = view && analyst && context.user.role === "admin" ? await currentPublication(result.draft.security_id) : undefined;
+  const [gate] = publication !== undefined
+    ? await dbApp.select({ enabled: researchSetting.ai_research_publishing }).from(researchSetting).where(eq(researchSetting.id, 1)) : [];
+  const kind = publication === undefined ? null
+    : !publication || publication.kind === "withdrawn" ? "published"
+    : publication.draft_id === result.draft.id ? "withdrawn"
+    : publication.draft_id === previousId && result.changes ? "updated" : null;
+  return <><ResearchReview key={`${result.draft.id}:${result.draft.text_hash}:${result.draft.state}`}
     locale={locale} draft={result.draft} packet={result.packet} activeAnalyst={!!analyst}
     revision={baseline?.text && result.changes ? { previous: baseline.text, changes: result.changes } : undefined}
     analystViewReview={view ? { required: view.analyst_view_review_required, runId: view.clear_run_id,
       clearAction: confirmResearchAnalystView } : undefined}
-    saveAction={saveResearchEdits} transitionAction={transitionResearchDraft} regenerateAction={regenerateResearchDraft} />;
+    saveAction={saveResearchEdits} transitionAction={transitionResearchDraft} regenerateAction={regenerateResearchDraft} />
+    {kind && <PublicationControls kind={kind} locale={locale} draftId={result.draft.id}
+      enabled={!!gate?.enabled && PUBLIC_RESEARCH_COPY_APPROVED} action={changeResearchPublication} />}
+  </>;
 }

@@ -19,6 +19,10 @@ import { CHECKLIST, EDIT_REASONS, RESEARCH_STATES, type Checklist, type Research
 import { assertGateEvidence, assertTransition, scopeSettingsSchema } from "./workflow";
 import { createRefreshRequest } from "./refresh";
 import { clearAnalystViewReview } from "./stale-store";
+import { recordPublication } from "./publication";
+import { PUBLIC_RESEARCH_COPY_APPROVED } from "./publication-policy";
+import { WITHDRAWAL_REASONS } from "../../stock/research-public-types";
+import { revalidatePublic } from "../../security/revalidate-public";
 
 type ResearchActionResult = { ok: boolean; message?: string; id?: string };
 const uuid = z.uuid();
@@ -168,8 +172,23 @@ export async function changeResearchGate(form: FormData): Promise<ResearchAction
     const decision = z.string().max(100).parse(form.get("decision_id") ?? "");
     const lawyer = z.string().max(1000).parse(form.get("lawyer_reference") ?? "");
     assertGateEvidence(enabled, decision, lawyer);
+    if (enabled && !PUBLIC_RESEARCH_COPY_APPROVED)
+      return { ok: false, message: "Publishing remains off pending Arabic copy and Shariah review (O-13 and O-11)." };
     await withAdminAction(["admin"], (tx, actor) => updateResearchGate(tx, actor, enabled, decision, lawyer));
+    revalidatePublic("research");
     refresh(); return { ok: true };
+  } catch { return errorResult(); }
+}
+export async function changeResearchPublication(form: FormData): Promise<ResearchActionResult> {
+  await requireRole(["admin"]);
+  try {
+    const id = uuid.parse(form.get("draft_id"));
+    const kind = z.enum(["published", "updated", "withdrawn"]).parse(form.get("kind"));
+    const reason = kind === "withdrawn" ? z.enum(WITHDRAWAL_REASONS).parse(form.get("reason")) : null;
+    await withAdminAction(["admin"], (tx, actor) => recordPublication(tx, actor, id, kind, reason));
+    revalidatePublic("research");
+    refresh();
+    return { ok: true, id };
   } catch { return errorResult(); }
 }
 export async function reconcileResearchDraft(form: FormData): Promise<ResearchActionResult> {

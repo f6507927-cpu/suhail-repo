@@ -33,3 +33,24 @@ it("requires both build inputs and scans nested server manifests without returni
     expect(await scanBundle(root)).toEqual([{file:"standalone/.next/server/server-reference-manifest.js",rule:"revalidate-secret"}]);
   } finally { await rm(root,{recursive:true,force:true}); }
 });
+it("rejects private research components or fields in a public client-reference manifest", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "bundle-research-scan-"));
+  try {
+    await mkdir(path.join(root, "static"), { recursive: true });
+    const publicDir = path.join(root, "server/app/[locale]/(public)/stock/[slug]");
+    const privateDir = path.join(root, "server/app/[locale]/(private)/admin/research");
+    await mkdir(publicDir, { recursive: true });
+    await mkdir(privateDir, { recursive: true });
+    await writeFile(path.join(root, "static/app.js"), "normal code");
+    await writeFile(path.join(root, "server/server-reference-manifest.json"), "{}");
+    await writeFile(path.join(privateDir, "page_client-reference-manifest.js"), "src/components/research/ResearchReview.tsx");
+    const manifest = path.join(publicDir, "page_client-reference-manifest.js");
+    await writeFile(manifest, "src/components/stock/StockResearch.tsx");
+    expect(await scanBundle(root)).toEqual([]);
+    await writeFile(manifest, "src/components/research/ResearchReview.tsx validation_text_hash");
+    expect(await scanBundle(root)).toEqual([
+      { file: path.relative(root, manifest), rule: "private-research-client-reference" },
+      { file: path.relative(root, manifest), rule: "private-research-field" },
+    ]);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});

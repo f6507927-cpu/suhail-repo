@@ -81,6 +81,7 @@ export const auditEventType = appSchema.enum("audit_event_type", [
   "research_gate",
   "research_staleness",
   "research_refresh_requested",
+  "research_publication",
 ]);
 export const auditEvent = appSchema.table("audit_event", {
   ...base(),

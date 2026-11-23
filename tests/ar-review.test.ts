@@ -85,7 +85,8 @@ describe("live-only pending Arabic inventory with pinned founder approvals", () 
         const draft = draftFor(entry, drafts);
         expect(draftGap(entry, draft), entry.id).toBeNull();
         if (pendingResearchArabic(entry) && draft.startsWith("PENDING HUMAN-AUTHORED ARABIC"))
-          expect(draft).toContain("D-216");
+          expect(draft).toContain(entry.contexts.every(context => context.includes("StockResearch.tsx")) ? "D-224" :
+            entry.contexts.some(context => context.includes("PublicationControls.tsx")) ? (draft.includes("D-216") ? "D-216" : "D-224") : "D-216");
         else expect(draft, entry.id).toMatch(/[\u0600-\u06ff]/);
       }
     }

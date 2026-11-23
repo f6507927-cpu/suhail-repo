@@ -41,6 +41,17 @@ export async function scanBundle(root = ".next") {
       violations.push({file: path.relative(root, filename), rule});
     }
   }
+  // Admin client components are valid on admin routes, but not in any
+  // public route's client reference graph.
+  const publicManifests = buildFiles.filter(filename =>
+    filename.split(path.sep).includes("(public)") && filename.endsWith("_client-reference-manifest.js"));
+  for (const filename of publicManifests) {
+    const text = await readFile(filename, "utf8");
+    if (/\/components\/research\/|\/lib\/research\/(?:actions|anthropic-client|publication|loader|store)\.|\/admin\/.*\/research\//u.test(text))
+      violations.push({ file: path.relative(root, filename), rule: "private-research-client-reference" });
+    if (/\b(?:analyst_instructions|validation_text_hash|anthropic_api_key)\b/i.test(text))
+      violations.push({ file: path.relative(root, filename), rule: "private-research-field" });
+  }
   return violations;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

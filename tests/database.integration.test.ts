@@ -540,6 +540,8 @@ describe("schema and reference fixtures", () => {
         await tx`select id,updated_at from app.methodology_criterion order by id`;
       // Isolated rollback-only replay of historical security migrations.
       // D-146 later extends this view; CREATE OR REPLACE cannot drop columns.
+      // D-223 consumes it. Both drops are rolled back after replay.
+      await tx`drop view app.public_stock_research`;
       await tx`drop view app.public_settings`;
       for (const file of [
         "drizzle/0001_security.sql",

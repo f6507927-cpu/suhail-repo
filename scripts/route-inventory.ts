@@ -41,7 +41,7 @@ export function inventoryViolations(inventory: Record<string, string>, discovere
   return [
     ...discovered.filter(key => !Object.hasOwn(inventory, key)).map(key => `Unlisted access entry: ${key}`),
     ...Object.keys(inventory).filter(key => !actual.has(key)).map(key => `Stale access entry: ${key}`),
-    ...Object.entries(inventory).filter(([,level]) => !["public","oauth-lifecycle","authenticated","admin-aal2","admin-editor-aal2","admin-editor-aal2-active-analyst","authenticated-mfa"].includes(level))
+    ...Object.entries(inventory).filter(([,level]) => !["public","oauth-lifecycle","authenticated","admin-aal2","admin-aal2-active-analyst","admin-editor-aal2","admin-editor-aal2-active-analyst","authenticated-mfa"].includes(level))
       .map(([key]) => `Invalid access level: ${key}`),
   ];
 }

@@ -4,6 +4,10 @@
  * Inline server functions are still discovered and checked independently.
  */
 export const handlerPolicies: Record<string, { sha256: string; reason: string }> = {
+  "src/app/api/stock-research/[slug]/route.ts": {
+    sha256: "82d8e8b11010d94152b06c61f413c54a898bc9ae7eb23b9c0bc550ac58d1b90a",
+    reason: "Read-only per-stock projection through suhail_public, with copy and database gates and no session access.",
+  },
   "src/app/api/health/route.ts": {
     sha256: "de8ea06b582d351cd6aa658442d708c760555ddb38d4541b2f448fa23dddfb11",
     reason: "Public deployment health only; no internal data/session access.",
