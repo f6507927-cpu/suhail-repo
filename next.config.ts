@@ -39,6 +39,7 @@ const nextConfig: NextConfig = {
   // D-19: keep classic ISR; Cache Components are not enabled in Phase 0.
   cacheComponents: false,
   experimental: {
+    agentUpgrade: "security",
     globalNotFound: true,
     authInterrupts: true,
     // Persisted dev compiler state has repeatedly broken next/font resolution
