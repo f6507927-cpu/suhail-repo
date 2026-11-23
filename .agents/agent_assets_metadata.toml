@@ -630,3 +630,31 @@ mtime_ms = 1793909794788
 storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/b4a8ff62-093f-4a54-b9c7-d0c94df02ab0/d3ecb143-8980-4f41-9bcd-0881c4e5dc56"
 storage_version_token = "1793909952168380"
 content_type = "image/png"
+
+[[outputs]]
+id = "AhtfR-120keo7XXk8gnLj"
+uri = "file://generated-artifacts/p4/public-research-ar-375x812.jpg"
+type = "image"
+title = "Arabic stock research — 375 × 812"
+description = "Synthetic gate-on fixture. Pending Arabic interface copy uses the English fallback and language notice."
+logical_id = "c05d2c7d-9d51-4f09-b0e0-1bdee8a6f2ca"
+content_hash = "sha256:4f5e05c798b0c5928051cf2ab0e72d8999b9984ae49c0277bd74faede51fa988"
+size = 34549
+mtime_ms = 1795440977808
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/c05d2c7d-9d51-4f09-b0e0-1bdee8a6f2ca/2764b5fb-523d-4716-84ed-bf13b702ff6e"
+storage_version_token = "1795441735500472"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "1KRy6SwwrBCtIkyxP9fur"
+uri = "file://generated-artifacts/p4/public-research-en-375x812.jpg"
+type = "image"
+title = "English stock research — 375 × 812"
+description = "Synthetic gate-on fixture showing the summary before the analysis disclosure."
+logical_id = "448ab466-1f8f-412a-b1a7-004e93a899af"
+content_hash = "sha256:441b9c9d69b9cbda20ca80f5075c587ddcefeaeb30273f884010f7c2b4d163c9"
+size = 37282
+mtime_ms = 1795440979337
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:895f244d-f680-4fbc-97ba-da0cb308e612/448ab466-1f8f-412a-b1a7-004e93a899af/14f284a2-ed46-4ecc-bfef-67ed6198b599"
+storage_version_token = "1795441736789309"
+content_type = "image/jpeg"
