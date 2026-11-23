@@ -1,6 +1,6 @@
 import "server-only";
 import type { Metadata } from "next";
-import { IBM_Plex_Sans_Arabic, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -9,9 +9,36 @@ import { DISPLAY_TIME_ZONE } from "../../lib/format";
 import "../../app/globals.css";
 import { THEME_COLORS } from "../../lib/theme-script";
 import { ThemeColor } from "./ThemeColor";
-const arabic = IBM_Plex_Sans_Arabic({subsets:["arabic"],weight:["300","400","500","600","700"],variable:"--font-arabic",display:"swap"});
-const latin = IBM_Plex_Sans({subsets:["latin"],weight:["300","400","500","600","700"],variable:"--font-latin",display:"swap"});
-const mono = IBM_Plex_Mono({subsets:["latin"],weight:["400","500"],variable:"--font-numbers",display:"swap"});
+const arabic = localFont({
+  src: [
+    { path: "./fonts/ibm-plex-sans-arabic-300.woff2", weight: "300", style: "normal" },
+    { path: "./fonts/ibm-plex-sans-arabic-400.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/ibm-plex-sans-arabic-500.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/ibm-plex-sans-arabic-600.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/ibm-plex-sans-arabic-700.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-arabic",
+  display: "swap",
+});
+const latin = localFont({
+  src: [
+    { path: "./fonts/ibm-plex-sans-300.woff2", weight: "300", style: "normal" },
+    { path: "./fonts/ibm-plex-sans-400.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/ibm-plex-sans-500.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/ibm-plex-sans-600.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/ibm-plex-sans-700.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-latin",
+  display: "swap",
+});
+const mono = localFont({
+  src: [
+    { path: "./fonts/ibm-plex-mono-400.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/ibm-plex-mono-500.woff2", weight: "500", style: "normal" },
+  ],
+  variable: "--font-numbers",
+  display: "swap",
+});
 export const documentMetadata: Metadata = {
   title: "سهيل · Suhail", description: "دليلك في السوق.", manifest: "/manifest.webmanifest",
   icons: {icon:[{url:"/icons/favicon.ico",sizes:"16x16 32x32"}],apple:[{url:"/icons/icon-180.png",sizes:"180x180",type:"image/png"}]},

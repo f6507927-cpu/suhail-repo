@@ -1,5 +1,16 @@
 # Phase 0 Autoscale operating guide
 
+## Offline research evaluation (P1, D-215)
+
+`pnpm research:eval` runs only ten synthetic fixtures and hand-written outputs.
+It requires no deployment variables, database, provider credential or network.
+Provider API-key names must be absent; their values are never read. The command
+prints automatic validation comparisons and leaves usefulness for human scoring.
+It writes no files or data and does not generate, approve or publish research.
+See [AI_RESEARCH_P1.md](AI_RESEARCH_P1.md) for contracts and remaining gates.
+The P2 recorded-client path is also exercised without importing a real provider.
+Deployment build/run commands are unchanged. P2 variable requirements are below.
+
 ## SEC Notes-data dry run (D-142, D-154)
 
 **Local v1.1 upper-bound comparison (D-154):**
@@ -332,6 +343,10 @@ freezes them at build time, so changing them requires a rebuild.
 | `JOB_BATCH_SIZE` | configuration | Optional positive integer, default 100 for workspace jobs | job runtime |
 | `GIT_SHA` / `GITHUB_SHA` | public build metadata | Optional; otherwise local git SHA | build |
 | `PORT` | platform-supplied configuration | Platform binding; start defaults to 3000 if absent | runtime |
+| `ANTHROPIC_API_KEY` | secret | Required only for separately authorised research generation; read only by the server provider | lazy runtime |
+| `LLM_MODEL` | configuration | Required explicit research model, no default | lazy runtime |
+| `AI_RESEARCH_MAX_OUTPUT_TOKENS` | configuration | Required positive output ceiling for research generation | lazy runtime |
+| `AI_RESEARCH_MAX_INPUT_TOKENS` | configuration | Required positive input ceiling for research generation | lazy runtime |
 
 Actual consumers: site/auth/SEC schemas in `src/env`, auth browser/server clients,
 runtime database factories, `src/security/forwarding-diagnostic.ts`, jobs and
@@ -347,9 +362,66 @@ are configuration; establish its actual runtime needs then.
 server/fixture, benchmark, local DB bootstrap and `POSTGRES_TEST_BIN` settings).
 Never deploy generic `DATABASE_URL` / `PG*` credentials, workspace CLI owner keys
 or test adapters. No `SESSION_SECRET` consumer is present; it is not required.
-Deferred under D-54 (mapped to D-63): `ANTHROPIC_API_KEY`, `LLM_MODEL`,
-`REVALIDATE_SECRET`, `S3_BUCKET_ARCHIVE`, `SEND_OTP_HOOK_SECRET` and future OTP
+Deferred under D-54 (mapped to D-63): `REVALIDATE_SECRET`, `S3_BUCKET_ARCHIVE`, `SEND_OTP_HOOK_SECRET` and future OTP
 provider configuration. Do not request these for this deployment.
+
+### Private research P2 (D-216)
+
+Migration `0023_private_research` is prepared, **not applied to Supabase**.
+PR review adds `0024_research_reservations`, also prepared only; apply pending
+migrations in journal order through the operator-controlled procedure.
+An authorised operator applies it through the existing migration procedure;
+build/start never apply it. No publication table or public research page exists.
+All new tables deny `suhail_public`, and publishing is off in the inserted settings.
+Budget and active-stock limits start at zero, allowed sectors empty; freshness and
+price thresholds stay unset until the founder configures them. No production
+threshold or token-budget guess is introduced.
+
+The admin entry is inside existing Settings → Research drafts and controls,
+with direct routes `/admin/research` and `/admin/research/settings` (English
+prefix `/en`). Arabic admin copy is pending review, not approved translations.
+D-222 provisionally approves the existing English prompt for bilingual
+generation and the unchanged Arabic banned list only. It does not authorise a
+real recording or public output. There is no automatic generation or schedule.
+The only allowed test provider is `RecordedResearchClient`; credentials must be
+absent during tests/evaluation. No real provider call was made for this work.
+
+Each generation attempt reserves input+output ceilings against its UTC-month
+budget in a short database transaction, then calls the provider outside that
+transaction. Reported usage releases/true-ups the reservation. Unknown transport
+usage is charged conservatively at the reservation; a process crash leaves the
+reservation in that month's row, never silently reclaims spendable budget.
+Under D-217 an admin may explicitly mark a stuck requested draft abandoned from
+the draft list. Its per-draft reservation is released atomically and its active
+stock slot is freed. Reconciliation does not cancel a provider call; late reported
+usage is charged once without resurrecting the draft. Historical aggregate-only
+reservations are not guessed or reset. Settings/gate audit details preserve
+before/after values, including gate evidence cleared on disablement.
+Only structural failures retry once, with another reservation. Publication
+transitions are refused in P2 even if a future authorised gate action supplies
+valid founder/lawyer evidence. Do not enable that gate as a setup step.
+
+To enable real generation **on the founder’s own machine only**, after the
+separate O-9 provider/data-use clearance and any database access or migration
+authorisation:
+
+1. Set `ANTHROPIC_API_KEY` as a server secret. Configure `LLM_MODEL` and
+   both research token ceilings. Never add the key to hosted CI or this workspace.
+2. In **Research settings**, enter the monthly token budget, active-stock cap,
+   allowed sectors and evidence/refresh thresholds. D-221 suggests starting
+   with 300,000 tokens/month, a 10% price movement threshold and 90 days for
+   approval age. These are suggestions, not defaults. Keep publishing off.
+3. The founder records the first ten real packets and model outputs on his own
+   machine, not on any hosted runner or workspace machine.
+
+### Private research staleness job (D-218)
+
+Once migration `0025_research_refresh` has been separately authorised and
+applied, run `pnpm job:research-staleness` using the existing `suhail_app`
+runtime connection. Suggested cadence: once daily after filing ingestion and
+screening complete; rerun after a material evidence correction if needed.
+The job only updates private flags when evidence changes. It does not
+generate or publish drafts, and it has no schedule yet.
 
 ## Session pooler and connection capacity
 

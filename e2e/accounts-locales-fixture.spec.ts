@@ -219,7 +219,17 @@ for (const locale of ["ar", "en"] as const) {
   test(`${locale} audit filters have exact associated labels and keyboard expansion`, async ({ page }) => {
     await page.goto(screen("audit"));
     await headings(page, [text("Audit trail")]);
-    const fields = ["Event type", "Entity", "From", "To"].map((name) => page.getByLabel(text(name), { exact: true }));
+    const filters = page.locator("details").filter({ has: page.locator("form") });
+    if (await filters.getAttribute("open") === null) {
+      await filters.locator(":scope > summary").focus();
+      await page.keyboard.press("Enter");
+    }
+    const fields = [
+      page.getByRole("combobox", { name: text("Event type"), exact: true }),
+      page.getByRole("combobox", { name: text("Entity"), exact: true }),
+      page.getByLabel(text("From"), { exact: true }),
+      page.getByLabel(text("To"), { exact: true }),
+    ];
     for (let index = 0; index < fields.length; index++) {
       await associated(fields[index], text(["Event type", "Entity", "From", "To"][index]));
     }
@@ -241,14 +251,24 @@ for (const locale of ["ar", "en"] as const) {
     await expect(page).toHaveURL(`${prefix}/admin/audit?event=user_role_change&entity=users&from=2026-10-01&to=2026-10-12`);
     await page.getByRole("button", { name: text("Next page") }).press("Enter");
     await expect(page).toHaveURL(/&page=2$/);
-    const summary = page.locator("summary");
+    const eventDetails = page.locator("details")
+      .filter({ has: page.getByText(text("Event ID"), { exact: true }) })
+      .filter({ has: page.locator("details") });
+    const summary = eventDetails.locator(":scope > summary");
     await summary.focus();
     await page.keyboard.press("Enter");
-    await expect(page.locator("details")).toHaveAttribute("open", "");
+    await expect(eventDetails).toHaveAttribute("open", "");
+    const technicalDetails = eventDetails.locator("details");
+    await technicalDetails.locator(":scope > summary").focus();
+    await page.keyboard.press("Enter");
+    await expect(technicalDetails).toHaveAttribute("open", "");
     await expect(page.getByText(text("Entity ID"), { exact: true })).toBeVisible();
     await expect(page.getByText(text("Event ID"), { exact: true })).toBeVisible();
     await page.keyboard.press("Space");
-    await expect(page.locator("details")).not.toHaveAttribute("open", "");
+    await expect(technicalDetails).not.toHaveAttribute("open", "");
+    await summary.focus();
+    await page.keyboard.press("Space");
+    await expect(eventDetails).not.toHaveAttribute("open", "");
     await page.goto(screen("audit", "&empty"));
     await expect(page.getByText(text("No events match these filters."), { exact: true })).toBeVisible();
   });
@@ -257,10 +277,14 @@ for (const locale of ["ar", "en"] as const) {
     await page.goto(screen("settings"));
     await headings(page, [text("Settings")]);
     const version = page.getByRole("combobox", { name: text("Default methodology version"), exact: true });
-    const featured = page.getByRole("textbox", { name: text("Featured security on the homepage"), exact: true });
+    const featuredSearch = page.getByRole("searchbox", { name: text("Search for a stock"), exact: true });
+    const featured = page.getByRole("combobox", { name: text("Featured security on the homepage"), exact: true });
     const allow = page.getByRole("checkbox", { name: text("Allow editor picks for ineligible securities"), exact: true });
     await associated(version, text("Default methodology version"));
-    await associated(featured, text("Featured security on the homepage"));
+    // The search is associated with its label; the native select is named
+    // separately and intentionally uses an aria-label for the same concept.
+    await associated(featuredSearch, text("Search for a stock"));
+    await expect(featured).toHaveAccessibleName(text("Featured security on the homepage"));
     await associated(allow, text("Allow editor picks for ineligible securities"));
     await expect(version).toHaveAccessibleDescription(text("Only public, eligible versions are listed."));
     await expect(allow).toHaveAccessibleDescription(text("Editors may publish an explicitly marked pick even when it is not eligible under the selected screening configuration."));
@@ -268,8 +292,10 @@ for (const locale of ["ar", "en"] as const) {
     await version.focus();
     await page.keyboard.press("ArrowDown");
     await expect(version).toHaveValue("fixture-version");
+    await tab(page, featuredSearch);
+    await page.keyboard.type("aapl");
     await tab(page, featured);
-    await page.keyboard.type("nasdaq-aapl");
+    await page.keyboard.press("ArrowDown");
     await expect(featured).toHaveValue("nasdaq-aapl");
     await tab(page, allow);
     await page.keyboard.press("Space");

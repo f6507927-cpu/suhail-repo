@@ -284,7 +284,7 @@ export function discover(options: {
         ? "Admin methodology — /admin/methodologies" : "Public methodology — /methodology and /methodology/[slug]";
     }
     if (/styleguide/.test(text)) return "Development styleguide — /styleguide (404 in production)";
-    if (/accounts|\/\(private\)\//.test(text)) return "Accounts and administration — private routes";
+    if (/accounts|components\/research\/|\/\(private\)\//.test(text)) return "Accounts and administration — private routes";
     return "Shared public shell and foundation samples";
   };
   const entries: Entry[] = [];
@@ -336,9 +336,20 @@ export function discover(options: {
 export const escapeCell = (text: string) =>
   text.replaceAll("&", "&amp;").replaceAll("|", "&#124;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br>");
 const proposals = JSON.parse(readFileSync("docs/arabic-draft-proposals.json", "utf8")) as Record<string, string>;
+// D-216: the P2 brief explicitly forbids authoring/machine-translating Arabic
+// UI copy. Keep these private-only rows visible as requests for human wording,
+// not fictional Arabic proposals or approval. No general D-138 relaxation.
+export function pendingResearchArabic(entry: Entry) {
+  return entry.id.startsWith("U-") && entry.contexts.length > 0 && entry.contexts.every(context =>
+    context.includes("src/components/research/") ||
+    context.includes("/admin/(protected)/research/"));
+}
+const humanResearchWording = "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)";
 export function draftFor(entry: Entry, drafts: Record<string, Draft>) {
   // D-139: supplied Arabic is the draft/source, not legally approved text.
   if (entry.id.startsWith("L-")) return entry.source;
+  if (pendingResearchArabic(entry) && !proposals[entry.source] && !drafts[entry.id])
+    return humanResearchWording;
   // D-103–D-106 supersede only documentation drafts, never runtime approvals.
   if (["Edge cases", "Verified by", "Available in production", "Not enabled for production",
     "Production status", "Enable for production", "Enable production", "Borderline margin"].includes(entry.source)) {
@@ -352,6 +363,7 @@ export function draftFor(entry: Entry, drafts: Record<string, Draft>) {
 }
 export function draftGap(entry: Entry, draft: string | undefined): string | null {
   if (entry.id.startsWith("L-")) return null; // O-7: no invented legal text.
+  if (pendingResearchArabic(entry) && draft === humanResearchWording) return null;
   if (!draft?.trim()) return "empty or missing";
   if (/DRAFT REQUIRED|needs O-7 text|⟦AR-REVIEW⟧|⟦LEGAL-REVIEW⟧/i.test(draft)) return "placeholder";
   if (draft.trim() === entry.source.trim()) return "source-identical";
@@ -410,6 +422,10 @@ docs/arabic-draft-proposals.json supplies documentation-only defaults for new so
 Empty, English-only, source-identical, marker-prefixed and missing-draft
 placeholders are gaps, never proposals. Generation fails before writing any
 inventory if a non-legal row has such a gap (D-138). Legal bodies stay pending O-7.
+Private P2 research rows are explicitly listed as PENDING HUMAN-AUTHORED ARABIC
+under D-216: the P2 brief forbids inventing/machine-translating Arabic UI wording.
+This is a request for human wording, not a draft proposal or approval; the
+exception is restricted to exact private research call sites, not public copy.
 Neither file is imported by the application.
 
 Contexts identify rendered/conditionally rendered call sites, including

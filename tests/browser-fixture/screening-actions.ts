@@ -1,6 +1,7 @@
 import type { BulkActionResult, ScreenActionResult, VerifyActionResult } from "../../src/screening/contracts";
 
 type FixtureCall = { action: string; args: unknown[] };
+let finishCancelledBulk: (() => void) | undefined;
 const storedCalls = (): FixtureCall[] => {
   try { return JSON.parse(window.sessionStorage.getItem("screening-fixture-calls") ?? "[]") as FixtureCall[]; }
   catch { return []; }
@@ -8,6 +9,11 @@ const storedCalls = (): FixtureCall[] => {
 export const screeningFixture = {
   calls: storedCalls(),
   reset() { this.calls.length = 0; window.sessionStorage.removeItem("screening-fixture-calls"); },
+  finishCancelledBulk() {
+    if (!finishCancelledBulk) throw new Error("No cancelled bulk fixture call is pending");
+    finishCancelledBulk();
+    finishCancelledBulk = undefined;
+  },
 };
 function record(action: string, args: unknown[]) {
   screeningFixture.calls.push({ action, args });
@@ -34,7 +40,7 @@ export async function verifyScreenAction(runId: string): Promise<VerifyActionRes
 export async function runUniverseAction(kind: "ingest" | "screen", id?: string): Promise<BulkActionResult> {
   record("runUniverseAction", [kind, id]);
   if (new URLSearchParams(window.location.search).get("bulk") === "cancel") {
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await new Promise<void>(resolve => { finishCancelledBulk = resolve; });
     return { ok: false, error: "Screening operation failed. Check the inputs and methodology, then try again." };
   }
   if (new URLSearchParams(window.location.search).get("bulk") === "gate")

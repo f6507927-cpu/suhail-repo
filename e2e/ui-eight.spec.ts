@@ -11,9 +11,9 @@ for (const locale of ["ar", "en"] as const) for (const width of [360, 375, 390])
       expect(response?.status(), target).toBe(200);
       await page.evaluate(() => document.fonts.ready);
       if (width === 375 && path.startsWith("/stock/")) {
-        const badge = page.locator('[data-section="why"] [class*="largeBadge"]');
+        const badge = page.locator('[data-section="header"] [class*="heroBadge"]');
         expect((await badge.boundingBox())!.y, target).toBeLessThan(400);
-        const reason = page.locator('[data-section="why"] ul li').first();
+        const reason = page.locator('[data-section="why"] [class*="reasonBlock"] ul li').first();
         if (await reason.count()) {
           const reasonBox = (await reason.boundingBox())!;
           expect(reasonBox.y + reasonBox.height, target).toBeLessThan(812);
@@ -69,12 +69,21 @@ for (const locale of ["ar", "en"] as const) {
       await page.goto(`${prefix}/stock/ui-eight-fixture?status=${status}`);
       await page.evaluate(() => document.fonts.ready);
       const summary = page.locator('[data-section="why"]');
-      const result = status === "none" ? summary.locator('[class*="noRun"]') : summary.locator('[class*="largeBadge"]');
+      const result = status === "none" ? summary.locator('[class*="noRun"]') : page.locator('[data-section="header"] [class*="heroBadge"]');
       expect((await result.boundingBox())!.y).toBeLessThan(400);
       if (status !== "none") {
-        const reason = summary.locator("ul li").first();
-        if (await reason.count()) expect((await reason.boundingBox())!.y + (await reason.boundingBox())!.height).toBeLessThan(812);
-        await expect(summary).toContainText(locale === "ar" ? "الإصدار 1.1 · مسودة" : "Version 1.1 · Draft");
+        const reason = summary.locator('[class*="reasonBlock"] ul li').first();
+        // Analyst credentials are not assessment reasons. The seeded passing
+        // case has none; the other seeded statuses must have a visible reason.
+        if (status === "passes_selected_methodology") {
+          await expect(reason).toHaveCount(0);
+        } else {
+          await expect(reason).toBeVisible();
+          const box = (await reason.boundingBox())!;
+          expect(box.y + box.height).toBeLessThan(812);
+        }
+        await expect(summary).toContainText(locale === "ar" ? "الإصدار 1.1 · موافَق عليه" : "Version 1.1 · Approved");
+        await expect(summary).not.toContainText(locale === "ar" ? "· مسودة" : "· Draft");
       }
       const record = page.locator('[data-section="full-record"]');
       await record.evaluate((element: HTMLDetailsElement) => { element.open = true; });

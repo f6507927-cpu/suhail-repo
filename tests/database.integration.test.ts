@@ -12,6 +12,7 @@ import {
   fixtureRows,
   tables,
   operationalTables,
+  researchTables,
   ownedTables,
   appendOnly,
   privateTables,
@@ -340,7 +341,7 @@ describe("schema and reference fixtures", () => {
     const rows =
       await sql`select relname,relrowsecurity from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='app' and c.relkind='r' order by relname`;
     // Bookkeeping and owned requests retain separate narrow-grant contracts.
-    expect(rows.map((r) => r.relname)).toEqual([...tables, ...operationalTables,...ownedTables].sort());
+    expect(rows.map((r) => r.relname)).toEqual([...tables, ...operationalTables,...ownedTables, ...researchTables].sort());
     expect(rows.every((r) => r.relrowsecurity)).toBe(true);
     const roles =
       await sql`select rolname,rolcanlogin,rolsuper,rolbypassrls,rolcreaterole,rolcreatedb from pg_roles where rolname in ('suhail_public','suhail_app')`;

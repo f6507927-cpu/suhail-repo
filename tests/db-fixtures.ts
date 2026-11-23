@@ -35,6 +35,10 @@ export const operationalTables = ["price_call_usage", "price_provider_status", "
 // D-152: owned rows have natural keys/narrow grants and no admin audit event.
 // Their dedicated integration suite checks grants, cap, isolation and cascade.
 export const ownedTables=["stock_request"] as const;
+// D-216: private research contracts (append-only/natural-key tables) are tested
+// separately rather than inheriting the original domain-table DELETE contract.
+export const researchTables = ["research_packet", "research_draft", "research_review_event", "research_setting", "research_usage",
+  "research_staleness_event", "research_refresh"] as const;
 export const appendOnly = [
   "screening_run",
   "screening_criterion_result",
