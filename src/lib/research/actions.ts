@@ -9,12 +9,10 @@ import { company } from "../../db/schema/market";
 import { researchDraft } from "../../db/schema/research";
 import { assembleDraft, modelDraftSchema } from "../../ai/research/draft";
 import { validateGuidance, validateResearchDraft } from "../../ai/research/validators";
-import { getResearchEnv } from "../../env/research";
 import { loadResearchPacket } from "./loader";
 import { actorBudget, assertActiveAnalyst, blockingCount, configuredSettings, createRequestedDraft,
   lockedDraft, recordResearch, researchTextHash, reconcileRequestedDraft, researchWriteLock, saveResearchGeneration } from "./store";
 import { updateResearchGate, updateResearchSettings } from "./settings";
-import { ARABIC_GENERATION_APPROVED } from "./prompt";
 import { generateResearch } from "./generate";
 import { AnthropicResearchClient } from "./anthropic-client";
 import { CHECKLIST, EDIT_REASONS, RESEARCH_STATES, type Checklist, type ResearchRequest } from "./contracts";
@@ -39,8 +37,6 @@ async function validationSettings(securityId: string, now: string) {
   return { now, max_packet_age_days: scope.max_packet_age_days, max_financial_age_days: scope.max_financial_age_days,
     latest_packet: await loadResearchPacket(securityId, now), known_issuers: issuers.map(row => row.name) };
 }
-const generationClosed: ResearchActionResult = { ok: false, message: "Arabic research prompt and safety list await human approval (O-13). No provider call was made." };
-
 async function completeGeneration(draftId: string, request: ResearchRequest, settings: Awaited<ReturnType<typeof validationSettings>>) {
   const generated = await generateResearch(new AnthropicResearchClient(), request, actorBudget(draftId, settings.now), settings);
   await withAdminAction(roles, (tx, actor) => saveResearchGeneration(tx, actor, draftId, generated));
@@ -51,12 +47,11 @@ async function completeGeneration(draftId: string, request: ResearchRequest, set
 export async function requestResearchDraft(form: FormData): Promise<ResearchActionResult> {
   await requireRole(roles);
   try {
-    if (!ARABIC_GENERATION_APPROVED) return generationClosed;
+    const env = AnthropicResearchClient.assertConfigured();
     const id = uuid.parse(form.get("security_id"));
     const previousId = form.get("previous_draft_id") ? uuid.parse(form.get("previous_draft_id")) : null;
     const guidance = z.string().max(2000).parse(form.get("guidance") ?? "");
     if (validateGuidance(guidance).length) return { ok: false, message: "Remove personal contact information from guidance." };
-    const env = getResearchEnv();
     const settings = await validationSettings(id, new Date().toISOString());
     const packet = settings.latest_packet;
     const draft = await withAdminAction(roles, (tx, actor) => createRequestedDraft(tx, actor, packet, guidance, previousId));
@@ -67,11 +62,10 @@ export async function requestResearchDraft(form: FormData): Promise<ResearchActi
 export async function requestResearchRefresh(form: FormData): Promise<ResearchActionResult> {
   await requireRole(roles);
   try {
-    if (!ARABIC_GENERATION_APPROVED) return generationClosed;
+    const env = AnthropicResearchClient.assertConfigured();
     const previousId = uuid.parse(form.get("draft_id"));
     const [previous] = await dbApp.select({ security_id: researchDraft.security_id }).from(researchDraft).where(eq(researchDraft.id, previousId));
     if (!previous) return errorResult();
-    const env = getResearchEnv();
     const settings = await validationSettings(previous.security_id, new Date().toISOString());
     const packet = settings.latest_packet;
     const { draft, refresh: revision } = await withAdminAction(roles, (tx, actor) => createRefreshRequest(tx, actor, packet, previousId));

@@ -176,7 +176,7 @@ describe("D-190 validators and fixture evaluation", () => {
     expect(checks(draft(), { ...settings, stage: "publish", disclosure_resolved: true, context_line_resolved: true })).not.toContain("disclosure");
     const report = validationReport(draft(), packet, settings);
     expect(report).toMatchObject({ validator_version: "research-validator-1", banned_phrases_version: "research-banned-1",
-      style_guide_version: "research-style-1", issues: [] });
+      style_guide_version: "research-style-2", banned_ar_version: "research-banned-ar-1", issues: [] });
   });
 });
 describe("grounding, Arabic normalization and safety edges", () => {
@@ -260,7 +260,16 @@ describe("grounding, Arabic normalization and safety edges", () => {
     expect(containsPhrase("مَضْـمُون", "مضمون")).toBe(true);
     expect(containsPhrase("This is GUARANTEED!", "guaranteed")).toBe(true);
     expect(containsPhrase("buyer seller buyingpower", "buy")).toBe(false);
-    expect(ARABIC_LIST_STATUS).toContain("DRAFT");
+    expect(ARABIC_LIST_STATUS).toBe("Founder-approved, provisional (D-222)");
+  });
+  it("pins the 25 Arabic phrases provisionally approved in D-222", () => {
+    expect(BANNED_AR.map(entry => entry.phrase)).toEqual([
+      "اشتر", "اشتري", "شراء", "بع", "بيع", "توصية", "أوصي", "السعر المستهدف", "القيمة العادلة",
+      "سيرتفع حتماً", "سينخفض حتماً", "مضمون", "مضمونة", "بلا مخاطر", "بدون مخاطر",
+      "حلال", "حرام", "فتوى", "معتمد شرعياً", "متوافق شرعياً", "أقره العلماء",
+      "يجب عليك", "محفظتك", "خصص من", "حجم المركز",
+    ]);
+    expect(BANNED_AR.every(entry => entry.severity === "block")).toBe(true);
   });
   it.each([...BANNED_EN, ...BANNED_AR])("blocks the minimum banned/advice phrase: $phrase", entry => {
     const d = draft();

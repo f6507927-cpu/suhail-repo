@@ -115,6 +115,9 @@ describe("D-216 private research PostgreSQL enforcement", () => {
       const [settings] = await tx`select * from app.research_setting where id=1`;
       expect(settings.ai_research_publishing).toBe(false);
       expect(Number(settings.monthly_token_budget)).toBe(0);
+      expect(settings).toMatchObject({ allowed_sectors: [], max_active_research_stocks: 0,
+        price_move_threshold_percent: null, publication_age_days: null,
+        gate_decision_id: null, gate_lawyer_answer_ref: null, gate_enabled_at: null, gate_enabled_by: null });
       await expect(tx.savepoint(sp => sp`update app.research_setting set ai_research_publishing=true where id=1`)).rejects.toThrow("research_gate_evidence");
       await tx`update app.research_setting set ai_research_publishing=true,gate_decision_id='D-216',
         gate_lawyer_answer_ref='synthetic test only',gate_enabled_by=${randomUUID()},gate_enabled_at=now() where id=1`;

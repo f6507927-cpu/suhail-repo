@@ -380,9 +380,9 @@ threshold or token-budget guess is introduced.
 The admin entry is inside existing Settings → Research drafts and controls,
 with direct routes `/admin/research` and `/admin/research/settings` (English
 prefix `/en`). Arabic admin copy is pending review, not approved translations.
-The Arabic prompt and banned list remain **DRAFT (O-13)**. Real generation is
-refused until that approval is recorded in reviewed code; setting credentials
-alone does not activate it. There is no automatic request, queue or schedule.
+D-222 provisionally approves the existing English prompt for bilingual
+generation and the unchanged Arabic banned list only. It does not authorise a
+real recording or public output. There is no automatic generation or schedule.
 The only allowed test provider is `RecordedResearchClient`; credentials must be
 absent during tests/evaluation. No real provider call was made for this work.
 
@@ -399,7 +399,20 @@ reservations are not guessed or reset. Settings/gate audit details preserve
 before/after values, including gate evidence cleared on disablement.
 Only structural failures retry once, with another reservation. Publication
 transitions are refused in P2 even if a future authorised gate action supplies
-valid founder/lawyer evidence. Do not enable that gate as a P2 setup step.
+valid founder/lawyer evidence. Do not enable that gate as a setup step.
+
+To enable real generation **on the founder’s own machine only**, after the
+separate O-9 provider/data-use clearance and any database access or migration
+authorisation:
+
+1. Set `ANTHROPIC_API_KEY` as a server secret. Configure `LLM_MODEL` and
+   both research token ceilings. Never add the key to hosted CI or this workspace.
+2. In **Research settings**, enter the monthly token budget, active-stock cap,
+   allowed sectors and evidence/refresh thresholds. D-221 suggests starting
+   with 300,000 tokens/month, a 10% price movement threshold and 90 days for
+   approval age. These are suggestions, not defaults. Keep publishing off.
+3. The founder records the first ten real packets and model outputs on his own
+   machine, not on any hosted runner or workspace machine.
 
 ### Private research staleness job (D-218)
 
@@ -408,7 +421,7 @@ applied, run `pnpm job:research-staleness` using the existing `suhail_app`
 runtime connection. Suggested cadence: once daily after filing ingestion and
 screening complete; rerun after a material evidence correction if needed.
 The job only updates private flags when evidence changes. It does not
-generate or publish drafts, and no scheduler is enabled by this change.
+generate or publish drafts, and it has no schedule yet.
 
 ## Session pooler and connection capacity
 

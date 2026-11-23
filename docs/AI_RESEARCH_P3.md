@@ -2,9 +2,10 @@
 
 Implements D-218–D-220. Migration `0025_research_refresh` is prepared only:
 no Supabase access, hosted migration, deployment, Anthropic call or publishing.
-`ARABIC_GENERATION_APPROVED` remains false; the real refresh action refuses
-generation before creating a request or calling the provider. The request,
-generation, and settlement paths are verified with synthetic recordings.
+P3 originally left `ARABIC_GENERATION_APPROVED` false. D-222 later enabled the
+wording flag for the existing English prompt and Arabic banned list only; the
+provider still refuses test and CI calls. The request, generation, and
+settlement paths are verified with synthetic recordings.
 
 ## Job and private read
 
