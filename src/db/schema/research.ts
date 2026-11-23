@@ -1,6 +1,7 @@
 import { bigint, boolean, integer, jsonb, text, uuid, date, numeric, bigserial, index } from "drizzle-orm/pg-core";
 import { appSchema, time, userRole } from "./core";
 import { security } from "./market";
+import { analystProfile } from "./accounts";
 import type { ResearchPacket, ValidationIssue } from "../../ai/research/contracts";
 import type { ResearchDraft } from "../../ai/research/draft";
 import type { Checklist, ResearchState } from "../../lib/research/contracts";
@@ -98,3 +99,19 @@ export const researchRefresh = appSchema.table("research_refresh", {
   draft_id: uuid("draft_id").primaryKey().references(() => researchDraft.id),
   changes: jsonb("changes").$type<PacketChange[]>().notNull(),
 });
+
+export const researchPublicationEvent = appSchema.table("research_publication_event", {
+  id: bigserial("id", { mode: "number" }).primaryKey(),
+  security_id: uuid("security_id").notNull().references(() => security.id),
+  draft_id: uuid("draft_id").notNull().references(() => researchDraft.id),
+  text_hash: text("text_hash").notNull(),
+  analyst_profile_id: uuid("analyst_profile_id").notNull().references(() => analystProfile.id),
+  actor_id: uuid("actor_id").notNull(),
+  kind: text("kind").$type<"published" | "updated" | "withdrawn">().notNull(),
+  approval_at: time("approval_at").notNull(),
+  data_as_of: date("data_as_of").notNull(),
+  triggers: text("triggers").array().notNull().default([]),
+  withdrawal_reason: text("withdrawal_reason"),
+  display: jsonb("display").notNull(),
+  occurred_at: time("occurred_at").notNull().defaultNow(),
+}, t => [index("research_publication_stock_event").on(t.security_id, t.id.desc())]);

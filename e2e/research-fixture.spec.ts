@@ -1,5 +1,36 @@
 import { expect, test } from "@playwright/test";
 
+for (const locale of ["ar", "en"] as const) {
+  test(`P4 ${locale} phone: gate off is blank; eligible stock shows the summary first without cookies or overflow`, async ({ page, context }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    const waitForResearch = () => page.waitForResponse(response => response.url().includes("/api/stock-research/"));
+    const off = waitForResearch();
+    await page.goto(`/?locale=${locale}&mode=public&stock=gate-off`);
+    expect((await off).status()).toBe(404);
+    await expect(page.locator("#stock-research")).toHaveCount(0);
+    const on = waitForResearch();
+    await page.goto(`/?locale=${locale}&mode=public&stock=eligible`);
+    const response = await on;
+    expect(response.headers()["cache-control"]).toBe("no-store");
+    expect(response.headers()["set-cookie"]).toBeUndefined();
+    const section = page.locator("#stock-research");
+    await expect(section).toBeVisible();
+    await expect(section.locator("h2 + ul[data-research-summary] > li")).toHaveCount(3);
+    await expect(section.locator("ul[data-research-summary] bdi.font-mono[dir=ltr]")).toHaveText("2");
+    await expect(section.getByText("Why this changed")).toBeVisible();
+    await expect(section.getByText("New filing evidence is available.")).toBeVisible();
+    await expect(section.getByText("What may be out of date")).toBeVisible();
+    if (locale === "ar") await expect(section.locator("[data-language-notice]")).toBeVisible();
+    await section.locator("summary").click();
+    await expect(section.getByText("Synthetic evidence record")).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+    expect(await context.cookies()).toEqual([]);
+    await page.goto(`/?locale=${locale}&mode=public&stock=hidden`);
+    await expect(section.getByText("The analyst’s view is not available for the current screening result.")).toBeVisible();
+    await expect(section.getByText(/Synthetic private-to-public thesis|رأي المحلل في المثال التجريبي/)).toHaveCount(0);
+  });
+}
+
 test("phone review: dirty text blocks approval and reason-coded edits submit only model prose", async ({ page }) => {
   await page.goto("/?locale=en");
   const approval = page.getByRole("button", { name: "Approve draft", exact: true });

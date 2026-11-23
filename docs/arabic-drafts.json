@@ -24,6 +24,11 @@
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
+  "U-0db9921328351731cb6b79367aabc7922b1844650ade960b0658e69b1dc8adfe": {
+    "source": "Publish approved research",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
   "U-10389df3e1b1b8dee4c64daae243b640fe64ec80b9a5571defbb617ae0548675": {
     "source": "Sector name",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
@@ -79,6 +84,11 @@
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
+  "U-2c491bea30729b17553dad64729feaddc88f6e02c1e43e21bf1374bcb15d0650": {
+    "source": "Research is no longer current",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
   "U-2c51b9b4e0da83347aba4e7ecb480a36b045606c631792de4fd1d69edbf3b410": {
     "source": "Action could not be completed.",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
@@ -109,13 +119,13 @@
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
-  "U-3cb5a5d58ed31ebea29fa9cc0bbecfb2d4944dfa05dac281f98ff72f4c8cbdef": {
-    "source": "Enable publication gate",
-    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+  "U-3be3de164f67bd29cc615b1b878e7dab30aa4832059a5c58b68e425d3b73ff03": {
+    "source": "Editorial withdrawal",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
     "category": "help/error"
   },
-  "U-4145c932994847e8918caad180cff887b39723e5d6619b3c599f1159b4bae6fd": {
-    "source": "P2 does not publish AI research. Enabling any future gate requires documented founder approval and a legal reference.",
+  "U-3cb5a5d58ed31ebea29fa9cc0bbecfb2d4944dfa05dac281f98ff72f4c8cbdef": {
+    "source": "Enable publication gate",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
@@ -154,6 +164,11 @@
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
+  "U-5612d774f7cc5a55482ca83a7d431bcc7a2211ec3c6732937a25828fbcf5fcca": {
+    "source": "Choose a withdrawal reason",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
   "U-58c601dc57caae560a0840bdacfbe6b9769ff94e9d4f0e882415e3e0b69323a3": {
     "source": "Compared with the last approved draft. Full-text validation still applies.",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
@@ -184,6 +199,11 @@
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
+  "U-616731ab480a919dff19758b5e7024d1468b9e7866ef1f7f290d4c5752408c2f": {
+    "source": "Research publication",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
   "U-62c217c90190cada0a91fea164d2a6421bf327b5dde429c0a51c319637bfa9b0": {
     "source": "Choose a covered security above to begin an evidence-led review.",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
@@ -207,6 +227,11 @@
   "U-6dacf489169c245fd2a948c79d3affc209523385282169e0e4a1a9ec42eed15c": {
     "source": "Changed evidence",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
+  "U-6fb3ad633ca277dfe24f187e91a5e4548f82416c74a02ef637406a0237f90c38": {
+    "source": "Withdrawal reason",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
     "category": "help/error"
   },
   "U-70e4d3c00ded344331c3abbf8fcdfa11adca6c41fde35d060322baf81d5053f1": {
@@ -249,6 +274,11 @@
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
+  "U-896425be7d0318967e89a1c396fd9b0e9490f902089b042d9015fff893b8cf87": {
+    "source": "Publishing remains off pending Arabic copy and Shariah review (O-13 and O-11).",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
   "U-8b0059e2819814cf3081b9c61a934140a1d8638308deec541e03254da2baf47a": {
     "source": "Evidence packet",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
@@ -281,6 +311,11 @@
   },
   "U-a9f72cd0b8a2b86db8910b0407fd11cddd206fc6f9530887ff93795e94d6c9dd": {
     "source": "Regenerating",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
+    "category": "help/error"
+  },
+  "U-ab433f819e2050523c8d27bbed34a207427c6a934cd2c79f6729688c4508d731": {
+    "source": "Enabling the gate requires approved public copy, documented founder approval and a legal reference.",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
@@ -339,6 +374,11 @@
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
+  "U-cd8f0490238920620e35a1058d812523a5eecfde3c8cc614027f86efad1b9e61": {
+    "source": "Withdraw publication",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
   "U-ce12d69ae69801d5351df453206f41cea44e6730cdef5c8de496e4cbec81aebe": {
     "source": "Research prompts will not go live until O13 is approved.",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
@@ -394,6 +434,11 @@
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
+  "U-f0677350e1ccd87b2ef221830ad429913d76faa6afeb37285609cc14eb07ffdb": {
+    "source": "Evidence was corrected",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
   "U-f0d19b31d927e8d08878a1d3b9cdd88f2b39ca50b3369c4c54101263e2421ad3": {
     "source": "Blocking issue",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
@@ -414,6 +459,11 @@
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
     "category": "help/error"
   },
+  "U-fa9418ca0e564583dcbee8d1636b25e38e23d20307de829fc77eca8c897e5cb4": {
+    "source": "Publish approved refresh",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
   "U-fcc215941ab169be400ee5f85cf8dfc2f89de836ee2c1b53b9d096b867a887b4": {
     "source": "Mark abandoned and release reservation",
     "draft": "PENDING HUMAN-AUTHORED ARABIC — P2 forbids machine translation (D-216)",
@@ -428,5 +478,105 @@
     "source": "# شروط الاستخدام\n\nمسودة للمراجعة القانونية. الإصدار draft-2026-11-07، آخر تحديث 7 نوفمبر 2026.\n\n## 1. من نحن وقبول الشروط\n\nيدير موقع سهيل (\"سهيل\" أو \"نحن\") فريقه المؤسس، ومقره القاهرة، مصر. تسجيل الشركة قيد الإجراء. باستخدامك الموقع فإنك توافق على هذه الشروط. إذا أنشأت حسابًا فسنطلب موافقتك على هذه الشروط وعلى سياسة الخصوصية، ونحفظ إصدارهما ووقت موافقتك.\n\n## 2. ما يقدمه الموقع\n\n- يعرض الموقع لكل سهم أمريكي مشمول حالة فحص شرعي: متوافق، أو غير متوافق، أو يحتاج إلى مراجعة، أو بيانات غير كافية.\n- تُعرض مع كل حالة أسبابها وأرقامها ومصادرها، وهي إفصاحات الشركات لدى هيئة الأوراق المالية الأمريكية (SEC).\n- ينشر الموقع منهجية الفحص، ومقالات \"اختيار المحرر\" يكتبها محلل معروف بالاسم بين حين وآخر.\n\n## 3. للمعلومات فقط\n\n- محتوى الموقع للمعلومات العامة فقط.\n- ليس مشورة استثمارية أو مالية، وليس فتوى شرعية، ولا يتضمن توصية بشراء أي سهم أو بيعه.\n- لا يتيح الموقع التداول أو الدفع، ولا يدير أموالًا لأي أحد.\n- قراراتك الاستثمارية مسؤوليتك وحدك. ننصحك باستشارة مستشار مالي مرخص، والرجوع إلى جهة شرعية تثق بها عند الحاجة.\n\n## 4. المنهجية ودقة البيانات\n\n- تُحسب الحالة آليًا وبالطريقة نفسها لكل سهم، وفق كل منهجية منشورة على الموقع. لكل منهجية نتيجتها المستقلة، ولا ندمج النتائج في درجة واحدة.\n- كل منهجية منشورة تطبيق بحثي مستقل من سهيل، مبني على معايير منشورة للعموم من جهة أخرى، مثل شركة الراجحي المالية، أو هيئة المحاسبة والمراجعة للمؤسسات المالية الإسلامية (أيوفي)، أو MSCI. سهيل غير مرتبط بأي من هذه الجهات، ولا تعتمده، ولا يحمل ترخيصًا منها. ونتائجنا ليست نتائجها ولا تصنيفاتها ولا قرارات مؤشراتها ولا شهاداتها، ولا تعني التزامًا بمعاييرها.\n- عندما يكون المصدر غير واضح، أو لا تكفي بياناتنا لتطبيق معيار كما هو، نكيّف المعيار ونوضح ذلك في صفحة المنهجية.\n- تعتمد النتائج على بيانات منشورة قد تكون متأخرة أو ناقصة أو خاطئة. لا نضمن دقة أي نتيجة أو اكتمالها أو حداثتها.\n- \"يحتاج إلى مراجعة\" تعني أن الفحص الآلي لم يصل إلى نتيجة واضحة. \"بيانات غير كافية\" تعني أن البيانات المتاحة لا تكفي للحكم.\n- قد تختلف نتائجنا عن نتائج جهات فحص أخرى تطبق معايير مختلفة.\n\n## 5. مقالات \"اختيار المحرر\"\n\n- تعبّر هذه المقالات عن رأي كاتبها، وليست توصية بالشراء أو البيع.\n- يظهر اسم الكاتب على كل مقال.\n\n## 6. الحساب\n\n- إنشاء الحساب اختياري، ويمكنك تصفح الموقع دون حساب.\n- التسجيل حاليًا عبر حساب Google فقط. قد نضيف لاحقًا التسجيل برقم الجوال عبر رمز تحقق على واتساب.\n- أنت مسؤول عن أمان حساب Google الذي تستخدمه للدخول.\n- يمكنك حذف حسابك في أي وقت من صفحة الحساب.\n- يجوز لنا إيقاف أي حساب أو حذفه إذا خالف هذه الشروط.\n\n## 7. الاستخدام المقبول\n\nلا يجوز لك:\n\n- استخدام الموقع بما يخالف أنظمة المملكة العربية السعودية.\n- محاولة تعطيل الموقع أو اختراقه أو الوصول إلى بيانات غيرك.\n- جمع محتوى الموقع آليًا على نطاق واسع، أو إعادة نشره تجاريًا، دون إذن كتابي منا.\n- تقديم محتوى الموقع على أنه مشورة استثمارية أو فتوى، أو نسبته إلى غيرنا.\n\n## 8. الملكية الفكرية\n\n- المنهجية والنصوص والتصميم والشعار ملك لسهيل أو مرخصة له.\n- البيانات المأخوذة من إفصاحات SEC بيانات عامة.\n- أسماء الشركات والجهات الأخرى وعلاماتها التجارية ملك لأصحابها، وذكرها لا يعني ارتباطها بنا أو اعتمادها لنا.\n\n## 9. حدود المسؤولية\n\n- يُقدَّم الموقع \"كما هو\" و\"حسب توفره\".\n- في الحدود التي تسمح بها الأنظمة في المملكة، لا نتحمل مسؤولية أي خسارة تنتج عن قرار اتخذته بناءً على محتوى الموقع، ولا عن انقطاع الموقع أو أخطاء البيانات.\n\n## 10. تعديل الشروط\n\nقد نعدّل هذه الشروط. ننشر الإصدار الجديد على الموقع مع تاريخه، ونطلب من أصحاب الحسابات الموافقة على الإصدار الجديد عند دخولهم التالي.\n\n## 11. النظام الواجب التطبيق واللغة\n\n- تخضع هذه الشروط لأنظمة المملكة العربية السعودية، ويُحال أي نزاع إلى المحاكم المختصة وفق هذه الأنظمة.\n- النص العربي هو المعتمد عند أي اختلاف بينه وبين أي ترجمة.\n\n## 12. التواصل\n\nللاستفسارات: suhailroboadvisor@gmail.com.",
     "draft": "# شروط الاستخدام\n\nمسودة للمراجعة القانونية. الإصدار draft-2026-11-07، آخر تحديث 7 نوفمبر 2026.\n\n## 1. من نحن وقبول الشروط\n\nيدير موقع سهيل (\"سهيل\" أو \"نحن\") فريقه المؤسس، ومقره القاهرة، مصر. تسجيل الشركة قيد الإجراء. باستخدامك الموقع فإنك توافق على هذه الشروط. إذا أنشأت حسابًا فسنطلب موافقتك على هذه الشروط وعلى سياسة الخصوصية، ونحفظ إصدارهما ووقت موافقتك.\n\n## 2. ما يقدمه الموقع\n\n- يعرض الموقع لكل سهم أمريكي مشمول حالة فحص شرعي: متوافق، أو غير متوافق، أو يحتاج إلى مراجعة، أو بيانات غير كافية.\n- تُعرض مع كل حالة أسبابها وأرقامها ومصادرها، وهي إفصاحات الشركات لدى هيئة الأوراق المالية الأمريكية (SEC).\n- ينشر الموقع منهجية الفحص، ومقالات \"اختيار المحرر\" يكتبها محلل معروف بالاسم بين حين وآخر.\n\n## 3. للمعلومات فقط\n\n- محتوى الموقع للمعلومات العامة فقط.\n- ليس مشورة استثمارية أو مالية، وليس فتوى شرعية، ولا يتضمن توصية بشراء أي سهم أو بيعه.\n- لا يتيح الموقع التداول أو الدفع، ولا يدير أموالًا لأي أحد.\n- قراراتك الاستثمارية مسؤوليتك وحدك. ننصحك باستشارة مستشار مالي مرخص، والرجوع إلى جهة شرعية تثق بها عند الحاجة.\n\n## 4. المنهجية ودقة البيانات\n\n- تُحسب الحالة آليًا وبالطريقة نفسها لكل سهم، وفق كل منهجية منشورة على الموقع. لكل منهجية نتيجتها المستقلة، ولا ندمج النتائج في درجة واحدة.\n- كل منهجية منشورة تطبيق بحثي مستقل من سهيل، مبني على معايير منشورة للعموم من جهة أخرى، مثل شركة الراجحي المالية، أو هيئة المحاسبة والمراجعة للمؤسسات المالية الإسلامية (أيوفي)، أو MSCI. سهيل غير مرتبط بأي من هذه الجهات، ولا تعتمده، ولا يحمل ترخيصًا منها. ونتائجنا ليست نتائجها ولا تصنيفاتها ولا قرارات مؤشراتها ولا شهاداتها، ولا تعني التزامًا بمعاييرها.\n- عندما يكون المصدر غير واضح، أو لا تكفي بياناتنا لتطبيق معيار كما هو، نكيّف المعيار ونوضح ذلك في صفحة المنهجية.\n- تعتمد النتائج على بيانات منشورة قد تكون متأخرة أو ناقصة أو خاطئة. لا نضمن دقة أي نتيجة أو اكتمالها أو حداثتها.\n- \"يحتاج إلى مراجعة\" تعني أن الفحص الآلي لم يصل إلى نتيجة واضحة. \"بيانات غير كافية\" تعني أن البيانات المتاحة لا تكفي للحكم.\n- قد تختلف نتائجنا عن نتائج جهات فحص أخرى تطبق معايير مختلفة.\n\n## 5. مقالات \"اختيار المحرر\"\n\n- تعبّر هذه المقالات عن رأي كاتبها، وليست توصية بالشراء أو البيع.\n- يظهر اسم الكاتب على كل مقال.\n\n## 6. الحساب\n\n- إنشاء الحساب اختياري، ويمكنك تصفح الموقع دون حساب.\n- التسجيل حاليًا عبر حساب Google فقط. قد نضيف لاحقًا التسجيل برقم الجوال عبر رمز تحقق على واتساب.\n- أنت مسؤول عن أمان حساب Google الذي تستخدمه للدخول.\n- يمكنك حذف حسابك في أي وقت من صفحة الحساب.\n- يجوز لنا إيقاف أي حساب أو حذفه إذا خالف هذه الشروط.\n\n## 7. الاستخدام المقبول\n\nلا يجوز لك:\n\n- استخدام الموقع بما يخالف أنظمة المملكة العربية السعودية.\n- محاولة تعطيل الموقع أو اختراقه أو الوصول إلى بيانات غيرك.\n- جمع محتوى الموقع آليًا على نطاق واسع، أو إعادة نشره تجاريًا، دون إذن كتابي منا.\n- تقديم محتوى الموقع على أنه مشورة استثمارية أو فتوى، أو نسبته إلى غيرنا.\n\n## 8. الملكية الفكرية\n\n- المنهجية والنصوص والتصميم والشعار ملك لسهيل أو مرخصة له.\n- البيانات المأخوذة من إفصاحات SEC بيانات عامة.\n- أسماء الشركات والجهات الأخرى وعلاماتها التجارية ملك لأصحابها، وذكرها لا يعني ارتباطها بنا أو اعتمادها لنا.\n\n## 9. حدود المسؤولية\n\n- يُقدَّم الموقع \"كما هو\" و\"حسب توفره\".\n- في الحدود التي تسمح بها الأنظمة في المملكة، لا نتحمل مسؤولية أي خسارة تنتج عن قرار اتخذته بناءً على محتوى الموقع، ولا عن انقطاع الموقع أو أخطاء البيانات.\n\n## 10. تعديل الشروط\n\nقد نعدّل هذه الشروط. ننشر الإصدار الجديد على الموقع مع تاريخه، ونطلب من أصحاب الحسابات الموافقة على الإصدار الجديد عند دخولهم التالي.\n\n## 11. النظام الواجب التطبيق واللغة\n\n- تخضع هذه الشروط لأنظمة المملكة العربية السعودية، ويُحال أي نزاع إلى المحاكم المختصة وفق هذه الأنظمة.\n- النص العربي هو المعتمد عند أي اختلاف بينه وبين أي ترجمة.\n\n## 12. التواصل\n\nللاستفسارات: suhailroboadvisor@gmail.com.",
     "category": "supplied Arabic legal draft; O-7 review remains open"
+  },
+  "U-16b1c76f1784e8713fe197a9056801337774f44ef4b2dfed0120c4b4292eb87a": {
+    "source": "What may be out of date",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-17ee243a86f296b9158ac827df80ecc8caf67dca8c9f60683ad3d54ebc2cced6": {
+    "source": "Evidence cited",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-3659a851430d065b842889dd5264069f13526ef2a70eaf49448166199c00b576": {
+    "source": "The research reached its configured review age.",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-3687c4fe0c746dbdac5fad8ce46c3b5b36ae91f52fc2df5be860ac54050637a7": {
+    "source": "The financial evidence changed.",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-40ce17b18bd8afa2c96d198fa96b0579777317d6ae8e3a75b629d93ad5c9401c": {
+    "source": "The analyst’s view is not available for the current screening result.",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-4765731f2399137abfe638cb513c5a0ca8463d87408adb540062f380da1cbf91": {
+    "source": "Why this changed",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-48df6902357d7305fc9e18aff63a4c606ed1805802215dc0e53585d73fb7c4a6": {
+    "source": "Stock research",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-52c1a3a7c639a006fe6286553bac380792696ca95cb9c6800268159163524d35": {
+    "source": "Research data as of",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-55060cc0c059fbb937042ca96bc3742cb2ef3bbf2fa045ac6906d83dc694c45b": {
+    "source": "Analyst’s thesis",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-643ce3fa2714adf70356d8e322690a55a95bfd2419150d9376df7816e7d6d97f": {
+    "source": "Conflict disclosures are not recorded for this research.",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-6ba5c30dadb828eb04d2d847058e86c137d81b0ac386c8453a89ee329abaaa44": {
+    "source": "The stored price moved beyond the configured threshold.",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-7042c30b731dab44a0a8e441dbe416dff36197fee0a873c44b08cd9596526bf3": {
+    "source": "A stored screening result changed.",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-7a7c96c83c679f597b351e86b92a9bb8de43f2bc883f685f1e304daf838114fd": {
+    "source": "New filing evidence is available.",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-7cac5c00ab6fe7eba5333db2fd104c0da42be7b14dc8aab4a9a5f413bc7f721e": {
+    "source": "Research approved",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-89e09c29a37d8af3e4105b2f706bf2efff9e0dcc0d71807c49dce858c40b4a05": {
+    "source": "AI-assisted research, reviewed by the named analyst.",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-b0f83843cdaa5ff3af72d5ada4b4f85ee407ae4308908c11832ab0ae93325b01": {
+    "source": "Analysis and evidence",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-b50b0098e20509646d74a9dd58da6d5b3986f033aa45504de011b0f6de925249": {
+    "source": "The company or coverage record changed.",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-bb685708eae6c8d55a88ed786bb5388db37ad51e0de5e8da1f2608ff38539e33": {
+    "source": "Risks",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-e80bf372c6911c503ccd7252abf393a1c4f0f300dfcf4ad8366ea452f5b276a9": {
+    "source": "Valuation context",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
+  },
+  "U-e9eae580b664a97c49739615db1180147a277faabe55e62ea2b6c93b78312000": {
+    "source": "Methodology results referenced",
+    "draft": "PENDING HUMAN-AUTHORED ARABIC — P4 forbids machine translation (D-224)",
+    "category": "help/error"
   }
 }

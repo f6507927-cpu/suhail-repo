@@ -16,6 +16,7 @@ export const routeInventory: Record<string, string> = {
   "src/lib/research/actions.ts#action:transitionResearchDraft": "admin-editor-aal2-active-analyst",
   "src/lib/research/actions.ts#action:saveResearchSettings": "admin-aal2",
   "src/lib/research/actions.ts#action:changeResearchGate": "admin-aal2",
+  "src/lib/research/actions.ts#action:changeResearchPublication": "admin-aal2-active-analyst",
   "src/app/[locale]/(private)/account/actions.ts#action:deleteAccount": "authenticated",
   "src/app/[locale]/(private)/account/actions.ts#action:updateLocale": "authenticated",
   "src/app/[locale]/(private)/account/page.tsx#page": "authenticated",
@@ -57,6 +58,7 @@ export const routeInventory: Record<string, string> = {
   "src/app/api/stock-requests/route.ts#POST": "authenticated",
   "src/app/api/stock-requests/route.ts#DELETE": "authenticated",
   "src/app/api/health/route.ts#GET": "public",
+  "src/app/api/stock-research/[slug]/route.ts#GET": "public",
   "src/app/manifest.ts#metadata": "public",
   "src/app/robots.ts#metadata": "public",
 };

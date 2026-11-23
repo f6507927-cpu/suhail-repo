@@ -41,6 +41,7 @@ import { StockShare } from "./StockShare";
 import { methodologyPublicName } from "@/i18n/methodology-public-names";
 import { StockFigures, StockSummary } from "./StockSummary";
 import { PublishedResearch } from "./PublishedResearch";
+import type { ReactNode } from "react";
 import { StockRecordSection } from "./StockRecordSection";
 import { RecordRecentView } from "./RecordRecentView";
 import { TickerMonogram } from "../foundation/TickerMonogram";
@@ -56,10 +57,12 @@ export function StockVerdict({
   data,
   locale,
   canonicalUrl,
+  stockResearch,
 }: {
   data: PublicStockData;
   locale: Locale;
   canonicalUrl?: string;
+  stockResearch?: ReactNode;
 }) {
   const { security, company, run, methodology, version } = data;
   const englishName = englishCompanyName(company);
@@ -149,6 +152,8 @@ export function StockVerdict({
       <div className={styles.shortContext} data-section="short-context">
         <Disclaimer variant="short" locale={locale} />
       </div>
+
+      {stockResearch}
 
       {/* D-147: preserve the complete evidence record in server-rendered, initially closed details. */}
       <details className={styles.fullRecord} data-section="full-record">

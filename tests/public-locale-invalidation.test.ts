@@ -8,4 +8,11 @@ describe("public homepage locale parity", () => {
     for (const path of ["/", "/ar", "/en"])
       expect(invalidate).toHaveBeenCalledWith(path, "page");
   });
+  it("invalidates only stock pages in each locale for a research publication", () => {
+    invalidate.mockClear();
+    revalidatePublic("research");
+    expect(invalidate.mock.calls).toEqual([
+      ["/stock/[slug]", "page"], ["/ar/stock/[slug]", "page"], ["/en/stock/[slug]", "page"],
+    ]);
+  });
 });
