@@ -15,11 +15,16 @@ externalPort = 3000
 [[ports]]
 localPort = 3200
 externalPort = 3001
+exposeLocalhost = true
 
 [[ports]]
 localPort = 3400
 externalPort = 3002
 exposeLocalhost = true
+
+[[ports]]
+localPort = 3500
+externalPort = 3003
 
 [[ports]]
 localPort = 5000
