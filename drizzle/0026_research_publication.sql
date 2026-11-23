@@ -3,6 +3,7 @@ CREATE TABLE "app"."research_publication_event" (
 	"id" bigserial PRIMARY KEY NOT NULL,
 	"security_id" uuid NOT NULL,
 	"draft_id" uuid NOT NULL,
+"text_hash" text NOT NULL,
 	"analyst_profile_id" uuid NOT NULL,
 	"actor_id" uuid NOT NULL,
 	"kind" text NOT NULL,
@@ -37,7 +38,7 @@ REVOKE ALL ON FUNCTION app.research_publishing_enabled() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION app.research_publishing_enabled() TO suhail_public,suhail_app;
 --> statement-breakpoint
 CREATE VIEW app.research_publication_current AS
-SELECT DISTINCT ON (security_id) id,security_id,draft_id,analyst_profile_id,kind,approval_at,data_as_of,triggers,
+SELECT DISTINCT ON (security_id) id,security_id,draft_id,text_hash,analyst_profile_id,kind,approval_at,data_as_of,triggers,
   withdrawal_reason,display,occurred_at
 FROM app.research_publication_event ORDER BY security_id,id DESC;
 REVOKE ALL ON app.research_publication_current FROM PUBLIC,suhail_public;
@@ -49,6 +50,7 @@ CREATE FUNCTION app.research_publication_transition_guard() RETURNS trigger
 LANGUAGE plpgsql SET search_path=pg_catalog,app AS $$
 DECLARE d app.research_draft%ROWTYPE; p app.research_packet%ROWTYPE;
   config app.research_setting%ROWTYPE; current_row app.research_publication_current%ROWTYPE;
+  section record;
 BEGIN
   PERFORM pg_advisory_xact_lock(73501948);
   SELECT * INTO config FROM app.research_setting WHERE id=1 FOR SHARE;
@@ -68,6 +70,7 @@ BEGIN
     WHERE e.draft_id=d.id AND e.to_state='approved' AND e.text_hash=d.text_hash
     ORDER BY e.occurred_at DESC,e.id DESC LIMIT 1;
   IF NEW.analyst_profile_id IS NULL THEN RAISE EXCEPTION 'research publication requires an active approving analyst'; END IF;
+  NEW.text_hash := d.text_hash;
   SELECT * INTO p FROM app.research_packet WHERE id=d.packet_id;
   NEW.security_id := d.security_id;
   NEW.data_as_of := (p.payload#>>'{periods,0,period_end}')::date;
@@ -107,10 +110,44 @@ BEGIN
     ELSE RAISE EXCEPTION 'research publication transition refused';
   END CASE;
   IF NEW.kind<>'withdrawn' THEN
-    IF NEW.withdrawal_reason IS NOT NULL OR coalesce(jsonb_typeof(NEW.display->'plain_summary'),'')<>'array'
-      OR jsonb_array_length(NEW.display->'plain_summary')<>3 THEN
+    IF NEW.withdrawal_reason IS NOT NULL OR jsonb_typeof(NEW.display) IS DISTINCT FROM 'object'
+      OR jsonb_typeof(NEW.display->'analyst_view') IS DISTINCT FROM 'object' THEN
       RAISE EXCEPTION 'research publication requires the approved public display';
     END IF;
+    IF NEW.display - ARRAY['plain_summary','analyst_view','methodologies','citations'] <> '{}'::jsonb
+      OR (NEW.display->'analyst_view') - ARRAY['thesis','evidence','risks','valuation'] <> '{}'::jsonb THEN
+      RAISE EXCEPTION 'research publication requires the approved public display';
+    END IF;
+    -- The app resolves figure and citation tokens for display. Compare the
+    -- ordered sections' cardinalities to the approved source and require exact
+    -- public keys and string values on every leaf, including packet metadata.
+    FOR section IN SELECT * FROM (VALUES
+      (NEW.display->'plain_summary', d.analyst_text->'plain_summary', true, ARRAY['ar','en']),
+      (NEW.display#>'{analyst_view,thesis}', d.analyst_text#>'{analyst_view,reasons}', true, ARRAY['ar','en']),
+      (NEW.display#>'{analyst_view,evidence}', d.analyst_text->'financial_highlights', true, ARRAY['ar','en']),
+      (NEW.display#>'{analyst_view,risks}', d.analyst_text->'risks', true, ARRAY['ar','en']),
+      (jsonb_build_array(NEW.display#>'{analyst_view,valuation}'), NULL, false, ARRAY['ar','en']),
+      (NEW.display->'methodologies', NULL, false, ARRAY['slug','label','status']),
+      (NEW.display->'citations', NULL, false, ARRAY['source_id','label'])
+    ) AS sections(rendered, approved, match_count, keys)
+    LOOP
+      IF jsonb_typeof(section.rendered) IS DISTINCT FROM 'array'
+        OR (section.match_count AND jsonb_typeof(section.approved) IS DISTINCT FROM 'array') THEN
+        RAISE EXCEPTION 'research publication requires the approved public display';
+      END IF;
+      IF section.match_count AND jsonb_array_length(section.rendered) <> jsonb_array_length(section.approved) THEN
+        RAISE EXCEPTION 'research publication display entry count does not match the approved draft';
+      END IF;
+      IF EXISTS (
+        SELECT 1 FROM jsonb_array_elements(section.rendered) AS entries(entry)
+        WHERE CASE WHEN jsonb_typeof(entry) IS DISTINCT FROM 'object' THEN true ELSE
+          entry - section.keys <> '{}'::jsonb
+          OR EXISTS (SELECT 1 FROM unnest(section.keys) AS allowed(key)
+            WHERE jsonb_typeof(entry->key) IS DISTINCT FROM 'string') END
+      ) THEN
+        RAISE EXCEPTION 'research publication requires the approved public display';
+      END IF;
+    END LOOP;
   END IF;
   RETURN NEW;
 END $$;
@@ -155,7 +192,7 @@ FROM app.research_publication_current p
 JOIN app.security s ON s.id=p.security_id AND s.in_universe AND s.listing_status='listed' AND NOT s.is_demo
 JOIN app.company c ON c.id=s.company_id AND NOT c.is_demo
 JOIN app.analyst_profile a ON a.id=p.analyst_profile_id AND a.active AND NOT a.is_demo
-JOIN app.research_draft d ON d.id=p.draft_id
+JOIN app.research_draft d ON d.id=p.draft_id AND d.text_hash=p.text_hash
 JOIN app.research_packet packet ON packet.id=d.packet_id
 LEFT JOIN LATERAL (
   SELECT f.* FROM app.research_staleness_event f WHERE f.draft_id=d.id ORDER BY id DESC LIMIT 1

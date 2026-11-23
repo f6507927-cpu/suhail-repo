@@ -5378,6 +5378,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "text_hash": {
+          "name": "text_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "analyst_profile_id": {
           "name": "analyst_profile_id",
           "type": "uuid",

@@ -10,6 +10,7 @@ import type { AppUser, Tx } from "../src/lib/auth/audit";
 import { runResearchStaleness } from "../src/lib/research/staleness-job";
 import { clearAnalystViewReview, readApprovedAnalystView, researchRefreshQueue } from "../src/lib/research/stale-store";
 import { createRefreshRequest } from "../src/lib/research/refresh";
+import { buildPublicResearchDisplay } from "../src/lib/research/publication";
 import { activeResearchStocks, createRequestedDraft, reconcileRequestedDraft, reserveDraftBudget, saveResearchGeneration, settleDraftBudget } from "../src/lib/research/store";
 import { generateResearch } from "../src/lib/research/generate";
 import { RecordedResearchClient } from "../src/lib/research/recorded-client";
@@ -206,22 +207,21 @@ describe("P3 private research flags and refreshes in PostgreSQL", () => {
 });
 
 describe("P4 publication database boundary", () => {
-  const display = JSON.stringify({
-    plain_summary: Array.from({ length: 3 }, () => ({ en: "Synthetic evidence summary", ar: "Synthetic evidence summary" })),
-    analyst_view: { thesis: [{ en: "Synthetic thesis", ar: "Synthetic thesis", packet_hash: "Private fixture sentinel" }],
-      evidence: [], risks: [], valuation: { en: "Synthetic", ar: "Synthetic" } },
-    methodologies: [{ slug: "fixture-method", label: "Fixture methodology", status: "passes_selected_methodology" }],
-    citations: [], never_public: "Private fixture sentinel",
-  });
+  type Fixture = Awaited<ReturnType<typeof fixture>>;
+  const displayFor = (f: Fixture) => buildPublicResearchDisplay(f.output, f.packet);
   async function gate(tx: Tx, actor: string, on: boolean) {
     await tx.execute(sql`update app.research_setting set ai_research_publishing=${on},
       gate_decision_id=${on ? "D-223" : null},gate_lawyer_answer_ref=${on ? "Disposable test only" : null},
       gate_enabled_by=${on ? actor : null},gate_enabled_at=case when ${on} then now() else null end,
       max_packet_age_days=36500,max_financial_age_days=36500 where id=1`);
   }
-  function transition(tx: Tx, actor: string, draft: string, kind: string, reason: string | null = null) {
-    return tx.execute(sql`insert into app.research_publication_event(draft_id,actor_id,kind,display,withdrawal_reason)
-      values (${draft},${actor},${kind},${display}::jsonb,${reason})`).catch(error => { throw error.cause ?? error; });
+  function transition(tx: Tx, f: Fixture, kind: string, overrides: {
+    draft?: string; actor?: string; display?: unknown; reason?: string;
+  } = {}) {
+    const { draft = f.draft, actor = f.actor.id, display = displayFor(f), reason = null } = overrides;
+    return tx.execute(sql`insert into app.research_publication_event(draft_id,actor_id,kind,display,withdrawal_reason,text_hash)
+      values (${draft},${actor},${kind},${JSON.stringify(display)}::jsonb,${reason},'untrusted caller hash')`)
+      .catch(error => { throw error.cause ?? error; });
   }
   async function read(tx: Tx, stock: string) {
     await tx.execute(sql`set local role suhail_public`);
@@ -231,25 +231,27 @@ describe("P4 publication database boundary", () => {
   }
   it("guards event inserts, grants only the public projection, and hides the analyst view across a stop and recovery", async () => {
     await run(async (tx, f) => {
-      await expect(tx.transaction(t => transition(t, f.actor.id, f.draft, "published"))).rejects.toThrow(/gate is off/);
+      await expect(tx.transaction(t => transition(t, f, "published"))).rejects.toThrow(/gate is off/);
       await gate(tx, f.actor.id, true);
-      await expect(tx.transaction(t => transition(t, randomUUID(), f.draft, "published"))).rejects.toThrow(/active analyst administrator/);
+      await expect(tx.transaction(t => transition(t, f, "published", { actor: randomUUID() }))).rejects.toThrow(/active analyst administrator/);
       await tx.transaction(async t => {
         // Emulate a malformed legacy row. An ordinary UPDATE cannot add a block
         // to an approved draft (the prior trigger independently refuses it).
         await t.execute(sql`alter table app.research_draft disable trigger research_draft_transitions`);
         await t.execute(sql`update app.research_draft set validation_results='[{"severity":"block"}]' where id=${f.draft}`);
-        await expect(t.transaction(inner => transition(inner, f.actor.id, f.draft, "published"))).rejects.toThrow(/blocking checks/);
+        await expect(t.transaction(inner => transition(inner, f, "published"))).rejects.toThrow(/blocking checks/);
         throw rollback;
       }).catch(e => { if (e !== rollback) throw e; });
       await tx.transaction(async t => {
         await t.execute(sql`insert into app.research_staleness_event(draft_id,outdated,outdated_reasons,analyst_view_review_required)
           values(${f.draft},true,array['aged'],false)`);
-        await expect(t.transaction(inner => transition(inner, f.actor.id, f.draft, "published"))).rejects.toThrow(/outdated/);
+        await expect(t.transaction(inner => transition(inner, f, "published"))).rejects.toThrow(/outdated/);
         throw rollback;
       }).catch(e => { if (e !== rollback) throw e; });
       await tx.execute(sql`set local role suhail_app`);
-      await transition(tx, f.actor.id, f.draft, "published");
+      await transition(tx, f, "published");
+      expect(await tx.execute(sql`select text_hash from app.research_publication_event where draft_id=${f.draft}`))
+        .toEqual([{ text_hash: "current" }]);
       await tx.execute(sql`reset role`);
       const [first] = await read(tx, f.stock);
       expect(first.analyst_view).not.toBeNull();
@@ -258,7 +260,7 @@ describe("P4 publication database boundary", () => {
         "methodologies", "name_ar", "name_en", "outdated_at", "outdated_codes", "plain_summary", "slug", "title_ar", "title_en",
         "update_codes", "updated_at",
       ].sort());
-      expect(JSON.stringify(first)).not.toContain("Private fixture sentinel");
+      expect(first.plain_summary).toEqual(displayFor(f).plain_summary);
       await gate(tx, f.actor.id, false);
       expect(await read(tx, f.stock)).toEqual([]);
       await gate(tx, f.actor.id, true);
@@ -279,11 +281,45 @@ describe("P4 publication database boundary", () => {
         .catch(error => { throw error.cause ?? error; }))).rejects.toThrow(/append-only/);
     });
   });
+  it.each(["plain_summary", "thesis", "evidence", "risks"] as const)(
+    "rejects both extra and missing %s entries under the app role",
+    async section => {
+      await run(async (tx, f) => {
+        await gate(tx, f.actor.id, true);
+        await tx.execute(sql`set local role suhail_app`);
+        for (const extra of [true, false]) {
+          const display = displayFor(f);
+          const lines = section === "plain_summary" ? display.plain_summary : display.analyst_view[section];
+          if (extra) lines.push({ ar: "unapproved", en: "unapproved" });
+          else expect(lines.pop()).toBeDefined();
+          await expect(tx.transaction(t => transition(t, f, "published", { display })))
+            .rejects.toThrow(/entry count does not match the approved draft/);
+        }
+        expect(await tx.execute(sql`select id from app.research_publication_event where draft_id=${f.draft}`)).toEqual([]);
+      });
+    },
+  );
+  it("rejects fields outside the whitelist at the root and in nested display sections", async () => {
+    await run(async (tx, f) => {
+      await gate(tx, f.actor.id, true);
+      await tx.execute(sql`set local role suhail_app`);
+      const display = displayFor(f);
+      for (const tampered of [
+        { ...display, never_public: "private fixture sentinel" },
+        { ...display, analyst_view: { ...display.analyst_view, raw: "private fixture sentinel" } },
+        { ...display, plain_summary: display.plain_summary.map(line => ({ ...line, packet_hash: "private fixture sentinel" })) },
+        { ...display, citations: [{ source_id: "fixture", label: "Fixture", raw: "private fixture sentinel" }] },
+      ]) {
+        await expect(tx.transaction(t => transition(t, f, "published", { display: tampered })))
+          .rejects.toThrow(/requires the approved public display/);
+      }
+    });
+  });
   it("supersedes only with a linked approved refresh and retains the initial, update and withdrawal events", async () => {
     await run(async (tx, f) => {
       await gate(tx, f.actor.id, true);
-      await transition(tx, f.actor.id, f.draft, "published");
-      await expect(tx.transaction(t => transition(t, f.actor.id, f.draft, "updated"))).rejects.toThrow(/approved refresh/);
+      await transition(tx, f, "published");
+      await expect(tx.transaction(t => transition(t, f, "updated"))).rejects.toThrow(/approved refresh/);
       const id = randomUUID();
       const [parent] = await tx.select().from(schema.researchDraft).where(eq(schema.researchDraft.id, f.draft));
       await tx.insert(schema.researchDraft).values({ id, previous_draft_id: parent.id, security_id: f.stock, packet_id: parent.packet_id,
@@ -291,18 +327,23 @@ describe("P4 publication database boundary", () => {
       await tx.update(schema.researchDraft).set({ state: "generated", ai_output: f.output, analyst_text: f.output,
         text_hash: "refresh", validation_text_hash: "refresh" }).where(eq(schema.researchDraft.id, id));
       await tx.update(schema.researchDraft).set({ state: "in_review" }).where(eq(schema.researchDraft.id, id));
-      await expect(tx.transaction(t => transition(t, f.actor.id, id, "updated"))).rejects.toThrow(/approved draft/);
+      await expect(tx.transaction(t => transition(t, f, "updated", { draft: id }))).rejects.toThrow(/approved draft/);
       await tx.insert(schema.researchReviewEvent).values({ draft_id: id, actor_id: f.actor.id, actor_role: "admin", to_state: "approved",
         text_hash: "refresh", prompt_version: "fixture", validator_version: "fixture",
         checklist: Object.fromEntries(CHECKLIST.map(key => [key, true])) as typeof schema.researchReviewEvent.$inferInsert["checklist"] });
       await tx.update(schema.researchDraft).set({ state: "approved" }).where(eq(schema.researchDraft.id, id));
       await tx.execute(sql`insert into app.research_refresh(draft_id,changes) values(${id},'[{"trigger":"new_filing"}]'::jsonb)`);
-      await transition(tx, f.actor.id, id, "updated");
+      const tampered = displayFor(f);
+      tampered.analyst_view.evidence.push({ ar: "unapproved", en: "unapproved" });
+      await expect(tx.transaction(t => transition(t, f, "updated", { draft: id, display: tampered })))
+        .rejects.toThrow(/entry count does not match the approved draft/);
+      await transition(tx, f, "updated", { draft: id });
       expect((await read(tx, f.stock))[0]).toMatchObject({ update_codes: ["new_filing"], updated_at: expect.anything() });
-      await transition(tx, f.actor.id, id, "withdrawn", "evidence_corrected");
+      await transition(tx, f, "withdrawn", { draft: id, reason: "evidence_corrected" });
       expect(await read(tx, f.stock)).toEqual([]);
-      expect((await tx.execute(sql`select kind from app.research_publication_event where security_id=${f.stock} order by id`))
-        .map(row => row.kind)).toEqual(["published", "updated", "withdrawn"]);
+      expect(await tx.execute(sql`select kind,text_hash from app.research_publication_event where security_id=${f.stock} order by id`))
+        .toEqual([{ kind: "published", text_hash: "current" }, { kind: "updated", text_hash: "refresh" },
+          { kind: "withdrawn", text_hash: "refresh" }]);
     });
   });
 });

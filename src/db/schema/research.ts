@@ -104,6 +104,7 @@ export const researchPublicationEvent = appSchema.table("research_publication_ev
   id: bigserial("id", { mode: "number" }).primaryKey(),
   security_id: uuid("security_id").notNull().references(() => security.id),
   draft_id: uuid("draft_id").notNull().references(() => researchDraft.id),
+  text_hash: text("text_hash").notNull(),
   analyst_profile_id: uuid("analyst_profile_id").notNull().references(() => analystProfile.id),
   actor_id: uuid("actor_id").notNull(),
   kind: text("kind").$type<"published" | "updated" | "withdrawn">().notNull(),

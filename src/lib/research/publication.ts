@@ -14,7 +14,7 @@ import { latestResearchFlag, updateStalenessForDraft } from "./stale-store";
 import { blockingCount, lockedDraft } from "./store";
 import { PUBLIC_RESEARCH_COPY_APPROVED } from "./publication-policy";
 
-function publicDisplay(draft: ResearchDraft, packet: ResearchPacket): PublicResearchDisplay {
+export function buildPublicResearchDisplay(draft: ResearchDraft, packet: ResearchPacket) {
   const prose = (value: Bilingual): Bilingual => {
     const render = (locale: keyof Bilingual) => renderFigures(value[locale], packet, locale).replace(/\{\{cite:[^{}]+\}\}/g, "");
     return { ar: render("ar"), en: render("en") };
@@ -35,7 +35,7 @@ function publicDisplay(draft: ResearchDraft, packet: ResearchPacket): PublicRese
     },
     methodologies: packet.screenings.map(run => ({ slug: run.methodology, label: run.label, status: run.status })),
     citations: [...citations].map(([source_id, label]) => ({ source_id, label })),
-  };
+  } satisfies PublicResearchDisplay;
 }
 
 type PublicationState = {
@@ -74,9 +74,9 @@ export async function recordPublication(tx: Tx, actor: AppUser, draftId: string,
     stage: "publish", context_line_resolved: true, disclosure_resolved: PUBLIC_RESEARCH_COPY_APPROVED,
   }))) throw new Error("Publication validation is blocked");
   const before = await currentPublication(draft.security_id, tx);
-  const display = kind === "withdrawn" ? {} : publicDisplay(draft.analyst_text, packet);
-  // The trigger derives security, approving analyst, approval date, data date,
-  // event date and update reasons instead of trusting submitted form values.
+  const display = kind === "withdrawn" ? {} : buildPublicResearchDisplay(draft.analyst_text, packet);
+  // The trigger derives the approved text hash, security, approving analyst,
+  // dates and update reasons instead of trusting submitted values.
   await tx.execute(sql`insert into app.research_publication_event(draft_id,actor_id,kind,withdrawal_reason,display)
     values (${draftId},${actor.id},${kind},${reason},${JSON.stringify(display)}::jsonb)`);
   const after = await currentPublication(draft.security_id, tx);
