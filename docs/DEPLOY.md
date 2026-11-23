@@ -401,6 +401,15 @@ Only structural failures retry once, with another reservation. Publication
 transitions are refused in P2 even if a future authorised gate action supplies
 valid founder/lawyer evidence. Do not enable that gate as a P2 setup step.
 
+### Private research staleness job (D-218)
+
+Once migration `0025_research_refresh` has been separately authorised and
+applied, run `pnpm job:research-staleness` using the existing `suhail_app`
+runtime connection. Suggested cadence: once daily after filing ingestion and
+screening complete; rerun after a material evidence correction if needed.
+The job only updates private flags when evidence changes. It does not
+generate or publish drafts, and no scheduler is enabled by this change.
+
 ## Session pooler and connection capacity
 
 For **both** runtime URLs use the exact Supabase Connect dialog's Session pooler
