@@ -204,3 +204,105 @@ describe("P3 private research flags and refreshes in PostgreSQL", () => {
     });
   });
 });
+
+describe("P4 publication database boundary", () => {
+  const display = JSON.stringify({
+    plain_summary: Array.from({ length: 3 }, () => ({ en: "Synthetic evidence summary", ar: "Synthetic evidence summary" })),
+    analyst_view: { thesis: [{ en: "Synthetic thesis", ar: "Synthetic thesis", packet_hash: "Private fixture sentinel" }],
+      evidence: [], risks: [], valuation: { en: "Synthetic", ar: "Synthetic" } },
+    methodologies: [{ slug: "fixture-method", label: "Fixture methodology", status: "passes_selected_methodology" }],
+    citations: [], never_public: "Private fixture sentinel",
+  });
+  async function gate(tx: Tx, actor: string, on: boolean) {
+    await tx.execute(sql`update app.research_setting set ai_research_publishing=${on},
+      gate_decision_id=${on ? "D-223" : null},gate_lawyer_answer_ref=${on ? "Disposable test only" : null},
+      gate_enabled_by=${on ? actor : null},gate_enabled_at=case when ${on} then now() else null end,
+      max_packet_age_days=36500,max_financial_age_days=36500 where id=1`);
+  }
+  function transition(tx: Tx, actor: string, draft: string, kind: string, reason: string | null = null) {
+    return tx.execute(sql`insert into app.research_publication_event(draft_id,actor_id,kind,display,withdrawal_reason)
+      values (${draft},${actor},${kind},${display}::jsonb,${reason})`).catch(error => { throw error.cause ?? error; });
+  }
+  async function read(tx: Tx, stock: string) {
+    await tx.execute(sql`set local role suhail_public`);
+    const rows = await tx.execute(sql`select * from app.public_stock_research where slug=${"syn-" + stock}`);
+    await tx.execute(sql`reset role`);
+    return rows;
+  }
+  it("guards event inserts, grants only the public projection, and hides the analyst view across a stop and recovery", async () => {
+    await run(async (tx, f) => {
+      await expect(tx.transaction(t => transition(t, f.actor.id, f.draft, "published"))).rejects.toThrow(/gate is off/);
+      await gate(tx, f.actor.id, true);
+      await expect(tx.transaction(t => transition(t, randomUUID(), f.draft, "published"))).rejects.toThrow(/active analyst administrator/);
+      await tx.transaction(async t => {
+        // Emulate a malformed legacy row. An ordinary UPDATE cannot add a block
+        // to an approved draft (the prior trigger independently refuses it).
+        await t.execute(sql`alter table app.research_draft disable trigger research_draft_transitions`);
+        await t.execute(sql`update app.research_draft set validation_results='[{"severity":"block"}]' where id=${f.draft}`);
+        await expect(t.transaction(inner => transition(inner, f.actor.id, f.draft, "published"))).rejects.toThrow(/blocking checks/);
+        throw rollback;
+      }).catch(e => { if (e !== rollback) throw e; });
+      await tx.transaction(async t => {
+        await t.execute(sql`insert into app.research_staleness_event(draft_id,outdated,outdated_reasons,analyst_view_review_required)
+          values(${f.draft},true,array['aged'],false)`);
+        await expect(t.transaction(inner => transition(inner, f.actor.id, f.draft, "published"))).rejects.toThrow(/outdated/);
+        throw rollback;
+      }).catch(e => { if (e !== rollback) throw e; });
+      await tx.execute(sql`set local role suhail_app`);
+      await transition(tx, f.actor.id, f.draft, "published");
+      await tx.execute(sql`reset role`);
+      const [first] = await read(tx, f.stock);
+      expect(first.analyst_view).not.toBeNull();
+      expect(Object.keys(first).sort()).toEqual([
+        "analyst_view", "approval_at", "bio_ar", "bio_en", "citations", "credentials", "data_as_of", "headshot_object_key",
+        "methodologies", "name_ar", "name_en", "outdated_at", "outdated_codes", "plain_summary", "slug", "title_ar", "title_en",
+        "update_codes", "updated_at",
+      ].sort());
+      expect(JSON.stringify(first)).not.toContain("Private fixture sentinel");
+      await gate(tx, f.actor.id, false);
+      expect(await read(tx, f.stock)).toEqual([]);
+      await gate(tx, f.actor.id, true);
+      await tx.execute(sql`update app.analyst_profile set active=false where user_id=${f.actor.id}`);
+      expect(await read(tx, f.stock)).toEqual([]);
+      await tx.execute(sql`update app.analyst_profile set active=true where user_id=${f.actor.id}`);
+      await storeRun(tx, f.stock, f.version, "requires_review", "2026-12-01T12:00:00Z", "p4-stop");
+      expect((await read(tx, f.stock))[0].analyst_view).toBeNull();
+      const passing = await storeRun(tx, f.stock, f.version, "passes_selected_methodology", "2026-12-02T12:00:00Z", "p4-pass");
+      expect((await read(tx, f.stock))[0].analyst_view).toBeNull();
+      await clearAnalystViewReview(tx, f.actor, f.draft, passing);
+      expect((await read(tx, f.stock))[0].analyst_view).not.toBeNull();
+      await tx.execute(sql`set local role suhail_public`);
+      await expect(tx.transaction(t => t.execute(sql`select * from app.research_publication_event`)
+        .catch(error => { throw error.cause ?? error; }))).rejects.toThrow(/permission denied/);
+      await tx.execute(sql`reset role`);
+      await expect(tx.transaction(t => t.execute(sql`delete from app.research_publication_event`)
+        .catch(error => { throw error.cause ?? error; }))).rejects.toThrow(/append-only/);
+    });
+  });
+  it("supersedes only with a linked approved refresh and retains the initial, update and withdrawal events", async () => {
+    await run(async (tx, f) => {
+      await gate(tx, f.actor.id, true);
+      await transition(tx, f.actor.id, f.draft, "published");
+      await expect(tx.transaction(t => transition(t, f.actor.id, f.draft, "updated"))).rejects.toThrow(/approved refresh/);
+      const id = randomUUID();
+      const [parent] = await tx.select().from(schema.researchDraft).where(eq(schema.researchDraft.id, f.draft));
+      await tx.insert(schema.researchDraft).values({ id, previous_draft_id: parent.id, security_id: f.stock, packet_id: parent.packet_id,
+        prompt_version: "fixture", validator_version: "fixture", validation_results: [] });
+      await tx.update(schema.researchDraft).set({ state: "generated", ai_output: f.output, analyst_text: f.output,
+        text_hash: "refresh", validation_text_hash: "refresh" }).where(eq(schema.researchDraft.id, id));
+      await tx.update(schema.researchDraft).set({ state: "in_review" }).where(eq(schema.researchDraft.id, id));
+      await expect(tx.transaction(t => transition(t, f.actor.id, id, "updated"))).rejects.toThrow(/approved draft/);
+      await tx.insert(schema.researchReviewEvent).values({ draft_id: id, actor_id: f.actor.id, actor_role: "admin", to_state: "approved",
+        text_hash: "refresh", prompt_version: "fixture", validator_version: "fixture",
+        checklist: Object.fromEntries(CHECKLIST.map(key => [key, true])) as typeof schema.researchReviewEvent.$inferInsert["checklist"] });
+      await tx.update(schema.researchDraft).set({ state: "approved" }).where(eq(schema.researchDraft.id, id));
+      await tx.execute(sql`insert into app.research_refresh(draft_id,changes) values(${id},'[{"trigger":"new_filing"}]'::jsonb)`);
+      await transition(tx, f.actor.id, id, "updated");
+      expect((await read(tx, f.stock))[0]).toMatchObject({ update_codes: ["new_filing"], updated_at: expect.anything() });
+      await transition(tx, f.actor.id, id, "withdrawn", "evidence_corrected");
+      expect(await read(tx, f.stock)).toEqual([]);
+      expect((await tx.execute(sql`select kind from app.research_publication_event where security_id=${f.stock} order by id`))
+        .map(row => row.kind)).toEqual(["published", "updated", "withdrawn"]);
+    });
+  });
+});

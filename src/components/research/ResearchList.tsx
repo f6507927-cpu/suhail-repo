@@ -8,7 +8,7 @@ import { Heading, Message, ResearchFrame, reviewText, type ResearchAction } from
 
 export interface ResearchListProps {
   locale: Locale;
-  rows: { id: string; ticker: string; state: string; blocks: number }[];
+  rows: { id: string; ticker: string; state: string; blocks: number; publication?: string | null }[];
   securities: { id: string; ticker: string }[];
   requestAction: ResearchAction;
   settingsHref: string | null; generationApproved: boolean;
@@ -80,6 +80,7 @@ export function ResearchList({ locale, rows, securities, requestAction, settings
       {rows.filter(row => !stateFilter || row.state === stateFilter).map(row => <article key={row.id} className="flex flex-col gap-4 border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2"><bdi dir="ltr" className="font-mono text-lg font-semibold">{row.ticker}</bdi><span className="border border-border px-2 py-1 text-xs">{reviewText(locale, researchStateLabel(row.state))}</span><span className="text-sm text-muted-foreground">{row.blocks} {reviewText(locale, row.blocks === 1 ? "blocking issue" : "blocking issues")}</span></div>
         <a href={localePath(locale, `/admin/research/${encodeURIComponent(row.id)}`)} className="inline-flex min-h-11 items-center justify-center bg-secondary px-4 text-sm font-medium hover:bg-muted">{reviewText(locale, "Inspect draft")}</a>
+        {row.publication && <span className="text-sm">{reviewText(locale, "Research publication")}: {reviewText(locale, researchStateLabel(row.publication))}</span>}
         {row.state === "requested" && reconcileAction && <button type="button" disabled={pending}
           onClick={() => void reconcile(row.id)} className="min-h-11 border border-border px-4 text-sm">
           {reviewText(locale, "Mark abandoned and release reservation")}

@@ -57,18 +57,25 @@ export function Bilingual({
   locale,
   arabic,
   english,
+  formatFigures = false,
 }: {
   locale: Locale;
   arabic: string | null | undefined;
   english: string | null | undefined;
+  formatFigures?: boolean;
 }) {
   const map = (value: string | null | undefined) => value ? uiOneProse(value.trim(), locale) : value;
   const primary = map(locale === "ar" ? arabic : english);
   const fallback = map(locale === "ar" ? english : arabic);
-  if (typeof primary === "string" && primary.trim()) return <bdi lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>{stripPublicReviewMarker(primary.trim())}</bdi>;
+  const render = (text: string) => {
+    const clean = stripPublicReviewMarker(text.trim());
+    return formatFigures ? clean.split(/\u2066([^\u2069]+)\u2069/u).map((chunk, index) =>
+      index % 2 ? <Num key={index}>{chunk}</Num> : chunk) : clean;
+  };
+  if (typeof primary === "string" && primary.trim()) return <bdi lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>{render(primary)}</bdi>;
   if (typeof fallback === "string" && fallback.trim()) {
     const fallbackLocale = /[\p{Script=Arabic}]/u.test(fallback) ? "ar" : "en";
-    return <span className={styles.fallback}><bdi lang={fallbackLocale} dir={fallbackLocale === "ar" ? "rtl" : "ltr"}>{stripPublicReviewMarker(fallback.trim())}</bdi></span>;
+    return <span className={styles.fallback}><bdi lang={fallbackLocale} dir={fallbackLocale === "ar" ? "rtl" : "ltr"}>{render(fallback)}</bdi></span>;
   }
   return <span className={styles.missing}><Copy locale={locale}>Not recorded</Copy></span>;
 }

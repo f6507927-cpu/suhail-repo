@@ -1,5 +1,12 @@
 # Suhail — Decision Log
 
+## AI research P4 — gated stock-page publication
+
+| ID | Decision |
+| --- | --- |
+| D-223 | **Prepare publication without opening the gate.** Migration 0026 keeps append-only publish, update and withdrawal events tied to approved drafts and the real approving analyst’s profile. The current version is derived. Only active analyst administrators with AAL2 can write through the UI. An update requires an approved refresh of the current publication. Approval alone never publishes. |
+| D-224 | **Stock-page-only presentation; pending copy stays pending.** Keep the stock shell on ISR but read the gated projection without caching, so a new read hides publication when the gate closes and hides the analyst view on a non-pass or uncleared latch. No home card, menu item, public list or legal body change. New Arabic strings and the AI-assisted disclosure remain pending human review; `PUBLIC_RESEARCH_COPY_APPROVED` stays false. O-9, O-10, O-11 and the publication-copy portion of O-13 remain unresolved. |
+
 ## Founder’s provisional research approvals
 
 | ID | Decision |

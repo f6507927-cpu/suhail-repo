@@ -183,6 +183,13 @@
       "when": 1795388552025,
       "tag": "0025_research_refresh",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1795439986189,
+      "tag": "0026_research_publication",
+      "breakpoints": true
     }
   ]
 }

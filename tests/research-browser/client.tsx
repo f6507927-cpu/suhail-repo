@@ -4,6 +4,7 @@ import type { ResearchPacket } from "../../src/ai/research/contracts";
 import type { ResearchDraft } from "../../src/ai/research/draft";
 import type { PacketChange } from "../../src/ai/research/changes";
 import { ResearchQueue } from "../../src/components/research/ResearchQueue";
+import { StockResearch } from "../../src/components/stock/StockResearch";
 
 const { packet, draft, refreshed, changes } = JSON.parse(document.querySelector("#fixture")!.textContent!) as {
   packet: ResearchPacket; draft: ResearchDraft; refreshed: ResearchDraft; changes: PacketChange[];
@@ -17,6 +18,8 @@ async function action(form: FormData) {
 }
 const mode = new URLSearchParams(location.search).get("mode");
 createRoot(document.querySelector("#app")!).render(
+  mode === "public" ? <div className="px-4"><StockResearch locale={locale} slug={new URLSearchParams(location.search).get("stock") ?? "gate-off"}
+    evidence={{}} contextLine="Synthetic short context line" /></div> :
   mode === "settings" ? <ResearchSettings locale={locale} settings={{
     ai_research_publishing: false, monthly_token_budget: 0, max_active_research_stocks: 0, allowed_sectors: [],
     max_packet_age_days: null, max_financial_age_days: null, price_move_threshold_percent: null, publication_age_days: null,
